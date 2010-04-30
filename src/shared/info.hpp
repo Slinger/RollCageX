@@ -12,7 +12,7 @@
 #ifndef _RCX_INFO_H
 #define _RCX_INFO_H
 //general info
-const char VERSION[] = "0.06 (NOT DONE)"; //supports alphanumeric versioning
+const char VERSION[] = "0.06 \"<codename here>\""; //supports alphanumeric versioning
 
 const char ISSUE[] =
 "    RollCageX  Copyright (C) 2009-2010  \"Slinger\" (on gorcx.net forum)\n\n\

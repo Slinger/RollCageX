@@ -116,9 +116,9 @@ Object_Template *Object_Template::Load(const char *path)
 		tmplt->graphics_debug2 = new file_3d(); //floor/ceiling
 		tmplt->graphics_debug3 = new file_3d(); //pillars
 
-		debug_draw_box (tmplt->graphics_debug1->list, 4,0.4,2.7, dgray,black, 0);
+		debug_draw_box (tmplt->graphics_debug1->list, 4,0.4,2.4, dgray,black, 0);
 		debug_draw_box (tmplt->graphics_debug2->list, 4,4,0.2, lgray,gray, 30);
-		debug_draw_capsule (tmplt->graphics_debug3->list, 0.5, 1.5, dgray,gray, 30);
+		debug_draw_capsule (tmplt->graphics_debug3->list, 0.3, 1.4, dgray,gray, 30);
 
 		tmplt->building = true;
 	}
@@ -466,13 +466,13 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 	dBodyID body[4];
 
 	int j;
-	for (j=0; j<2; ++j)
+	for (j=0; j<3; ++j)
 	{
 		int i;
 		dBodyID body1[12], body2[9];
 		for (i=0; i<12; ++i)
 		{
-			dGeomID geom  = dCreateBox (0, 4,0.4,2.7); //geom
+			dGeomID geom  = dCreateBox (0, 4,0.4,2.4); //geom
 			Geom *data = new Geom(geom, obj);
 			data->Set_Buffer_Event(100000, 10000, (Script*)1337);
 			data->mu = 1;
@@ -492,13 +492,13 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 		
 		const dReal k = 1.5*4+0.4/2;
 
-		dBodySetPosition (body1[0], x-4, y-k, z+(2.7/2));
-		dBodySetPosition (body1[1], x,   y-k, z+(2.7/2));
-		dBodySetPosition (body1[2], x+4, y-k, z+(2.7/2));
+		dBodySetPosition (body1[0], x-4, y-k, z+(2.4/2));
+		dBodySetPosition (body1[1], x,   y-k, z+(2.4/2));
+		dBodySetPosition (body1[2], x+4, y-k, z+(2.4/2));
 
-		dBodySetPosition (body1[6], x+4, y+k, z+(2.7/2));
-		dBodySetPosition (body1[7], x,   y+k, z+(2.7/2));
-		dBodySetPosition (body1[8], x-4, y+k, z+(2.7/2));
+		dBodySetPosition (body1[6], x+4, y+k, z+(2.4/2));
+		dBodySetPosition (body1[7], x,   y+k, z+(2.4/2));
+		dBodySetPosition (body1[8], x-4, y+k, z+(2.4/2));
 
 		dMatrix3 rot;
 		dRFromAxisAndAngle (rot, 0,0,1, M_PI/2);
@@ -507,13 +507,13 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 		for (i=9; i<12; ++i)
 			dBodySetRotation (body1[i], rot);
 
-		dBodySetPosition (body1[3], x+k,  y-4, z+(2.7/2));
-		dBodySetPosition (body1[4], x+k, y, z+(2.7/2));
-		dBodySetPosition (body1[5], x+k, y+4, z+(2.7/2));
+		dBodySetPosition (body1[3], x+k,  y-4, z+(2.4/2));
+		dBodySetPosition (body1[4], x+k, y, z+(2.4/2));
+		dBodySetPosition (body1[5], x+k, y+4, z+(2.4/2));
 
-		dBodySetPosition (body1[9], x-k, y+4, z+(2.7/2));
-		dBodySetPosition (body1[10], x-k, y, z+(2.7/2));
-		dBodySetPosition (body1[11], x-k, y-4, z+(2.7/2));
+		dBodySetPosition (body1[9], x-k, y+4, z+(2.4/2));
+		dBodySetPosition (body1[10], x-k, y, z+(2.4/2));
+		dBodySetPosition (body1[11], x-k, y-4, z+(2.4/2));
 
 		//connect wall blocks in height
 		for (i=0; i<12; ++i)
@@ -549,7 +549,7 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 			data->f_3d = graphics_debug2;
 		}
 
-		const dReal k2=2.7-0.2/2;
+		const dReal k2=2.4-0.2/2;
 
 		dBodySetPosition (body2[0], x-4, y-4, z+k2);
 		debug_joint_fixed(body2[0], body1[0], obj);
@@ -596,7 +596,7 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 		Geom *data;
 		for (i=0; i<4; ++i)
 		{
-			geom  = dCreateCapsule (0, 0.5,1.5); //geom
+			geom  = dCreateCapsule (0, 0.3,1.4); //geom
 			data = new Geom(geom, obj);
 			data->Set_Buffer_Event(100000, 10000, (Script*)1337);
 			body[i] = dBodyCreate (world);
@@ -616,25 +616,25 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 			data->f_3d = graphics_debug3;
 		}
 
-		dBodySetPosition (body[0], x+2, y+2, z+2.5/2);
+		dBodySetPosition (body[0], x+2, y+2, z+2.4/2);
 		debug_joint_fixed(body[0], body2[8], obj);
 		debug_joint_fixed(body[0], body2[7], obj);
 		debug_joint_fixed(body[0], body2[5], obj);
 		debug_joint_fixed(body[0], body2[4], obj);
 
-		dBodySetPosition (body[1], x+2, y-2, z+2.5/2);
+		dBodySetPosition (body[1], x+2, y-2, z+2.4/2);
 		debug_joint_fixed(body[0], body2[1], obj);
 		debug_joint_fixed(body[0], body2[2], obj);
 		debug_joint_fixed(body[0], body2[4], obj);
 		debug_joint_fixed(body[0], body2[5], obj);
 
-		dBodySetPosition (body[2], x-2, y+2, z+2.5/2);
+		dBodySetPosition (body[2], x-2, y+2, z+2.4/2);
 		debug_joint_fixed(body[0], body2[7], obj);
 		debug_joint_fixed(body[0], body2[6], obj);
 		debug_joint_fixed(body[0], body2[4], obj);
 		debug_joint_fixed(body[0], body2[3], obj);
 
-		dBodySetPosition (body[3], x-2, y-2, z+2.5/2);
+		dBodySetPosition (body[3], x-2, y-2, z+2.4/2);
 		debug_joint_fixed(body[0], body2[0], obj);
 		debug_joint_fixed(body[0], body2[1], obj);
 		debug_joint_fixed(body[0], body2[3], obj);
@@ -646,7 +646,7 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 			old_pillar[i] = body[i];
 		}
 
-		z+=2.7;
+		z+=2.4;
 	}
 	//
 	//
