@@ -1,5 +1,5 @@
 /*
- * RCX Copyright (C) Slinger
+ * RCX Copyright (C) 2009-2010 Mats Wahlberg ("Slinger")
  *
  * This program comes with ABSOLUTELY NO WARRANTY!
  *

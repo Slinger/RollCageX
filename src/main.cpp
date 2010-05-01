@@ -1,5 +1,5 @@
 /* RollCageX (fanmade clone of the original RollCage games)
- * Copyright (C) 2009-2010  "Slinger" (on gorcx.net forum)
+ * Copyright (C) 2009-2010  Mats Wahlberg ("Slinger" on gorcx.net forum)
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

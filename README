@@ -170,18 +170,18 @@ static binary ("rcx.exe").
 
 9) [CREDITS]
 
-  * "Slinger"       Creator (coder)
-  * "XEWEASEL"      3D Models
+  * Mats Wahlberg ("Slinger")	Creator (coder)
+  * "XEWEASEL"			3D Models
 
   Special Thanks:
-  * "K.Mac"         Extensive testing, hacks and new ideas
-  * "MeAkaJon"      Creator/maintainer of gorcx.net webpage
-  * "Spontificus"   Testing, hacks, github registration and various fixes
+  * "K.Mac"			Extensive testing, hacks and new ideas
+  * "MeAkaJon"			Creator/maintainer of gorcx.net webpage
+  * "Spontificus"		Testing, hacks, github registration and various fixes
 
   Other Projects that made RCX possible:
-  * "Simple DirectMedia Layer"      OS/hardware abstractions
-  * "Open Dynamics Engine"          Rigid body dynamics and collision detection
-  * "The GNU Project"               Its fight for computer freedom has changed the world
+  * "Simple DirectMedia Layer"	OS/hardware abstractions
+  * "Open Dynamics Engine"	Rigid body dynamics and collision detection
+  * "The GNU Project"		Its fight for computer freedom has changed the world
 
 
 
