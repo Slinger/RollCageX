@@ -44,16 +44,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 3) [RUNNING]
 
-In order to run a compiled binary of this version of rcx, make sure "rcx" (or
-"rcx.exe" for windows) binary is located inside the directory containing the
-"data" directory. If you extracted one of the official archives (0.05.tgz or
-0.05.win.zip) that should not be a problem (if you compiled it from the source
-available inside "src" in the archive "0.05.tgz", the binary is still placed
-inside the correct directory). Simply speaking: Always keep the program
-together with its directory.
+The current version of rcx does not require installation in order to run.
+Instead, just place rcx (on windows: rcx.exe) in a directory of your choice.
+In the archive, there are two directories: src and data. src is only needed
+for compilation, and data provides configuration files.
 
-The src directory is only needed if you want/need to compile the program. It
-can be removed if you do not need it.
+Src is not needed for rcx to run, and in the absence of the data directory,
+it will use defaults. However: it is recomended to keep the data directory
+since there is no default geometrical shape for cars (it will be invisble).
+
+The data directory is also useful if you want to easily change the default
+settings, since it contains a plain text version of default configurations.
 
 
 
@@ -82,7 +83,7 @@ There are also a couple of demo/debug keys (these keys can not be changed):
 5) [Configuration]
 
 RCX can be configured using a couple of plain-text files divided in several
-directories inside the data directory, such as "teams", "worlds" and "profile"
+directories inside the data directory, such as "teams", "worlds" and "profiles"
 
 What you might be most interested in is specified in internal.conf, it
 provides many ways of tweaking the performance, and also is the place where
