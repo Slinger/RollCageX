@@ -1,4 +1,4 @@
-/* RollCageX (fanmade clone of the original RollCage games)
+/* RollCageX (sci-fi racer inspired by the original RollCage games)
  * Copyright (C) 2009-2010  Mats Wahlberg ("Slinger" on gorcx.net forum)
  *
  * This program is free software: you can redistribute it and/or modify
