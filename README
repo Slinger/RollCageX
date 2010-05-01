@@ -51,7 +51,7 @@ for compilation, and data provides configuration files.
 
 Src is not needed for rcx to run, and in the absence of the data directory,
 it will use defaults. However: it is recommended to keep the data directory
-since there is no default geometrical shape for cars (it will be invisible).
+since there is no default geometrical shape for cars (they will be invisible).
 
 The data directory is also useful if you want to easily change the default
 settings, since it contains a plain text version of default configurations.
@@ -110,7 +110,7 @@ The requirements for running rcx is modest, a recommended minimum would be:
 
 * Processor:	1GHz, 32bit
 * Memory:	10MiB free
-* Graphics:	basic OpenGL 3D acceleration (nvidious no recommended)
+* Graphics:	basic OpenGL 3D acceleration (nvidious not recommended)
 
 Note: hardware opengl acceleration recommended, but of course, software
 rendering is an alternative, assuming you got enough processing power.
@@ -137,13 +137,13 @@ libraries):
    functionality.
 
    5.3) [ODE]
-   RCX uses the library "Open Dynamics Engine" for some physics simulations
+   RCX uses the library "Open Dynamics Engine" for some physics simulations.
 
    IMPORTANT: ode can be compiled in two modes: Single or Double precision
    While rcx should work with both, double precision has shown to cause
    problems: while rcx will compile, it will crash as soon as a race starts.
    If your distro provides packages with different versions of ode, MAKE SURE
-   THAT YOU CHOSE: Single precision (SP)
+   THAT YOU CHOSE: Single precision (SP).
 
 
 
