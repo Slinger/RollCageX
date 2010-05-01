@@ -50,8 +50,8 @@ In the archive, there are two directories: src and data. src is only needed
 for compilation, and data provides configuration files.
 
 Src is not needed for rcx to run, and in the absence of the data directory,
-it will use defaults. However: it is recomended to keep the data directory
-since there is no default geometrical shape for cars (it will be invisble).
+it will use defaults. However: it is recommended to keep the data directory
+since there is no default geometrical shape for cars (it will be invisible).
 
 The data directory is also useful if you want to easily change the default
 settings, since it contains a plain text version of default configurations.
