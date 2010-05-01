@@ -117,11 +117,16 @@ int main (int argc, char *argv[])
 	}
 
 	//MENU: select race type
-	// - assuming free roam -
-	//MENU: select theme/car
+	// - assuming 2P free roam -
+	//MENU: P1: select theme/car
 	Car_Template *venom_template = Car_Template::Load("data/teams/Nemesis/cars/Venom");
 	if (!venom_template)
 		return -1; //GOTO: car selection menu
+
+	//MENU: P2: select theme/car
+	Car_Template *reaper_template = Car_Template::Load("data/teams/Vostok/cars/Reaper");
+	if (!reaper_template)
+		return -1; //GOTO: car selection
 
 	//MENU: select world/track
 	if (!load_track((char *)"data/worlds/Sandbox/tracks/Box"))
@@ -135,13 +140,12 @@ int main (int argc, char *argv[])
 		return -1;
 
 	//spawn car
-	Venom1 = venom_template->Spawn(track.start[0]-4, track.start[1], track.start[2]);
-	prof->car = Venom1;
-	camera.car = Venom1;
+	Venom = venom_template->Spawn(track.start[0]-4, track.start[1], track.start[2]);
+	prof->car = Venom;
+	camera.car = Venom;
 
-	//lets spawn another (not driveable) car:
-	Venom2 = venom_template->Spawn(track.start[0]+4, track.start[1], track.start[2]);
-	//Venom2->drift_breaks = false;
+	//lets spawn another car:
+	Reaper = reaper_template->Spawn(track.start[0]+4, track.start[1], track.start[2]);
 
 	//MENU: race configured, start?
 	start_race();

@@ -31,7 +31,7 @@
 Object_Template *box = NULL;
 Object_Template *sphere = NULL;
 Object_Template *funbox = NULL;
-Car *Venom1, *Venom2;
+Car *Venom, *Reaper;
 
 
 int events_loop (void *d)
@@ -111,15 +111,15 @@ int events_loop (void *d)
 
 						//tmp: switch cars
 						case SDLK_F8:
-							if (profile_head->car == Venom1)
+							if (profile_head->car == Venom)
 							{
-								profile_head->car = Venom2;
-								camera.car = Venom2;
+								profile_head->car = Reaper;
+								camera.car = Reaper;
 							}
 							else
 							{
-								profile_head->car = Venom1;
-								camera.car = Venom1;
+								profile_head->car = Venom;
+								camera.car = Venom;
 							}
 						break;
 

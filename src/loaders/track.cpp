@@ -144,7 +144,7 @@ bool load_track (const char *path)
 	glEndList();
 
 	//temp solution, ramp
-	geom = dCreateBox (0,8,12,1);
+	geom = dCreateBox (0,13,13,1);
 	data = new Geom(geom, track.object);
 
 	dMatrix3 rot;
@@ -159,7 +159,7 @@ bool load_track (const char *path)
 
 	//render box using built in
 	data->f_3d = new file_3d();
-	debug_draw_box (data->f_3d->list, 8,12,1, gray, black, 0);
+	debug_draw_box (data->f_3d->list, 13,13,1, gray, black, 0);
 
 
 	//now lets load some objects!
