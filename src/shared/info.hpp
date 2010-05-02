@@ -12,7 +12,7 @@
 #ifndef _RCX_INFO_H
 #define _RCX_INFO_H
 //general info
-const char VERSION[] = "0.06, \"Powered by Geeks\""; //supports alphanumeric versioning
+const char VERSION[] = "0.07 (0\% done)"; //supports alphanumeric versioning
 
 const char ISSUE[] =
 "    RollCageX  Copyright (C) 2009-2010 Mats Wahlberg (\"Slinger\" on gorcx.net forum)\n\n\
