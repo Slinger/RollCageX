@@ -157,7 +157,7 @@ void debug_joint_fixed(dBodyID body1, dBodyID body2, Object *obj)
 
 	//use feedback
 	//set threshold, buffer and dummy script
-	jd->Set_Buffer_Event(25000, 1000, (Script*)1337);
+	jd->Set_Buffer_Event(25, 10, (Script*)1337);
 }
 
 //spawn a "loaded" (actually hard-coded) object
@@ -181,12 +181,12 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 
 	dGeomID geom  = dCreateBox (0, 1,1,1); //geom
 	Geom *data = new Geom(geom, obj);
-	data->Set_Buffer_Event(100000, 100, (Script*)1337);
+	data->Set_Buffer_Event(1000, 100, (Script*)1337);
 	dBodyID body = dBodyCreate (world);
 
 	dMass m;
 	dMassSetBox (&m,1,1,1,1); //sides
-	dMassAdjust (&m,400); //mass
+	dMassAdjust (&m,0.4); //mass
 	dBodySetMass (body, &m);
 
 	bd = new Body(body, obj); //just for drag
@@ -225,7 +225,7 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 	//mass
 	dMass m;
 	dMassSetBox (&m,1,2.5,2.5,2.5); //sides
-	dMassAdjust (&m,100); //mass
+	dMassAdjust (&m,0.6); //mass
 	//TODO: create dMass for all geoms, and use dMassTranslate+dMassAdd to add to m
 	dBodySetMass (body1, &m);
 
@@ -233,7 +233,7 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 	Body *bd = new Body (body1, obj);
 
 	//set buffer for body (when destroyed, so are all other geoms)
-	bd->Set_Buffer_Event(100000, 100, (Script*)1337);
+	bd->Set_Buffer_Event(1000, 100, (Script*)1337);
 
 
 	//
@@ -350,13 +350,13 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 	//center sphere
 	dGeomID geom  = dCreateSphere (0, 1); //geom
 	Geom *data = new Geom(geom, obj);
-	data->Set_Buffer_Event(100000, 100, (Script*)1337);
+	data->Set_Buffer_Event(1000, 100, (Script*)1337);
 
 	dBodyID body1 = dBodyCreate (world);
 
 	dMass m;
 	dMassSetSphere (&m,1,1); //radius
-	dMassAdjust (&m,60); //mass
+	dMassAdjust (&m,0.1); //mass
 	dBodySetMass (body1, &m);
 
 	new Body (body1, obj);
@@ -386,11 +386,11 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 	//connected spheres
 	geom  = dCreateSphere (0, 0.8); //geom
 	data = new Geom(geom, obj);
-	data->Set_Buffer_Event(100000, 100, (Script*)1337);
+	data->Set_Buffer_Event(1000, 100, (Script*)1337);
 	body = dBodyCreate (world);
 
 	dMassSetSphere (&m,1,0.5); //radius
-	dMassAdjust (&m,30); //mass
+	dMassAdjust (&m,0.05); //mass
 	dBodySetMass (body, &m);
 
 	new Body (body, obj);
@@ -410,7 +410,7 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 	joint = dJointCreateBall (world, 0);
 
 	Joint *jd = new Joint(joint, obj);
-	jd->Set_Buffer_Event(1000, 500, (Script*)1337);
+	jd->Set_Buffer_Event(500, 50, (Script*)1337);
 
 	dJointAttach (joint, body1, body);
 	dJointSetBallAnchor (joint, x+pos[i][0], y+pos[i][1], z+pos[i][2]);
@@ -431,7 +431,7 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 	//center sphere
 	dGeomID geom  = dCreateSphere (0, 1); //geom
 	Geom *data = new Geom(geom, obj);
-	data->Set_Buffer_Event(100000, 100, (Script*)1337);
+	data->Set_Buffer_Event(1000, 100, (Script*)1337);
 	dBodyID body1 = dBodyCreate (world);
 
 	dMass m;
@@ -474,7 +474,7 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 		{
 			dGeomID geom  = dCreateBox (0, 4,0.4,2.4); //geom
 			Geom *data = new Geom(geom, obj);
-			data->Set_Buffer_Event(100000, 10000, (Script*)1337);
+			data->Set_Buffer_Event(1000, 100, (Script*)1337);
 			data->mu = 1;
 
 			body1[i] = dBodyCreate (world);
@@ -482,7 +482,7 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 
 			dMass m;
 			dMassSetBox (&m,1,4,0.4,2.7); //sides
-			dMassAdjust (&m,400); //mass
+			dMassAdjust (&m,0.2); //mass
 			dBodySetMass (body1[i], &m);
 
 			new Body (body1[i], obj);
@@ -533,7 +533,7 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 		{
 			dGeomID geom  = dCreateBox (0, 4,4,0.2); //geom
 			Geom *data = new Geom(geom, obj);
-			data->Set_Buffer_Event(100000, 10000, (Script*)1337);
+			data->Set_Buffer_Event(1000, 100, (Script*)1337);
 			data->mu = 1;
 
 			body2[i] = dBodyCreate (world);
@@ -541,7 +541,7 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 
 			dMass m;
 			dMassSetBox (&m,1,4,4,0.2); //sides
-			dMassAdjust (&m,400); //mass
+			dMassAdjust (&m,0.2); //mass
 			dBodySetMass (body2[i], &m);
 
 			new Body (body2[i], obj);
@@ -598,12 +598,12 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 		{
 			geom  = dCreateCapsule (0, 0.3,1.4); //geom
 			data = new Geom(geom, obj);
-			data->Set_Buffer_Event(100000, 10000, (Script*)1337);
+			data->Set_Buffer_Event(1000, 100, (Script*)1337);
 			body[i] = dBodyCreate (world);
 	
 			dMass m;
 			dMassSetCapsule (&m,1,3,1,0.5); //sides (3=z-axis)
-			dMassAdjust (&m,400); //mass
+			dMassAdjust (&m,0.3); //mass
 			dBodySetMass (body[i], &m);
 	
 			new Body (body[i], obj);
@@ -670,7 +670,7 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 		g->TMP_pillar_geom = true;
 
 		//destruction
-		g->Set_Buffer_Event(200000, 10000, (Script*)1337);
+		g->Set_Buffer_Event(500, 10, (Script*)1337);
 		g->TMP_pillar_graphics = graphics_debug2;
 	}
 	else

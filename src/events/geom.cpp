@@ -40,13 +40,13 @@ void Geom::TMP_Events_Step(Uint32 step)
 				//geom1
 				dGeomID g = dCreateBox(0, 2,2,5.0/2.0);
 				Geom *gd = new Geom(g, geom->object_parent);
-				gd->Set_Buffer_Event(100000, 500, (Script*)1337);
+				gd->Set_Buffer_Event(100, 20, (Script*)1337);
 
 				//body1
 				dBodyID b = dBodyCreate(world);
 				dMass m;
 				dMassSetBox (&m, 1, 2,2,5.0/2.0);
-				dMassAdjust (&m, 100); //200kg
+				dMassAdjust (&m, 0.1); //200kg
 				dBodySetMass(b, &m);
 				new Body(b, geom->object_parent);
 				dBodySetPosition(b, pos1[0], pos1[1], pos1[2]);
@@ -58,7 +58,7 @@ void Geom::TMP_Events_Step(Uint32 step)
 				//geom2
 				g = dCreateBox(0, 2,2,5.0/2.0);
 				gd = new Geom(g, geom->object_parent);
-				gd->Set_Buffer_Event(100000, 500, (Script*)1337);
+				gd->Set_Buffer_Event(100, 20, (Script*)1337);
 
 				//body2
 				b = dBodyCreate(world);
@@ -87,7 +87,7 @@ void Geom::TMP_Events_Step(Uint32 step)
 				//mass
 				dMass m;
 				dMassSetBox (&m, 1, 2,2,5);
-				dMassAdjust (&m, 200); //200kg
+				dMassAdjust (&m, 0.2); //200kg
 				dBodySetMass(body, &m);
 
 				new Body(body, geom->object_parent);
@@ -100,7 +100,7 @@ void Geom::TMP_Events_Step(Uint32 step)
 
 
 				//reset buffer
-				geom->Increase_Buffer(8000);
+				geom->Increase_Buffer(20);
 			}
 		}
 	}
