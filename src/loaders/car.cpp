@@ -103,6 +103,219 @@ Car_Template *Car_Template::Load (const char *path)
 				target->box_graphics.push_back(f3d);
 				debug_draw_box(f3d->list, tmp_box.size[0],tmp_box.size[1],tmp_box.size[2], lgreen, gray, 70);
 			}
+
+else if (!strcmp(file.words[0], "box2"))
+			{
+				struct box tmp_box;
+				if (file.word_count == 9) //not wanting rotation?
+				{
+					//size
+					tmp_box.size[0] = atof(file.words[2]);
+					tmp_box.size[1] = atof(file.words[3]);
+					tmp_box.size[2] = atof(file.words[4]);
+
+					//position
+					tmp_box.pos[0] = atof(file.words[6]);
+					tmp_box.pos[1] = atof(file.words[7]);
+					tmp_box.pos[2] = atof(file.words[8]);
+
+					//rotation (not)
+					tmp_box.rot[0]=0.0;
+					tmp_box.rot[1]=0.0;
+					tmp_box.rot[2]=0.0;
+				}
+				else if (file.word_count == 13) //also rotate?
+				{
+					//size
+					tmp_box.size[0] = atof(file.words[2]);
+					tmp_box.size[1] = atof(file.words[3]);
+					tmp_box.size[2] = atof(file.words[4]);
+
+					//position
+					tmp_box.pos[0] = atof(file.words[6]);
+					tmp_box.pos[1] = atof(file.words[7]);
+					tmp_box.pos[2] = atof(file.words[8]);
+
+					//rotation (not)
+					tmp_box.rot[0] = atof(file.words[10]);
+					tmp_box.rot[1] = atof(file.words[11]);
+					tmp_box.rot[2] = atof(file.words[12]);
+				}
+				else
+				{
+					printlog(0, "ERROR: box geom in car geom list expects exactly: size, position and (optional) rotation!");
+					continue; //don't add
+				}
+
+				//store box
+				target->boxes.push_back(tmp_box);
+
+				//create graphics for box:
+				file_3d *f3d = new file_3d();
+				target->box_graphics.push_back(f3d);
+				debug_draw_box(f3d->list, tmp_box.size[0],tmp_box.size[1],tmp_box.size[2], dgray, gray, 70);
+			}
+
+else if (!strcmp(file.words[0], "box3"))
+			{
+				struct box tmp_box;
+				if (file.word_count == 9) //not wanting rotation?
+				{
+					//size
+					tmp_box.size[0] = atof(file.words[2]);
+					tmp_box.size[1] = atof(file.words[3]);
+					tmp_box.size[2] = atof(file.words[4]);
+
+					//position
+					tmp_box.pos[0] = atof(file.words[6]);
+					tmp_box.pos[1] = atof(file.words[7]);
+					tmp_box.pos[2] = atof(file.words[8]);
+
+					//rotation (not)
+					tmp_box.rot[0]=0.0;
+					tmp_box.rot[1]=0.0;
+					tmp_box.rot[2]=0.0;
+				}
+				else if (file.word_count == 13) //also rotate?
+				{
+					//size
+					tmp_box.size[0] = atof(file.words[2]);
+					tmp_box.size[1] = atof(file.words[3]);
+					tmp_box.size[2] = atof(file.words[4]);
+
+					//position
+					tmp_box.pos[0] = atof(file.words[6]);
+					tmp_box.pos[1] = atof(file.words[7]);
+					tmp_box.pos[2] = atof(file.words[8]);
+
+					//rotation (not)
+					tmp_box.rot[0] = atof(file.words[10]);
+					tmp_box.rot[1] = atof(file.words[11]);
+					tmp_box.rot[2] = atof(file.words[12]);
+				}
+				else
+				{
+					printlog(0, "ERROR: box geom in car geom list expects exactly: size, position and (optional) rotation!");
+					continue; //don't add
+				}
+
+				//store box
+				target->boxes.push_back(tmp_box);
+
+				//create graphics for box:
+				file_3d *f3d = new file_3d();
+				target->box_graphics.push_back(f3d);
+				debug_draw_box(f3d->list, tmp_box.size[0],tmp_box.size[1],tmp_box.size[2], lblue, gray, 70);
+			}
+
+else if (!strcmp(file.words[0], "box4"))
+			{
+				struct box tmp_box;
+				if (file.word_count == 9) //not wanting rotation?
+				{
+					//size
+					tmp_box.size[0] = atof(file.words[2]);
+					tmp_box.size[1] = atof(file.words[3]);
+					tmp_box.size[2] = atof(file.words[4]);
+
+					//position
+					tmp_box.pos[0] = atof(file.words[6]);
+					tmp_box.pos[1] = atof(file.words[7]);
+					tmp_box.pos[2] = atof(file.words[8]);
+
+					//rotation (not)
+					tmp_box.rot[0]=0.0;
+					tmp_box.rot[1]=0.0;
+					tmp_box.rot[2]=0.0;
+				}
+				else if (file.word_count == 13) //also rotate?
+				{
+					//size
+					tmp_box.size[0] = atof(file.words[2]);
+					tmp_box.size[1] = atof(file.words[3]);
+					tmp_box.size[2] = atof(file.words[4]);
+
+					//position
+					tmp_box.pos[0] = atof(file.words[6]);
+					tmp_box.pos[1] = atof(file.words[7]);
+					tmp_box.pos[2] = atof(file.words[8]);
+
+					//rotation (not)
+					tmp_box.rot[0] = atof(file.words[10]);
+					tmp_box.rot[1] = atof(file.words[11]);
+					tmp_box.rot[2] = atof(file.words[12]);
+				}
+				else
+				{
+					printlog(0, "ERROR: box geom in car geom list expects exactly: size, position and (optional) rotation!");
+					continue; //don't add
+				}
+
+				//store box
+				target->boxes.push_back(tmp_box);
+
+				//create graphics for box:
+				file_3d *f3d = new file_3d();
+				target->box_graphics.push_back(f3d);
+				debug_draw_box(f3d->list, tmp_box.size[0],tmp_box.size[1],tmp_box.size[2], lyellow, gray, 70);
+			}
+
+else if (!strcmp(file.words[0], "box5"))
+			{
+				struct box tmp_box;
+				if (file.word_count == 9) //not wanting rotation?
+				{
+					//size
+					tmp_box.size[0] = atof(file.words[2]);
+					tmp_box.size[1] = atof(file.words[3]);
+					tmp_box.size[2] = atof(file.words[4]);
+
+					//position
+					tmp_box.pos[0] = atof(file.words[6]);
+					tmp_box.pos[1] = atof(file.words[7]);
+					tmp_box.pos[2] = atof(file.words[8]);
+
+					//rotation (not)
+					tmp_box.rot[0]=0.0;
+					tmp_box.rot[1]=0.0;
+					tmp_box.rot[2]=0.0;
+				}
+				else if (file.word_count == 13) //also rotate?
+				{
+					//size
+					tmp_box.size[0] = atof(file.words[2]);
+					tmp_box.size[1] = atof(file.words[3]);
+					tmp_box.size[2] = atof(file.words[4]);
+
+					//position
+					tmp_box.pos[0] = atof(file.words[6]);
+					tmp_box.pos[1] = atof(file.words[7]);
+					tmp_box.pos[2] = atof(file.words[8]);
+
+					//rotation (not)
+					tmp_box.rot[0] = atof(file.words[10]);
+					tmp_box.rot[1] = atof(file.words[11]);
+					tmp_box.rot[2] = atof(file.words[12]);
+				}
+				else
+				{
+					printlog(0, "ERROR: box geom in car geom list expects exactly: size, position and (optional) rotation!");
+					continue; //don't add
+				}
+
+				//store box
+				target->boxes.push_back(tmp_box);
+
+				//create graphics for box:
+				file_3d *f3d = new file_3d();
+				target->box_graphics.push_back(f3d);
+				debug_draw_box(f3d->list, tmp_box.size[0],tmp_box.size[1],tmp_box.size[2], lred, gray, 70);
+			}
+
+
+
+
+
 			else if (!strcmp(file.words[0], "sphere"))
 			{
 				if (file.word_count != 7)
@@ -226,7 +439,7 @@ Car_Template *Car_Template::Load (const char *path)
 
 	glBegin (GL_QUAD_STRIP);
 	float v;
-	for (v=0; v<=2*M_PI; v+=2*M_PI/10)
+	for (v=0; v<=2*M_PI; v+=2*M_PI/29)
 	{
 		glNormal3f (sin(v), cos(v), 0.0f);
 		glVertex3f(w_r*sin(v), w_r*cos(v), -w_w/2.0f);

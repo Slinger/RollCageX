@@ -100,7 +100,7 @@ void Geom::TMP_Events_Step(Uint32 step)
 
 
 				//reset buffer
-				geom->Increase_Buffer(20);
+				geom->Increase_Buffer(50);
 			}
 		}
 	}
@@ -116,7 +116,7 @@ void Geom::TMP_Events_Step(Uint32 step)
 				//run script for each step with a value going from <z> to <z+2> over 0.1 seconds
 				const dReal *pos;
 				pos = dGeomGetPosition(geom->flipper_geom); //get position (need z)
-				new Animation_Timer(geom->object_parent, (Script*)geom->flipper_geom, pos[2], pos[2]+2.0, 0.1);
+				new Animation_Timer(geom->object_parent, (Script*)geom->flipper_geom, pos[2], pos[2]+3.0, 0.1);
 				//note: Animation_Timer expects a script, but pass flipper geom instead...
 			}
 		}

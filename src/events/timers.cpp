@@ -113,7 +113,7 @@ void Animation_Timer::Events_Step(Uint32 step)
 			//now that we're done elevating flipper (positive movement), start new timer for lowering it back:
 			//goas from old timer's goal to goal-2, during 2 seconds (slower - looks nice)
 			if (timer->speed > 0)
-				new Animation_Timer(timer->object,(Script*)geom,timer->goal,(timer->goal-2.0), 2.0);
+				new Animation_Timer(timer->object,(Script*)geom,timer->goal,(timer->goal-3.0), 1.0);
 			//end of TMP
 
 			//delete

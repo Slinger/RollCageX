@@ -157,7 +157,7 @@ void debug_joint_fixed(dBodyID body1, dBodyID body2, Object *obj)
 
 	//use feedback
 	//set threshold, buffer and dummy script
-	jd->Set_Buffer_Event(25, 10, (Script*)1337);
+	jd->Set_Buffer_Event(50, 20, (Script*)1337);
 }
 
 //spawn a "loaded" (actually hard-coded) object
@@ -410,7 +410,7 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 	joint = dJointCreateBall (world, 0);
 
 	Joint *jd = new Joint(joint, obj);
-	jd->Set_Buffer_Event(500, 50, (Script*)1337);
+	jd->Set_Buffer_Event(100, 50, (Script*)1337);
 
 	dJointAttach (joint, body1, body);
 	dJointSetBallAnchor (joint, x+pos[i][0], y+pos[i][1], z+pos[i][2]);
