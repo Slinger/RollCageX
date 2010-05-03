@@ -140,12 +140,12 @@ int main (int argc, char *argv[])
 		return -1;
 
 	//spawn car
-	Venom = venom_template->Spawn(track.start[0]-4, track.start[1], track.start[2]);
+	Venom = venom_template->Spawn(track.start[0]-6, track.start[1], track.start[2]);
 	prof->car = Venom;
 	camera.car = Venom;
 
 	//lets spawn another car:
-	Reaper = reaper_template->Spawn(track.start[0]+4, track.start[1], track.start[2]);
+	Reaper = reaper_template->Spawn(track.start[0]+6, track.start[1], track.start[2]);
 
 	//MENU: race configured, start?
 	start_race();
