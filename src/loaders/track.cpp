@@ -70,28 +70,28 @@ bool load_track (const char *path)
 	data->cfm = track.cfm;
 
 	//4 more planes as walls
-	geom = dCreatePlane (0, 1,0,0,-100);
+	geom = dCreatePlane (0, 1,0,0,-1000);
 	data = new Geom(geom, track.object);
 	data->mu = track.mu;
 	data->slip = track.slip;
 	data->erp = track.erp;
 	data->cfm = track.cfm;
 
-	geom = dCreatePlane (0, -1,0,0,-100);
+	geom = dCreatePlane (0, -1,0,0,-1000);
 	data = new Geom(geom, track.object);
 	data->mu = track.mu;
 	data->slip = track.slip;
 	data->erp = track.erp;
 	data->cfm = track.cfm;
 
-	geom = dCreatePlane (0, 0,1,0,-100);
+	geom = dCreatePlane (0, 0,1,0,-1000);
 	data = new Geom(geom, track.object);
 	data->mu = track.mu;
 	data->slip = track.slip;
 	data->erp = track.erp;
 	data->cfm = track.cfm;
 
-	geom = dCreatePlane (0, 0,-1,0,-100);
+	geom = dCreatePlane (0, 0,-1,0,-1000);
 	data = new Geom(geom, track.object);
 	data->mu = track.mu;
 	data->slip = track.slip;
@@ -108,37 +108,39 @@ bool load_track (const char *path)
 	glMaterialfv (GL_FRONT, GL_AMBIENT_AND_DIFFUSE, green);
 	glNormal3f (0.0f, 0.0f, 1.0f);
 	glBegin (GL_QUADS);
-	glVertex3f (-100.0f, -100.0f, 0.0f);
-	glVertex3f (-100.0f, 100.0f, 0.0f);
-	glVertex3f (100.0f, 100.0f, 0.0f);
-	glVertex3f (100.0f, -100.0f, 0.0f);
+	glVertex3f (-1000.0f, -1000.0f, 0.0f);
+	glVertex3f (-1000.0f, 1000.0f, 0.0f);
+	glVertex3f (1000.0f, 1000.0f, 0.0f);
+	glVertex3f (1000.0f, -1000.0f, 0.0f);
 	glEnd();
 
 	glMaterialfv (GL_FRONT, GL_AMBIENT_AND_DIFFUSE, gray);
 	glBegin (GL_QUADS);
+
 	glNormal3f (1.0f, 0.0f, 0.0f);
-	glVertex3f (-100.0f, -100.0f, 0.0f);
-	glVertex3f (-100.0f, -100.0f, 10.0f);
-	glVertex3f (-100.0f, 100.0f, 10.0f);
-	glVertex3f (-100.0f, 100.0f, 0.0f);
+	glVertex3f (-1000.0f, -1000.0f, 0.0f);
+	glVertex3f (-1000.0f, -1000.0f, 10.0f);
+	glVertex3f (-1000.0f, 1000.0f, 10.0f);
+	glVertex3f (-1000.0f, 1000.0f, 0.0f);
 
 	glNormal3f (0.0f, -1.0f, 0.0f);
-	glVertex3f (-100.0f, 100.0f, 0.0f);
-	glVertex3f (-100.0f, 100.0f, 10.0f);
-	glVertex3f (100.0f, 100.0f, 10.0f);
-	glVertex3f (100.0f, 100.0f, 0.0f);
+	glVertex3f (-1000.0f, 1000.0f, 0.0f);
+	glVertex3f (-1000.0f, 1000.0f, 10.0f);
+	glVertex3f (1000.0f, 1000.0f, 10.0f);
+	glVertex3f (1000.0f, 1000.0f, 0.0f);
 
 	glNormal3f (-1.0f, 0.0f, 0.0f);
-	glVertex3f (100.0f, 100.0f, 0.0f);
-	glVertex3f (100.0f, 100.0f, 10.0f);
-	glVertex3f (100.0f, -100.0f, 10.0f);
-	glVertex3f (100.0f, -100.0f, 0.0f);
+	glVertex3f (1000.0f, 1000.0f, 0.0f);
+	glVertex3f (1000.0f, 1000.0f, 10.0f);
+	glVertex3f (1000.0f, -1000.0f, 10.0f);
+	glVertex3f (1000.0f, -1000.0f, 0.0f);
 
 	glNormal3f (0.0f, 1.0f, 0.0f);
-	glVertex3f (100.0f, -100.0f, 0.0f);
-	glVertex3f (100.0f, -100.0f, 10.0f);
-	glVertex3f (-100.0f, -100.0f, 10.0f);
-	glVertex3f (-100.0f, -100.0f, 0.0f);
+	glVertex3f (1000.0f, -1000.0f, 0.0f);
+	glVertex3f (1000.0f, -1000.0f, 10.0f);
+	glVertex3f (-1000.0f, -1000.0f, 10.0f);
+	glVertex3f (-1000.0f, -1000.0f, 0.0f);
+
 	glEnd();
 
 	glEndList();
@@ -160,6 +162,73 @@ bool load_track (const char *path)
 	//render box using built in
 	data->f_3d = new file_3d();
 	debug_draw_box (data->f_3d->list, 13,13,1, gray, black, 0);
+
+//and for the 'small' sandbox ... new walls.
+
+	geom = dCreateBox (0,204,2,10);
+	data = new Geom(geom, track.object);
+
+	dRFromAxisAndAngle (rot, 1, 0, 0, 0);
+	dGeomSetPosition (geom, 0, 101, 5);
+	dGeomSetRotation (geom, rot);
+	
+	data->mu = track.mu;
+	data->slip = track.slip;
+	data->erp = track.erp;
+	data->cfm = track.cfm;
+
+	//render box using built in
+	data->f_3d = new file_3d();
+	debug_draw_box (data->f_3d->list, 204,2,10, gray, black, 0);
+
+	geom = dCreateBox (0,204,2,10);
+	data = new Geom(geom, track.object);
+
+	dRFromAxisAndAngle (rot, 1, 0, 0, 0);
+	dGeomSetPosition (geom, 0, -101, 5);
+	dGeomSetRotation (geom, rot);
+	
+	data->mu = track.mu;
+	data->slip = track.slip;
+	data->erp = track.erp;
+	data->cfm = track.cfm;
+
+	//render box using built in
+	data->f_3d = new file_3d();
+	debug_draw_box (data->f_3d->list, 204,2,10, gray, black, 0);
+
+	geom = dCreateBox (0,2,204,10);
+	data = new Geom(geom, track.object);
+
+	dRFromAxisAndAngle (rot, 1, 0, 0, 0);
+	dGeomSetPosition (geom, 101, 0, 5);
+	dGeomSetRotation (geom, rot);
+	
+	data->mu = track.mu;
+	data->slip = track.slip;
+	data->erp = track.erp;
+	data->cfm = track.cfm;
+
+	//render box using built in
+	data->f_3d = new file_3d();
+	debug_draw_box (data->f_3d->list, 2,204,10, gray, black, 0);
+
+	geom = dCreateBox (0,2,204,10);
+	data = new Geom(geom, track.object);
+
+	dRFromAxisAndAngle (rot, 1, 0, 0, 0);
+	dGeomSetPosition (geom, -101, 0, 5);
+	dGeomSetRotation (geom, rot);
+	
+	data->mu = track.mu;
+	data->slip = track.slip;
+	data->erp = track.erp;
+	data->cfm = track.cfm;
+
+	//render box using built in
+	data->f_3d = new file_3d();
+	debug_draw_box (data->f_3d->list, 2,204,10, gray, black, 0);
+
 
 
 	//now lets load some objects!
