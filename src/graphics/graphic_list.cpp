@@ -33,15 +33,14 @@ struct list_element
 struct list_buffer
 {
 	size_t count;
-	bool filled;
 	list_element *list;
 };
 
 size_t buffer_size = INITIAL_GRAPHIC_LIST_BUFFER_SIZE;
 
 //buffers
-list_buffer buffer1 = {0, false, (list_element*)malloc(sizeof(list_element)*buffer_size)};
-list_buffer buffer2 = {0, false, (list_element*)malloc(sizeof(list_element)*buffer_size)};
+list_buffer buffer1 = {0, (list_element*)malloc(sizeof(list_element)*buffer_size)};
+list_buffer buffer2 = {0, (list_element*)malloc(sizeof(list_element)*buffer_size)};
 
 //pointers at buffers
 list_buffer *buffer_in = &buffer1; //filled with data
@@ -143,28 +142,25 @@ void Graphic_List_Update()
 			}
 		}
 	}*/
-	
-	//mark buffer as done!
-	tmp->filled=true;
 }
 
 void Graphic_List_Render()
 {
 	//see if in buffer got any data, if so switch
-	if (buffer_in->filled) //got new stuff to render
+	if (buffer_in->count) //got new stuff to render
 	{
 		list_buffer *tmp=buffer_out;
 		buffer_out=buffer_in;
 		buffer_in = tmp;
 
-		buffer_in->filled=false; //indicates empty
+		buffer_in->count=0; //indicates empty
 	}
 
 	//copy needed data
-	size_t count=buffer_out->count;
+	size_t *count=&(buffer_out->count);
 	list_element *list=buffer_out->list;
 
-	for (size_t i=0; i<count; ++i)
+	for (size_t i=0; i<(*count); ++i)
 	{
 		glPushMatrix();
 			glMultMatrixf (list[i].matrix);
