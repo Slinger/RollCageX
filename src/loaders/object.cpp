@@ -177,6 +177,12 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 	//
 	//
 
+	//just test:
+	Trimesh mesh;
+	mesh.Load("data/objects/misc/box/box.obj");
+	mes.TMP_printinfo();
+	//end of test
+
 	obj = new Object();
 
 	dGeomID geom  = dCreateBox (0, 1,1,1); //geom

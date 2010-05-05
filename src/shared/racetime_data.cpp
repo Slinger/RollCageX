@@ -53,5 +53,9 @@ void Racetime_Data::Destroy_All()
 	}
 
 	head = NULL;
+
+
+	//removing of static data for some types of racetime_data classes:
+	Trimesh_3D::Delete_VBOs();
 }
 
