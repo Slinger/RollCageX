@@ -102,8 +102,13 @@ bool graphics_init(void)
 
 	//glClearDepth (1.0); pointless to define this?
 
-	glDepthFunc (GL_LESS);
+	glDepthFunc (GL_LESS); //depth testing (proper overlapping)
 	glEnable (GL_DEPTH_TEST);
+
+	printf("TODO: check if backside culling provides performance increase...\n");
+	/*glCullFace(GL_BACK); //cull backsides (=don't draw things turned away)
+	glEnable(GL_CULL_FACE);*/
+
 	glShadeModel (GL_SMOOTH); //by default, can be changed
 
 	graphics_resize (screen->w, screen->h);
