@@ -142,13 +142,12 @@ void Graphic_List_Update()
 			}
 		}
 	}*/
-	
 }
 
 void Graphic_List_Render()
 {
 	//see if in buffer got any data, if so switch
-	if (buffer_in->count) //nonzero
+	if (buffer_in->count) //got new stuff to render
 	{
 		list_buffer *tmp=buffer_out;
 		buffer_out=buffer_in;
@@ -158,10 +157,10 @@ void Graphic_List_Render()
 	}
 
 	//copy needed data
-	size_t count=buffer_out->count;
+	size_t *count=&(buffer_out->count);
 	list_element *list=buffer_out->list;
 
-	for (size_t i=0; i<count; ++i)
+	for (size_t i=0; i<(*count); ++i)
 	{
 		glPushMatrix();
 			glMultMatrixf (list[i].matrix);
