@@ -22,6 +22,16 @@ Trimesh::~Trimesh()
 		delete name;
 }*/
 
+		//keep track of VBOs (new generated if not enough room in already existing)
+		struct VBO
+		{
+			GLuint id; //size of buffer (for mapping)
+			GLsizeiptr usage; //how much of buffer is used (possibly GLint instead?)
+		}
+
+		static std::vector vbo<VBO>;
+
+
 void Trimesh::Set_Name(const char *n)
 {
 	//unlikely, but anyway
@@ -39,7 +49,16 @@ void Trimesh::Resize(float r)
 		return;
 
 	printlog(2, "Resizing trimesh");
-	???
+
+	size_t end = vertices.size();
+	size_t i;
+
+	for (i=0; i != end; ++i)
+	{
+		vertices[i][0] *= r;
+		vertices[i][1] *= r;
+		vertices[i][2] *= r;
+	}
 }
 
 void Trimesh::Rotate(float x, float y, float z)
@@ -48,7 +67,35 @@ void Trimesh::Rotate(float x, float y, float z)
 		return;
 
 	printlog(2, "Rotating trimesh");
-	???
+
+	//rotation matrix:
+	dMatrix3 rot;
+	float *origin;
+	float rotated[3];
+	dRFromEulerAngles (rot, x*(M_PI/180), y*(M_PI/180), z*(M_PI/180));
+	printf("TODO: check if dMatrix3 is column on line based\n");
+
+	size_t end = vectors.size();
+	size_t i;
+
+	for (i=0; i != end; ++i)
+	{
+		v=vectors[i];
+		rotated[0] = v[0]*rot[0]+v[1]*rot[1]+v[2]*rot[2];
+		rotated[1] = v[0]*rot[3]+v[1]*rot[4]+v[2]*rot[5];
+		rotated[2] = v[0]*rot[6]+v[1]*rot[7]+v[2]*rot[8];
+
+		vectors[i]=rotated;
+	}
+
+	end = normals.size();
+
+	for (i=0; i != end; ++i)
+	{
+		normals[i][0] *= r;
+		normals[i][1] *= r;
+		normals[i][2] *= r;
+	}
 }
 
 void Trimesh::Offset(float x, float y, float z)
@@ -57,5 +104,14 @@ void Trimesh::Offset(float x, float y, float z)
 		return;
 
 	printlog(2, "Changing offset of trimesh");
-	???
+
+	size_t end = vertices.size();
+	size_t i;
+
+	for (i=0; i != end; ++i)
+	{
+		vertices[i][0] += x;
+		vertices[i][1] += y;
+		vertices[i][2] += z;
+	}
 }

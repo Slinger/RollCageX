@@ -40,9 +40,6 @@ class Trimesh_3D: public Racetime_Data
 		Trimesh_3D(const char*); //sends name to Racetime_Data
 		friend class Trimesh; //only Trimesh is allowed to create this...
 
-		Delete_VBOs(); //remove all vbos, and clear list
-
-
 		//
 		//data to store:
 		//
@@ -69,16 +66,6 @@ class Trimesh_3D: public Racetime_Data
 
 		//VBO and position in VBO of array:
 		GLuint vbo_id; //which vbo got this model
-
-		//keep track of VBOs (new generated if not enough room in already existing)
-		struct VBO
-		{
-			GLuint id; //size of buffer (for mapping)
-			GLsizeiptr usage; //how much of buffer is used (possibly GLint instead?)
-		}
-
-		static std::vector vbo<VBO>;
-
 		static GLuint current_vbo; //which vbo is active
 };
 
