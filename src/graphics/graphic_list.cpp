@@ -47,6 +47,7 @@ list_buffer *buffer_in = &buffer1; //filled with data
 list_buffer *buffer_out = &buffer2; //rendered
 
 
+bool updating=false;
 
 void Graphic_List_Update()
 {
@@ -56,6 +57,7 @@ void Graphic_List_Update()
 	list_element *list=tmp->list;
 
 	*count=0; //set to zero (empty)
+	updating=true;
 
 	//variables
 	const dReal *pos, *rot;
@@ -142,10 +144,12 @@ void Graphic_List_Update()
 			}
 		}
 	}*/
+	updating=false;
 }
 
 void Graphic_List_Render()
 {
+	bool render_latest=false;
 	//see if in buffer got any data, if so switch
 	if (buffer_in->count) //got new stuff to render
 	{
@@ -154,6 +158,7 @@ void Graphic_List_Render()
 		buffer_in = tmp;
 
 		buffer_in->count=0; //indicates empty
+		render_latest=true;
 	}
 
 	//copy needed data
@@ -168,4 +173,7 @@ void Graphic_List_Render()
 		glPopMatrix();
 	}
 
+
+	if (render_latest&&updating)
+		printf("ok, theory confirmed!\n");
 }
