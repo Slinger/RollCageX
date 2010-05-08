@@ -543,6 +543,35 @@ else if (!strcmp(file.words[0], "box5"))
 
 	glEnd();
 
+	glMaterialfv (GL_FRONT, GL_AMBIENT_AND_DIFFUSE, dgray);
+	glMaterialfv (GL_FRONT, GL_SPECULAR, dgray);
+	glMateriali (GL_FRONT, GL_SHININESS, 30);
+
+	glBegin (GL_QUAD_STRIP);
+	for (v=0; v<=2*M_PI; v+=2*M_PI/29)
+	{
+		glNormal3f (sin(v), cos(v), 0.0f);
+		glVertex3f(0.3*sin(v), 0.3*cos(v), w_w/2.4f);
+		glVertex3f(0.3*sin(v), 0.3*cos(v), -w_w/2.4f);
+	}
+
+	glMaterialfv (GL_FRONT, GL_SPECULAR, black);
+
+	glEnd();
+
+
+	glBegin (GL_QUAD_STRIP);
+	for (v=0; v<=2*M_PI; v+=2*M_PI/29)
+	{
+		glNormal3f (sin(v), cos(v), 0.0f);
+		glVertex3f(0.3*sin(v), 0.3*cos(v), -w_w/2.4f);
+		glVertex3f(0.0*sin(v), 0.0*cos(v), -w_w/2.4f);
+	}
+
+	glMaterialfv (GL_FRONT, GL_SPECULAR, black);
+
+	glEnd();
+
 
 // coloured rim strips
 
