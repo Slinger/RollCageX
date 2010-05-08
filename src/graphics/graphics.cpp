@@ -73,7 +73,7 @@ void graphics_resize (int new_w, int new_h)
 		printlog(1, "Angle forced to: %f degrees. And you are an evil person...", angle);
 	}
 
-	gluPerspective (angle, (GLdouble) w/h, 1, 1000);
+	gluPerspective (angle, (GLdouble) w/h, 1, 4000);
 
 	glMatrixMode (GL_MODELVIEW);
 	glLoadIdentity();
@@ -104,6 +104,10 @@ bool graphics_init(void)
 
 	glDepthFunc (GL_LESS);
 	glEnable (GL_DEPTH_TEST);
+
+	glCullFace(GL_BACK); //cull backsides (=don't draw things turned away)
+	glEnable(GL_CULL_FACE);
+
 	glShadeModel (GL_SMOOTH); //by default, can be changed
 
 	graphics_resize (screen->w, screen->h);

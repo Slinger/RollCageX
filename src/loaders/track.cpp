@@ -108,50 +108,50 @@ bool load_track (const char *path)
 	glMaterialfv (GL_FRONT, GL_AMBIENT_AND_DIFFUSE, green);
 	glNormal3f (0.0f, 0.0f, 1.0f);
 	glBegin (GL_QUADS);
-	glVertex3f (-1000.0f, -1000.0f, 0.0f);
 	glVertex3f (-1000.0f, 1000.0f, 0.0f);
-	glVertex3f (1000.0f, 1000.0f, 0.0f);
+	glVertex3f (-1000.0f, -1000.0f, 0.0f);
 	glVertex3f (1000.0f, -1000.0f, 0.0f);
+	glVertex3f (1000.0f, 1000.0f, 0.0f);
 	glEnd();
 
 	glMaterialfv (GL_FRONT, GL_AMBIENT_AND_DIFFUSE, gray);
 	glBegin (GL_QUADS);
 
 	glNormal3f (1.0f, 0.0f, 0.0f);
-	glVertex3f (-1000.0f, -1000.0f, 0.0f);
+	glVertex3f (-1000.0f, 1000.0f, 0.0f);
+	glVertex3f (-1000.0f, 1000.0f, 10.0f);
 	glVertex3f (-1000.0f, -1000.0f, 10.0f);
-	glVertex3f (-1000.0f, 1000.0f, 10.0f);
-	glVertex3f (-1000.0f, 1000.0f, 0.0f);
-
-	glNormal3f (0.0f, -1.0f, 0.0f);
-	glVertex3f (-1000.0f, 1000.0f, 0.0f);
-	glVertex3f (-1000.0f, 1000.0f, 10.0f);
-	glVertex3f (1000.0f, 1000.0f, 10.0f);
-	glVertex3f (1000.0f, 1000.0f, 0.0f);
-
-	glNormal3f (-1.0f, 0.0f, 0.0f);
-	glVertex3f (1000.0f, 1000.0f, 0.0f);
-	glVertex3f (1000.0f, 1000.0f, 10.0f);
-	glVertex3f (1000.0f, -1000.0f, 10.0f);
-	glVertex3f (1000.0f, -1000.0f, 0.0f);
+	glVertex3f (-1000.0f, -1000.0f, 0.0f);
 
 	glNormal3f (0.0f, 1.0f, 0.0f);
+	glVertex3f (-1000.0f, -1000.0f, 0.0f);
+	glVertex3f (-1000.0f, -1000.0f, 10.0f);
+	glVertex3f (1000.0f, -1000.0f, 10.0f);
+	glVertex3f (1000.0f, -1000.0f, 0.0f);
+
+	glNormal3f (-1.0f, 0.0f, 0.0f);
 	glVertex3f (1000.0f, -1000.0f, 0.0f);
 	glVertex3f (1000.0f, -1000.0f, 10.0f);
-	glVertex3f (-1000.0f, -1000.0f, 10.0f);
-	glVertex3f (-1000.0f, -1000.0f, 0.0f);
+	glVertex3f (1000.0f, 1000.0f, 10.0f);
+	glVertex3f (1000.0f, 1000.0f, 0.0f);
+
+	glNormal3f (0.0f, -1.0f, 0.0f);
+	glVertex3f (1000.0f, 1000.0f, 0.0f);
+	glVertex3f (1000.0f, 1000.0f, 10.0f);
+	glVertex3f (-1000.0f, 1000.0f, 10.0f);
+	glVertex3f (-1000.0f, 1000.0f, 0.0f);
 
 	glEnd();
 
 	glEndList();
 
-	//temp solution, ramp
-	geom = dCreateBox (0,13,13,1);
+//temp solution, ramp
+	geom = dCreateBox (0,13,12,4);
 	data = new Geom(geom, track.object);
 
 	dMatrix3 rot;
 	dRFromAxisAndAngle (rot, 1, 0, 0, 0.3);
-	dGeomSetPosition (geom, 0, 3, 1.5);
+	dGeomSetPosition (geom, 0, 4, 0);
 	dGeomSetRotation (geom, rot);
 	
 	data->mu = track.mu;
@@ -161,7 +161,75 @@ bool load_track (const char *path)
 
 	//render box using built in
 	data->f_3d = new file_3d();
-	debug_draw_box (data->f_3d->list, 13,13,1, gray, black, 0);
+	debug_draw_box (data->f_3d->list, 13,12,4, gray, black, 0);
+
+//other ramp
+
+	geom = dCreateBox (0,13,4,2);
+	data = new Geom(geom, track.object);
+
+	dRFromAxisAndAngle (rot, 1, 0, 0, -0.7);
+	dGeomSetPosition (geom, 0, 10.05, 1.6);
+	dGeomSetRotation (geom, rot);
+	
+	data->mu = track.mu;
+	data->slip = track.slip;
+	data->erp = track.erp;
+	data->cfm = track.cfm;
+
+	//render box using built in
+	data->f_3d = new file_3d();
+	debug_draw_box (data->f_3d->list, 13,4,2, gray, white, 80);
+
+	geom = dCreateBox (0,13,4,2);
+	data = new Geom(geom, track.object);
+
+	dRFromAxisAndAngle (rot, 1, 0, 0, -0.5);
+	dGeomSetPosition (geom, 0, 12, 0.5);
+	dGeomSetRotation (geom, rot);
+	
+	data->mu = track.mu;
+	data->slip = track.slip;
+	data->erp = track.erp;
+	data->cfm = track.cfm;
+
+	//render box using built in
+	data->f_3d = new file_3d();
+	debug_draw_box (data->f_3d->list, 13,4,2, gray, white, 80);
+
+	geom = dCreateBox (0,13,4,2);
+	data = new Geom(geom, track.object);
+
+	dRFromAxisAndAngle (rot, 1, 0, 0, -0.3);
+	dGeomSetPosition (geom, 0, 14, -0.3);
+	dGeomSetRotation (geom, rot);
+	
+	data->mu = track.mu;
+	data->slip = track.slip;
+	data->erp = track.erp;
+	data->cfm = track.cfm;
+
+	//render box using built in
+	data->f_3d = new file_3d();
+	debug_draw_box (data->f_3d->list, 13,4,2, gray, white, 80);
+
+	geom = dCreateBox (0,13,4,2);
+	data = new Geom(geom, track.object);
+
+	dRFromAxisAndAngle (rot, 1, 0, 0, -0.1);
+	dGeomSetPosition (geom, 0, 16, -0.8);
+	dGeomSetRotation (geom, rot);
+	
+	data->mu = track.mu;
+	data->slip = track.slip;
+	data->erp = track.erp;
+	data->cfm = track.cfm;
+
+	//render box using built in
+	data->f_3d = new file_3d();
+	debug_draw_box (data->f_3d->list, 13,16,2, gray, white, 80);
+
+
 
 //and for the 'small' sandbox ... new walls.
 

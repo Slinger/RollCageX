@@ -448,7 +448,7 @@ else if (!strcmp(file.words[0], "box5"))
 	float v;
 	for (v=0; v<=2*M_PI; v+=2*M_PI/29)
 	{
-		glNormal3f (sin(v), cos(v), 0.0f);
+		glNormal3f (sin(v), cos(v), -0.02f);
 		glVertex3f(1.45*sin(v), 1.45*cos(v), -w_w/2.2f);
 		glVertex3f(1.52*sin(v), 1.52*cos(v), -w_w/8.0f);
 	}
@@ -465,9 +465,9 @@ else if (!strcmp(file.words[0], "box5"))
 	glBegin (GL_QUAD_STRIP);
 	for (v=0; v<=2*M_PI; v+=2*M_PI/29)
 	{
-		glNormal3f (sin(v), cos(v), 0.0f);
-		glVertex3f(1.45*sin(v), 1.45*cos(v), w_w/2.2f);
-		glVertex3f(1.52*sin(v), 1.52*cos(v), w_w/8.0f);
+		glNormal3f (sin(-v), cos(-v), 0.02f);
+		glVertex3f(1.45*sin(-v), 1.45*cos(-v), w_w/2.2f);
+		glVertex3f(1.52*sin(-v), 1.52*cos(-v), w_w/8.0f);
 	}
 
 	glMaterialfv (GL_FRONT, GL_SPECULAR, black);
@@ -481,9 +481,9 @@ else if (!strcmp(file.words[0], "box5"))
 	glBegin (GL_QUAD_STRIP);
 	for (v=0; v<=2*M_PI; v+=2*M_PI/29)
 	{
-		glNormal3f (sin(v), cos(v), 0.0f);
-		glVertex3f(1.52*sin(v), 1.52*cos(v), w_w/8.0f);
-		glVertex3f(1.52*sin(v), 1.52*cos(v), -w_w/8.0f);
+		glNormal3f (sin(-v), cos(-v), 0.0f);
+		glVertex3f(1.52*sin(-v), 1.52*cos(-v), w_w/8.0f);
+		glVertex3f(1.52*sin(-v), 1.52*cos(-v), -w_w/8.0f);
 	}
 
 	glMaterialfv (GL_FRONT, GL_SPECULAR, black);
@@ -500,9 +500,9 @@ else if (!strcmp(file.words[0], "box5"))
 	glBegin (GL_QUAD_STRIP);
 	for (v=0; v<=2*M_PI; v+=2*M_PI/29)
 	{
-		glNormal3f (sin(v), cos(v), 0.0f);
-		glVertex3f(1.45*sin(v), 1.45*cos(v), -w_w/2.2f);
-		glVertex3f(1.2*sin(v), 1.2*cos(v), -w_w/1.8f);
+		glNormal3f (sin(-v), cos(-v), -0.09f);
+		glVertex3f(1.45*sin(-v), 1.45*cos(-v), -w_w/2.2f);
+		glVertex3f(1.2*sin(-v), 1.2*cos(-v), -w_w/1.8f);
 	}
 
 	glMaterialfv (GL_FRONT, GL_SPECULAR, black);
@@ -516,7 +516,7 @@ else if (!strcmp(file.words[0], "box5"))
 	glBegin (GL_QUAD_STRIP);
 	for (v=0; v<=2*M_PI; v+=2*M_PI/29)
 	{
-		glNormal3f (sin(v), cos(v), 0.0f);
+		glNormal3f (sin(v), cos(v), 0.09f);
 		glVertex3f(1.45*sin(v), 1.45*cos(v), w_w/2.2f);
 		glVertex3f(1.2*sin(v), 1.2*cos(v), w_w/1.8f);
 	}
@@ -550,9 +550,9 @@ else if (!strcmp(file.words[0], "box5"))
 	glBegin (GL_QUAD_STRIP);
 	for (v=0; v<=2*M_PI; v+=2*M_PI/29)
 	{
-		glNormal3f (sin(v), cos(v), 0.0f);
-		glVertex3f(0.3*sin(v), 0.3*cos(v), w_w/2.4f);
-		glVertex3f(0.3*sin(v), 0.3*cos(v), -w_w/2.4f);
+		glNormal3f (sin(-v), cos(-v), 0.0f);
+		glVertex3f(0.3*sin(-v), 0.3*cos(-v), w_w/2.4f);
+		glVertex3f(0.3*sin(-v), 0.3*cos(-v), -w_w/2.4f);
 	}
 
 	glMaterialfv (GL_FRONT, GL_SPECULAR, black);
@@ -563,9 +563,9 @@ else if (!strcmp(file.words[0], "box5"))
 	glBegin (GL_QUAD_STRIP);
 	for (v=0; v<=2*M_PI; v+=2*M_PI/29)
 	{
-		glNormal3f (sin(v), cos(v), 0.0f);
-		glVertex3f(0.3*sin(v), 0.3*cos(v), -w_w/2.4f);
-		glVertex3f(0.0*sin(v), 0.0*cos(v), -w_w/2.4f);
+		glNormal3f (sin(-v), cos(-v), 0.0f);
+		glVertex3f(0.3*sin(-v), 0.3*cos(-v), -w_w/2.4f);
+		glVertex3f(0.0*sin(-v), 0.0*cos(-v), -w_w/2.4f);
 	}
 
 	glMaterialfv (GL_FRONT, GL_SPECULAR, black);
@@ -576,29 +576,27 @@ else if (!strcmp(file.words[0], "box5"))
 // coloured rim strips
 
 	glMaterialfv (GL_FRONT, GL_AMBIENT_AND_DIFFUSE, yellow);
-	glMaterialfv (GL_FRONT, GL_SPECULAR, dgray);
+	//glMaterialfv (GL_FRONT, GL_SPECULAR, dgray);
 	glMateriali (GL_FRONT, GL_SHININESS, 50);
 
 	glBegin (GL_QUAD_STRIP);
 	for (v=0; v<=2*M_PI; v+=2*M_PI/29)
 	{
-		glNormal3f (sin(v), cos(v), 0.0f);
-		glVertex3f(1.2*sin(v), 1.2*cos(v), -w_w/1.8f);
-		glVertex3f(1.1*sin(v), 1.1*cos(v), -w_w/1.8f);
+		glNormal3f (sin(-v), cos(-v), -1.0f);
+		glVertex3f(1.2*sin(-v), 1.2*cos(-v), -w_w/1.8f);
+		glVertex3f(1.1*sin(-v), 1.1*cos(-v), -w_w/1.8f);
 	}
 
 	glMaterialfv (GL_FRONT, GL_SPECULAR, black);
 
 	glEnd();
 
-	glMaterialfv (GL_FRONT, GL_AMBIENT_AND_DIFFUSE, yellow);
-	glMaterialfv (GL_FRONT, GL_SPECULAR, dgray);
-	glMateriali (GL_FRONT, GL_SHININESS, 50);
+	glMaterialfv (GL_FRONT, GL_AMBIENT_AND_DIFFUSE, yellow);	glMateriali (GL_FRONT, GL_SHININESS, 50);
 
 	glBegin (GL_QUAD_STRIP);
 	for (v=0; v<=2*M_PI; v+=2*M_PI/29)
 	{
-		glNormal3f (sin(v), cos(v), 0.0f);
+		glNormal3f (sin(v), cos(v), 1.0f);
 		glVertex3f(1.2*sin(v), 1.2*cos(v), w_w/1.8f);
 		glVertex3f(1.1*sin(v), 1.1*cos(v), w_w/1.75f);
 	}
@@ -614,15 +612,15 @@ else if (!strcmp(file.words[0], "box5"))
 	glMaterialfv (GL_FRONT, GL_AMBIENT_AND_DIFFUSE, lgray);
 	glNormal3f (0.0f, 0.0f, 1.0f);
 	glBegin (GL_QUADS);
-		glVertex3f(w_r*0.9f, w_r/5, w_w/2.4f);
 		glVertex3f(w_r*0.9f, -w_r/5, w_w/2.4f);
-		glVertex3f(-w_r*0.9f, -w_r/5, w_w/2.4f);
+		glVertex3f(w_r*0.9f, w_r/5, w_w/2.4f);
 		glVertex3f(-w_r*0.9f, w_r/5, w_w/2.4f);
+		glVertex3f(-w_r*0.9f, -w_r/5, w_w/2.4f);
 
-		glVertex3f(w_r/5, w_r*0.9f, w_w/2.4f);
 		glVertex3f(w_r/5, -w_r*0.9f, w_w/2.4f);
-		glVertex3f(-w_r/5, -w_r*0.9f, w_w/2.4f);
+		glVertex3f(w_r/5, w_r*0.9f, w_w/2.4f);
 		glVertex3f(-w_r/5, w_r*0.9f, w_w/2.4f);
+		glVertex3f(-w_r/5, -w_r*0.9f, w_w/2.4f);
 	glEnd();
 
 	glEndList();

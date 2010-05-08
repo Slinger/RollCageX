@@ -29,10 +29,10 @@ void debug_draw_box (GLuint list, GLfloat x, GLfloat y, GLfloat z,
 
 	glBegin (GL_QUADS);
 	glNormal3f (0.0f, 0.0f, 1.0f);
-	glVertex3f (-(x/2.0f), -(y/2.0f), (z/2.0f));
 	glVertex3f (-(x/2.0f), (y/2.0f), (z/2.0f));
-	glVertex3f ((x/2.0f), (y/2.0f), (z/2.0f));
+	glVertex3f (-(x/2.0f), -(y/2.0f), (z/2.0f));
 	glVertex3f ((x/2.0f), -(y/2.0f), (z/2.0f));
+	glVertex3f ((x/2.0f), (y/2.0f), (z/2.0f));
 
 	glNormal3f (0.0f, 0.0f, -1.0f);
 	glVertex3f (-(x/2.0f), -(y/2.0f), -(z/2.0f));
@@ -41,10 +41,10 @@ void debug_draw_box (GLuint list, GLfloat x, GLfloat y, GLfloat z,
 	glVertex3f ((x/2.0f), -(y/2.0f), -(z/2.0f));
 
 	glNormal3f (0.0f, -1.0f, 0.0f);
-	glVertex3f (-(x/2.0f), -(y/2.0f), -(z/2.0f));
-	glVertex3f (-(x/2.0f), -(y/2.0f), (z/2.0f));
-	glVertex3f ((x/2.0f), -(y/2.0f), (z/2.0f));
 	glVertex3f ((x/2.0f), -(y/2.0f), -(z/2.0f));
+	glVertex3f ((x/2.0f), -(y/2.0f), (z/2.0f));
+	glVertex3f (-(x/2.0f), -(y/2.0f), (z/2.0f));
+	glVertex3f (-(x/2.0f), -(y/2.0f), -(z/2.0f));
 
 	glNormal3f (0.0f, 1.0f, 0.0f);
 	glVertex3f (-(x/2.0f), (y/2.0f), -(z/2.0f));
@@ -53,10 +53,10 @@ void debug_draw_box (GLuint list, GLfloat x, GLfloat y, GLfloat z,
 	glVertex3f ((x/2.0f), (y/2.0f), -(z/2.0f));
 
 	glNormal3f (1.0f, 0.0f, 0.0f);
-	glVertex3f ((x/2.0f), -(y/2.0f), -(z/2.0f));
-	glVertex3f ((x/2.0f), -(y/2.0f), (z/2.0f));
-	glVertex3f ((x/2.0f), (y/2.0f), (z/2.0f));
 	glVertex3f ((x/2.0f), (y/2.0f), -(z/2.0f));
+	glVertex3f ((x/2.0f), (y/2.0f), (z/2.0f));
+	glVertex3f ((x/2.0f), -(y/2.0f), (z/2.0f));
+	glVertex3f ((x/2.0f), -(y/2.0f), -(z/2.0f));
 
 	glNormal3f (-1.0f, 0.0f, 0.0f);
 	glVertex3f (-(x/2.0f), -(y/2.0f), -(z/2.0f));
@@ -176,14 +176,14 @@ void debug_draw_capsule (GLuint list, GLfloat r, GLfloat l,
 			jj = j + 1;
 			
 			dx = sin(slp * i) * sin (sld * j);
-			dy = sin(slp * i) * cos (sld * j);
+			dy = -sin(slp * i) * cos (sld * j);
 			dz = -cos(slp*i);
 			//printf("dx:%f dy:%f dz:%f\n", dx, dy, dz);
 			glNormal3f(dx, dy, -dz);
 			glVertex3f( r * dx, r * dy, -(r * dz) +l);
 			
 			dx = sin(slp * ii) * sin (sld * jj);
-			dy = sin(slp * ii) * cos (sld * jj);
+			dy = -sin(slp * ii) * cos (sld * jj);
 			dz = -cos(slp*ii);
 			//printf("2dx:%f dy:%f dz:%f\n", dx, dy, dz);
 			glNormal3f(dx, dy, -dz);
@@ -201,8 +201,8 @@ void debug_draw_capsule (GLuint list, GLfloat r, GLfloat l,
 		dx = sin(sld * j);
 		dy = cos(sld * j);
 		glNormal3f (dx, dy, 0.0f);
-		glVertex3f(r*dx, r*dy, l);
 		glVertex3f(r*dx, r*dy, -l);
+		glVertex3f(r*dx, r*dy, l);
 	}
 	glEnd();
 
