@@ -436,7 +436,7 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 
 	dMass m;
 	dMassSetSphere (&m,1,1); //radius
-	dMassAdjust (&m,60); //mass
+	dMassAdjust (&m,0.6); //mass
 	dBodySetMass (body1, &m);
 
 	new Body (body1, obj);

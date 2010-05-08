@@ -13,6 +13,7 @@
 #define _RCX_COLOURS_H
 //the following a some basic color definitions (used for lights and materials)
 const GLfloat black[]     = {0.0f, 0.0f, 0.0f, 1.0f}; // = nothing for lights
+const GLfloat lblack[]    = {0.05f, 0.05f, 0.05f, 1.0f};
 const GLfloat dgray[]     = {0.2f, 0.2f, 0.2f, 1.0f};
 const GLfloat gray[]      = {0.5f, 0.5f, 0.5f, 1.0f};
 const GLfloat lgray[]     = {0.8f, 0.8f, 0.8f, 1.0f};

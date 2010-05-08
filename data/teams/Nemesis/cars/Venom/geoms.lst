@@ -1,5 +1,5 @@
 #main body
-box4 s 2.9 7.2 1.1 p 0 0 0 #main body box (copy of "body" above)
+box s 2.9 7.2 1.1 p 0 0 0 #main body box (copy of "body" above)
 
 box2 s 3.8 0.7 0.1 p 0 -3.4 0.9 r 10 0 0
 box2 s 3.8 0.7 0.1 p 0 -3.4 -0.9 r -10 0 0
@@ -10,12 +10,23 @@ box2 s 0.8 0.2 0.8 p -1 -3.6 0
 box2 s 0.2 0.3 1.8 p 0.2 -3.4 0
 box2 s 0.2 0.3 1.8 p -0.2 -3.4 0
 
-box3 s 1 2.1 0.7 p 1.5 2.25 0
+box3 s 1 2.1 0.7 p 1.5 2.25 0 #front suspension bits
 box3 s 1 2.1 0.7 p -1.5 2.25 0
+
+
 
 box2 s 1.2 1.0 1.0 p 0 -1.0 -0.3 r -8 0 0
 
-box3 s 4 2.4 0.8 p 0 -1.95 0
+box3 s 4 2.4 0.505 p 0 -1.95 0 #rear suspension bits
+box3 s 1 2.4 0.3 p 1.48 -1.95 0.325 r 0 -20 0
+box3 s 1 2.4 0.3 p -1.48 -1.95 0.325 r 0 20 0
+
+box3 s 1 2.4 0.3 p 1.48 -1.95 -0.325 r 0 20 0
+box3 s 1 2.4 0.3 p -1.48 -1.95 -0.325 r 0 -20 0
+
+
+
+
 
 box2 s 3.4 2.5 0.9 p 0 2.25 0
 
@@ -29,10 +40,9 @@ box3 s 1.0 2 0.5 p 0 0.1 -0.43 r -6 0 0
 
 box2 s 0.7 1.2 0.7 p 0 -1.2 0.35 r -15 45 0
 
-capsule s 0.4 0.2 p 1 3.65 0 r 0 90 0
-capsule s 0.4 0.2 p -1 3.65 0 r 0 90 0
-capsule s 0.4 0.2 p 1 3.8 0 r 90 0 0
-capsule s 0.4 0.2 p -1 3.8 0 r 90 0 0
+box s 2.9 0.78 0.78 p 0 3.6 0 r 45 0 0
+box s 0.6 1 0.6 p 0.92 3.7 0 r 0 45 0
+box s 0.6 1 0.6 p -0.92 3.7 0 r 0 45 0
 
 sphere s 0.4 p 1 -3.6 0
 sphere s 0.4 p -1 -3.6 0
