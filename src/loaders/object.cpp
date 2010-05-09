@@ -16,6 +16,7 @@
 #include <ode/ode.h>
 
 #include "../shared/racetime_data.hpp"
+#include "../shared/trimesh.hpp"
 #include "../shared/printlog.hpp"
 #include "../shared/track.hpp"
 #include "../shared/joint.hpp"
@@ -180,7 +181,7 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 	//just test:
 	Trimesh mesh;
 	mesh.Load("data/objects/misc/box/box.obj");
-	mes.TMP_printinfo();
+	mesh.TMP_printinfo();
 	//end of test
 
 	obj = new Object();

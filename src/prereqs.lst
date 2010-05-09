@@ -13,10 +13,11 @@ build/graphics/graphics.o: graphics/../shared/internal.hpp graphics/../shared/in
 build/loaders/car.o: loaders/../shared/car.hpp loaders/../shared/printlog.hpp loaders/../shared/track.hpp loaders/../shared/geom.hpp loaders/../shared/body.hpp loaders/../shared/joint.hpp loaders/colours.hpp loaders/debug_draw.hpp loaders/text_file.hpp
 build/loaders/conf.o: loaders/conf.hpp loaders/text_file.hpp loaders/../shared/printlog.hpp
 build/loaders/debug_draw.o: loaders/debug_draw.hpp loaders/colours.hpp loaders/../shared/printlog.hpp
-build/loaders/object.o: loaders/../shared/object.hpp loaders/colours.hpp loaders/debug_draw.hpp loaders/../shared/racetime_data.hpp loaders/../shared/printlog.hpp loaders/../shared/track.hpp loaders/../shared/joint.hpp loaders/../shared/geom.hpp loaders/../shared/body.hpp
+build/loaders/object.o: loaders/../shared/object.hpp loaders/colours.hpp loaders/debug_draw.hpp loaders/../shared/racetime_data.hpp loaders/../shared/trimesh.hpp loaders/../shared/printlog.hpp loaders/../shared/track.hpp loaders/../shared/joint.hpp loaders/../shared/geom.hpp loaders/../shared/body.hpp
 build/loaders/profile.o: loaders/../shared/profile.hpp loaders/../shared/printlog.hpp loaders/text_file.hpp
 build/loaders/text_file.o: loaders/text_file.hpp loaders/../shared/printlog.hpp
 build/loaders/track.o: loaders/../shared/track.hpp loaders/../shared/camera.hpp loaders/../shared/geom.hpp loaders/../shared/printlog.hpp loaders/../shared/object.hpp loaders/colours.hpp loaders/text_file.hpp loaders/debug_draw.hpp
+build/loaders/trimesh.o: loaders/../shared/trimesh.hpp loaders/../shared/printlog.hpp loaders/text_file.hpp
 build/physics/body.o: physics/../shared/body.hpp physics/../shared/printlog.hpp physics/../shared/track.hpp physics/../shared/internal.hpp physics/../events/event_lists.hpp
 build/physics/camera.o: physics/../shared/camera.hpp physics/../shared/internal.hpp physics/../shared/track.hpp
 build/physics/car.o: physics/../shared/car.hpp physics/../shared/internal.hpp
@@ -40,3 +41,4 @@ build/shared/runlevel.o: shared/runlevel.hpp
 build/shared/space.o: shared/space.hpp shared/geom.hpp shared/printlog.hpp shared/track.hpp
 build/shared/threads.o: shared/threads.hpp
 build/shared/track.o: shared/track.hpp
+build/shared/trimesh.o: shared/trimesh.hpp

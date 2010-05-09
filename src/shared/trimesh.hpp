@@ -14,14 +14,20 @@
 
 #include <vector>
 #include <string>
-#include <inttypes.h>
+#include <limits.h>
 
 #include <GL/gl.h>
 #include <ode/ode.h>
 
+#include "racetime_data.hpp"
+
 //definitions:
 //for keeping track for overflowing:
-#define INDEX_MAX uintmax_t
+//#define INDEX_MAX UINT_MAX - dont care for now
+
+//for indicating missing data
+#define INDEX_ERROR UINT_MAX
+
 //how big each VBO should be:
 #define VBO_MAX 8388608 //8MiB - or should it be MB? need to test...
 //end of definitions
@@ -56,7 +62,7 @@ class Trimesh_3D: public Racetime_Data
 		struct Material
 		{
 			//???
-			GLuint start, stop; //where in vbo this material is usded
+			GLuint start, stop; //where in vbo this material is used
 		};
 
 		//everything needed to render:
@@ -73,7 +79,7 @@ class Trimesh_3D: public Racetime_Data
 class Trimesh_Geom_Data: public Racetime_Data
 {
 	public:
-		Geom *Create_Geom(); //creates geom from trimesh
+		class Geom *Create_Geom(); //creates geom from trimesh
 		//TODO: ode supports callbacks for trimeshes, could be usefull...
 
 	private:
@@ -101,19 +107,15 @@ class Trimesh
 
 		//wrapper that decides loading function by file suffix:
 		bool Load(const char*);
-		//obj files
-		bool Load_OBJ(const char *);
-		//3ds files
-		bool Load_3DS(const char *);
 
-		//void Generate... - create trimesh, not supported/needed yet
+		//void Generate(const char*); - create trimesh by description, not supported/needed yet
 
 		//create "dedicated" (used during race) timeshes from this one:
 		Trimesh_3D *Create_3D();
-		Trimesh_Geom *Create_Geom();
+		Trimesh_Geom_Data *Create_Geom_Data();
 
 		//tools:
-		void Reize(float);
+		void Resize(float);
 		void Rotate(float,float,float);
 		void Offset(float, float, float);
 
@@ -123,19 +125,28 @@ class Trimesh
 		//char *name; //just for the other trimesh classes (for Racetime_Data name)
 		std::string name;
 
+		//tools:
 		void Generate_Missing_Normals(); //if loaded incomplete normals, solve
-		void Normalize_Normals(); //make sure normals are unit (for some loaders maybe not...)
+		void Normalize_Normals(); //make sure normals are unit (for some loaders, like obj, maybe not...)
+		unsigned int Find_Material(const char *); //find first matching material by name
 
+		//functions for loading 3d files:
+		//obj files
+		bool Load_OBJ(const char *);
+		bool Load_MTL(const char *); //used by obj loader
+		//3ds files
+		bool Load_3DS(const char *);
 
 		//
 		//actual data to store:
 		//
 
-		std::vector vertices<dReal[3]>;
-		std::vector normals<dReal[3]>;
+		struct Vector_Float{
+			float x, y, z;
+		};
 
-		//each triangle is 6 indices: first 3=vertices, last 3=normals
-		std::vector triangles<unsigned int[6]>;
+		std::vector<Vector_Float> vertices;
+		std::vector<Vector_Float> normals;
 
 		//materials:
 		struct Material
@@ -146,14 +157,28 @@ class Trimesh
 			int s; //shininess
 		};
 
-		struct Matieral_Index
-		{
-			unsigned int material; //number in list
-			unsigned int length; //until switching to next material
+		std::vector<Material> materials; //store materials
+
+		//
+		//indices:
+		//
+
+		//each triangle is 6 indices: 3=vertices, 3=normals
+		struct Triangle_Index{
+			unsigned int vertex[3];
+			//texture coords
+			unsigned int normal[3];
 		};
 
-		std::vector materials<Material>; //store materials
-		std::vector material_indices<Material_Index>; //
+		std::vector<Triangle_Index> triangles;
+
+		struct Material_Index
+		{
+			unsigned int material; //number in list
+			unsigned int start_at; //before switching to this material
+		};
+
+		std::vector<Material_Index> material_indices; //swith of materials
 };
 
 #endif

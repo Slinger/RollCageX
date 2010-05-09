@@ -10,38 +10,36 @@
  */
 
 #include "trimesh.hpp"
+#include "printlog.hpp"
 
-/*Trimesh::Trimesh()
+#include <GL/gl.h>
+#include <GL/glext.h> //might be needed for vbo definitions
+
+//keep track of VBOs (new generated if not enough room in already existing)
+class VBO: Racetime_Data
 {
-	name=NULL;
-}
-
-Trimesh::~Trimesh()
-{
-	if (name)
-		delete name;
-}*/
-
-		//keep track of VBOs (new generated if not enough room in already existing)
-		struct VBO
+	public:
+		//find a vbo with enough room, if not create a new one
+		GLuint Select_With_Enough_Room(unsigned int needed)
 		{
-			GLuint id; //size of buffer (for mapping)
-			GLsizeiptr usage; //how much of buffer is used (possibly GLint instead?)
+			return 0; //change
+		}
+	private:
+		VBO(): Racetime_Data("internal_VBO_tracking_class") //name all vbo classes this...
+		{
+			//glBufferCreate
+		}
+		~VBO()
+		{
+			//glBufferDestroy
 		}
 
-		static std::vector vbo<VBO>;
+		GLuint id; //size of buffer (for mapping)
+		GLsizeiptr usage; //how much of buffer is used (possibly GLint instead?)
 
-
-void Trimesh::Set_Name(const char *n)
-{
-	//unlikely, but anyway
-	if (name)
-		delete[] name;
-
-
-	name = new char[strlen(n)+1]; //alloc
-	strcpy(name, n);
-}
+		static VBO *head;
+		VBO *next;
+};
 
 void Trimesh::Resize(float r)
 {
@@ -55,52 +53,55 @@ void Trimesh::Resize(float r)
 
 	for (i=0; i != end; ++i)
 	{
-		vertices[i][0] *= r;
-		vertices[i][1] *= r;
-		vertices[i][2] *= r;
+		vertices[i].x *= r;
+		vertices[i].y *= r;
+		vertices[i].z *= r;
 	}
 }
 
 void Trimesh::Rotate(float x, float y, float z)
 {
-	if (x==y==z==0)
+	if (x==0 && y==0 && z==0)
 		return;
 
 	printlog(2, "Rotating trimesh");
 
 	//rotation matrix:
 	dMatrix3 rot;
-	float *origin;
-	float rotated[3];
 	dRFromEulerAngles (rot, x*(M_PI/180), y*(M_PI/180), z*(M_PI/180));
 	printf("TODO: check if dMatrix3 is column on line based\n");
 
-	size_t end = vectors.size();
+	Vector_Float v, rotated;
+
+	size_t end = vertices.size();
 	size_t i;
 
 	for (i=0; i != end; ++i)
 	{
-		v=vectors[i];
-		rotated[0] = v[0]*rot[0]+v[1]*rot[1]+v[2]*rot[2];
-		rotated[1] = v[0]*rot[3]+v[1]*rot[4]+v[2]*rot[5];
-		rotated[2] = v[0]*rot[6]+v[1]*rot[7]+v[2]*rot[8];
+		v=vertices[i];
+		rotated.x = v.x*rot[0]+v.y*rot[1]+v.z*rot[2];
+		rotated.y = v.x*rot[3]+v.y*rot[4]+v.z*rot[5];
+		rotated.z = v.x*rot[6]+v.y*rot[7]+v.z*rot[8];
 
-		vectors[i]=rotated;
+		vertices[i]=rotated;
 	}
 
 	end = normals.size();
 
 	for (i=0; i != end; ++i)
 	{
-		normals[i][0] *= r;
-		normals[i][1] *= r;
-		normals[i][2] *= r;
+		v=normals[i];
+		rotated.x = v.x*rot[0]+v.y*rot[1]+v.z*rot[2];
+		rotated.y = v.x*rot[3]+v.y*rot[4]+v.z*rot[5];
+		rotated.z = v.x*rot[6]+v.y*rot[7]+v.z*rot[8];
+
+		normals[i]=rotated;
 	}
 }
 
 void Trimesh::Offset(float x, float y, float z)
 {
-	if (x==y==z==0)
+	if (x==0 && y==0 && z==0)
 		return;
 
 	printlog(2, "Changing offset of trimesh");
@@ -110,8 +111,8 @@ void Trimesh::Offset(float x, float y, float z)
 
 	for (i=0; i != end; ++i)
 	{
-		vertices[i][0] += x;
-		vertices[i][1] += y;
-		vertices[i][2] += z;
+		vertices[i].x += x;
+		vertices[i].y += y;
+		vertices[i].z += z;
 	}
 }
