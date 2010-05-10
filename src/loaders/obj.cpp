@@ -24,10 +24,7 @@ bool Trimesh::Load_OBJ(const char *f)
 
 	//check if ok...
 	if (!file.Open(f))
-	{
-		printlog(0, "ERROR: could not open file!");
 		return false;
-	}
 	
 	//set name to filename
 	name=f;
@@ -143,11 +140,11 @@ bool Trimesh::Load_OBJ(const char *f)
 		{
 			char filename[strlen(f)+strlen(file.words[1])]; //enough to hold both obj and mtl path+filename
 			strcpy(filename, f); //copy obj path+filename
-			const char *last = strrchr(filename, '/'); //last slash in obj filename
+			char *last = strrchr(filename, '/'); //last slash in obj filename
 
 			if (last) //if obj file had a path before filename (most likely):
 			{
-				last=0; //indicate end at end of path
+				last[1]='\0'; //indicate end at end of path (after /)
 				strcat(filename, file.words[1]); //add mtl filename/path to obj path
 			}
 			else //just what's requested
@@ -155,8 +152,7 @@ bool Trimesh::Load_OBJ(const char *f)
 				strcpy(filename, file.words[1]); //overwrite with mtl filename
 			}
 				
-			if (!Load_MTL(filename))
-				return false;
+			Load_MTL(filename); //if not succesfull, continue - might not need any materials anyway?
 		}
 	}
 
@@ -167,6 +163,10 @@ bool Trimesh::Load_OBJ(const char *f)
 		return false;
 	}
 
+	//ok, lets just make sure all data is good:
+	//Normalize_Normals();
+	//Generate_Missing_Normals();
+	//
 	return true;
 }
 
@@ -178,10 +178,7 @@ bool Trimesh::Load_MTL(const char *f)
 
 	//check if ok...
 	if (!file.Open(f))
-	{
-		printlog(0, "ERROR: could not open file!");
 		return false;
-	}
 	
 	//
 	//start processing

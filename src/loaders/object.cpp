@@ -45,6 +45,14 @@ Object_Template *Object_Template::Load(const char *path)
 		//"load" 3d box
 		printlog(2, "(hard-coded box)");
 
+	//just test:
+	Trimesh mesh;
+	if (mesh.Load("data/objects/misc/box/box.obj"))
+	{
+		mesh.TMP_printinfo();
+	}
+	//end of test
+
 		tmplt = new Object_Template(path);
 
 		//the debug box will only spawn one component - one "3D file"
@@ -177,14 +185,6 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 	//
 	//
 	//
-
-	//just test:
-	Trimesh mesh;
-	if (mesh.Load("data/objects/misc/box/box.obj"))
-	{
-		mesh.TMP_printinfo();
-	}
-	//end of test
 
 	obj = new Object();
 

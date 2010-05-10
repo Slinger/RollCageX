@@ -107,8 +107,6 @@ Profile *Profile_Load (const char *path)
 			}
 		}
 	}
-	else
-		printlog(0, "ERROR: could not open file");
 
 	return prof;
 }

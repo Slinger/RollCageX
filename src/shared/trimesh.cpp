@@ -15,6 +15,18 @@
 #include <GL/gl.h>
 #include <GL/glext.h> //might be needed for vbo definitions
 
+//TMP:
+void Trimesh::TMP_printinfo()
+{
+	printf("printing contents of trimesh:\n");
+	printf("number of materials: %i\n", materials.size());
+	printf("number of material indices: %i\n", material_indices.size());
+	printf("number of vertices: %i\n", vertices.size());
+	printf("number of normals: %i\n", normals.size());
+	printf("number of triangles: %i\n", triangles.size());
+}
+
+
 //default values for material
 const Trimesh::Material Trimesh::Material_Default = 
 {
