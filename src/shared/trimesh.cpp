@@ -18,12 +18,27 @@
 //TMP:
 void Trimesh::TMP_printinfo()
 {
+	size_t i;
 	printf("printing contents of trimesh:\n");
 	printf("number of materials: %i\n", materials.size());
+	for (i=0; i!=materials.size(); ++i)
+		printf("> %s\n", materials[i].name.c_str());
+
 	printf("number of material indices: %i\n", material_indices.size());
+	for (i=0; i!=material_indices.size(); ++i)
+		printf("> %u\n", material_indices[i].material);
+
 	printf("number of vertices: %i\n", vertices.size());
+	for (i=0; i!=vertices.size(); ++i)
+		printf("> %f %f %f\n", vertices[i].x, vertices[i].y, vertices[i].z);
+
 	printf("number of normals: %i\n", normals.size());
+	for (i=0; i!=normals.size(); ++i)
+		printf("> %f %f %f\n", normals[i].x, normals[i].y, normals[i].z);
+
 	printf("number of triangles: %i\n", triangles.size());
+	for (i=0; i!=triangles.size(); ++i)
+		printf("> %u %u %u - %u %u %u\n", triangles[i].vertex[0], triangles[i].vertex[1], triangles[i].vertex[2], triangles[i].normal[0], triangles[i].normal[1], triangles[i].normal[2]);
 }
 
 
