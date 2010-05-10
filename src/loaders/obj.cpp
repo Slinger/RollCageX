@@ -137,7 +137,7 @@ bool Trimesh::Load_OBJ(const char *f)
 				return false;
 
 			//else, we now have material switch for next triangles
-			//material_indices.push_back(mat);
+			material_indices.push_back(mat);
 		}
 		else if (!strcmp(file.words[0], "mtllib") && file.word_count==2)
 		{

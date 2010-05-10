@@ -26,23 +26,6 @@ const Trimesh::Material Trimesh::Material_Default =
 	0.0
 };
 
-//wrapper for loading
-bool Trimesh::Load(const char *file)
-{
-	const char *suffix = strrchr(file, '.');
-
-	//see if match:
-	if (!strcasecmp(suffix, ".obj"))
-		return Load_OBJ(file);
-	//else if (!strcasecmp(suffix, ".3ds"))
-		//return Load_3DS(file);
-	
-	//else, no match
-	printlog(0, "ERROR: unknown 3D file suffix for \"%s\"", file);
-	return false;
-}
-
-
 //keep track of VBOs (new generated if not enough room in already existing)
 class VBO: Racetime_Data
 {
@@ -69,6 +52,37 @@ class VBO: Racetime_Data
 		static VBO *head;
 		VBO *next;
 };
+
+//wrapper for loading
+bool Trimesh::Load(const char *file)
+{
+	const char *suffix = strrchr(file, '.');
+
+	//see if match:
+	if (!strcasecmp(suffix, ".obj"))
+		return Load_OBJ(file);
+	//else if (!strcasecmp(suffix, ".3ds"))
+		//return Load_3DS(file);
+	
+	//else, no match
+	printlog(0, "ERROR: unknown 3D file suffix for \"%s\"", file);
+	return false;
+}
+
+unsigned int Trimesh::Find_Material(const char *name)
+{
+	size_t end = materials.size();
+
+	for (size_t i=0; i<end; ++i)
+	{
+		if (materials[i].name == name)
+			return i;
+	}
+
+	//failure
+	printlog(0, "ERROR: could not find trimesh material %s", name);
+	return false;
+}
 
 void Trimesh::Resize(float r)
 {

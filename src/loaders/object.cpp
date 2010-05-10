@@ -180,8 +180,10 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 
 	//just test:
 	Trimesh mesh;
-	mesh.Load("data/objects/misc/box/box.obj");
-	mesh.TMP_printinfo();
+	if (mesh.Load("data/objects/misc/box/box.obj"))
+	{
+		mesh.TMP_printinfo();
+	}
 	//end of test
 
 	obj = new Object();
