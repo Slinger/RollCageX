@@ -155,6 +155,9 @@ void Graphic_List_Render()
 		list_buffer *tmp=buffer_out;
 		buffer_out=buffer_in;
 		buffer_in = tmp;
+
+		//make sure we don't accidentally switch to this when render next frame...
+		buffer_in->updated=false;
 	}
 
 	//copy needed data
