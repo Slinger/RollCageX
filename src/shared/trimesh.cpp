@@ -108,7 +108,7 @@ unsigned int Trimesh::Find_Material(const char *name)
 
 	//failure
 	printlog(0, "ERROR: could not find trimesh material %s", name);
-	return false;
+	return INDEX_ERROR;
 }
 
 void Trimesh::Resize(float r)

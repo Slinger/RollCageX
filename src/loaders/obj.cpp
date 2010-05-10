@@ -124,14 +124,17 @@ bool Trimesh::Load_OBJ(const char *f)
 				}
 			}
 		}
-		else if (!strcmp(file.words[0], "usemt") && file.word_count==2)
+		else if (!strcmp(file.words[0], "usemtl") && file.word_count==2)
 		{
 			Material_Index mat;
 			mat.material = Find_Material(file.words[1]);
 			mat.start_at = triangles.size();
 
 			if (mat.material == INDEX_ERROR)
-				return false;
+			{
+				printlog(0, "Ignoring change of material (things will probably look wrong)");
+				continue; //just ignore material change
+			}
 
 			//else, we now have material switch for next triangles
 			material_indices.push_back(mat);
