@@ -48,8 +48,6 @@ list_buffer *buffer_in = &buffer1; //filled with data
 list_buffer *buffer_out = &buffer2; //rendered
 
 
-bool updating=false;
-
 void Graphic_List_Update()
 {
 	//pointers:
@@ -60,8 +58,6 @@ void Graphic_List_Update()
 
 	size_t *count=&(tmp->count);
 	*count=0; //set to zero (empty)
-
-	updating=true;
 
 	//variables
 	const dReal *pos, *rot;
@@ -149,20 +145,16 @@ void Graphic_List_Update()
 		}
 	}*/
 	tmp->updated=true;
-	updating=false;
 }
 
 void Graphic_List_Render()
 {
-	bool render_latest=false;
 	//see if in buffer got any data, if so switch
 	if (buffer_in->updated) //got new stuff to render
 	{
 		list_buffer *tmp=buffer_out;
 		buffer_out=buffer_in;
 		buffer_in = tmp;
-
-		render_latest=true;
 	}
 
 	//copy needed data
@@ -176,8 +168,4 @@ void Graphic_List_Render()
 			glCallList (list[i].list);
 		glPopMatrix();
 	}
-
-
-	if (render_latest&&updating)
-		printf("coding error!... or some other error!... ERROR!\n");
 }
