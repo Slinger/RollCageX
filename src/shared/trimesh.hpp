@@ -131,10 +131,10 @@ class Trimesh
 		unsigned int Find_Material(const char *); //find first matching material by name
 
 		//functions for loading 3d files:
-		//obj files
+		//obj files (obj.cpp)
 		bool Load_OBJ(const char *);
 		bool Load_MTL(const char *); //used by obj loader
-		//3ds files
+		//3ds files (3ds.cpp)
 		bool Load_3DS(const char *);
 
 		//
@@ -152,10 +152,14 @@ class Trimesh
 		struct Material
 		{
 			std::string name;
-			int ar,ag,ab; //ambient rgb
-			int sr,sg,sb; //specular rgb
-			int s; //shininess
+
+			GLfloat ambient[4];
+			GLfloat diffuse[4];
+			GLfloat specular[4];
+			GLfloat emission[4];
+			GLfloat shininess;
 		};
+		static const Material Material_Default;
 
 		std::vector<Material> materials; //store materials
 

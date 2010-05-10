@@ -15,15 +15,47 @@
 #include <GL/gl.h>
 #include <GL/glext.h> //might be needed for vbo definitions
 
+//default values for material
+const Trimesh::Material Trimesh::Material_Default = 
+{
+	"unknown material",
+	{0.2, 0.2, 0.2, 1.0},
+	{0.8, 0.8, 0.8, 1.0},
+	{0.0, 0.0, 0.0, 1.0},
+	{0.0, 0.0, 0.0, 1.0},
+	0.0
+};
+
+//wrapper for loading
+bool Trimesh::Load(const char *file)
+{
+	const char *suffix = strrchr(file, '.');
+
+	//see if match:
+	if (!strcasecmp(suffix, ".obj"))
+		return Load_OBJ(file);
+	//else if (!strcasecmp(suffix, ".3ds"))
+		//return Load_3DS(file);
+	
+	//else, no match
+	printlog(0, "ERROR: unknown 3D file suffix for \"%s\"", file);
+	return false;
+}
+
+
 //keep track of VBOs (new generated if not enough room in already existing)
 class VBO: Racetime_Data
 {
 	public:
 		//find a vbo with enough room, if not create a new one
-		GLuint Select_With_Enough_Room(unsigned int needed)
+		VBO *Select_With_Enough_Room(unsigned int needed)
 		{
-			return 0; //change
+			return NULL; //change
 		}
+
+		GLuint id; //size of buffer (for mapping)
+		GLsizeiptr usage; //how much of buffer is used (possibly GLint instead?)
+
 	private:
 		VBO(): Racetime_Data("internal_VBO_tracking_class") //name all vbo classes this...
 		{
@@ -33,9 +65,6 @@ class VBO: Racetime_Data
 		{
 			//glBufferDestroy
 		}
-
-		GLuint id; //size of buffer (for mapping)
-		GLsizeiptr usage; //how much of buffer is used (possibly GLint instead?)
 
 		static VBO *head;
 		VBO *next;

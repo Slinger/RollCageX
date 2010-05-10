@@ -15,25 +15,10 @@
 
 #include "text_file.hpp"
 
-bool Trimesh::Load(const char *file)
-{
-	const char *suffix = strrchr(file, '.');
-
-	//see if match:
-	if (!strcasecmp(suffix, ".obj"))
-		return Load_OBJ(file);
-	//else if (!strcasecmp(suffix, ".3ds"))
-		//return Load_3DS(file);
-	
-	//else, no match
-	printlog(0, "ERROR: unknown 3D file suffix for \"%s\"", file);
-	return false;
-}
 
 bool Trimesh::Load_OBJ(const char *f)
 {
 	printlog(1, "Loading trimesh from OBJ file %s", f);
-	name = f;
 
 	Text_File file;
 
@@ -47,13 +32,21 @@ bool Trimesh::Load_OBJ(const char *f)
 	//set name to filename
 	name=f;
 
+	//empty old data (if any)
+	triangles.clear();
+	vertices.clear();
+	normals.clear();
+	materials.clear();
+	material_indices.clear();
+
+	//
 	//ok, start processing
+	//
 	Vector_Float vector;
 	Triangle_Index triangle;
 	int i;
 	unsigned int vi, ni;
 	int count;
-	//char *end;
 
 	while (file.Read_Line())
 	{
@@ -167,12 +160,100 @@ bool Trimesh::Load_OBJ(const char *f)
 		}
 	}
 
+	//check that at least something got loaded:
+	if (triangles.empty() || vertices.empty())
+	{
+		printlog(0, "ERROR: obj seems to exist, but empty?!");
+		return false;
+	}
 
 	return true;
 }
 
+bool Trimesh::Load_MTL(const char *f)
+{
+	printlog(1, "Loading trimesh material(s) from MTL file %s", f);
 
-//bool Trimesh::Load_3DS(const char *file)
-//{
-	//Set_Name(file);
+	Text_File file;
+
+	//check if ok...
+	if (!file.Open(f))
+	{
+		printlog(0, "ERROR: could not open file!");
+		return false;
+	}
+	
+	//
+	//start processing
+	//
+	unsigned int mat_nr=INDEX_ERROR;
+
+	while (file.Read_Line())
+	{
+		if ( (!strcmp(file.words[0], "newmtl")) && file.word_count == 2 )
+		{
+			mat_nr = materials.size(); //how much used, which number to give this material
+			materials.push_back(Material_Default); //add new material (with defaults)
+			materials[mat_nr].name = file.words[1]; //set name
+		}
+		else if (mat_nr == INDEX_ERROR)
+		{
+			printlog(0, "ERROR: mtl wants to specify material properties for unnamed material?! ignoring");
+		}
+		else
+		{
+			//material properties:
+			if (file.words[0][0] == 'K') //colours?
+			{
+				if (file.words[0][1] == 'a' && file.word_count == 4) //ambient
+				{
+					materials[mat_nr].ambient[0] = atof(file.words[1]);
+					materials[mat_nr].ambient[1] = atof(file.words[2]);
+					materials[mat_nr].ambient[2] = atof(file.words[3]);
+				}
+				else if (file.words[0][1] == 'd' && file.word_count == 4) //diffuse
+				{
+					materials[mat_nr].diffuse[0] = atof(file.words[1]);
+					materials[mat_nr].diffuse[1] = atof(file.words[2]);
+					materials[mat_nr].diffuse[2] = atof(file.words[3]);
+				}
+				else if (file.words[0][1] == 's' && file.word_count == 4) //specular
+				{
+					materials[mat_nr].specular[0] = atof(file.words[1]);
+					materials[mat_nr].specular[1] = atof(file.words[2]);
+					materials[mat_nr].specular[2] = atof(file.words[3]);
+				}
+
+				//the following seems to be an unofficial extension of the mtl format (which us usefull):
+				else if (file.words[0][1] == 'e' && file.word_count == 4) //emission
+				{
+					materials[mat_nr].emission[0] = atof(file.words[1]);
+					materials[mat_nr].emission[1] = atof(file.words[2]);
+					materials[mat_nr].emission[2] = atof(file.words[3]);
+				}
+			}
+			else if (file.words[0][0] == 'N') //some other stuff?
+			{
+				//only one of these are used:
+				if (file.words[0][1] == 's' && file.word_count == 4) //shininess
+				{
+					//usually, this vary between 0 to 1000 for obj, since opengl uses 0 to 128 translate
+					materials[mat_nr].shininess = (atof(file.words[1])*(128.0/1000.0));
+				}
+			}
+
+
+		}
+	}
+
+	//check if we got any data:
+	if (mat_nr == INDEX_ERROR)
+	{
+		printlog(0, "ERROR: mtl existed, but was empty?!");
+		return false;
+	}
+
+	//else, ok
+	return true;
+}
 
