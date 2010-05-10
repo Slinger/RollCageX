@@ -64,7 +64,7 @@ class VBO: Racetime_Data
 		}
 
 		GLuint id; //size of buffer (for mapping)
-		GLsizeiptr usage; //how much of buffer is used (possibly GLint instead?)
+		GLsizei usage; //how much of buffer is used (possibly GLint instead?)
 
 	private:
 		VBO(): Racetime_Data("internal_VBO_tracking_class") //name all vbo classes this...

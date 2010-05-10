@@ -112,7 +112,7 @@ bool Trimesh::Load_OBJ(const char *f)
 					//store
 					triangles.push_back(triangle);
 				}
-				else if (i==1) //second time
+				else if (i==2) //second time
 				{
 					triangle.vertex[2]=vi;
 					triangle.normal[2]=ni;
@@ -169,6 +169,10 @@ bool Trimesh::Load_OBJ(const char *f)
 	//ok, lets just make sure all data is good:
 	//Normalize_Normals();
 	//Generate_Missing_Normals();
+	//
+
+	//
+	//TODO: perhaps check that all indices are within valid range? don't bother now, but prevents errors from malformed obj files...
 	//
 	return true;
 }
