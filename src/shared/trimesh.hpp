@@ -29,7 +29,7 @@
 #define INDEX_ERROR UINT_MAX
 
 //how big each VBO should be:
-#define VBO_MAX 8388608 //8MiB - or should it be MB? need to test...
+#define VBO_SIZE 8388608 //8MiB - or should it be MB? need to test...
 //end of definitions
 
 
@@ -61,8 +61,13 @@ class Trimesh_3D: public Racetime_Data
 		//material (all lements are grouped by materials for performance)
 		struct Material
 		{
-			//???
 			GLuint start, stop; //where in vbo this material is used
+
+			GLfloat ambient[4];
+			GLfloat diffuse[4];
+			GLfloat specular[4];
+			GLfloat emission[4];
+			GLfloat shininess;
 		};
 
 		//everything needed to render:
@@ -73,6 +78,9 @@ class Trimesh_3D: public Racetime_Data
 		//VBO and position in VBO of array:
 		GLuint vbo_id; //which vbo got this model
 		static GLuint current_vbo; //which vbo is active
+
+		//only graphics list rendering can access this stuff
+		friend void Graphic_List_Render();
 };
 
 //for collision detection (geom) generation
@@ -126,8 +134,8 @@ class Trimesh
 		std::string name;
 
 		//tools:
-		void Generate_Missing_Normals(); //if loaded incomplete normals, solve
 		void Normalize_Normals(); //make sure normals are unit (for some loaders, like obj, maybe not...)
+		void Generate_Missing_Normals(); //if loaded incomplete normals, solve
 		unsigned int Find_Material(const char *); //find first matching material by name
 
 		//functions for loading 3d files:

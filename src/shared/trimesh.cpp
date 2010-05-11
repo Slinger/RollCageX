@@ -15,6 +15,9 @@
 #include <GL/gl.h>
 #include <GL/glext.h> //might be needed for vbo definitions
 
+//length of vector
+#define v_length(x, y, z) (dSqrt( (x)*(x) + (y)*(y) + (z)*(z) ))
+
 //TMP:
 void Trimesh::TMP_printinfo()
 {
@@ -60,7 +63,20 @@ class VBO: Racetime_Data
 		//find a vbo with enough room, if not create a new one
 		VBO *Select_With_Enough_Room(unsigned int needed)
 		{
-			return NULL; //change
+			//check so enough space in even a new vbo:
+			if (needed > VBO_SIZE)
+			{
+				printlog(0, "ERROR: needed more room than max vbo size (%i)!", VBO_SIZE);
+				return NULL;
+			}
+
+			//so if already exists
+			for (VBO *p=head; p; ++p)
+				if ( (p->usage)+needed <= VBO_SIZE ) //already used+needed space smaller or equal to available
+					return p;
+
+			//else, did not find enough room, create
+			return new VBO;
 		}
 
 		GLuint id; //size of buffer (for mapping)
@@ -69,16 +85,30 @@ class VBO: Racetime_Data
 	private:
 		VBO(): Racetime_Data("internal_VBO_tracking_class") //name all vbo classes this...
 		{
-			//glBufferCreate
+			//place on top of list
+			next=head;
+			head=this;
+
+			//create vbo:
+			//id = glBufferCreate();
+			usage=0; //no data yet
 		}
 		~VBO()
 		{
-			//glBufferDestroy
+			//VBOs only removed on end of race (are racetime_data), all of them, so can safely just destroy old list
+			head = NULL;
+			//glBufferDestroy(id);
 		}
 
 		static VBO *head;
 		VBO *next;
 };
+
+VBO *VBO::head=NULL;
+
+//
+//lots of methods for Trimesh class:
+//
 
 //wrapper for loading
 bool Trimesh::Load(const char *file)
@@ -109,6 +139,25 @@ unsigned int Trimesh::Find_Material(const char *name)
 	//failure
 	printlog(0, "ERROR: could not find trimesh material %s", name);
 	return INDEX_ERROR;
+}
+
+//makes sure all normals are unit
+void Trimesh::Normalize_Normals()
+{
+	size_t end = normals.size();
+	float l;
+
+	for (size_t i=0; i<end; ++i)
+	{
+		l=v_length(normals[i].x, normals[i].y, normals[i].z);
+
+		if (l > 1.000001 || l < 0.999999) //TODO: consider remove this checking?
+		{
+			normals[i].x /=l;
+			normals[i].y /=l;
+			normals[i].z /=l;
+		}
+	}
 }
 
 void Trimesh::Resize(float r)

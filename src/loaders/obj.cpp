@@ -93,7 +93,7 @@ bool Trimesh::Load_OBJ(const char *f)
 							--ni; //1->0
 					}
 					else
-						printf("CODING ERROR CHECK: this should not be printed\n");
+						printf("CODING ERROR CHECK: this should not be printed\n"); //TODO: remove
 				}
 
 				//now we got indices, see what to do with them
@@ -167,8 +167,8 @@ bool Trimesh::Load_OBJ(const char *f)
 	}
 
 	//ok, lets just make sure all data is good:
-	//Normalize_Normals();
-	//Generate_Missing_Normals();
+	Normalize_Normals();
+	//Generate_Missing_Normals(); //writes unit normals, don't need normalizing
 	//
 
 	//

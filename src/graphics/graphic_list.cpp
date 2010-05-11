@@ -12,6 +12,7 @@
 #include "graphic_list.hpp"
 
 #include "../shared/printlog.hpp"
+#include "../shared/trimesh.hpp"
 #include "../shared/geom.hpp"
 #include "../shared/body.hpp"
 
@@ -27,6 +28,8 @@ struct list_element
 {
 	GLfloat matrix[16]; //4x4
 	GLuint  list; //render list
+
+	Trimesh_3D *vbo;
 };
 
 //keeps track of a buffer of elements:
@@ -99,6 +102,45 @@ void Graphic_List_Update()
 				buffer1.list = (list_element*) realloc(buffer1.list, sizeof(list_element)*buffer_size);
 				buffer2.list = (list_element*) realloc(buffer2.list, sizeof(list_element)*buffer_size);
 			}
+
+			list[*count].vbo=NULL;
+		}
+		else if (g->vbo)
+		{
+			pos = dGeomGetPosition(g->geom_id);
+			rot = dGeomGetRotation(g->geom_id);
+			matrix = list[*count].matrix;
+
+			//set matrix
+			matrix[0]=rot[0];
+			matrix[1]=rot[4];
+			matrix[2]=rot[8];
+			matrix[3]=0;
+			matrix[4]=rot[1];
+			matrix[5]=rot[5];
+			matrix[6]=rot[9];
+			matrix[7]=0;
+			matrix[8]=rot[2];
+			matrix[9]=rot[6];
+			matrix[10]=rot[10];
+			matrix[11]=0;
+			matrix[12]=pos[0];
+			matrix[13]=pos[1];
+			matrix[14]=pos[2];
+			matrix[15]=1;
+
+			//set what to render
+			list[*count].vbo = g->vbo;
+
+			//if buffer full...
+			if (++(*count) == buffer_size)
+			{
+				printlog(1, "Note: Graphic_List buffers were too small, resizing");
+
+				buffer_size+=INITIAL_GRAPHIC_LIST_BUFFER_SIZE;
+				buffer1.list = (list_element*) realloc(buffer1.list, sizeof(list_element)*buffer_size);
+				buffer2.list = (list_element*) realloc(buffer2.list, sizeof(list_element)*buffer_size);
+			}
 		}
 	}
 	//same as above, but for bodies... disabled for now
@@ -159,12 +201,32 @@ void Graphic_List_Render()
 	//copy needed data
 	size_t *count=&(buffer_out->count);
 	list_element *list=buffer_out->list;
+	unsigned int m_loop;
+	Trimesh_3D *vbo;
 
 	for (size_t i=0; i<(*count); ++i)
 	{
 		glPushMatrix();
 			glMultMatrixf (list[i].matrix);
-			glCallList (list[i].list);
+
+			if (list[i].vbo) //new
+			{
+				vbo = list[i].vbo;
+
+				for (m_loop=0; m_loop< (vbo->material_count); ++m_loop)
+				{
+					glMaterialfv(GL_FRONT, GL_AMBIENT, vbo->materials[m_loop].ambient);
+					glMaterialfv(GL_FRONT, GL_DIFFUSE, vbo->materials[m_loop].diffuse);
+					glMaterialfv(GL_FRONT, GL_SPECULAR, vbo->materials[m_loop].specular);
+					glMaterialfv(GL_FRONT, GL_EMISSION, vbo->materials[m_loop].emission);
+					glMaterialf (GL_FRONT, GL_SHININESS, vbo->materials[m_loop].shininess);
+
+					//glCallLists
+				}
+
+			}
+			else //old
+				glCallList (list[i].list);
 		glPopMatrix();
 	}
 

@@ -14,6 +14,7 @@
 #include "component.hpp"
 #include "body.hpp"
 #include "object.hpp"
+#include "trimesh.hpp"
 #include "file_3d.hpp"
 #include "script.hpp"
 #include <SDL/SDL_stdinc.h> //definition for Uint32
@@ -52,6 +53,7 @@ class Geom: public Component
 		//End of physics data
 		
 		file_3d *f_3d; //points to 3d list, or NULL if invisible
+		Trimesh_3D *vbo; //points at 3d render
 
 
 		//geom tweaks:
