@@ -160,6 +160,68 @@ void Trimesh::Normalize_Normals()
 	}
 }
 
+//creates missing normals (if needed)
+//counter-clockwise order of triangles assumed
+void Trimesh::Generate_Missing_Normals()
+{
+	size_t end = triangles.size();
+	unsigned int *nindex;
+	Vector_Float v1, v2, v3;
+
+	float ax,ay,az, bx,by,bz, l;
+	Vector_Float new_normal;
+	unsigned new_normal_number;
+
+
+	for (size_t i=0; i<end; ++i)
+	{
+		nindex=triangles[i].normal;
+
+		//one or more indices are unspecified
+		if (nindex[0] == INDEX_ERROR || nindex[1] == INDEX_ERROR || nindex[2] == INDEX_ERROR)
+		{
+			//copy vertices:
+			v1=vertices[triangles[i].vertex[0]];
+			v2=vertices[triangles[i].vertex[1]];
+			v3=vertices[triangles[i].vertex[2]];
+
+			//create two vectors (a and b) from the first point to the two others:
+			ax = (v2.x-v1.x);
+			ay = (v2.y-v1.y);
+			az = (v2.z-v1.z);
+
+			bx = (v3.x-v1.x);
+			by = (v3.y-v1.y);
+			bz = (v3.z-v1.z);
+
+			//cross product gives normal:
+			new_normal.x = (ay*bz)-(az*by);
+			new_normal.y = (az*bx)-(ax*bz);
+			new_normal.z = (ax*by)-(ay*bx);
+			
+			//make unit:
+			l = v_length(new_normal.x,new_normal.y,new_normal.z);
+			new_normal.x /= l;
+			new_normal.y /= l;
+			new_normal.z /= l;
+
+			//store it:
+			//note: since indexing the normal array isn't needed for any later stage
+			//(will be "unindexed"), don't bother about duplicates
+			normals.push_back(new_normal);
+
+			//set up indices:
+			new_normal_number = normals.size()-1;
+			nindex[0] = new_normal_number;
+			nindex[1] = new_normal_number;
+			nindex[2] = new_normal_number;
+		}
+		else
+			printf("got normal\n");
+	}
+}
+
+//resize, rotate, change offset stuff:
 void Trimesh::Resize(float r)
 {
 	if (r == 1.0) //no need
@@ -199,8 +261,8 @@ void Trimesh::Rotate(float x, float y, float z)
 	{
 		v=vertices[i];
 		rotated.x = v.x*rot[0]+v.y*rot[1]+v.z*rot[2];
-		rotated.y = v.x*rot[3]+v.y*rot[4]+v.z*rot[5];
-		rotated.z = v.x*rot[6]+v.y*rot[7]+v.z*rot[8];
+		rotated.y = v.x*rot[4]+v.y*rot[5]+v.z*rot[6];
+		rotated.z = v.x*rot[8]+v.y*rot[9]+v.z*rot[10];
 
 		vertices[i]=rotated;
 	}

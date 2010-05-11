@@ -168,7 +168,7 @@ bool Trimesh::Load_OBJ(const char *f)
 
 	//ok, lets just make sure all data is good:
 	Normalize_Normals();
-	//Generate_Missing_Normals(); //writes unit normals, don't need normalizing
+	Generate_Missing_Normals(); //creates missing normals - unit, don't need normalizing
 	//
 
 	//
