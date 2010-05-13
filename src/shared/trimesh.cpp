@@ -13,37 +13,16 @@
 #include "printlog.hpp"
 
 #include <GL/gl.h>
-#include <GL/glext.h> //might be needed for vbo definitions
+
+//make sure have definitions for various extensions
+#define GL_GLEXT_PROTOTYPES
+#include <GL/glext.h>
 
 //length of vector
 #define v_length(x, y, z) (dSqrt( (x)*(x) + (y)*(y) + (z)*(z) ))
 
-//TMP:
-void Trimesh::TMP_printinfo()
-{
-	size_t i;
-	printf("printing contents of trimesh:\n");
-	printf("number of materials: %i\n", materials.size());
-	for (i=0; i!=materials.size(); ++i)
-		printf("> %s\n", materials[i].name.c_str());
-
-	printf("number of material indices: %i\n", material_indices.size());
-	for (i=0; i!=material_indices.size(); ++i)
-		printf("> %u\n", material_indices[i].material);
-
-	printf("number of vertices: %i\n", vertices.size());
-	for (i=0; i!=vertices.size(); ++i)
-		printf("> %f %f %f\n", vertices[i].x, vertices[i].y, vertices[i].z);
-
-	printf("number of normals: %i\n", normals.size());
-	for (i=0; i!=normals.size(); ++i)
-		printf("> %f %f %f\n", normals[i].x, normals[i].y, normals[i].z);
-
-	printf("number of triangles: %i\n", triangles.size());
-	for (i=0; i!=triangles.size(); ++i)
-		printf("> %u %u %u - %u %u %u\n", triangles[i].vertex[0], triangles[i].vertex[1], triangles[i].vertex[2], triangles[i].normal[0], triangles[i].normal[1], triangles[i].normal[2]);
-}
-
+//offset for vbo
+#define BUFFER_OFFSET(i) ((char *)NULL + (i));
 
 //default values for material
 const Trimesh::Material Trimesh::Material_Default = 
@@ -56,13 +35,19 @@ const Trimesh::Material Trimesh::Material_Default =
 	0.0
 };
 
+//
+//for vbo 3d rendering trimesh:
+//
+
 //keep track of VBOs (new generated if not enough room in already existing)
 class VBO: Racetime_Data
 {
 	public:
 		//find a vbo with enough room, if not create a new one
-		VBO *Select_With_Enough_Room(unsigned int needed)
+		static VBO *Bind_With_Enough_Room(unsigned int needed)
 		{
+			printlog(2, "Locating vbo to hold %u bytes of data", needed);
+
 			//check so enough space in even a new vbo:
 			if (needed > VBO_SIZE)
 			{
@@ -90,14 +75,17 @@ class VBO: Racetime_Data
 			head=this;
 
 			//create vbo:
-			//id = glBufferCreate();
+			//glGenBuffers(1, id);
+			//glBindBuffer(GL_ARRAY_BUFFER, VertexVBOID);
+			//glBufferData(GL_ARRAY_BUFFER, SizeInBytes, NULL, GL_STATIC_DRAW);
+			//
 			usage=0; //no data yet
 		}
 		~VBO()
 		{
 			//VBOs only removed on end of race (are racetime_data), all of them, so can safely just destroy old list
 			head = NULL;
-			//glBufferDestroy(id);
+			//glDeleteBuffers(1, id);
 		}
 
 		static VBO *head;
@@ -105,6 +93,180 @@ class VBO: Racetime_Data
 };
 
 VBO *VBO::head=NULL;
+
+//method for creating a Trimesh_3D from Trimesh
+Trimesh_3D *Trimesh::Create_3D()
+{
+	printlog(2, "Creating Trimesh_3D (for rendering) from Trimesh class");
+
+	//check that we got any data
+	if (triangles.empty())
+	{
+		printlog(0, "ERROR: trimesh is empty (at least no useful data");
+		return NULL;
+	}
+
+	//calculate size and get vbo for storing
+	//each triangle requires 3 vertices - vertex defined as "Vertex" in "Trimesh_3D"
+	VBO *vbo = VBO::Bind_With_Enough_Room(sizeof(Trimesh_3D::Vertex)*(triangles.size()*3));
+	
+	if (!vbo)
+		return NULL;
+
+	//make sure got at least one material (if not create a default)
+	if (materials.empty())
+	{
+		printlog(0, "ERROR: Trimesh did not have any materials! Creating default");
+		materials.push_back(Material_Default);
+	}
+
+	if (material_indices.empty())
+	{
+		printlog(0, "ERROR: Trimesh does not select any materials! Selecting first");
+		Material_Index tmp = {0,0}; //use material 0 starting at first triangle
+		material_indices.push_back(tmp);
+	}
+
+	//
+	//ok, ready to go!
+	//
+	//build a tmp list of all vertices sorted by material to minimize calls
+	//(and list with no unused materials nor duplicates)
+
+	//first: how big should vertex list be?
+	unsigned int vcount=3*triangles.size(); //3 vertices per triangle
+	Trimesh_3D::Vertex vertex_list[vcount];
+
+	//make material list as big as the number of materials (might be bigger than needed, but safe+easy)
+	unsigned int mcount=0;
+	Trimesh_3D::Material material_list[materials.size()];
+
+	//some values needed:
+	unsigned int start, stop; //keeps track of data to copy from old triangle list
+	unsigned int position=0, position_old=0; //keep track of position in new vertex list
+	bool material_is_used; //keep track if material is even used
+
+
+	unsigned int m,i; //looping of Material and material Index
+	size_t m_size=materials.size();
+	size_t i_size=material_indices.size();
+	for (m=0; m<m_size; ++m) //material
+	{
+		material_is_used=false; //so far: not used, no
+
+		for (i=0; i<i_size; ++i) //material index
+		{
+			if (material_indices[i].material == m) //matches
+			{
+				//indicate that we have valid match
+				material_is_used=true;
+
+				//variables for copying:
+				//triangle start
+				if (i==0) //first material, _always_ set start to 0
+					start=0;
+					//material_list[mcount].start =0;
+				else //else, start as specified
+					start=material_indices[i].start_at;
+					//material_list[mcount].stat = material_indices[i].start_at;
+
+				//triangle stop
+				if ((i+1)==i_size) //last index, _always_ stop at end
+					stop=triangles.size();
+					//material_list[mcount].stop = vertices.size();
+				else //else, stop at start of next material index
+					stop=material_indices[i+1].start_at;
+
+				//copy all specified materials:
+				for (size_t triangle=start; triangle<stop; ++triangle)
+				{
+					//vertex
+					vertex_list[position].x = vertices[triangles[triangle].vertex[0]].x;
+					vertex_list[position].y = vertices[triangles[triangle].vertex[0]].y;
+					vertex_list[position].z = vertices[triangles[triangle].vertex[0]].z;
+
+					//normal
+					vertex_list[position].nx = normals[triangles[triangle].normal[0]].x;
+					vertex_list[position].ny = normals[triangles[triangle].normal[0]].y;
+					vertex_list[position].nz = normals[triangles[triangle].normal[0]].z;
+
+					++position;
+
+					//vertex
+					vertex_list[position].x = vertices[triangles[triangle].vertex[1]].x;
+					vertex_list[position].y = vertices[triangles[triangle].vertex[1]].y;
+					vertex_list[position].z = vertices[triangles[triangle].vertex[1]].z;
+
+					//normal
+					vertex_list[position].nx = normals[triangles[triangle].normal[1]].x;
+					vertex_list[position].ny = normals[triangles[triangle].normal[1]].y;
+					vertex_list[position].nz = normals[triangles[triangle].normal[1]].z;
+
+					++position;
+
+					//vertex
+					vertex_list[position].x = vertices[triangles[triangle].vertex[2]].x;
+					vertex_list[position].y = vertices[triangles[triangle].vertex[2]].y;
+					vertex_list[position].z = vertices[triangles[triangle].vertex[2]].z;
+
+					//normal
+					vertex_list[position].nx = normals[triangles[triangle].normal[2]].x;
+					vertex_list[position].ny = normals[triangles[triangle].normal[2]].y;
+					vertex_list[position].nz = normals[triangles[triangle].normal[2]].z;
+
+					++position;
+				}
+			}
+		}
+
+		//ok, this is a used material
+		if (material_is_used)
+		{
+			//copy material data:
+			//boooooooorrrriiiiinnnngggg....
+			material_list[mcount].ambient[0] = materials[m].ambient[0];
+			material_list[mcount].ambient[1] = materials[m].ambient[1];
+			material_list[mcount].ambient[2] = materials[m].ambient[2];
+			material_list[mcount].ambient[3] = materials[m].ambient[3];
+			material_list[mcount].diffuse[0] = materials[m].diffuse[0];
+			material_list[mcount].diffuse[1] = materials[m].diffuse[1];
+			material_list[mcount].diffuse[2] = materials[m].diffuse[2];
+			material_list[mcount].diffuse[3] = materials[m].diffuse[3];
+			material_list[mcount].specular[0] = materials[m].specular[0];
+			material_list[mcount].specular[1] = materials[m].specular[1];
+			material_list[mcount].specular[2] = materials[m].specular[2];
+			material_list[mcount].specular[3] = materials[m].specular[3];
+			material_list[mcount].emission[0] = materials[m].emission[0];
+			material_list[mcount].emission[1] = materials[m].emission[1];
+			material_list[mcount].emission[2] = materials[m].emission[2];
+			material_list[mcount].emission[3] = materials[m].emission[3];
+			material_list[mcount].shininess = materials[m].shininess;
+
+			//set up rendering tracking:
+			material_list[mcount].start=position_old;
+			material_list[mcount].size=(position-position_old);
+
+			//next time, this position will be position_old
+			position_old=position;
+
+			//increase material counter
+			++mcount;
+		}
+	}
+
+	//create Trimesh_3D class from this data:
+	return new Trimesh_3D(name.c_str(), vbo->id, material_list, mcount, vertex_list, vcount);
+}
+
+Trimesh_3D::Trimesh_3D(const char *name, GLuint vbo,
+		Material *materials, unsigned int mcount,
+		Vertex *vertices, unsigned int vcount) : Racetime_Data(name)
+{
+	printf("TODO: create Trimesh_3D!\n");
+	printf("mat:%u vert:%u\n", mcount, vcount);
+	printf("mat > %u + %u\n", materials[0].start, materials[0].size);
+	printf("mat > %u + %u\n", materials[1].start, materials[1].size);
+}
 
 //
 //lots of methods for Trimesh class:
@@ -216,8 +378,6 @@ void Trimesh::Generate_Missing_Normals()
 			nindex[1] = new_normal_number;
 			nindex[2] = new_normal_number;
 		}
-		else
-			printf("got normal\n");
 	}
 }
 

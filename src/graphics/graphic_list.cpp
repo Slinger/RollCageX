@@ -212,6 +212,10 @@ void Graphic_List_Render()
 			if (list[i].vbo) //new
 			{
 				vbo = list[i].vbo;
+				//if (id != current id)
+				//glBindBuffer
+				//glEnableVertexAttribArray - before all?
+				//glVertexAttribPointer - before all?
 
 				for (m_loop=0; m_loop< (vbo->material_count); ++m_loop)
 				{
@@ -221,7 +225,7 @@ void Graphic_List_Render()
 					glMaterialfv(GL_FRONT, GL_EMISSION, vbo->materials[m_loop].emission);
 					glMaterialf (GL_FRONT, GL_SHININESS, vbo->materials[m_loop].shininess);
 
-					//glCallLists
+					//glDrawRangeElements
 				}
 
 			}
@@ -229,5 +233,6 @@ void Graphic_List_Render()
 				glCallList (list[i].list);
 		glPopMatrix();
 	}
+	//glDisableVertexAttribArray 
 
 }

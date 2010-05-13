@@ -40,12 +40,9 @@
 class Trimesh_3D: public Racetime_Data
 {
 	public:
-		GLint Get_ID();
+		GLint Get_ID(); //why did I add this here? O_o
 
 	private:
-		Trimesh_3D(const char*); //sends name to Racetime_Data
-		friend class Trimesh; //only Trimesh is allowed to create this...
-
 		//
 		//data to store:
 		//
@@ -55,20 +52,28 @@ class Trimesh_3D: public Racetime_Data
 		{
 			float x,y,z;
 			float nx,ny,nz;
-			float padding[2]; //ATI recommends "vertex" size divideable by 32...
 		};
 
 		//material (all lements are grouped by materials for performance)
 		struct Material
 		{
-			GLuint start, stop; //where in vbo this material is used
+			GLuint start; //where in vbo this material is used
+			GLuint size; //how much to render
 
-			GLfloat ambient[4];
+			float ambient[4];
 			GLfloat diffuse[4];
 			GLfloat specular[4];
 			GLfloat emission[4];
 			GLfloat shininess;
 		};
+
+		//methods:
+		//constructor...
+		Trimesh_3D(const char* name, GLuint vbo,
+		Material *materials, unsigned int mcount,
+		Vertex *vertices, unsigned int vcount);
+
+		friend class Trimesh; //only Trimesh is allowed to create this...
 
 		//everything needed to render:
 		Material *materials;
@@ -161,11 +166,11 @@ class Trimesh
 		{
 			std::string name;
 
-			GLfloat ambient[4];
-			GLfloat diffuse[4];
-			GLfloat specular[4];
-			GLfloat emission[4];
-			GLfloat shininess;
+			float ambient[4];
+			float diffuse[4];
+			float specular[4];
+			float emission[4];
+			float shininess;
 		};
 		static const Material Material_Default;
 

@@ -49,7 +49,7 @@ Object_Template *Object_Template::Load(const char *path)
 	Trimesh mesh;
 	if (mesh.Load("data/objects/misc/box/box.obj"))
 	{
-		mesh.TMP_printinfo();
+		mesh.Create_3D();
 	}
 	//end of test
 
