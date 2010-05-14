@@ -226,10 +226,15 @@ void Graphic_List_Render()
 				}
 
 				//tmp: enable, disable for each
-				glEnableVertexAttribArray(0);
-				glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Trimesh_3D::Vertex), (BUFFER_OFFSET(0)));
-				glEnableVertexAttribArray(1);
-				glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Trimesh_3D::Vertex), BUFFER_OFFSET(sizeof(float)*3));
+				//glEnableVertexAttribArray(0);
+				//glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Trimesh_3D::Vertex), (BUFFER_OFFSET(0)));
+				//glEnableVertexAttribArray(1);
+				//glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Trimesh_3D::Vertex), BUFFER_OFFSET(sizeof(float)*3));
+
+				glEnableClientState(GL_VERTEX_ARRAY);
+				glVertexPointer(3, GL_FLOAT, sizeof(Trimesh_3D::Vertex), BUFFER_OFFSET(0));
+				glEnableClientState(GL_NORMAL_ARRAY);
+				glNormalPointer(GL_FLOAT, sizeof(Trimesh_3D::Vertex), BUFFER_OFFSET(sizeof(float)*3));
 
 				for (m_loop=0; m_loop< (vbo->material_count); ++m_loop)
 				{
@@ -244,8 +249,10 @@ void Graphic_List_Render()
 				}
 
 				//tmp
-				glDisableVertexAttribArray(0);
-				glDisableVertexAttribArray(1);
+				//glDisableVertexAttribArray(0);
+				//glDisableVertexAttribArray(1);
+				glDisableClientState(GL_NORMAL_ARRAY);
+				glDisableClientState(GL_VERTEX_ARRAY);
 
 			}
 			else //old
