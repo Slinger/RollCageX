@@ -15,6 +15,7 @@
 
 #include "racetime_data.hpp"
 #include "file_3d.hpp"
+#include "trimesh.hpp"
 #include "script.hpp"
 #include "component.hpp"
 #include "space.hpp"
@@ -38,6 +39,9 @@ class Object_Template:public Racetime_Data
 
 		//script to be run when spawning object
 		Script *spawn;
+
+		//tmp vbo test graphics
+		Trimesh_3D *vbo1;
 
 		//temporary graphics
 		file_3d *graphics_debug1;

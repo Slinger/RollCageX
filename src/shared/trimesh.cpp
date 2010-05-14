@@ -22,9 +22,6 @@
 //length of vector
 #define v_length(x, y, z) (dSqrt( (x)*(x) + (y)*(y) + (z)*(z) ))
 
-//offset for vbo
-#define BUFFER_OFFSET(i) ((char *)NULL + (i));
-
 //default values for material
 const Trimesh::Material Trimesh::Material_Default = 
 {

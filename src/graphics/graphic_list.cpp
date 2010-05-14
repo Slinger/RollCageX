@@ -9,6 +9,8 @@
  * See license.txt and README for more info
  */
 
+#define GL_GLEXT_PROTOTYPES
+
 #include "graphic_list.hpp"
 
 #include "../shared/printlog.hpp"
@@ -18,7 +20,12 @@
 
 #include <stdlib.h>
 #include <GL/gl.h>
+#include <GL/glext.h>
 #include <ode/ode.h>
+
+//offset for vbo
+#define BUFFER_OFFSET(i) ((char *)NULL + (i))
+
 
 //just normal (component) list for now:
 
@@ -212,10 +219,17 @@ void Graphic_List_Render()
 			if (list[i].vbo) //new
 			{
 				vbo = list[i].vbo;
-				//if (id != current id)
-				//glBindBuffer
-				//glEnableVertexAttribArray - before all?
-				//glVertexAttribPointer - before all?
+				if (vbo->vbo_id != Trimesh_3D::current_vbo)
+				{
+					glBindBuffer(GL_STATIC_DRAW, vbo->vbo_id);
+					Trimesh_3D::current_vbo=vbo->vbo_id;
+				}
+
+				//tmp: enable, disable for each
+				glEnableVertexAttribArray(0);
+				glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Trimesh_3D::Vertex), (BUFFER_OFFSET(0)));
+				glEnableVertexAttribArray(1);
+				glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Trimesh_3D::Vertex), BUFFER_OFFSET(sizeof(float)*3));
 
 				for (m_loop=0; m_loop< (vbo->material_count); ++m_loop)
 				{
@@ -225,8 +239,13 @@ void Graphic_List_Render()
 					glMaterialfv(GL_FRONT, GL_EMISSION, vbo->materials[m_loop].emission);
 					glMaterialf (GL_FRONT, GL_SHININESS, vbo->materials[m_loop].shininess);
 
-					//glDrawRangeElements
+					//draw
+					glDrawArrays(GL_TRIANGLES, vbo->materials[m_loop].start, vbo->materials[m_loop].size);
 				}
+
+				//tmp
+				glDisableVertexAttribArray(0);
+				glDisableVertexAttribArray(1);
 
 			}
 			else //old

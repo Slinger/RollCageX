@@ -47,18 +47,22 @@ Object_Template *Object_Template::Load(const char *path)
 
 	//just test:
 	Trimesh mesh;
-	if (mesh.Load("data/objects/misc/box/box.obj"))
+	mesh.Load("data/objects/misc/box/box.obj"); //assume loading fine
+	Trimesh_3D *mesh3d = mesh.Create_3D();
+	if (mesh3d) //got data
 	{
-		mesh.Create_3D();
-	}
-	//end of test
 
 		tmplt = new Object_Template(path);
 
 		//the debug box will only spawn one component - one "3D file"
-		tmplt->graphics_debug1 = new file_3d();
-		debug_draw_box (tmplt->graphics_debug1->list, 1,1,1, red,gray, 50);
+		tmplt->vbo1 = mesh3d;
 		tmplt->box = true;
+
+	}
+	else
+		tmplt = NULL;
+
+	//end of test
 	}
 	else if (!strcmp(path, "data/objects/misc/funbox"))
 	{
@@ -215,7 +219,7 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 //	data->bounce = 2.0;
 	
 	//Next, Graphics
-	data->f_3d = graphics_debug1;
+	data->vbo = vbo1;
 
 	//done
 	}
