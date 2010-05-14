@@ -67,12 +67,8 @@ class Trimesh_3D: public Racetime_Data
 			GLfloat shininess;
 		};
 
-		//methods:
-		//constructor...
-		Trimesh_3D(const char* name, GLuint vbo,
-		Material *materials, unsigned int mcount,
-		Vertex *vertices, unsigned int vcount);
-
+		Trimesh_3D(const char* n, GLuint vbo, Material* m, unsigned int mc); //constructor
+		~Trimesh_3D(); //destructor
 		friend class Trimesh; //only Trimesh is allowed to create this...
 
 		//everything needed to render:

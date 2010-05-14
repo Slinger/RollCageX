@@ -9,13 +9,14 @@
  * See license.txt and README for more info
  */
 
+//make sure have definitions for various extensions
+#define GL_GLEXT_PROTOTYPES
+
 #include "trimesh.hpp"
 #include "printlog.hpp"
 
+//probably included anyway...
 #include <GL/gl.h>
-
-//make sure have definitions for various extensions
-#define GL_GLEXT_PROTOTYPES
 #include <GL/glext.h>
 
 //length of vector
@@ -44,7 +45,7 @@ class VBO: Racetime_Data
 {
 	public:
 		//find a vbo with enough room, if not create a new one
-		static VBO *Bind_With_Enough_Room(unsigned int needed)
+		static VBO *Find_Enough_Room(unsigned int needed)
 		{
 			printlog(2, "Locating vbo to hold %u bytes of data", needed);
 
@@ -57,7 +58,7 @@ class VBO: Racetime_Data
 
 			//so if already exists
 			for (VBO *p=head; p; ++p)
-				if ( (p->usage)+needed <= VBO_SIZE ) //already used+needed space smaller or equal to available
+				if ( (p->usage)+needed <= VBO_SIZE ) //enough to hold
 					return p;
 
 			//else, did not find enough room, create
@@ -70,22 +71,24 @@ class VBO: Racetime_Data
 	private:
 		VBO(): Racetime_Data("internal_VBO_tracking_class") //name all vbo classes this...
 		{
+			printlog(2, "creating new vbo, %u bytes of size", VBO_SIZE);
+
 			//place on top of list
 			next=head;
 			head=this;
 
-			//create vbo:
-			//glGenBuffers(1, id);
-			//glBindBuffer(GL_ARRAY_BUFFER, VertexVBOID);
-			//glBufferData(GL_ARRAY_BUFFER, SizeInBytes, NULL, GL_STATIC_DRAW);
+			//create and bind vbo:
+			glGenBuffers(1, &id);
+			glBindBuffer(GL_ARRAY_BUFFER, id);
+			glBufferData(GL_ARRAY_BUFFER, VBO_SIZE, NULL, GL_STATIC_DRAW);
 			//
 			usage=0; //no data yet
 		}
 		~VBO()
 		{
+			glDeleteBuffers(1, &id);
 			//VBOs only removed on end of race (are racetime_data), all of them, so can safely just destroy old list
 			head = NULL;
-			//glDeleteBuffers(1, id);
 		}
 
 		static VBO *head;
@@ -94,10 +97,47 @@ class VBO: Racetime_Data
 
 VBO *VBO::head=NULL;
 
+//
+//Trimesh_3D stuff:
+//
+GLuint Trimesh_3D::current_vbo = 0;
+
+//constructor
+Trimesh_3D::Trimesh_3D(const char *name, GLuint vbo, Material *mpointer, unsigned int mcount): Racetime_Data(name)
+{
+	//set the vbo id for this trimesh_3d
+	vbo_id = vbo;
+
+	//pointer to materials
+	materials=mpointer;
+	material_count=mcount;
+
+	//if this vbo is not bound
+	if (vbo != current_vbo)
+	{
+		glBindBuffer(GL_ARRAY_BUFFER, vbo);
+		current_vbo=vbo;
+	}
+}
+
+//only called together with all other racetime_data destruction (at end of race)
+Trimesh_3D::~Trimesh_3D()
+{
+	//remove local data:
+	delete[] materials;
+
+	//make sure next time creating vbos not fooled by this old value
+	current_vbo=0;
+}
+
+//
+//lots of methods for Trimesh class:
+//
+
 //method for creating a Trimesh_3D from Trimesh
 Trimesh_3D *Trimesh::Create_3D()
 {
-	printlog(2, "Creating Trimesh_3D (for rendering) from Trimesh class");
+	printlog(2, "Creating rendering trimesh from class");
 
 	//check that we got any data
 	if (triangles.empty())
@@ -108,7 +148,8 @@ Trimesh_3D *Trimesh::Create_3D()
 
 	//calculate size and get vbo for storing
 	//each triangle requires 3 vertices - vertex defined as "Vertex" in "Trimesh_3D"
-	VBO *vbo = VBO::Bind_With_Enough_Room(sizeof(Trimesh_3D::Vertex)*(triangles.size()*3));
+	unsigned int needed_vbo_size = sizeof(Trimesh_3D::Vertex)*(triangles.size()*3);
+	VBO *vbo = VBO::Find_Enough_Room(needed_vbo_size);
 	
 	if (!vbo)
 		return NULL;
@@ -139,7 +180,7 @@ Trimesh_3D *Trimesh::Create_3D()
 
 	//make material list as big as the number of materials (might be bigger than needed, but safe+easy)
 	unsigned int mcount=0;
-	Trimesh_3D::Material material_list[materials.size()];
+	Trimesh_3D::Material *material_list = new Trimesh_3D::Material[materials.size()];
 
 	//some values needed:
 	unsigned int start, stop; //keeps track of data to copy from old triangle list
@@ -246,6 +287,10 @@ Trimesh_3D *Trimesh::Create_3D()
 			material_list[mcount].start=position_old;
 			material_list[mcount].size=(position-position_old);
 
+			//actually, the start should be offsetted by the current usage of vbo
+			//(since this new data will be placed after the old)
+			material_list[mcount].start += vbo->usage;
+
 			//next time, this position will be position_old
 			position_old=position;
 
@@ -255,22 +300,20 @@ Trimesh_3D *Trimesh::Create_3D()
 	}
 
 	//create Trimesh_3D class from this data:
-	return new Trimesh_3D(name.c_str(), vbo->id, material_list, mcount, vertex_list, vcount);
+	//set the name
+	printf("TODO: set proper names for Trimesh_3D and Trimesh_Geom_Data!\n");
+	Trimesh_3D *mesh = new Trimesh_3D(name.c_str(), vbo->id, material_list, mcount);
+
+	//transfer data to vbo...
+	glBufferSubData(GL_ARRAY_BUFFER, vbo->usage, needed_vbo_size, vertex_list);
+
+	//increase vbo usage counter
+	vbo->usage+=needed_vbo_size;
+
+	//ok, done
+	return mesh;
 }
 
-Trimesh_3D::Trimesh_3D(const char *name, GLuint vbo,
-		Material *materials, unsigned int mcount,
-		Vertex *vertices, unsigned int vcount) : Racetime_Data(name)
-{
-	printf("TODO: create Trimesh_3D!\n");
-	printf("mat:%u vert:%u\n", mcount, vcount);
-	printf("mat > %u + %u\n", materials[0].start, materials[0].size);
-	printf("mat > %u + %u\n", materials[1].start, materials[1].size);
-}
-
-//
-//lots of methods for Trimesh class:
-//
 
 //wrapper for loading
 bool Trimesh::Load(const char *file)
