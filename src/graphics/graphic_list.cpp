@@ -99,6 +99,7 @@ void Graphic_List_Update()
 
 			//set what to render
 			list[*count].list = g->f_3d->list;
+			list[*count].vbo = NULL;
 
 			//if buffer full...
 			if (++(*count) == buffer_size)
@@ -138,6 +139,7 @@ void Graphic_List_Update()
 
 			//set what to render
 			list[*count].vbo = g->vbo;
+			list[*count].list = NULL;
 
 			//if buffer full...
 			if (++(*count) == buffer_size)

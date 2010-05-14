@@ -7,14 +7,16 @@ v 1.000000 1.000000 1.000000
 v 0.999999 -1.000000 1.000000
 v -1.000001 -0.999999 1.000000
 v -1.000000 1.000000 1.000000
-usemtl (null)
 s off
+usemtl one
 f 1 2 3 4
 usemtl two
 f 5 8 7 6
-usemtl one
+usemtl three
 f 1 5 6 2
+usemtl four
 f 2 6 7 3
+usemtl five
 f 3 7 8 4
-usemtl two
+usemtl six
 f 5 1 4 8
