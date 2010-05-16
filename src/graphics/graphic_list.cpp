@@ -9,9 +9,8 @@
  * See license.txt and README for more info
  */
 
-#define GL_GLEXT_PROTOTYPES
-
 #include "graphic_list.hpp"
+#include "gl_extensions.hpp"
 
 #include "../shared/printlog.hpp"
 #include "../shared/trimesh.hpp"
@@ -19,8 +18,7 @@
 #include "../shared/body.hpp"
 
 #include <stdlib.h>
-#include <GL/gl.h>
-#include <GL/glext.h>
+#include <SDL/SDL_opengl.h>
 #include <ode/ode.h>
 
 //offset for vbo

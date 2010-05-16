@@ -9,15 +9,9 @@
  * See license.txt and README for more info
  */
 
-//make sure have definitions for various extensions
-#define GL_GLEXT_PROTOTYPES
-
 #include "trimesh.hpp"
 #include "printlog.hpp"
-
-//probably included anyway...
-#include <GL/gl.h>
-#include <GL/glext.h>
+#include "../graphics/gl_extensions.hpp"
 
 //length of vector
 #define v_length(x, y, z) (dSqrt( (x)*(x) + (y)*(y) + (z)*(z) ))

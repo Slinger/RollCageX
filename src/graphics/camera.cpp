@@ -9,7 +9,7 @@
  * See license.txt and README for more info
  */
 
-#include <GL/glu.h>
+#include <SDL/SDL_opengl.h>
 #include "../shared/camera.hpp"
 //set camera view before rendering
 void Camera::Graphics_Step()

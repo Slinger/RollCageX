@@ -16,7 +16,7 @@
 #include <string>
 #include <limits.h>
 
-#include <GL/gl.h>
+#include <SDL/SDL_opengl.h>
 #include <ode/ode.h>
 
 #include "racetime_data.hpp"
@@ -58,7 +58,7 @@ class Trimesh_3D: public Racetime_Data
 		struct Material
 		{
 			GLuint start; //where in vbo this material is used
-			GLuint size; //how much to render
+			GLsizei size; //how much to render
 
 			float ambient[4];
 			GLfloat diffuse[4];

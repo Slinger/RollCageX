@@ -11,7 +11,7 @@
 
 #ifndef _RCX_FILE_3D_H
 #define _RCX_FILE_3D_H
-#include <GL/gl.h>
+#include <SDL/SDL_opengl.h>
 #include "racetime_data.hpp"
 
 //file_3d_struct: when a 3d file is loaded, we need a way to keep track of all

@@ -14,7 +14,7 @@
 #include "../loaders/conf.hpp"
 #include "file_3d.hpp"
 #include "object.hpp"
-#include <GL/gl.h>
+#include <SDL/SDL_opengl.h>
 #include <ode/ode.h>
 //track: the main "world", contains simulation and rendering data for one
 //large 3D file for the rigid environment, and more simulation data (like

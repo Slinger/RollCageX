@@ -12,7 +12,7 @@
 //handle drawing of 3d/2d accelerated graphics
 
 #include <SDL/SDL.h>
-#include <GL/glu.h>
+#include <SDL/SDL_opengl.h>
 
 #include "../shared/internal.hpp"
 #include "../shared/info.hpp"
@@ -27,6 +27,7 @@
 #endif
 
 #include "../shared/camera.hpp"
+#include "gl_extensions.hpp"
 #include "graphic_list.hpp"
 
 SDL_Surface *screen;
@@ -89,7 +90,14 @@ bool graphics_init(void)
 	if (!screen)
 	{
 		printlog(0, "Error: couldn't set video mode");
-		return -1;
+		return false;
+	}
+
+	//first of all, make sure we got all needed extansions:
+	if (!Load_GL_Extensions())
+	{
+		printlog(0, "Sorry, your hardware+software is too old to support rcx (requires opengl 1.5 compatibility)!");
+		return false;
 	}
 
 	//hide cursor
@@ -100,6 +108,7 @@ bool graphics_init(void)
 		if (!SDL_WM_ToggleFullScreen(screen))
 			printlog(0, "Error: unable to toggle fullscreen");
 
+	//configuration of opengl:
 	//glClearDepth (1.0); pointless to define this?
 
 	glDepthFunc (GL_LESS); //depth testing (proper overlapping)
@@ -113,6 +122,7 @@ bool graphics_init(void)
 
 	graphics_resize (screen->w, screen->h);
 
+	//title:
 	char *name = (char *)calloc(10+strlen(VERSION)+1, sizeof(char));
 	strcpy (name,"RollCageX ");
 	strcat (name,VERSION);
