@@ -239,7 +239,7 @@ bool Trimesh::Load_MTL(const char *f)
 			else if (file.words[0][0] == 'N') //some other stuff?
 			{
 				//only one of these are used:
-				if (file.words[0][1] == 's' && file.word_count == 4) //shininess
+				if (file.words[0][1] == 's' && file.word_count == 2) //shininess
 				{
 					//usually, this vary between 0 to 1000 for obj, since opengl uses 0 to 128 translate
 					materials[mat_nr].shininess = (atof(file.words[1])*(128.0/1000.0));
