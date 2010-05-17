@@ -169,11 +169,30 @@ bool Trimesh::Load_OBJ(const char *f)
 	//ok, lets just make sure all data is good:
 	Normalize_Normals();
 	Generate_Missing_Normals(); //creates missing normals - unit, don't need normalizing
+
+	printf("TODO: check if index verification takes long time for big models...\n");
+	size_t tl=triangles.size();
+	size_t vl=vertices.size();
+	size_t nl=normals.size();
+	for (size_t i=0; i<tl; ++i)
+	{
+		if (triangles[i].vertex[0] >= vl || triangles[i].vertex[1] >= vl || triangles[i].vertex[2] >= vl)
+		{
+			printlog(0, "ERROR: vertex index out of range, trying to bypass problem (not rendering)");
+			triangles[i].vertex[0] = triangles[i].vertex[1] = triangles[i].vertex[2] = 0; //set them all to 0
+		}
+		if (	(triangles[i].normal[0] >= nl && triangles[i].normal[0] != INDEX_ERROR) ||
+			(triangles[i].normal[1] >= nl && triangles[i].normal[1] != INDEX_ERROR) ||
+			(triangles[i].normal[2] >= nl && triangles[i].normal[2] != INDEX_ERROR)	)
+		{
+			printlog(0, "ERROR: normal index out of range, trying to bypass problem (not rendering)");
+			triangles[i].normal[0] = triangles[i].normal[1] = triangles[i].normal[2] = 0; //set them all to 0
+		}
+
+	}
+	printf("... well, did it?\n");
 	//
 
-	//
-	//TODO: perhaps check that all indices are within valid range? don't bother now, but prevents errors from malformed obj files...
-	//
 	return true;
 }
 

@@ -22,8 +22,6 @@
 #include "racetime_data.hpp"
 
 //definitions:
-//for keeping track for overflowing:
-//#define INDEX_MAX UINT_MAX - dont care for now
 
 //for indicating missing data
 #define INDEX_ERROR UINT_MAX
