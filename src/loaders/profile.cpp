@@ -15,7 +15,6 @@
 #include "text_file.hpp"
 //#include "loaders.hpp"
 
-#ifdef __cplusplus
 // required to iterate through an enum in C++
 template <class Enum>
 Enum & enum_increment(Enum & value, Enum begin, Enum end)
@@ -27,7 +26,6 @@ SDLKey & operator++ (SDLKey & key)
 {
 	return enum_increment(key, SDLK_FIRST, SDLK_LAST);
 }
-#endif
 
 //translate button name to key number
 SDLKey get_key (char *name)
