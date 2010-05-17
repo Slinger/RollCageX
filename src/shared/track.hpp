@@ -28,12 +28,12 @@ extern dJointGroupID contactgroup;
 //(in contrary to the other structs, this is actually not allocated on runtime!)
 extern struct Track_Struct {
 	//placeholder for stuff like if it's raining/snowing and lightsources
-	GLfloat sky[3]; //RGB, alpha is always 1.0f
+	float sky[3]; //RGB, alpha is always 1.0f
 
-	GLfloat ambient[4];
-	GLfloat diffuse[4];
-	GLfloat specular[4];
-	GLfloat position[4]; //light position
+	float ambient[4];
+	float diffuse[4];
+	float specular[4];
+	float position[4]; //light position
 	
 	dReal gravity;
 	dReal mu; //friction (normal)
@@ -78,16 +78,16 @@ const struct Conf_Index track_index[] = {
 	{"diffuse",	'f',3,	offsetof(Track_Struct, diffuse[0])},
 	{"specular",	'f',3,	offsetof(Track_Struct, specular[0])},
 	{"position",	'f',3,	offsetof(Track_Struct, position[0])},
-	{"gravity",	'f',1,	offsetof(Track_Struct, gravity)},
-	{"mu",		'f',1,	offsetof(Track_Struct, mu)},
-	{"slip",	'f',1,	offsetof(Track_Struct, slip)},
-	{"erp",		'f',1,	offsetof(Track_Struct, erp)},
-	{"cfm",		'f',1,	offsetof(Track_Struct, cfm)},
-	{"density",	'f',1,	offsetof(Track_Struct, density)},
-	{"wind",	'f',3,	offsetof(Track_Struct, wind)},
-	{"start",	'f',3,	offsetof(Track_Struct, start)},
-	{"cam_start",	'f',3,	offsetof(Track_Struct, cam_start)},
-	{"target_start",'f',3,	offsetof(Track_Struct, target_start)},
+	{"gravity",	'R',1,	offsetof(Track_Struct, gravity)},
+	{"mu",		'R',1,	offsetof(Track_Struct, mu)},
+	{"slip",	'R',1,	offsetof(Track_Struct, slip)},
+	{"erp",		'R',1,	offsetof(Track_Struct, erp)},
+	{"cfm",		'R',1,	offsetof(Track_Struct, cfm)},
+	{"density",	'R',1,	offsetof(Track_Struct, density)},
+	{"wind",	'R',3,	offsetof(Track_Struct, wind)},
+	{"start",	'R',3,	offsetof(Track_Struct, start)},
+	{"cam_start",	'R',3,	offsetof(Track_Struct, cam_start)},
+	{"target_start",'R',3,	offsetof(Track_Struct, target_start)},
 	{"",0,0}};//end
 
 bool load_track (const char *path);

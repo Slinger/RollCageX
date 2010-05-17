@@ -14,6 +14,13 @@
 #include "unistd.h"
 #include "stddef.h"
 
+//note: type describes type of variable:
+//i - integer
+//f - floating point
+//d - double floating point
+//b - boolean
+//R - dReal (float or double depending on ode configureaiton)
+
 //to make the conf loader able to find variable names in structs, use indexes
 struct Conf_Index {
 	const char *name;

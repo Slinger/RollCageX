@@ -70,6 +70,16 @@ int load_conf (const char *name, char *memory, const struct Conf_Index index[])
 					*( ((double*)(memory+index[i].offset))+argnr ) = strtod(file.words[argnr+1], &str_left);
 				break;
 
+				//dReal
+				case 'R':
+					//there are two alternatives here (depending on how ode is configured): float or double
+					#ifdef dSINGLE //single precision (float)
+						*( ((float*)(memory+index[i].offset))+argnr ) = strtof(file.words[argnr+1], &str_left);
+					#else //double precision (double float)
+						*( ((double*)(memory+index[i].offset))+argnr ) = strtod(file.words[argnr+1], &str_left);
+					#endif
+				break;
+
 				//bool
 				case 'b':
 					if ( (!strcasecmp(file.words[argnr+1], "true")) || (!strcmp(file.words[argnr+1], "1")) )

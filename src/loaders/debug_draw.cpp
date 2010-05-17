@@ -16,6 +16,11 @@
 
 #include <math.h>
 
+//Just in case it's not defined...
+#ifndef M_PI
+#define M_PI (3.14159265358979323846)
+#endif
+
 void debug_draw_box (GLuint list, GLfloat x, GLfloat y, GLfloat z,
 		const GLfloat colour[], const GLfloat specular[], const GLint shininess)
 {
