@@ -85,7 +85,7 @@ void Geom::Collision_Callback (void *data, dGeomID o1, dGeomID o2)
 		}
 
 		//determine if _one_of the geoms is a wheel
-		Geom *other, *wheel = NULL;
+		Geom *other = NULL, *wheel = NULL;
 		if (geom1->wheel&&!geom2->wheel)
 		{
 			wheel = geom1;

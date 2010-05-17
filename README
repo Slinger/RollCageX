@@ -1,7 +1,7 @@
 
 
   /----------====----------\
- [# RollCageX version 0.06 #]
+ [# RollCageX version ? #]
   \----------====----------/
 
  - a Free Software Sci-Fi Racer inspired by the original RollCage games
@@ -18,7 +18,7 @@
 7) Software Requirements
    7.1) OpenGL
    7.2) SDL
-   7.3) ODE (single precision)
+   7.3) ODE
 8) Compilation
 9) Credits
 10) Links
@@ -138,12 +138,6 @@ libraries):
 
    5.3) [ODE]
    RCX uses the library "Open Dynamics Engine" for some physics simulations.
-
-   IMPORTANT: ode can be compiled in two modes: Single or Double precision
-   While rcx should work with both, double precision has shown to cause
-   problems: while rcx will compile, it will crash as soon as a race starts.
-   If your distro provides packages with different versions of ode, MAKE SURE
-   THAT YOU CHOSE: Single precision (SP).
 
 
 

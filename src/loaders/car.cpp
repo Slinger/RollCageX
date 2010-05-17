@@ -19,6 +19,11 @@
 #include "debug_draw.hpp"
 #include "text_file.hpp"
 
+//Just in case it's not defined...
+#ifndef M_PI
+#define M_PI (3.14159265358979323846)
+#endif
+
 
 Car_Template *Car_Template::Load (const char *path)
 {
