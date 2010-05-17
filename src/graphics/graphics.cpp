@@ -96,7 +96,7 @@ bool graphics_init(void)
 	//first of all, make sure we got all needed extansions:
 	if (!Load_GL_Extensions())
 	{
-		printlog(0, "Sorry, your hardware+software is too old to support rcx (requires opengl 1.5 compatibility)!");
+		printlog(0, "Sorry, your hardware and/or software is too old to support rcx (requires opengl 1.5 compatibility)!");
 		return false;
 	}
 

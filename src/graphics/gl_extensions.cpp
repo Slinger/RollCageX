@@ -10,8 +10,10 @@
  */
 
 #include <SDL/SDL.h>
-#include "gl_extensions.hpp"
 #include <string.h>
+
+#include "gl_extensions.hpp"
+#include "../shared/printlog.hpp"
 
 //functions (extern from hpp) instantiated here:
 PFNGLGENBUFFERSPROC glGenBuffers;
@@ -23,42 +25,38 @@ PFNGLBUFFERSUBDATAPROC glBufferSubData;
 
 
 
-
-//taken directly from mesa3d docs:
-GLboolean CheckExtension( char *extName )
+//searches extension list for existence of needed extension
+bool Verify_Extension(const char *name)
 {
-/*
- ** Search for extName in the extensions string.  Use of strstr()
- ** is not sufficient because extension names can be prefixes of
- ** other extension names.  Could use strtok() but the constant
- ** string returned by glGetString can be in read-only memory.
- */
-char *p = (char *) glGetString(GL_EXTENSIONS);
-char *end;
-int extNameLen;
+	char *p= (char *)glGetString(GL_EXTENSIONS); //list of extensions
+	size_t nl = strlen(name); //length of wanted extension name
+	size_t l; //length of focused word in list
 
-extNameLen = strlen(extName);
-end = p + strlen(p);
+	while (*p != '\0') //not at end
+	{
+		for (; *p==' '; ++p); //skip possible whitespace(s)
 
-while (p < end) {
-    int n = strcspn(p, " ");
-    if ((extNameLen == n) && (strncmp(extName, p, n) == 0)) {
-	return GL_TRUE;
-    }
-    p += (n + 1);
+		for (l=0; p[l]!='\0'&&p[l]!=' '; ++l); //find length of word (chars before end of list or word)
+
+		if (l==nl && !strncmp(name, p, l)) //equal length, strings matches
+		{
+			printlog(2, "Extension \"%s\" is supported", name);
+			return true;
+		}
+
+		p+=l; //go to position after last word
+	}
+
+	printlog(0, "WARNING: extension \"%s\" not supported!", name);
+	return false;
 }
-return GL_FALSE;
-}
-//end of stolen code
-
 
 
 //loader
 bool Load_GL_Extensions()
 {
-	printf("TODO: replace extension tester code!\n");
 	//see if got vbo extension
-	if (!CheckExtension("GL_ARB_vertex_buffer_object"))
+	if (!Verify_Extension("GL_ARB_vertex_buffer_object"))
 		return false;
 
 	//ok, try to find them all
