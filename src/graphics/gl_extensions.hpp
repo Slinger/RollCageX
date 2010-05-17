@@ -9,6 +9,9 @@
  * See license.txt and README for more info
  */
 
+#ifndef _RCX_GL_EXTENSIONS_H
+#define _RCX_GL_EXTENSIONS_H
+
 //includes typedefs for many opengl calls, some needed here
 #include <SDL/SDL_opengl.h>
 
@@ -22,3 +25,5 @@ extern PFNGLBUFFERSUBDATAPROC glBufferSubData;
 
 //function for checking and loading extensions:
 bool Load_GL_Extensions();
+
+#endif
