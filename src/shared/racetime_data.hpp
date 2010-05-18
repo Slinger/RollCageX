@@ -14,8 +14,6 @@
 
 #include <typeinfo>
 
-//TODO: polymorph, never used in this baseclass form
-
 class Racetime_Data
 {
 	public:
@@ -30,7 +28,9 @@ class Racetime_Data
 		virtual ~Racetime_Data();
 
 	private:
-		char *name;
+		char *name; //name of specific data
+		//virtual RDID GetID() const; //returns id enum
+
 		static Racetime_Data *head;
 		Racetime_Data *next;
 };
