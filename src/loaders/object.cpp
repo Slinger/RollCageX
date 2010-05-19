@@ -36,7 +36,6 @@ Object_Template *Object_Template::Load(const char *path)
 	//see if already loaded
 	if (Object_Template *tmp=Racetime_Data::Find<Object_Template>(path))
 	{
-		printlog(1, "(already loaded)");
 		return tmp;
 	}
 

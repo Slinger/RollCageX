@@ -32,10 +32,7 @@ Car_Template *Car_Template::Load (const char *path)
 
 	//see if already loaded
 	if (Car_Template *tmp=Racetime_Data::Find<Car_Template>(path))
-	{
-		printlog(1, "(already loaded)");
 		return tmp;
-	}
 
 	//apparently not
 	Car_Template *target = new Car_Template(path);

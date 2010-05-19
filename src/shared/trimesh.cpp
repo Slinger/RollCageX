@@ -130,6 +130,10 @@ Trimesh_3D *Trimesh::Create_3D()
 {
 	printlog(2, "Creating rendering trimesh from class");
 
+	//already uploaded?
+	if (Trimesh_3D *tmp = Racetime_Data::Find<Trimesh_3D>(name.c_str()))
+		return tmp;
+
 	//check that we got any data
 	if (triangles.empty())
 	{
@@ -291,8 +295,8 @@ Trimesh_3D *Trimesh::Create_3D()
 	}
 
 	//create Trimesh_3D class from this data:
-	//set the name
-	printf("TODO: set proper names for Trimesh_3D and Trimesh_Geom_Data!\n");
+	//set the name. NOTE: both Trimesh_3D and Trimesh_Geom_Data will have the same name
+	//this is not a problem since they are different classes and Racetime_Data::Find will notice that
 	Trimesh_3D *mesh = new Trimesh_3D(name.c_str(), vbo->id, material_list, mcount);
 
 	//transfer data to vbo...
@@ -303,6 +307,20 @@ Trimesh_3D *Trimesh::Create_3D()
 
 	//ok, done
 	return mesh;
+}
+
+//method Trimesh_Geom_Data from Trimesh
+Trimesh_Geom_Data *Trimesh::Create_Geom_Data()
+{
+	printlog(2, "Creating collision trimesh from class");
+
+	//already created?
+	if (Trimesh_Geom_Data *tmp = Racetime_Data::Find<Trimesh_Geom_Data>(name.c_str()))
+		return tmp;
+
+
+	//TODO!
+	return NULL;
 }
 
 
