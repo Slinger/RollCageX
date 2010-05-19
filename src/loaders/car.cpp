@@ -9,6 +9,7 @@
  * See license.txt and README for more info
  */
 
+#include "../shared/racetime_data.hpp"
 #include "../shared/car.hpp"
 #include "../shared/printlog.hpp"
 #include "../shared/track.hpp"
@@ -30,8 +31,7 @@ Car_Template *Car_Template::Load (const char *path)
 	printlog(1, "Loading car: %s", path);
 
 	//see if already loaded
-	Car_Template *tmp = dynamic_cast<Car_Template*>(Racetime_Data::Find(path));
-	if (tmp)
+	if (Car_Template *tmp=Racetime_Data::Find<Car_Template>(path))
 	{
 		printlog(1, "(already loaded)");
 		return tmp;

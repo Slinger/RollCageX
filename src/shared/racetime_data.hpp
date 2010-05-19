@@ -13,6 +13,7 @@
 #define _RCX_RACETIME_DATA_H
 
 #include <typeinfo>
+#include <string.h>
 
 class Racetime_Data
 {
@@ -20,7 +21,23 @@ class Racetime_Data
 		static void Destroy_All();
 
 		//find data that matches specified name and type
-		static Racetime_Data *Find(const char *name);
+		//NOTE: actual function template declared in header, since each object that uses it must
+		//instantiate needed function (this follows the "Borland model", which is supported by g++)
+		template<typename T>
+		static T *Find(const char *name)
+		{
+			Racetime_Data *tmp;
+			T *casted;
+
+			for (tmp=head; tmp; tmp=tmp->next) //loop
+			{
+				//type conversion+casting ok
+				if ((!strcmp(tmp->name, name)) && (casted=dynamic_cast<T*>(tmp)))
+					return casted;
+			}
+
+			return NULL; //else
+		}
 
 	protected:
 		Racetime_Data(const char *name);
@@ -29,7 +46,6 @@ class Racetime_Data
 
 	private:
 		char *name; //name of specific data
-		//virtual RDID GetID() const; //returns id enum
 
 		static Racetime_Data *head;
 		Racetime_Data *next;

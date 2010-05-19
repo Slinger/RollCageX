@@ -30,17 +30,6 @@ Racetime_Data::~Racetime_Data()
 	delete[] name;
 }
 
-Racetime_Data *Racetime_Data::Find(const char *name)
-{
-	Racetime_Data *tmp;
-
-	for (tmp=head; tmp; tmp=tmp->next) //loop
-		if (!strcmp(tmp->name, name)) //name match
-			return tmp;
-
-	return NULL; //else
-}
-
 void Racetime_Data::Destroy_All()
 {
 	Racetime_Data *tmp, *data = head;
