@@ -57,8 +57,8 @@ Geom::Geom (dGeomID geom, Object *obj): Component(obj) //pass object argument to
 	//now lets set some default values...
 	//event processing (triggering):
 	colliding = false; //no collision event yet
-	vbo=NULL; //default: don't render
-	f_3d = NULL; //default, isn't rendered
+	model = NULL; //default: don't render
+
 	//collision contactpoint data
 	mu = internal.mu;
 	mu_rim = internal.mu;

@@ -12,7 +12,6 @@
 #ifndef _RCX_TRACK_H
 #define _RCX_TRACK_H
 #include "../loaders/conf.hpp"
-#include "file_3d.hpp"
 #include "object.hpp"
 #include <SDL/SDL_opengl.h>
 #include <ode/ode.h>
@@ -48,7 +47,7 @@ extern struct Track_Struct {
 	dReal cam_start[3];
 	dReal target_start[3];
 
-	file_3d *f_3d;
+	//file_3d *f_3d;
 	//NOTE/TODO: currently coded to store 5 planes (components) - only temporary!
 	Object *object;
 	Space *space;

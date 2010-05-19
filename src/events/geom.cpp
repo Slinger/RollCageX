@@ -53,7 +53,7 @@ void Geom::TMP_Events_Step(Uint32 step)
 				dBodySetRotation(b, rot);
 				dGeomSetBody(g,b);
 
-				gd->f_3d = geom->TMP_pillar_graphics;
+				//gd->f_3d = geom->TMP_pillar_graphics;
 
 				//geom2
 				g = dCreateBox(0, 2,2,5.0/2.0);
@@ -70,7 +70,7 @@ void Geom::TMP_Events_Step(Uint32 step)
 				dBodySetRotation(b, rot);
 				dGeomSetBody(g,b);
 
-				gd->f_3d = geom->TMP_pillar_graphics;
+				//gd->f_3d = geom->TMP_pillar_graphics;
 			}
 			Body *body = (Body*)dBodyGetData(bodyid);
 

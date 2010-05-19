@@ -185,11 +185,6 @@ int graphics_loop ()
 			//place sun
 			glLightfv (GL_LIGHT0, GL_POSITION, track.position);
 
-			//render world
-			glPushMatrix();
-				glCallList (track.f_3d->list);
-			glPopMatrix();
-
 			Graphic_List_Render();
 
 		glPopMatrix();

@@ -19,8 +19,6 @@
 
 #include "colours.hpp"
 #include "text_file.hpp"
-#include "debug_draw.hpp"
-//#include "loaders.hpp"
 
 bool load_track (const char *path)
 {
@@ -102,64 +100,64 @@ bool load_track (const char *path)
 	//since a plane is a non-placeable geom, the sepparate components will
 	//not be "rendered" separately, instead create one 3d image sepparately
 
-	track.f_3d = new file_3d();
-	glNewList (track.f_3d->list, GL_COMPILE);
+	//track.f_3d = new file_3d();
+	//glNewList (track.f_3d->list, GL_COMPILE);
 	//the ground and walls for the environment box
-	glMaterialfv (GL_FRONT, GL_AMBIENT_AND_DIFFUSE, green);
-	glNormal3f (0.0f, 0.0f, 1.0f);
-	glBegin (GL_QUADS);
-	glVertex3f (-100.0f, -100.0f, 0.0f);
-	glVertex3f (-100.0f, 100.0f, 0.0f);
-	glVertex3f (100.0f, 100.0f, 0.0f);
-	glVertex3f (100.0f, -100.0f, 0.0f);
-	glEnd();
+	//glMaterialfv (GL_FRONT, GL_AMBIENT_AND_DIFFUSE, green);
+	//glNormal3f (0.0f, 0.0f, 1.0f);
+	//glBegin (GL_QUADS);
+	//glVertex3f (-100.0f, -100.0f, 0.0f);
+	//glVertex3f (-100.0f, 100.0f, 0.0f);
+	//glVertex3f (100.0f, 100.0f, 0.0f);
+	//glVertex3f (100.0f, -100.0f, 0.0f);
+	//glEnd();
 
-	glMaterialfv (GL_FRONT, GL_AMBIENT_AND_DIFFUSE, gray);
-	glBegin (GL_QUADS);
-	glNormal3f (1.0f, 0.0f, 0.0f);
-	glVertex3f (-100.0f, -100.0f, 0.0f);
-	glVertex3f (-100.0f, -100.0f, 10.0f);
-	glVertex3f (-100.0f, 100.0f, 10.0f);
-	glVertex3f (-100.0f, 100.0f, 0.0f);
+	//glMaterialfv (GL_FRONT, GL_AMBIENT_AND_DIFFUSE, gray);
+	//glBegin (GL_QUADS);
+	//glNormal3f (1.0f, 0.0f, 0.0f);
+	//glVertex3f (-100.0f, -100.0f, 0.0f);
+	//glVertex3f (-100.0f, -100.0f, 10.0f);
+	//glVertex3f (-100.0f, 100.0f, 10.0f);
+	//glVertex3f (-100.0f, 100.0f, 0.0f);
 
-	glNormal3f (0.0f, -1.0f, 0.0f);
-	glVertex3f (-100.0f, 100.0f, 0.0f);
-	glVertex3f (-100.0f, 100.0f, 10.0f);
-	glVertex3f (100.0f, 100.0f, 10.0f);
-	glVertex3f (100.0f, 100.0f, 0.0f);
+	//glNormal3f (0.0f, -1.0f, 0.0f);
+	//glVertex3f (-100.0f, 100.0f, 0.0f);
+	//glVertex3f (-100.0f, 100.0f, 10.0f);
+	//glVertex3f (100.0f, 100.0f, 10.0f);
+	//glVertex3f (100.0f, 100.0f, 0.0f);
 
-	glNormal3f (-1.0f, 0.0f, 0.0f);
-	glVertex3f (100.0f, 100.0f, 0.0f);
-	glVertex3f (100.0f, 100.0f, 10.0f);
-	glVertex3f (100.0f, -100.0f, 10.0f);
-	glVertex3f (100.0f, -100.0f, 0.0f);
+	//glNormal3f (-1.0f, 0.0f, 0.0f);
+	//glVertex3f (100.0f, 100.0f, 0.0f);
+	//glVertex3f (100.0f, 100.0f, 10.0f);
+	//glVertex3f (100.0f, -100.0f, 10.0f);
+	//glVertex3f (100.0f, -100.0f, 0.0f);
 
-	glNormal3f (0.0f, 1.0f, 0.0f);
-	glVertex3f (100.0f, -100.0f, 0.0f);
-	glVertex3f (100.0f, -100.0f, 10.0f);
-	glVertex3f (-100.0f, -100.0f, 10.0f);
-	glVertex3f (-100.0f, -100.0f, 0.0f);
-	glEnd();
+	//glNormal3f (0.0f, 1.0f, 0.0f);
+	//glVertex3f (100.0f, -100.0f, 0.0f);
+	//glVertex3f (100.0f, -100.0f, 10.0f);
+	//glVertex3f (-100.0f, -100.0f, 10.0f);
+	//glVertex3f (-100.0f, -100.0f, 0.0f);
+	//glEnd();
 
-	glEndList();
+	//glEndList();
 
 	//temp solution, ramp
-	geom = dCreateBox (0,13,13,1);
-	data = new Geom(geom, track.object);
+	//geom = dCreateBox (0,13,13,1);
+	//data = new Geom(geom, track.object);
 
-	dMatrix3 rot;
-	dRFromAxisAndAngle (rot, 1, 0, 0, 0.3);
-	dGeomSetPosition (geom, 0, 3, 1.5);
-	dGeomSetRotation (geom, rot);
+	//dMatrix3 rot;
+	//dRFromAxisAndAngle (rot, 1, 0, 0, 0.3);
+	//dGeomSetPosition (geom, 0, 3, 1.5);
+	//dGeomSetRotation (geom, rot);
 	
-	data->mu = track.mu;
-	data->slip = track.slip;
-	data->erp = track.erp;
-	data->cfm = track.cfm;
+	//data->mu = track.mu;
+	//data->slip = track.slip;
+	//data->erp = track.erp;
+	//data->cfm = track.cfm;
 
 	//render box using built in
-	data->f_3d = new file_3d();
-	debug_draw_box (data->f_3d->list, 13,13,1, gray, black, 0);
+	//data->f_3d = new file_3d();
+	//debug_draw_box (data->f_3d->list, 13,13,1, gray, black, 0);
 
 
 	//now lets load some objects!

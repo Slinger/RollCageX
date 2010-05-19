@@ -14,7 +14,6 @@
 #include <ode/common.h>
 
 #include "racetime_data.hpp"
-#include "file_3d.hpp"
 #include "trimesh.hpp"
 #include "script.hpp"
 #include "component.hpp"
@@ -41,12 +40,7 @@ class Object_Template:public Racetime_Data
 		Script *spawn;
 
 		//tmp vbo test graphics
-		Trimesh_3D *vbo1;
-
-		//temporary graphics
-		file_3d *graphics_debug1;
-		file_3d *graphics_debug2;
-		file_3d *graphics_debug3;
+		Trimesh_3D *vbo[10];
 
 		//temporary solution
 		bool box;

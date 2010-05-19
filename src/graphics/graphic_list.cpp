@@ -32,9 +32,7 @@
 struct list_element
 {
 	GLfloat matrix[16]; //4x4
-	GLuint  list; //render list
-
-	Trimesh_3D *vbo;
+	Trimesh_3D *model; //model to render
 };
 
 //keeps track of a buffer of elements:
@@ -71,7 +69,7 @@ void Graphic_List_Update()
 
 	for (Geom *g=Geom::head; g; g=g->next)
 	{
-		if (g->f_3d)
+		if (g->model)
 		{
 			pos = dGeomGetPosition(g->geom_id);
 			rot = dGeomGetRotation(g->geom_id);
@@ -96,48 +94,7 @@ void Graphic_List_Update()
 			matrix[15]=1;
 
 			//set what to render
-			list[*count].list = g->f_3d->list;
-			list[*count].vbo = NULL;
-
-			//if buffer full...
-			if (++(*count) == buffer_size)
-			{
-				printlog(1, "Note: Graphic_List buffers were too small, resizing");
-
-				buffer_size+=INITIAL_GRAPHIC_LIST_BUFFER_SIZE;
-				buffer1.list = (list_element*) realloc(buffer1.list, sizeof(list_element)*buffer_size);
-				buffer2.list = (list_element*) realloc(buffer2.list, sizeof(list_element)*buffer_size);
-			}
-
-			list[*count].vbo=NULL;
-		}
-		else if (g->vbo)
-		{
-			pos = dGeomGetPosition(g->geom_id);
-			rot = dGeomGetRotation(g->geom_id);
-			matrix = list[*count].matrix;
-
-			//set matrix
-			matrix[0]=rot[0];
-			matrix[1]=rot[4];
-			matrix[2]=rot[8];
-			matrix[3]=0;
-			matrix[4]=rot[1];
-			matrix[5]=rot[5];
-			matrix[6]=rot[9];
-			matrix[7]=0;
-			matrix[8]=rot[2];
-			matrix[9]=rot[6];
-			matrix[10]=rot[10];
-			matrix[11]=0;
-			matrix[12]=pos[0];
-			matrix[13]=pos[1];
-			matrix[14]=pos[2];
-			matrix[15]=1;
-
-			//set what to render
-			list[*count].vbo = g->vbo;
-			list[*count].list = NULL;
+			list[*count].model = g->model;
 
 			//if buffer full...
 			if (++(*count) == buffer_size)
@@ -211,54 +168,54 @@ void Graphic_List_Render()
 	unsigned int m_loop;
 	Trimesh_3D *vbo;
 
+	//enable rendering of vertices and normals
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glEnableClientState(GL_NORMAL_ARRAY);
+	glVertexPointer(3, GL_FLOAT, sizeof(Trimesh_3D::Vertex), BUFFER_OFFSET(0));
+	glNormalPointer(GL_FLOAT, sizeof(Trimesh_3D::Vertex), BUFFER_OFFSET(sizeof(float)*3));
+
+	//glEnableVertexAttribArray(0);
+	//glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Trimesh_3D::Vertex), (BUFFER_OFFSET(0)));
+	//glEnableVertexAttribArray(1);
+	//glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Trimesh_3D::Vertex), BUFFER_OFFSET(sizeof(float)*3));
+
 	for (size_t i=0; i<(*count); ++i)
 	{
 		glPushMatrix();
+
 			glMultMatrixf (list[i].matrix);
 
-			if (list[i].vbo) //new
+			vbo = list[i].model; //point at model (cleaner code)
+
+			if (vbo->vbo_id != Trimesh_3D::current_vbo)
 			{
-				vbo = list[i].vbo;
-				if (vbo->vbo_id != Trimesh_3D::current_vbo)
-				{
-					glBindBuffer(GL_STATIC_DRAW, vbo->vbo_id);
-					Trimesh_3D::current_vbo=vbo->vbo_id;
-				}
+				glBindBuffer(GL_STATIC_DRAW, vbo->vbo_id);
+				Trimesh_3D::current_vbo=vbo->vbo_id;
 
-				//tmp: enable, disable for each
-				//glEnableVertexAttribArray(0);
-				//glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Trimesh_3D::Vertex), (BUFFER_OFFSET(0)));
-				//glEnableVertexAttribArray(1);
-				//glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Trimesh_3D::Vertex), BUFFER_OFFSET(sizeof(float)*3));
-
-				glEnableClientState(GL_VERTEX_ARRAY);
-				glVertexPointer(3, GL_FLOAT, sizeof(Trimesh_3D::Vertex), BUFFER_OFFSET(0));
-				glEnableClientState(GL_NORMAL_ARRAY);
-				glNormalPointer(GL_FLOAT, sizeof(Trimesh_3D::Vertex), BUFFER_OFFSET(sizeof(float)*3));
-
-				for (m_loop=0; m_loop< (vbo->material_count); ++m_loop)
-				{
-					glMaterialfv(GL_FRONT, GL_AMBIENT, vbo->materials[m_loop].ambient);
-					glMaterialfv(GL_FRONT, GL_DIFFUSE, vbo->materials[m_loop].diffuse);
-					glMaterialfv(GL_FRONT, GL_SPECULAR, vbo->materials[m_loop].specular);
-					glMaterialfv(GL_FRONT, GL_EMISSION, vbo->materials[m_loop].emission);
-					glMaterialf (GL_FRONT, GL_SHININESS, vbo->materials[m_loop].shininess);
-
-					//draw
-					glDrawArrays(GL_TRIANGLES, vbo->materials[m_loop].start, vbo->materials[m_loop].size);
-				}
-
-				//tmp
-				//glDisableVertexAttribArray(0);
-				//glDisableVertexAttribArray(1);
-				glDisableClientState(GL_NORMAL_ARRAY);
-				glDisableClientState(GL_VERTEX_ARRAY);
-
+				printf("TODO: need to configure vertex/normal pointers after binding buffer?\n");
+				//glVertexPointer(3, GL_FLOAT, sizeof(Trimesh_3D::Vertex), BUFFER_OFFSET(0));
+				//glNormalPointer(GL_FLOAT, sizeof(Trimesh_3D::Vertex), BUFFER_OFFSET(sizeof(float)*3));
 			}
-			else //old
-				glCallList (list[i].list);
+
+			//loop through materials, and draw section(s) of model with this material
+			for (m_loop=0; m_loop< (vbo->material_count); ++m_loop)
+			{
+				glMaterialfv(GL_FRONT, GL_AMBIENT, vbo->materials[m_loop].ambient);
+				glMaterialfv(GL_FRONT, GL_DIFFUSE, vbo->materials[m_loop].diffuse);
+				glMaterialfv(GL_FRONT, GL_SPECULAR, vbo->materials[m_loop].specular);
+				glMaterialfv(GL_FRONT, GL_EMISSION, vbo->materials[m_loop].emission);
+				glMaterialf (GL_FRONT, GL_SHININESS, vbo->materials[m_loop].shininess);
+
+				//draw
+				glDrawArrays(GL_TRIANGLES, vbo->materials[m_loop].start, vbo->materials[m_loop].size);
+			}
+
 		glPopMatrix();
 	}
-	//glDisableVertexAttribArray 
 
+	glDisableClientState(GL_NORMAL_ARRAY);
+	glDisableClientState(GL_VERTEX_ARRAY);
+
+	//glDisableVertexAttribArray(0);
+	//glDisableVertexAttribArray(1);
 }

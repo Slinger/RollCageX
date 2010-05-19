@@ -8,16 +8,16 @@ build/events/object.o: events/../shared/object.hpp events/event_lists.hpp
 build/events/profile.o: events/../shared/profile.hpp
 build/events/timers.o: events/timers.hpp events/../shared/object.hpp events/../shared/geom.hpp
 build/graphics/camera.o: graphics/../shared/camera.hpp
-build/graphics/graphic_list.o: graphics/graphic_list.hpp graphics/../shared/printlog.hpp graphics/../shared/trimesh.hpp graphics/../shared/geom.hpp graphics/../shared/body.hpp
-build/graphics/graphics.o: graphics/../shared/internal.hpp graphics/../shared/info.hpp graphics/../shared/track.hpp graphics/../shared/runlevel.hpp graphics/../shared/threads.hpp graphics/../shared/printlog.hpp graphics/../shared/camera.hpp graphics/graphic_list.hpp
-build/loaders/car.o: loaders/../shared/car.hpp loaders/../shared/printlog.hpp loaders/../shared/track.hpp loaders/../shared/geom.hpp loaders/../shared/body.hpp loaders/../shared/joint.hpp loaders/colours.hpp loaders/debug_draw.hpp loaders/text_file.hpp
+build/graphics/gl_extensions.o: graphics/gl_extensions.hpp graphics/../shared/printlog.hpp
+build/graphics/graphic_list.o: graphics/graphic_list.hpp graphics/gl_extensions.hpp graphics/../shared/printlog.hpp graphics/../shared/trimesh.hpp graphics/../shared/geom.hpp graphics/../shared/body.hpp
+build/graphics/graphics.o: graphics/../shared/internal.hpp graphics/../shared/info.hpp graphics/../shared/track.hpp graphics/../shared/runlevel.hpp graphics/../shared/threads.hpp graphics/../shared/printlog.hpp graphics/../shared/camera.hpp graphics/gl_extensions.hpp graphics/graphic_list.hpp
+build/loaders/car.o: loaders/../shared/racetime_data.hpp loaders/../shared/car.hpp loaders/../shared/printlog.hpp loaders/../shared/track.hpp loaders/../shared/geom.hpp loaders/../shared/body.hpp loaders/../shared/joint.hpp loaders/colours.hpp loaders/text_file.hpp
 build/loaders/conf.o: loaders/conf.hpp loaders/text_file.hpp loaders/../shared/printlog.hpp
-build/loaders/debug_draw.o: loaders/debug_draw.hpp loaders/colours.hpp loaders/../shared/printlog.hpp
 build/loaders/obj.o: loaders/../shared/trimesh.hpp loaders/../shared/printlog.hpp loaders/text_file.hpp
-build/loaders/object.o: loaders/../shared/object.hpp loaders/colours.hpp loaders/debug_draw.hpp loaders/../shared/racetime_data.hpp loaders/../shared/trimesh.hpp loaders/../shared/printlog.hpp loaders/../shared/track.hpp loaders/../shared/joint.hpp loaders/../shared/geom.hpp loaders/../shared/body.hpp
+build/loaders/object.o: loaders/../shared/object.hpp loaders/colours.hpp loaders/../shared/racetime_data.hpp loaders/../shared/trimesh.hpp loaders/../shared/printlog.hpp loaders/../shared/track.hpp loaders/../shared/joint.hpp loaders/../shared/geom.hpp loaders/../shared/body.hpp
 build/loaders/profile.o: loaders/../shared/profile.hpp loaders/../shared/printlog.hpp loaders/text_file.hpp
 build/loaders/text_file.o: loaders/text_file.hpp loaders/../shared/printlog.hpp
-build/loaders/track.o: loaders/../shared/track.hpp loaders/../shared/camera.hpp loaders/../shared/geom.hpp loaders/../shared/printlog.hpp loaders/../shared/object.hpp loaders/colours.hpp loaders/text_file.hpp loaders/debug_draw.hpp
+build/loaders/track.o: loaders/../shared/track.hpp loaders/../shared/camera.hpp loaders/../shared/geom.hpp loaders/../shared/printlog.hpp loaders/../shared/object.hpp loaders/colours.hpp loaders/text_file.hpp
 build/physics/body.o: physics/../shared/body.hpp physics/../shared/printlog.hpp physics/../shared/track.hpp physics/../shared/internal.hpp physics/../events/event_lists.hpp
 build/physics/camera.o: physics/../shared/camera.hpp physics/../shared/internal.hpp physics/../shared/track.hpp
 build/physics/car.o: physics/../shared/car.hpp physics/../shared/internal.hpp
@@ -29,7 +29,6 @@ build/shared/body.o: shared/body.hpp shared/object.hpp shared/internal.hpp share
 build/shared/camera.o: shared/camera.hpp
 build/shared/car.o: shared/car.hpp shared/printlog.hpp
 build/shared/component.o: shared/component.hpp shared/object.hpp shared/printlog.hpp
-build/shared/file_3d.o: shared/file_3d.hpp shared/printlog.hpp
 build/shared/geom.o: shared/geom.hpp shared/printlog.hpp shared/track.hpp shared/internal.hpp shared/../events/event_lists.hpp shared/../loaders/conf.hpp
 build/shared/internal.o: shared/internal.hpp
 build/shared/joint.o: shared/joint.hpp shared/component.hpp shared/../events/event_lists.hpp
@@ -41,4 +40,4 @@ build/shared/runlevel.o: shared/runlevel.hpp
 build/shared/space.o: shared/space.hpp shared/geom.hpp shared/printlog.hpp shared/track.hpp
 build/shared/threads.o: shared/threads.hpp
 build/shared/track.o: shared/track.hpp
-build/shared/trimesh.o: shared/trimesh.hpp shared/printlog.hpp
+build/shared/trimesh.o: shared/trimesh.hpp shared/printlog.hpp shared/../graphics/gl_extensions.hpp
