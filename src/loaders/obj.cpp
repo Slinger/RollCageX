@@ -92,8 +92,6 @@ bool Trimesh::Load_OBJ(const char *f)
 						if (sscanf(file.words[i], "%*u//%u", &ni) == 1)
 							--ni; //1->0
 					}
-					else
-						printf("CODING ERROR CHECK: this should not be printed\n"); //TODO: remove
 				}
 
 				//now we got indices, see what to do with them
@@ -262,6 +260,9 @@ bool Trimesh::Load_MTL(const char *f)
 				{
 					//usually, this vary between 0 to 1000 for obj, since opengl uses 0 to 128 translate
 					materials[mat_nr].shininess = (atof(file.words[1])*(128.0/1000.0));
+					//but maybe, just maybe, some exporters actually use opengl range?!
+					//materials[mat_nr].shininess = atof(file.words[1]);
+					printf("TODO: should shininess (Ns) be converted from 0-1000 to 0-128 range, or not needed?!\n");
 				}
 			}
 

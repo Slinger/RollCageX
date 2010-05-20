@@ -62,7 +62,7 @@ class VBO: Racetime_Data
 	private:
 		VBO(): Racetime_Data("internal_VBO_tracking_class") //name all vbo classes this...
 		{
-			printlog(2, "creating new vbo, %u bytes of size", VBO_SIZE);
+			printlog(1, "creating new vbo, %u bytes of size", VBO_SIZE);
 
 			//place on top of list
 			next=head;

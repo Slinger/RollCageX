@@ -49,6 +49,7 @@ Object_Template *Object_Template::Load(const char *path)
 
 	//just test:
 	Trimesh mesh;
+	//mesh.Load("data/objects/misc/beachball/sphere.obj"); //assume loading fine
 	mesh.Load("data/objects/misc/box/box.obj"); //assume loading fine
 	mesh.Resize(0.5);
 	Trimesh_3D *mesh3d = mesh.Create_3D();
@@ -109,17 +110,29 @@ Object_Template *Object_Template::Load(const char *path)
 
 		tmplt->NH4 = true;
 	}
-	else if (!strcmp(path, "data/objects/misc/sphere"))
+	else if (!strcmp(path, "data/objects/misc/beachball"))
 	{
-		printlog(2, "(hard-coded sphere)");
+		printlog(2, "(hard-coded beachball)");
 
-		tmplt = new Object_Template(path);
+		Trimesh mesh;
+		//mesh.Load("data/objects/misc/box/box.obj"); //assume loading fine
+		mesh.Load("data/objects/misc/beachball/sphere.obj"); //assume loading fine
+		//mesh.Resize(0.5);
+		Trimesh_3D *mesh3d = mesh.Create_3D();
+		if (mesh3d) //got data
+		{
+			tmplt = new Object_Template(path);
+			tmplt->vbo[0] = mesh3d;
+			tmplt->sphere = true;
+		}
+		else
+			tmplt=NULL;
+
 
 		//draw approximate sphere
 		/*tmplt->graphics_debug1 = new file_3d();
 		debug_draw_sphere (tmplt->graphics_debug1->list,2, lblue,white,42);*/
 
-		tmplt->sphere = true;
 	}
 	else if (!strcmp(path, "data/objects/misc/building"))
 	{
@@ -437,7 +450,7 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 	}
 	else if (sphere)
 	{
-	printlog(2, "(sphere)");
+	printlog(2, "(beachball)");
 	//
 	//
 	//
@@ -465,7 +478,7 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 	data->bounce = 1.5;
 	
 	//Next, Graphics
-	//data->f_3d = graphics_debug1;
+	data->model=vbo[0];
 	}
 	//
 	else if (building)
