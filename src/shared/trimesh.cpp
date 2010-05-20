@@ -283,8 +283,9 @@ Trimesh_3D *Trimesh::Create_3D()
 			material_list[mcount].size=(position-position_old);
 
 			//actually, the start should be offsetted by the current usage of vbo
-			//(since this new data will be placed after the old)
-			material_list[mcount].start += vbo->usage;
+			//(since this new data will be placed after the last model)
+			//NOTE: instead of counting in bytes, this is counting in "vertices"
+			material_list[mcount].start += (vbo->usage)/sizeof(Trimesh_3D::Vertex);
 
 			//next time, this position will be position_old
 			position_old=position;
