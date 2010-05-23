@@ -62,15 +62,13 @@ bool Text_File::Open (const char *file)
 	//check success
 	if (fp)
 	{
-		open = true;
+		return true;
 	}
 	else
 	{
-		open = false;
 		printlog(0, "ERROR: could not open file %s!", file);
+		return false;
 	}
-
-	return open;
 }
 
 void Text_File::Close()

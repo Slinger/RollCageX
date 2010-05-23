@@ -191,6 +191,8 @@ bool Trimesh::Load_OBJ(const char *f)
 	printf("... well, did it?\n");
 	//
 
+	printlog(1, "OBJ info: %u triangles, %u materials", triangles.size(), materials.size());
+
 	return true;
 }
 
@@ -259,9 +261,9 @@ bool Trimesh::Load_MTL(const char *f)
 				if (file.words[0][1] == 's' && file.word_count == 2) //shininess
 				{
 					//usually, this vary between 0 to 1000 for obj, since opengl uses 0 to 128 translate
-					materials[mat_nr].shininess = (atof(file.words[1])*(128.0/1000.0));
+					//materials[mat_nr].shininess = (atof(file.words[1])*(128.0/1000.0));
 					//but maybe, just maybe, some exporters actually use opengl range?!
-					//materials[mat_nr].shininess = atof(file.words[1]);
+					materials[mat_nr].shininess = atof(file.words[1]);
 					printf("TODO: should shininess (Ns) be converted from 0-1000 to 0-128 range, or not needed?!\n");
 				}
 			}

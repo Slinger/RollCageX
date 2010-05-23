@@ -17,6 +17,8 @@
 #include <string.h>
 #include <stdlib.h>
 
+#include <string>
+
 //loads configuration file to memory (using index)
 int load_conf (const char *name, char *memory, const struct Conf_Index index[])
 {
@@ -93,6 +95,11 @@ int load_conf (const char *name, char *memory, const struct Conf_Index index[])
 				//integer
 				case 'i':
 					*( ((int*)(memory+index[i].offset))+argnr ) = strtol (file.words[argnr+1], &str_left, 0);
+				break;
+
+				//string
+				case 's':
+					*( ((std::string*)(memory+index[i].offset))+argnr ) = file.words[argnr+1];
 				break;
 
 				//unknown

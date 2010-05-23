@@ -41,6 +41,9 @@ class Body: public Component
 		//body data bellongs to
 		dBodyID body_id;
 
+		//if rendering body, point at model
+		Trimesh_3D *model;
+
 		//buffer events (sent from geoms)
 		void Set_Buffer_Event(dReal thresh, dReal buff, Script *scr);
 		void Increase_Buffer(dReal add);

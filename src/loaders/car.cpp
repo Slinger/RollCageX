@@ -212,6 +212,30 @@ Car_Template *Car_Template::Load (const char *path)
 
 
 
+	//load model if specified
+	if (target->conf.model.empty())
+	{
+		printlog(1, "WARNING: no car 3D model specified\n");
+		target->model=NULL;
+	}
+	else
+	{
+		Trimesh mesh;
+		std::string file; //path to file
+		file=path;
+		file+='/';
+		file+=target->conf.model;
+
+		mesh.Load(file.c_str());
+
+		mesh.Resize(target->conf.resize);
+		mesh.Rotate(target->conf.rotate[0], target->conf.rotate[1], target->conf.rotate[2]);
+		mesh.Offset(target->conf.offset[0], target->conf.offset[1], target->conf.offset[2]);
+
+		target->model = mesh.Create_3D();
+
+		//if any steps above failed, model will be NULL
+	}
 
 	//graphics models
 	//float w_r = target->conf.w[0];
@@ -305,6 +329,12 @@ Car *Car_Template::Spawn (dReal x, dReal y, dReal z)
 
 	dBodySetPosition (car->bodyid, x, y, z);
 
+
+	//ok, set rendering model:
+	bdata->model = model;
+
+	
+	//done, collision geoms:
 	dGeomID geom;
 	Geom *gdata;
 

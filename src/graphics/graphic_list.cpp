@@ -107,10 +107,11 @@ void Graphic_List_Update()
 			}
 		}
 	}
-	//same as above, but for bodies... disabled for now
-	/*for (Body *b=Body::head; b; b=b->next)
+
+	//same as above, but for bodies
+	for (Body *b=Body::head; b; b=b->next)
 	{
-		if (b->f_3d)
+		if (b->model)
 		{
 			pos = dBodyGetPosition(b->body_id);
 			rot = dBodyGetRotation(b->body_id);
@@ -135,7 +136,7 @@ void Graphic_List_Update()
 			matrix[15]=1;
 
 			//set what to render
-			list[*count].list = g->f_3d->list;
+			list[*count].model = b->model;
 
 			//if buffer full...
 			if (++(*count) == buffer_size)
@@ -147,7 +148,7 @@ void Graphic_List_Update()
 				buffer2.list = (list_element*) realloc(buffer2.list, sizeof(list_element)*buffer_size);
 			}
 		}
-	}*/
+	}
 }
 
 void Graphic_List_Render()

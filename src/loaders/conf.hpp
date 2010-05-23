@@ -20,6 +20,7 @@
 //d - double floating point
 //b - boolean
 //R - dReal (float or double depending on ode configureaiton)
+//s - string (not "char *" but std::string)
 
 //to make the conf loader able to find variable names in structs, use indexes
 struct Conf_Index {

@@ -125,12 +125,6 @@ Object_Template *Object_Template::Load(const char *path)
 		}
 		else
 			tmplt=NULL;
-
-
-		//draw approximate sphere
-		/*tmplt->graphics_debug1 = new file_3d();
-		debug_draw_sphere (tmplt->graphics_debug1->list,2, lblue,white,42);*/
-
 	}
 	else if (!strcmp(path, "data/objects/misc/building"))
 	{

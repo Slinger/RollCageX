@@ -137,7 +137,7 @@ Trimesh_3D *Trimesh::Create_3D()
 	//check that we got any data
 	if (triangles.empty())
 	{
-		printlog(0, "ERROR: trimesh is empty (at least no useful data");
+		printlog(0, "ERROR: trimesh is empty (at least no useful data)");
 		return NULL;
 	}
 
@@ -440,6 +440,12 @@ void Trimesh::Resize(float r)
 	if (r == 1.0) //no need
 		return;
 
+	if (r == 0.0) //easy mistake
+	{
+		printlog(0, "You've made a typo: resize is 1.0, not 0.0 - Ignoring...");
+		return;
+	}
+
 	printlog(2, "Resizing trimesh");
 
 	size_t end = vertices.size();
@@ -463,7 +469,6 @@ void Trimesh::Rotate(float x, float y, float z)
 	//rotation matrix:
 	dMatrix3 rot;
 	dRFromEulerAngles (rot, x*(M_PI/180), y*(M_PI/180), z*(M_PI/180));
-	printf("TODO: check if dMatrix3 is column on line based\n");
 
 	Vector_Float v, rotated;
 
@@ -473,9 +478,9 @@ void Trimesh::Rotate(float x, float y, float z)
 	for (i=0; i != end; ++i)
 	{
 		v=vertices[i];
-		rotated.x = v.x*rot[0]+v.y*rot[1]+v.z*rot[2];
-		rotated.y = v.x*rot[4]+v.y*rot[5]+v.z*rot[6];
-		rotated.z = v.x*rot[8]+v.y*rot[9]+v.z*rot[10];
+		rotated.x = v.x*rot[0]+v.y*rot[4]+v.z*rot[8];
+		rotated.y = v.x*rot[1]+v.y*rot[5]+v.z*rot[9];
+		rotated.z = v.x*rot[2]+v.y*rot[6]+v.z*rot[10];
 
 		vertices[i]=rotated;
 	}
@@ -485,9 +490,9 @@ void Trimesh::Rotate(float x, float y, float z)
 	for (i=0; i != end; ++i)
 	{
 		v=normals[i];
-		rotated.x = v.x*rot[0]+v.y*rot[1]+v.z*rot[2];
-		rotated.y = v.x*rot[3]+v.y*rot[4]+v.z*rot[5];
-		rotated.z = v.x*rot[6]+v.y*rot[7]+v.z*rot[8];
+		rotated.x = v.x*rot[0]+v.y*rot[4]+v.z*rot[8];
+		rotated.y = v.x*rot[1]+v.y*rot[5]+v.z*rot[9];
+		rotated.z = v.x*rot[2]+v.y*rot[6]+v.z*rot[10];
 
 		normals[i]=rotated;
 	}

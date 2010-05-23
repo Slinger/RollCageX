@@ -22,6 +22,7 @@
 #include "../loaders/conf.hpp"
 
 #include <vector>
+#include <string>
 
 //for loading car.conf
 struct Car_Conf
@@ -40,6 +41,9 @@ struct Car_Conf
 	//values for moving steering/breaking/turning between front/rear wheels
 	int steer_ratio, motor_ratio, break_ratio;
 
+	std::string model;
+	dReal resize, rotate[3], offset[3];
+
 	//debug sizes
 	dReal s[4],w[2],wp[2],jx;
 };
@@ -54,6 +58,8 @@ const struct Car_Conf car_conf_defaults = {
 	{10,5,15}, 1, 4, 0.5,
 	{3.5,8.2,1},
 	100, 0, 50,
+	"",
+	1, {0,0,0}, {0,0,0},
 	{5.8,4.4,2,1.5}, {1.5,1.7}, {2.9,2.2}, 2.4};
 
 const struct Conf_Index car_conf_index[] = {
@@ -67,6 +73,11 @@ const struct Conf_Index car_conf_index[] = {
 	{"front/rear_steer",	'i',1, offsetof(struct Car_Conf, steer_ratio)},
 	{"front/rear_motor",	'i',1, offsetof(struct Car_Conf, motor_ratio)},
 	{"front/rear_break",	'i',1, offsetof(struct Car_Conf, break_ratio)},
+
+	{"model",		's',1, offsetof(struct Car_Conf, model)},
+	{"model:resize",	'R',1, offsetof(struct Car_Conf, resize)},
+	{"model:rotate",	'R',3, offsetof(struct Car_Conf, rotate)},
+	{"model:offset",	'R',3, offsetof(struct Car_Conf, offset)},
 
 	{"suspension_erp",	'R',1, offsetof(struct Car_Conf, suspension_erp)},
 	{"suspension_cfm",	'R',1, offsetof(struct Car_Conf, suspension_cfm)},
@@ -121,7 +132,6 @@ class Car_Template:public Racetime_Data
 		};
 
 		std::vector<class box> boxes;
-		//std::vector<file_3d*> box_graphics; //TMP: for storing graphics
 
 		struct sphere {
 			dReal radius;
@@ -129,7 +139,6 @@ class Car_Template:public Racetime_Data
 		};
 
 		std::vector<class sphere> spheres;
-		//std::vector<file_3d*> sphere_graphics;
 
 		struct capsule {
 			dReal size[2];
@@ -138,7 +147,8 @@ class Car_Template:public Racetime_Data
 		};
 
 		std::vector<class capsule> capsules;
-		//std::vector<file_3d*> capsule_graphics;
+
+		Trimesh_3D *model;
 };
 
 class Car:public Object
