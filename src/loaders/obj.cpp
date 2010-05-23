@@ -265,6 +265,9 @@ bool Trimesh::Load_MTL(const char *f)
 					//but maybe, just maybe, some exporters actually use opengl range?!
 					materials[mat_nr].shininess = atof(file.words[1]);
 					printf("TODO: should shininess (Ns) be converted from 0-1000 to 0-128 range, or not needed?!\n");
+
+					if (materials[mat_nr].shininess > 128.0)
+						printf("OK, Ns WENT ABOVE 128! FTW...\n");
 				}
 			}
 

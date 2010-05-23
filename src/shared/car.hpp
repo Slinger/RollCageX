@@ -42,7 +42,7 @@ struct Car_Conf
 	int steer_ratio, motor_ratio, break_ratio;
 
 	std::string model;
-	dReal resize, rotate[3], offset[3];
+	float resize, rotate[3], offset[3];
 
 	//debug sizes
 	dReal s[4],w[2],wp[2],jx;
@@ -75,9 +75,9 @@ const struct Conf_Index car_conf_index[] = {
 	{"front/rear_break",	'i',1, offsetof(struct Car_Conf, break_ratio)},
 
 	{"model",		's',1, offsetof(struct Car_Conf, model)},
-	{"model:resize",	'R',1, offsetof(struct Car_Conf, resize)},
-	{"model:rotate",	'R',3, offsetof(struct Car_Conf, rotate)},
-	{"model:offset",	'R',3, offsetof(struct Car_Conf, offset)},
+	{"model:resize",	'f',1, offsetof(struct Car_Conf, resize)},
+	{"model:rotate",	'f',3, offsetof(struct Car_Conf, rotate)},
+	{"model:offset",	'f',3, offsetof(struct Car_Conf, offset)},
 
 	{"suspension_erp",	'R',1, offsetof(struct Car_Conf, suspension_erp)},
 	{"suspension_cfm",	'R',1, offsetof(struct Car_Conf, suspension_cfm)},
