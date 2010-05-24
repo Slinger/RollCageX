@@ -99,7 +99,18 @@ int load_conf (const char *name, char *memory, const struct Conf_Index index[])
 
 				//string
 				case 's':
-					*( ((std::string*)(memory+index[i].offset))+argnr ) = file.words[argnr+1];
+					//check length
+					if (strlen(file.words[argnr+1]) >= Conf_String_Size) //equal or bigger than max size
+					{
+						printlog(0, "ERROR: word in conf file was too big for string!");
+					}
+					else
+					{
+						//ok
+						strcpy(*( ((Conf_String*)(memory+index[i].offset))+argnr ),    file.words[argnr+1] );
+						//indicate success
+						str_left = NULL;
+					}
 				break;
 
 				//unknown
@@ -110,11 +121,7 @@ int load_conf (const char *name, char *memory, const struct Conf_Index index[])
 
 			//if the word wasn't processed
 			if (str_left == file.words[argnr+1])
-			{
 				printlog(0, "ERROR: Could not translate word \"%s\" to type \"%c\"", file.words[argnr+1], index[i].type);
-				//this is potentially dangerous (since the variable might not have a default value)
-				//return -1; //currently assuming it has a safe default anyway (not guaranteed)
-			}
 		}
 
 	}

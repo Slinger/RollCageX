@@ -20,7 +20,11 @@
 //d - double floating point
 //b - boolean
 //R - dReal (float or double depending on ode configureaiton)
-//s - string (not "char *" but std::string)
+//s - string (fixed-size c array, defined as Conf_String below)
+
+#define Conf_String_Size 100 //99 chars (plus \0)
+
+typedef char Conf_String[Conf_String_Size];
 
 //to make the conf loader able to find variable names in structs, use indexes
 struct Conf_Index {

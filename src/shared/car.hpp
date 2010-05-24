@@ -41,7 +41,7 @@ struct Car_Conf
 	//values for moving steering/breaking/turning between front/rear wheels
 	int steer_ratio, motor_ratio, break_ratio;
 
-	std::string model;
+	Conf_String model; //filename+path for model
 	float resize, rotate[3], offset[3];
 
 	//debug sizes

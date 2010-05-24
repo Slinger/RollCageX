@@ -213,7 +213,7 @@ Car_Template *Car_Template::Load (const char *path)
 
 
 	//load model if specified
-	if (target->conf.model.empty())
+	if (target->conf.model[0] == '\0') //empty string
 	{
 		printlog(1, "WARNING: no car 3D model specified\n");
 		target->model=NULL;
@@ -221,6 +221,7 @@ Car_Template *Car_Template::Load (const char *path)
 	else
 	{
 		Trimesh mesh;
+
 		std::string file; //path to file
 		file=path;
 		file+='/';
