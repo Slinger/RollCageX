@@ -50,7 +50,6 @@ Object_Template *Object_Template::Load(const char *path)
 	//just test:
 	Trimesh mesh;
 	mesh.Load("data/objects/misc/box/box.obj"); //assume loading fine
-	mesh.Resize(0.5);
 	Trimesh_3D *mesh3d = mesh.Create_3D();
 	if (mesh3d) //got data
 	{
@@ -115,7 +114,6 @@ Object_Template *Object_Template::Load(const char *path)
 
 		Trimesh mesh;
 		mesh.Load("data/objects/misc/beachball/sphere.obj"); //assume loading fine
-		//mesh.Resize(0.5);
 		Trimesh_3D *mesh3d = mesh.Create_3D();
 		if (mesh3d) //got data
 		{
