@@ -115,8 +115,8 @@ bool graphics_init(void)
 	glEnable (GL_DEPTH_TEST);
 
 	printf("TODO: check if backside culling provides performance increase...\n");
-	/*glCullFace(GL_BACK); //cull backsides (=don't draw things turned away)
-	glEnable(GL_CULL_FACE);*/
+	if (internal.culling)
+		glEnable(GL_CULL_FACE);
 
 	glShadeModel (GL_SMOOTH); //by default, can be changed
 

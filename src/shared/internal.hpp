@@ -43,6 +43,7 @@ extern struct internal_struct {
 	bool force;
 	float angle;
 	bool fullscreen;
+	bool culling;
 } internal;
 
 const struct internal_struct internal_defaults = {
@@ -61,7 +62,8 @@ const struct internal_struct internal_defaults = {
 	2800,
 	false,
 	0,
-	false};
+	false,
+	true};
 
 const struct Conf_Index internal_index[] = {
 	{"verbosity",		'i',1, offsetof(struct internal_struct, verbosity)},
@@ -90,6 +92,7 @@ const struct Conf_Index internal_index[] = {
 	{"force_angle",		'b',1, offsetof(struct internal_struct, force)},
 	{"view_angle",		'f',1, offsetof(struct internal_struct, angle)},
 	{"fullscreen",		'b',1, offsetof(struct internal_struct, fullscreen)},
+	{"backface_culling",	'b',1, offsetof(struct internal_struct, culling)},
 	{"",0,0}};
 
 
