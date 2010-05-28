@@ -228,11 +228,11 @@ void Geom::Set_Buffer_Body(Body *b)
 	force_to_body = b;
 }
 
-void Geom::Damage_Buffer(dReal force)
+void Geom::Damage_Buffer(dReal force, dReal step)
 {
 	if (force_to_body)
 	{
-		force_to_body->Damage_Buffer(force);
+		force_to_body->Damage_Buffer(force, step);
 		return;
 	}
 
@@ -243,7 +243,7 @@ void Geom::Damage_Buffer(dReal force)
 	//buffer still got health
 	if (buffer > 0)
 	{
-		buffer -= (force-threshold)*internal.stepsize;
+		buffer -= (force-threshold)*step;
 
 		//now it's negative, issue event
 		if (buffer < 0)
@@ -253,7 +253,7 @@ void Geom::Damage_Buffer(dReal force)
 		}
 	}
 	else //just damage buffer even more
-		buffer -= (force-threshold)*internal.stepsize;
+		buffer -= (force-threshold)*step;
 }
 
 void Geom::Increase_Buffer(dReal buff)

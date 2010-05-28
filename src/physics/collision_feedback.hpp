@@ -21,7 +21,7 @@ class Collision_Feedback
 {
 	public:
 		Collision_Feedback(dJointID joint, Geom *g1, Geom *g2);
-		static void Physics_Step(); //processes and clears list
+		static void Physics_Step(dReal step); //processes and clears list
 
 	private:
 		//data for simulation
