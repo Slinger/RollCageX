@@ -43,7 +43,7 @@ const char ISSUE[] =
       * F5 - spawn box\n\
       * F6 - spawn sphere\n\
       * F7 - spawn funbox\n\
-      * F8 - switch car\n\
+      * F8 - toggle debug geom rendering: geoms+models, only geoms or only models\n\
     - See README for more info -\n\n";
  
 

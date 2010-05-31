@@ -114,7 +114,6 @@ bool graphics_init(void)
 	glDepthFunc (GL_LESS); //depth testing (proper overlapping)
 	glEnable (GL_DEPTH_TEST);
 
-	printf("TODO: check if backside culling provides performance increase...\n");
 	if (internal.culling)
 		glEnable(GL_CULL_FACE);
 

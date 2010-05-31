@@ -105,7 +105,7 @@ int main (int argc, char *argv[])
 	//on failure, rcx should not just terminate but instead abort the race and warn the user
 	
 	//MENU: welcome to rcx, please select profile or create a new profile
-	Profile *prof = Profile_Load ("data/profiles/default");
+	Profile *prof = Profile_Load (internal.usr_profile);
 	if (!prof)
 		return -1; //GOTO: profile menu
 
@@ -118,19 +118,21 @@ int main (int argc, char *argv[])
 
 	//MENU: select race type
 	// - assuming 2P free roam -
-	//MENU: P1: select theme/car
-	Car_Template *venom_template = Car_Template::Load("data/teams/Nemesis/cars/Venom");
-	if (!venom_template)
-		return -1; //GOTO: car selection menu
-
-	//MENU: P2: select theme/car
-	Car_Template *reaper_template = Car_Template::Load("data/teams/Vostok/cars/Reaper");
-	if (!reaper_template)
-		return -1; //GOTO: car selection
 
 	//MENU: select world/track
-	if (!load_track((char *)"data/worlds/Sandbox/tracks/Box"))
+	if (!load_track(internal.usr_track))
 		return -1; //GOTO: track selection menu
+
+	//MENU: P1: select team/car
+	Car_Template *car_template = Car_Template::Load(internal.usr_car);
+	if (!car_template)
+		return -1; //GOTO: car selection menu
+
+	//MENU: P1: select {track,world}/tyre
+	printf("TODO: load tyre: %s\n", internal.usr_tyre);
+
+	//MENU: P1: select {car,team}/rim
+	printf("TODO: load rim: %s\n", internal.usr_rim);
 
 	//TMP: load box for online spawning
 	box = Object_Template::Load("data/objects/misc/box");
@@ -140,12 +142,9 @@ int main (int argc, char *argv[])
 		return -1;
 
 	//spawn car
-	Venom = venom_template->Spawn(track.start[0]-4, track.start[1], track.start[2]);
-	prof->car = Venom;
-	camera.car = Venom;
-
-	//lets spawn another car:
-	Reaper = reaper_template->Spawn(track.start[0]+4, track.start[1], track.start[2]);
+	Car *player_car = car_template->Spawn(track.start[0], track.start[1], track.start[2]);
+	prof->car = player_car;
+	camera.car = player_car;
 
 	//MENU: race configured, start?
 	start_race();

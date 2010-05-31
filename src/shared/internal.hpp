@@ -44,11 +44,17 @@ extern struct internal_struct {
 	float angle;
 	bool fullscreen;
 	bool culling;
+	
+
+	//TMP: menu selections
+	Conf_String usr_profile,usr_track,usr_car,usr_tyre,usr_rim;
 } internal;
 
 const struct internal_struct internal_defaults = {
 	1, //verbosity 1 until cheanged
+	//threading options
 	true,true,
+	//physics
 	0.01,
 	20,
 	20,
@@ -58,12 +64,19 @@ const struct internal_struct internal_defaults = {
 	1.0,0.8,0.01,0.01,
 	5,5,
 	0.05,0.10,0.5,1,
+	//graphics
 	{1200,800},
 	2800,
 	false,
 	0,
 	false,
-	true};
+	true,
+	//TMP menu:
+	"data/profiles/default",
+	"data/worlds/Sandbox/tracks/Box",
+	"data/teams/Nemesis/cars/Venom",
+	"data/worlds/Sandbox/tyres/???",
+	"data/teams/Nemesis/rims/???"};
 
 const struct Conf_Index internal_index[] = {
 	{"verbosity",		'i',1, offsetof(struct internal_struct, verbosity)},
@@ -93,6 +106,13 @@ const struct Conf_Index internal_index[] = {
 	{"view_angle",		'f',1, offsetof(struct internal_struct, angle)},
 	{"fullscreen",		'b',1, offsetof(struct internal_struct, fullscreen)},
 	{"backface_culling",	'b',1, offsetof(struct internal_struct, culling)},
+
+	//TMP:
+	{"TMP:profile",		's',1, offsetof(struct internal_struct, usr_profile)},
+	{"TMP:track",		's',1, offsetof(struct internal_struct, usr_track)},
+	{"TMP:car",		's',1, offsetof(struct internal_struct, usr_car)},
+	{"TMP:tyre",		's',1, offsetof(struct internal_struct, usr_tyre)},
+	{"TMP:rim",		's',1, offsetof(struct internal_struct, usr_rim)},
 	{"",0,0}};
 
 
