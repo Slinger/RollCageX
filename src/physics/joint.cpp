@@ -64,11 +64,11 @@ void Joint::Physics_Step (dReal step)
 			delt2 = dLENGTH(d->feedback->f2);
 
 			if (delt1>delt2)
-				delt = delt1 - d->threshold;
+				delt = delt1;
 			else
-				delt = delt2 - d->threshold;
+				delt = delt2;
 
-			if (delt > 0)
+			if (delt > d->threshold)
 			{
 				if (d->buffer < 0) //already depleted, just damage more
 					d->buffer -= delt*step;

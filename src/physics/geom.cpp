@@ -243,7 +243,7 @@ void Geom::Damage_Buffer(dReal force, dReal step)
 	//buffer still got health
 	if (buffer > 0)
 	{
-		buffer -= (force-threshold)*step;
+		buffer -= force*step;
 
 		//now it's negative, issue event
 		if (buffer < 0)
@@ -253,7 +253,7 @@ void Geom::Damage_Buffer(dReal force, dReal step)
 		}
 	}
 	else //just damage buffer even more
-		buffer -= (force-threshold)*step;
+		buffer -= force*step;
 }
 
 void Geom::Increase_Buffer(dReal buff)
