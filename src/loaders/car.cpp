@@ -285,7 +285,6 @@ Car *Car_Template::Spawn (dReal x, dReal y, dReal z)
 	car->rmotor = rmotor;
 	car->fbreak = fbreak;
 	car->rbreak = rbreak;
-	car->inertia_tensor = inertia_tensor;
 
 	//start building
 	new Space(car);
@@ -481,31 +480,21 @@ Car *Car_Template::Spawn (dReal x, dReal y, dReal z)
 	//create joints (hinge2) for wheels
 	for (i=0; i<4; ++i)
 	{
-		car->joint[i]=dJointCreateHinge2 (world, 0);
-		new Joint(car->joint[i], car);
-		//body is still body of car main body
-		dJointAttach (car->joint[i], car->bodyid, wheel_body[i]);
-		dJointSetHinge2Axis1 (car->joint[i],0,0,1);
-		dJointSetHinge2Axis2 (car->joint[i],1,0,0);
+		car->suspension[i]=new Suspension(car, car->bodyid, car->wheel_body[i], inertia_tensor);
 
 		//setup suspension
-		dJointSetHinge2Param (car->joint[i],dParamSuspensionERP,conf.suspension_erp);
-		dJointSetHinge2Param (car->joint[i],dParamSuspensionCFM,conf.suspension_cfm);
-
-		//lock steering axis on all wheels
-		dJointSetHinge2Param (car->joint[i],dParamLoStop,0);
-		dJointSetHinge2Param (car->joint[i],dParamHiStop,0);
+		printf("TODO\n");
 
 		//to easily get rotation speed (for slip in sideway), set all geom datas to specify connected hinge2
-		wheel_data[i]->hinge2 = car->joint[i];
+		wheel_data[i]->suspension = car->suspension[i];
 	}
 
 	//to make it possible to tweak the hinge2 anchor x position:
 	
-	dJointSetHinge2Anchor (car->joint[0],x+conf.jx,y+conf.wp[1],z);
-	dJointSetHinge2Anchor (car->joint[1],x+conf.jx,y-conf.wp[1],z);
-	dJointSetHinge2Anchor (car->joint[2],x-conf.jx,y-conf.wp[1],z);
-	dJointSetHinge2Anchor (car->joint[3],x-conf.jx,y+conf.wp[1],z);
+	//dJointSetHinge2Anchor (car->joint[0],x+conf.jx,y+conf.wp[1],z);
+	//dJointSetHinge2Anchor (car->joint[1],x+conf.jx,y-conf.wp[1],z);
+	//dJointSetHinge2Anchor (car->joint[2],x-conf.jx,y-conf.wp[1],z);
+	//dJointSetHinge2Anchor (car->joint[3],x-conf.jx,y+conf.wp[1],z);
 
 	//return
 	return car;

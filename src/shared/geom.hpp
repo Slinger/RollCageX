@@ -14,6 +14,7 @@
 #include "component.hpp"
 #include "body.hpp"
 #include "object.hpp"
+#include "../physics/suspension.hpp"
 #include "file_3d.hpp"
 #include "script.hpp"
 #include <SDL/SDL_stdinc.h> //definition for Uint32
@@ -47,7 +48,7 @@ class Geom: public Component
 		dReal mu, mu_rim, erp, cfm, slip, bounce;
 
 		bool wheel; //true if wheel side slip and connected to hinge2
-		dJointID hinge2;
+		Suspension *suspension; //TODO: REMOVE!
 
 		//End of physics data
 		

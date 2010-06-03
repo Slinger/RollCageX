@@ -10,6 +10,7 @@
  */
 
 #include "../shared/geom.hpp"
+#include "suspension.hpp"
 
 #include "../shared/internal.hpp"
 #include "../shared/track.hpp"
@@ -103,7 +104,7 @@ void Geom::Collision_Callback (void *data, dGeomID o1, dGeomID o2)
 			int mode_tyre = mode | dContactSlip1 | dContactFDir1; //add slip calculations and specified direction
 
 			//get slip value (based on the two geoms' slip value and the wheel's rotation speed)
-			dReal speed = dJointGetHinge2Angle2Rate (wheel->hinge2);
+			dReal speed = wheel->suspension->RotationSpeed();
 
 			if (speed < 0)
 				speed = -speed;
