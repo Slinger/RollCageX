@@ -72,10 +72,12 @@ int physics_loop (void *d)
 		SDL_mutexP(ode_mutex);
 
 		Car::Physics_Step(internal.stepsize); //control, antigrav...
-		Body::Physics_Step(internal.stepsize); //drag (air/liquid "friction")
 
 		for (int i=0; i<internal.multiplier; ++i)
 		{
+			Body::Physics_Step(divided_stepsize); //drag (air/liquid "friction")
+			Suspension::Physics_Step(divided_stepsize); //simulate car suspensions
+
 			dSpaceCollide (space, 0, &Geom::Collision_Callback);
 			dWorldQuickStep (world, divided_stepsize);
 			dJointGroupEmpty (contactgroup);

@@ -12,6 +12,53 @@
 #include "suspension.hpp"
 #include "../shared/printlog.hpp"
 
+void Suspension::Physics_Step(dReal step)
+{
+	/*
+	 * find forces/torques that will keep suspension bodies as wanted
+	 * 1: find out how much different the position/rotation of wheel is from wanted
+	 * 2: determine velocity/rotation rate needed for correcting everything in one step
+	 * 3: compare to already existing velocity/rotation rate and see how much to change
+	 * 4: determine the needed linear/rotational acceleration for this change
+	 * 5: find what forces/torques will give this acceletation
+	 * 6: send forces to ode
+	 * 7: suspension spring force (and damping)
+	 */
+
+	bool forces_on_z = false;
+	//1:
+	//b
+	/*dBodyGetVelocityAtPoint();
+	dBodyGetRotationRateAtPoint();
+	//w
+	dBodyGetVelocity();
+	dBodyGetRotationRate();*/
+	//2:
+	/*delta/step...*/
+	//3:
+	/*v-v.old...*/
+	//4:
+	//NOTE: since ode uses an iterative method in which velocity is changed by forces
+	//_before_ movement (and not during movement), it's not necessary (or even wanted)
+	//to compute these forces as if the acceleration would be applied during the movement
+	//So one can simply just focus on the wanted acceleration!
+	/*acceleration = diff/step;*/
+	//5:
+	/*check ode mass matrix for each of the two bodies (should contain inertia tensor and similar)
+	 * TODO: how does ode figure out gyroscopic simulation? will probably be needed...*/
+	//6:
+	/*dBodyAddTorque();
+	dBodyAddTorque();
+	dBodyAddForce();
+	dBodyAddForce();*/
+	
+	//7:
+	/*dBodyAddForce(z*spring);
+	dBodyAddForce(-z*spring);
+	damping...*/
+}
+
+
 Suspension::Suspension(Object *obj, dBodyID b, dBodyID w, dReal t): Component(obj), body(b), wheel(w), tensor(t)
 {
 	printlog(2, "configuring Suspension class");
@@ -40,61 +87,44 @@ dReal Suspension::RotationSpeed()
 	return (wrate-brate);
 }
 
-void Suspension::LockWheel()
+void Suspension::LockWheel(dReal step)
 {
-	if (torque_compensator)
-	{
-		const dReal *r = dBodyGetAngularVel(body);
-		dBodySetAngularVel(wheel, r[0], r[1], r[2]);
-		dBodySetAngularVel(wheel, r[0], r[1], r[2]);
-	}
-	else
-	{
-		/*dJointSetHinge2Param (carp->joint[1],dParamVel2,0);
-		dJointSetHinge2Param (carp->joint[1],dParamFMax2,dInfinity);
-		dJointSetHinge2Param (carp->joint[2],dParamVel2,0);
-		dJointSetHinge2Param (carp->joint[2],dParamFMax2,dInfinity);*/
-	}
+	AddTorque(ForceToStop(step)); //add the torque needed in one step
 }
 
 void Suspension::BreakWheel(dReal t, dReal step)
 {
 	if (torque_compensator)
 	{
-		const dReal *r = dBodyGetAngularVel(body); //in case stopping wheel
-		dReal rotation, torque_needed;
-		dReal torque[4] = {0,0,0,0};
+		dReal torque_needed;
+		dReal torque;
 
 		int i;
 		for (i=0; i<4; ++i)
 		{
-			rotation = RotationSpeed();
-			torque_needed = (tensor*rotation/step); //T=I*a/t
+			torque_needed = ForceToStop(step);
 
 			//negative rotation, negative values...
 			if (torque_needed < 0)
 			{
 				//the usual situation: only enough torque to slow down the wheel
 				if (-torque_needed > t)
-					torque[i] = +t;
+					torque = -t;
 				else //wheel will stop rotating
-					dBodySetAngularVel(wheel, r[0],r[1],r[2]);
+					torque=torque_needed;
 			}
 			else //positive rotation, positive values
 			{
 				//the usual situation: only enough torque to slow down the wheel
 				if (torque_needed > t)
-					torque[i] = -t;
+					torque = +t;
 				else //wheel will stop rotating
-					dBodySetAngularVel(wheel, r[0],r[1],r[2]);
+					torque=torque_needed;
 			}
 		}
 
 		//add breaking torques (even if possibly 0)
-		dBodyAddRelTorque(wheel, 0, 0, -torque[0]);
-		dBodyAddRelTorque(wheel, 0, 0, -torque[1]);
-		dBodyAddRelTorque(wheel, 0, 0, torque[2]);
-		dBodyAddRelTorque(wheel, 0, 0, torque[3]);
+		AddTorque(torque);
 	}
 	else
 	{
@@ -137,4 +167,18 @@ void Suspension::TurnWheel(dReal a)
 		dJointSetHinge2Param (carp->joint[1],dParamHiStop,carp->steering*carp->dir *carp->rsteer);
 		dJointSetHinge2Param (carp->joint[2],dParamLoStop,carp->steering*carp->dir *carp->rsteer);
 		dJointSetHinge2Param (carp->joint[2],dParamHiStop,carp->steering*carp->dir *carp->rsteer);*/
+}
+
+dReal Suspension::ForceToStop(dReal step)
+{
+	if (torque_compensator)
+	{
+		dReal rotation = RotationSpeed();
+		return -(tensor*rotation/step); //T=I*a/t
+	}
+	else
+	{
+		return 0;
+		//TODO!
+	}
 }
