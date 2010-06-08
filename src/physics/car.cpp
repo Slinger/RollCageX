@@ -53,8 +53,8 @@ void Car::Physics_Step(dReal step)
 		//control
 		if (carp->drift_breaks)
 		{
-			carp->suspension[1]->LockWheel(step);
-			carp->suspension[2]->LockWheel(step);
+			carp->suspension[1]->LockWheel();
+			carp->suspension[2]->LockWheel();
 		}
 		else if (carp->breaks)
 		{
