@@ -69,7 +69,6 @@ void Car::Physics_Step(dReal step)
 		{
 			if (carp->torque_compensator)
 			{
-				const dReal *r = dBodyGetAngularVel(carp->bodyid); //in case stopping wheel
 				dReal rotation, torque_needed;
 				dReal torque[4] = {0,0,0,0};
 
@@ -86,7 +85,7 @@ void Car::Physics_Step(dReal step)
 						if (-torque_needed > carp->max_break)
 							torque[i] = +carp->max_break;
 						else //wheel will stop rotating
-							dBodySetAngularVel(carp->wheel_body[i], r[0],r[1],r[2]);
+							torque[i] = -torque_needed;
 					}
 					else //positive rotation, positive values
 					{
@@ -94,7 +93,7 @@ void Car::Physics_Step(dReal step)
 						if (torque_needed > carp->max_break)
 							torque[i] = -carp->max_break;
 						else //wheel will stop rotating
-							dBodySetAngularVel(carp->wheel_body[i], r[0],r[1],r[2]);
+							torque[i] = -torque_needed;
 					}
 				}
 
