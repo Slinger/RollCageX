@@ -24,7 +24,6 @@
 class Suspension:public Component
 {
 	public:
-		static void Physics_Step(dReal step);
 		Suspension(Object *obj, dBodyID b, dBodyID w, dReal t);
 		void Elevate (dReal e);
 		void SetProperties(dReal e, dReal s, dReal d);
@@ -32,18 +31,17 @@ class Suspension:public Component
 		dReal RotationSpeed();
 		void TurnWheel (dReal a);
 		void AddTorque(dReal t);
-		void LockWheel(dReal step);
+		void LockWheel();
 		void BreakWheel(dReal t, dReal step);
 
 		bool torque_compensator; //remove opposing torque on body?
 
 	private:
-		dReal ForceToStop(dReal step); //how much force needed to stop rotation
 		dBodyID body,wheel;
 		dReal axis[3];
 		dReal elevation;
 		dReal end, spring, damping;
-		dReal tensor; //TODO: remove and replace
+		dReal tensor;
 		//todo: inertia tensor, etc..
 };
 
