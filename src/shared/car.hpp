@@ -164,10 +164,11 @@ class Car:public Object
 		dReal max_torque, motor_tweak, max_break;
 		bool torque_compensator;
 		dReal fsteer, rsteer, fmotor, rmotor, fbreak, rbreak;
+		dReal inertia_tensor;
 
 		//just for keeping track
 		dBodyID bodyid,wheel_body[4];
-		Suspension *suspension[4];
+		dJointID joint[4];
 
 		Geom *wheel_geom_data[4];
 

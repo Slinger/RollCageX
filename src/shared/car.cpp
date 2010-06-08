@@ -46,11 +46,12 @@ Car::Car(void)
 	prev=NULL;
 }
 
+//run _before_ starting full erase of object/component lists (at race end)
 Car::~Car()
 {
 	printlog(2, "clearing Car class");
 
-	//remove from car list
+	//remove from list
 	if (!prev) //head
 		head = next;
 	else //not head
