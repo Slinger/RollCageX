@@ -32,6 +32,7 @@ struct list_element
 //keeps track of a buffer of elements:
 struct list_buffer
 {
+	bool filled;
 	size_t count;
 	list_element *list;
 };
@@ -39,8 +40,8 @@ struct list_buffer
 size_t buffer_size = INITIAL_GRAPHIC_LIST_BUFFER_SIZE;
 
 //buffers
-list_buffer buffer1 = {0, (list_element*)malloc(sizeof(list_element)*buffer_size)};
-list_buffer buffer2 = {0, (list_element*)malloc(sizeof(list_element)*buffer_size)};
+list_buffer buffer1 = {0, false, (list_element*)malloc(sizeof(list_element)*buffer_size)};
+list_buffer buffer2 = {0, false, (list_element*)malloc(sizeof(list_element)*buffer_size)};
 
 //pointers at buffers
 list_buffer *buffer_in = &buffer1; //filled with data
@@ -52,9 +53,11 @@ void Graphic_List_Update()
 {
 	//pointers:
 	list_buffer *tmp=buffer_in;
+
 	size_t *count=&(tmp->count);
 	list_element *list=tmp->list;
 
+	tmp->filled=false; //indicate buffer is now updating (incomplete)
 	*count=0; //set to zero (empty)
 
 	//variables
@@ -142,18 +145,20 @@ void Graphic_List_Update()
 			}
 		}
 	}*/
+
+	tmp->filled = true; //this buffer is now filled with new data
 }
 
 void Graphic_List_Render()
 {
-	//see if in buffer got any data, if so switch
-	if (buffer_in->count) //got new stuff to render
+	//see if in buffer got complete set of new data, if so switch
+	if (buffer_in->filled) //got new stuff to render
 	{
 		list_buffer *tmp=buffer_out;
 		buffer_out=buffer_in;
 		buffer_in = tmp;
 
-		buffer_in->count=0; //indicates empty
+		buffer_in->filled=false; //make sure we don't switch back to this until really new
 	}
 
 	//copy needed data
