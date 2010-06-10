@@ -42,7 +42,7 @@ class Camera
 		void Move(dReal x, dReal y, dReal z);
 
 		//these should probably be static (for using more cameras), but this will do for now
-		void Physics_Step();
+		void Physics_Step(dReal step);
 		void Graphics_Step();
 
 		//public for now...

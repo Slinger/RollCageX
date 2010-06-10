@@ -28,7 +28,7 @@ builddirs:
 	@mkdir -p build/shared build/events build/loaders build/graphics build/physics
 
 clean:
-	-rm -f $(OBJS)
+	-rm -rf build
 
 distclean: clean
 	-rm -f ../rcx

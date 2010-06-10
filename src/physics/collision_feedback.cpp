@@ -34,15 +34,15 @@ Collision_Feedback::Collision_Feedback(dJointID joint, Geom *g1, Geom *g2)
 	head = this;
 }
 
-void Collision_Feedback::Physics_Step()
+void Collision_Feedback::Physics_Step(dReal step)
 {
 	Collision_Feedback *prev;
 
 	while (head)
 	{
 		//just pass force to appropriate geom
-		head->geom1->Damage_Buffer(dLENGTH(head->feedback.f1));
-		head->geom2->Damage_Buffer(dLENGTH(head->feedback.f2));
+		head->geom1->Damage_Buffer(dLENGTH(head->feedback.f1), step);
+		head->geom2->Damage_Buffer(dLENGTH(head->feedback.f2), step);
 
 		//remove
 		prev = head;

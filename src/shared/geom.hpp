@@ -69,7 +69,7 @@ class Geom: public Component
 		void Set_Buffer_Event(dReal thresh, dReal buff, Script *scr);
 		void Increase_Buffer(dReal add);
 		void Set_Buffer_Body(Body*); //send damage to body instead
-		void Damage_Buffer(dReal force); //"damage" geom with specified force
+		void Damage_Buffer(dReal force, dReal step); //"damage" geom with specified force
 
 		//sensor events
 		void Set_Sensor_Event(Script *s1, Script *s2);

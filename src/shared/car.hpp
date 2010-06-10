@@ -30,7 +30,7 @@ struct Car_Conf
 	dReal max_torque, motor_tweak, max_break;
 	bool torque_compensator;
 	dReal body_mass, wheel_mass;
-	dReal suspension_erp, suspension_cfm;
+	dReal suspension_spring, suspension_damping;
 	dReal wheel_mu, rim_mu, wheel_slip, wheel_erp, wheel_cfm, wheel_bounce;
 	dReal body_mu, body_slip, body_erp, body_cfm;
 
@@ -52,7 +52,7 @@ const struct Car_Conf car_conf_defaults = {
 	800000, 1.0, 60000,
 	true,
 	6000, 500,
-	0.3, 0.00006,
+	150000.0, 5000.0,
 	2.0, 0.1, 0.00004, 0.8, 0.001, 0.0,
 	0.1, 0.01, 0.8, 0.01,
 	{10,5,15}, 1, 4, 0.5,
@@ -79,8 +79,9 @@ const struct Conf_Index car_conf_index[] = {
 	{"model:rotate",	'f',3, offsetof(struct Car_Conf, rotate)},
 	{"model:offset",	'f',3, offsetof(struct Car_Conf, offset)},
 
-	{"suspension_erp",	'R',1, offsetof(struct Car_Conf, suspension_erp)},
-	{"suspension_cfm",	'R',1, offsetof(struct Car_Conf, suspension_cfm)},
+	{"suspension_spring",	'R',1, offsetof(struct Car_Conf, suspension_spring)},
+	{"suspension_damping",	'R',1, offsetof(struct Car_Conf, suspension_damping)},
+
 	{"wheel_mu",		'R',1, offsetof(struct Car_Conf, wheel_mu)},
 	{"rim_mu",		'R',1, offsetof(struct Car_Conf, rim_mu)},
 	{"wheel_slip",		'R',1, offsetof(struct Car_Conf, wheel_slip)},
@@ -156,7 +157,7 @@ class Car:public Object
 	public:
 		~Car();
 
-		static void Physics_Step();
+		static void Physics_Step(dReal step);
 
 		//public for now
 		//controlling values

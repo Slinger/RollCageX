@@ -9,6 +9,7 @@
  * See license.txt and README for more info
  */
 
+#include "../shared/internal.hpp"
 #include "../shared/racetime_data.hpp"
 #include "../shared/car.hpp"
 #include "../shared/printlog.hpp"
@@ -506,6 +507,9 @@ Car *Car_Template::Spawn (dReal x, dReal y, dReal z)
 	}*/
 
 	//create joints (hinge2) for wheels
+	dReal stepsize = internal.stepsize/internal.multiplier;
+	dReal sERP = stepsize*conf.suspension_spring/(stepsize*conf.suspension_spring+conf.suspension_damping);
+	dReal sCFM = 1.0/(stepsize*conf.suspension_spring+conf.suspension_damping);
 	for (i=0; i<4; ++i)
 	{
 		car->joint[i]=dJointCreateHinge2 (world, 0);
@@ -516,8 +520,8 @@ Car *Car_Template::Spawn (dReal x, dReal y, dReal z)
 		dJointSetHinge2Axis2 (car->joint[i],1,0,0);
 
 		//setup suspension
-		dJointSetHinge2Param (car->joint[i],dParamSuspensionERP,conf.suspension_erp);
-		dJointSetHinge2Param (car->joint[i],dParamSuspensionCFM,conf.suspension_cfm);
+		dJointSetHinge2Param (car->joint[i],dParamSuspensionERP,sERP);
+		dJointSetHinge2Param (car->joint[i],dParamSuspensionCFM,sCFM);
 
 		//lock steering axis on all wheels
 		dJointSetHinge2Param (car->joint[i],dParamLoStop,0);

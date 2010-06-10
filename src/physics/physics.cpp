@@ -64,23 +64,29 @@ int physics_loop (void *d)
 	Uint32 simtime = SDL_GetTicks(); //set simulated time to realtime
 	Uint32 realtime; //real time (with possible delay since last update)
 	Uint32 stepsize_ms = (Uint32) (internal.stepsize*1000.0+0.0001);
+	dReal divided_stepsize = internal.stepsize/internal.multiplier;
 
 	while (runlevel == running)
 	{
 		//technically, collision detection doesn't need this, but this is easier
 		SDL_mutexP(ode_mutex);
 
-		Car::Physics_Step(); //control, antigrav...
-		Body::Physics_Step(); //drag (air/liquid "friction")
+		Car::Physics_Step(internal.stepsize); //control, antigrav...
 
-		dSpaceCollide (space, 0, &Geom::Collision_Callback);
-		dWorldQuickStep (world, internal.stepsize);
-		dJointGroupEmpty (contactgroup);
+		for (int i=0; i<internal.multiplier; ++i)
+		{
+			Body::Physics_Step(divided_stepsize); //drag (air/liquid "friction")
 
-		Collision_Feedback::Physics_Step(); //forces from collisions
-		Joint::Physics_Step(); //joint forces
+			dSpaceCollide (space, 0, &Geom::Collision_Callback);
+			dWorldQuickStep (world, divided_stepsize);
+			dJointGroupEmpty (contactgroup);
+
+			Joint::Physics_Step(divided_stepsize); //joint forces
+			Collision_Feedback::Physics_Step(divided_stepsize); //forces from collisions
+		}
+
 		Geom::Physics_Step(); //sensor/radar handling
-		camera.Physics_Step(); //move camera to wanted postion
+		camera.Physics_Step(internal.stepsize); //move camera to wanted postion
 
 		//done with ode
 		SDL_mutexV(ode_mutex);

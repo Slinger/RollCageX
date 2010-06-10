@@ -50,7 +50,7 @@ void Joint::Set_Buffer_Event(dReal thres, dReal buff, Script *scr)
 
 
 //check for joint triggering
-void Joint::Physics_Step (void)
+void Joint::Physics_Step (dReal step)
 {
 	Joint *d = Joint::head;
 	dReal delt1, delt2, delt;
@@ -64,17 +64,17 @@ void Joint::Physics_Step (void)
 			delt2 = dLENGTH(d->feedback->f2);
 
 			if (delt1>delt2)
-				delt = delt1 - d->threshold;
+				delt = delt1;
 			else
-				delt = delt2 - d->threshold;
+				delt = delt2;
 
-			if (delt > 0)
+			if (delt > d->threshold)
 			{
 				if (d->buffer < 0) //already depleted, just damage more
-					d->buffer -= delt*internal.stepsize;
+					d->buffer -= delt*step;
 				else
 				{
-					d->buffer -= delt*internal.stepsize;
+					d->buffer -= delt*step;
 					if (d->buffer < 0)
 					{
 						printlog(2, "Joint buffer depleted, generating event");

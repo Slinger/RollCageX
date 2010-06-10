@@ -25,6 +25,7 @@ extern struct internal_struct {
 	//physics
 	dReal stepsize;
 	int iterations;
+	int multiplier;
 	int contact_points;
 	//bool finite_rotation;
 	dReal scale; //TODO
@@ -56,7 +57,8 @@ const struct internal_struct internal_defaults = {
 	true,true,
 	//physics
 	0.01,
-	20,
+	5,
+	4,
 	20,
 	0.1,
 	20,
@@ -84,6 +86,7 @@ const struct Conf_Index internal_index[] = {
 	{"sync_events",		'b',1, offsetof(struct internal_struct, sync_events)},
 	{"stepsize",		'R',1, offsetof(struct internal_struct, stepsize)},
 	{"iterations",		'i',1, offsetof(struct internal_struct, iterations)},
+	{"multiplier",		'i',1, offsetof(struct internal_struct, multiplier)},
 	{"contact_points",	'i',1, offsetof(struct internal_struct, contact_points)},
 	//{"finite_rotation",	'b',1, offsetof(struct internal_struct, finite_rotation)},
 	//TODO: SCALE

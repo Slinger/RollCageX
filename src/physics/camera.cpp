@@ -17,10 +17,9 @@
 #define v_length(x, y, z) (dSqrt( (x)*(x) + (y)*(y) + (z)*(z) ))
 
 //collide camera with track, generate acceleration on camera if collisding
-void Camera::Physics_Step()
+void Camera::Physics_Step(dReal step)
 {
 	//some values that are easy to deal with:
-	dReal time = internal.stepsize;
 	Car *car = camera.car;
 	Camera_Settings *settings = camera.settings;
 
@@ -54,7 +53,7 @@ void Camera::Physics_Step()
 				{
 					//smooth transition between offset and center (and needed)
 					if (settings->offset_scale_speed != 0 && camera.offset_scale > 0)
-						camera.offset_scale -= (settings->offset_scale_speed*time);
+						camera.offset_scale -= (settings->offset_scale_speed*step);
 					else //jump directly
 						camera.offset_scale = 0;
 				}
@@ -66,7 +65,7 @@ void Camera::Physics_Step()
 						camera.air_timer = 0; //reset timer
 					}
 					else
-						camera.air_timer += time;
+						camera.air_timer += step;
 				}
 			}
 			else //not in air
@@ -79,13 +78,13 @@ void Camera::Physics_Step()
 						camera.air_timer = 0; //reset timer
 					}
 					else
-						camera.air_timer += time;
+						camera.air_timer += step;
 				}
 				else //camera in "ground mode"
 				{
 					//smooth transition between center and offset (and needed)
 					if (settings->offset_scale_speed != 0 && camera.offset_scale < 1)
-						camera.offset_scale += (settings->offset_scale_speed*time);
+						camera.offset_scale += (settings->offset_scale_speed*step);
 					else //jump directly
 						camera.offset_scale = 1;
 				}
@@ -173,7 +172,7 @@ void Camera::Physics_Step()
 		else //smooth movement
 		{
 			//how much acceleration (based on distance from wanted distance)
-			dReal acceleration = time*(camera.settings->linear_stiffness)*dist;
+			dReal acceleration = step*(camera.settings->linear_stiffness)*dist;
 
 			camera.vel[0]-=pos_u[0]*acceleration;
 			camera.vel[1]-=pos_u[1]*acceleration;
@@ -192,7 +191,7 @@ void Camera::Physics_Step()
 				dReal angle = acos(dot);
 
 				//how much acceleration
-				dReal accel = time*angle*(settings->angular_stiffness);
+				dReal accel = step*angle*(settings->angular_stiffness);
 
 				//direction of acceleration (remove part of wanted that's along current pos)
 				dReal dir[3];
@@ -258,7 +257,7 @@ void Camera::Physics_Step()
 			dBodyGetRelPointVel (car->bodyid, settings->anchor[0], settings->anchor[1], settings->anchor[2]*car->dir, a_vel);
 			dReal vel[3] = {camera.vel[0]-a_vel[0], camera.vel[1]-a_vel[1], camera.vel[2]-a_vel[2]}; //velocity relative to anchor
 
-			dReal damping = (time*settings->damping);
+			dReal damping = (step*settings->damping);
 			if (damping > 1)
 				damping=1;
 
@@ -269,7 +268,7 @@ void Camera::Physics_Step()
 		else
 		{
 			//absolute damping
-			dReal damping = 1-(time*settings->damping);
+			dReal damping = 1-(step*settings->damping);
 
 			if (damping < 0)
 				damping=0;
@@ -285,9 +284,9 @@ void Camera::Physics_Step()
 	
 		//during the step, camera will have linear acceleration from old velocity to new
 		//avarge velocity over the step is between new and old velocity
-		camera.pos[0]+=((camera.vel[0]+old_vel[0])/2)*time;
-		camera.pos[1]+=((camera.vel[1]+old_vel[1])/2)*time;
-		camera.pos[2]+=((camera.vel[2]+old_vel[2])/2)*time;
+		camera.pos[0]+=((camera.vel[0]+old_vel[0])/2)*step;
+		camera.pos[1]+=((camera.vel[1]+old_vel[1])/2)*step;
+		camera.pos[2]+=((camera.vel[2]+old_vel[2])/2)*step;
 
 
 		//movement of camera done.
@@ -331,7 +330,7 @@ void Camera::Physics_Step()
 			diff[1]=target_up[1]-camera.up[1];
 			diff[2]=target_up[2]-camera.up[2];
 			
-			dReal movement=time*(settings->rotation_tightness);
+			dReal movement=step*(settings->rotation_tightness);
 
 			if (movement > 1)
 				movement=1;
@@ -362,7 +361,7 @@ void Camera::Physics_Step()
 			diff[1]=t_pos[1]-camera.t_pos[1];
 			diff[2]=t_pos[2]-camera.t_pos[2];
 
-			movement = time*(settings->target_tightness);
+			movement = step*(settings->target_tightness);
 
 			if (movement>1)
 				movement=1;

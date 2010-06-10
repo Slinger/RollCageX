@@ -12,7 +12,7 @@
 #include "../shared/car.hpp"
 #include "../shared/internal.hpp"
 
-void Car::Physics_Step()
+void Car::Physics_Step(dReal step)
 {
 	Car *carp = head;
 	bool antigrav;
@@ -69,7 +69,6 @@ void Car::Physics_Step()
 		{
 			if (carp->torque_compensator)
 			{
-				const dReal *r = dBodyGetAngularVel(carp->bodyid); //in case stopping wheel
 				dReal rotation, torque_needed;
 				dReal torque[4] = {0,0,0,0};
 
@@ -77,7 +76,7 @@ void Car::Physics_Step()
 				for (i=0; i<4; ++i)
 				{
 					rotation = dJointGetHinge2Angle2Rate (carp->joint[i]);
-					torque_needed = (carp->inertia_tensor*rotation/internal.stepsize); //T=I*a/t
+					torque_needed = (carp->inertia_tensor*rotation/step); //T=I*a/t
 
 					//negative rotation, negative values...
 					if (torque_needed < 0)
@@ -86,7 +85,7 @@ void Car::Physics_Step()
 						if (-torque_needed > carp->max_break)
 							torque[i] = +carp->max_break;
 						else //wheel will stop rotating
-							dBodySetAngularVel(carp->wheel_body[i], r[0],r[1],r[2]);
+							torque[i] = -torque_needed;
 					}
 					else //positive rotation, positive values
 					{
@@ -94,7 +93,7 @@ void Car::Physics_Step()
 						if (torque_needed > carp->max_break)
 							torque[i] = -carp->max_break;
 						else //wheel will stop rotating
-							dBodySetAngularVel(carp->wheel_body[i], r[0],r[1],r[2]);
+							torque[i] = -torque_needed;
 					}
 				}
 

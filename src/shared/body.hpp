@@ -35,7 +35,7 @@ class Body: public Component
 		void Set_Angular_Drag(dReal drag);
 		void Set_Advanced_Linear_Drag(dReal x, dReal y, dReal z);
 
-		static void Physics_Step();
+		static void Physics_Step(dReal step);
 		static void TMP_Events_Step(Uint32 step);
 
 		//body data bellongs to
@@ -47,7 +47,7 @@ class Body: public Component
 		//buffer events (sent from geoms)
 		void Set_Buffer_Event(dReal thresh, dReal buff, Script *scr);
 		void Increase_Buffer(dReal add);
-		void Damage_Buffer(dReal force);
+		void Damage_Buffer(dReal force, dReal step);
 		bool Buffer_Event_Configured(); //check if configured (by geom)
 
 	private:
@@ -72,9 +72,9 @@ class Body: public Component
 		Script *buffer_script; //execute on event
 
 		//private methods for drag
-		void Linear_Drag();
-		void Angular_Drag();
-		void Advanced_Linear_Drag();
+		void Linear_Drag(dReal step);
+		void Angular_Drag(dReal step);
+		void Advanced_Linear_Drag(dReal step);
 };
 
 #endif

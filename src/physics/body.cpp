@@ -61,7 +61,7 @@ void Body::Set_Angular_Drag (dReal drag)
 //simulation of drag
 //
 //not to self: if implementing different density areas, this is where density should be chosen
-void Body::Linear_Drag ()
+void Body::Linear_Drag (dReal step)
 {
 	const dReal *abs_vel; //absolute vel
 	abs_vel = dBodyGetLinearVel (body_id);
@@ -69,7 +69,7 @@ void Body::Linear_Drag ()
 	dReal total_vel = v_length(vel[0], vel[1], vel[2]);
 
 	//how much of original velocity is left after breaking by air/liquid drag
-	dReal remain = 1-(total_vel*(track.density)*(linear_drag)*(internal.stepsize));
+	dReal remain = 1-(total_vel*(track.density)*(linear_drag)*(step));
 
 	if (remain < 0) //in case breaking is so extreme it will reverse movement, just change velocity to 0
 		remain = 0;
@@ -89,7 +89,7 @@ void Body::Linear_Drag ()
 }
 
 //similar to linear_drag, but different drag for different directions
-void Body::Advanced_Linear_Drag ()
+void Body::Advanced_Linear_Drag (dReal step)
 {
 	//absolute velocity
 	const dReal *abs_vel;
@@ -106,7 +106,7 @@ void Body::Advanced_Linear_Drag ()
 	for (i=0; i<3; ++i)
 	{
 		//how much of original velocity remains after drag?
-		remain = 1-(total_vel*(track.density)*(advanced_linear_drag[i])*(internal.stepsize));
+		remain = 1-(total_vel*(track.density)*(advanced_linear_drag[i])*(step));
 
 		//check so not going negative
 		if (remain < 0)
@@ -129,14 +129,14 @@ void Body::Advanced_Linear_Drag ()
 	dBodySetLinearVel(body_id, vel_result[0], vel_result[1], vel_result[2]);
 }
 
-void Body::Angular_Drag ()
+void Body::Angular_Drag (dReal step)
 {
 	const dReal *vel; //rotation velocity
 	vel = dBodyGetAngularVel (body_id);
 	dReal total_vel = v_length(vel[0], vel[1], vel[2]);
 
 	//how much of original velocity is left after breaking by air/liquid drag
-	dReal remain = 1-(total_vel*(track.density)*(angular_drag)*(internal.stepsize));
+	dReal remain = 1-(total_vel*(track.density)*(angular_drag)*(step));
 
 	if (remain < 0) //in case breaking is so extreme it will reverse movement, just change velocity to 0
 		remain = 0;
@@ -171,7 +171,7 @@ void Body::Set_Buffer_Event(dReal thres, dReal buff, Script *scr)
 	}
 }
 
-void Body::Damage_Buffer(dReal force)
+void Body::Damage_Buffer(dReal force, dReal step)
 {
 	//if not processing forces or not high enough force, no point continuing
 	if (!buffer_event || (force<threshold))
@@ -180,7 +180,7 @@ void Body::Damage_Buffer(dReal force)
 	//buffer still got health
 	if (buffer > 0)
 	{
-		buffer -= (force-threshold)*internal.stepsize;
+		buffer -= force*step;
 
 		//now it's negative, issue event
 		if (buffer < 0)
@@ -190,10 +190,10 @@ void Body::Damage_Buffer(dReal force)
 		}
 	}
 	else //just damage buffer even more
-		buffer -= (force-threshold)*internal.stepsize;
+		buffer -= force*step;
 }
 
-void Body::Physics_Step (void)
+void Body::Physics_Step (dReal step)
 {
 	Body *d = Body::head;
 
@@ -201,11 +201,11 @@ void Body::Physics_Step (void)
 	{
 		//drag
 		if (d->use_advanced_linear_drag)
-			d->Advanced_Linear_Drag();
+			d->Advanced_Linear_Drag(step);
 		else if (d->use_linear_drag) //might have simple drag instead
-			d->Linear_Drag();
+			d->Linear_Drag(step);
 		if (d->use_angular_drag)
-			d->Angular_Drag();
+			d->Angular_Drag(step);
 
 		d = d->next;
 	}

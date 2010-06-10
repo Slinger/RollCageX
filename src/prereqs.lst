@@ -11,7 +11,7 @@ build/graphics/camera.o: graphics/../shared/camera.hpp
 build/graphics/gl_extensions.o: graphics/gl_extensions.hpp graphics/../shared/printlog.hpp
 build/graphics/graphic_list.o: graphics/graphic_list.hpp graphics/gl_extensions.hpp graphics/../shared/printlog.hpp graphics/../shared/trimesh.hpp graphics/../shared/geom.hpp graphics/../shared/body.hpp
 build/graphics/graphics.o: graphics/../shared/internal.hpp graphics/../shared/info.hpp graphics/../shared/track.hpp graphics/../shared/runlevel.hpp graphics/../shared/threads.hpp graphics/../shared/printlog.hpp graphics/../shared/camera.hpp graphics/gl_extensions.hpp graphics/graphic_list.hpp
-build/loaders/car.o: loaders/../shared/racetime_data.hpp loaders/../shared/car.hpp loaders/../shared/printlog.hpp loaders/../shared/track.hpp loaders/../shared/geom.hpp loaders/../shared/body.hpp loaders/../shared/joint.hpp loaders/colours.hpp loaders/text_file.hpp
+build/loaders/car.o: loaders/../shared/internal.hpp loaders/../shared/racetime_data.hpp loaders/../shared/car.hpp loaders/../shared/printlog.hpp loaders/../shared/track.hpp loaders/../shared/geom.hpp loaders/../shared/body.hpp loaders/../shared/joint.hpp loaders/colours.hpp loaders/text_file.hpp
 build/loaders/conf.o: loaders/conf.hpp loaders/text_file.hpp loaders/../shared/printlog.hpp
 build/loaders/obj.o: loaders/../shared/trimesh.hpp loaders/../shared/printlog.hpp loaders/text_file.hpp
 build/loaders/object.o: loaders/../shared/object.hpp loaders/colours.hpp loaders/../shared/racetime_data.hpp loaders/../shared/trimesh.hpp loaders/../shared/printlog.hpp loaders/../shared/track.hpp loaders/../shared/joint.hpp loaders/../shared/geom.hpp loaders/../shared/body.hpp
