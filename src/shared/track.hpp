@@ -47,7 +47,8 @@ extern struct Track_Struct {
 	dReal cam_start[3];
 	dReal target_start[3];
 
-	//file_3d *f_3d;
+	dReal respawn;
+
 	//NOTE/TODO: currently coded to store 5 planes (components) - only temporary!
 	Object *object;
 	Space *space;
@@ -69,7 +70,8 @@ const struct Track_Struct track_defaults = {
 	{0.5,1.0,0.0},
 	{0,-20,1.5},
 	{15,8,15},
-	{0,0,4}};
+	{0,0,4},
+	0.0};
 
 const struct Conf_Index track_index[] = {
 	{"sky",		'f',3,	offsetof(Track_Struct, sky[0])},
@@ -87,6 +89,7 @@ const struct Conf_Index track_index[] = {
 	{"start",	'R',3,	offsetof(Track_Struct, start)},
 	{"cam_start",	'R',3,	offsetof(Track_Struct, cam_start)},
 	{"target_start",'R',3,	offsetof(Track_Struct, target_start)},
+	{"respawn",	'R',1,	offsetof(Track_Struct, respawn)},
 	{"",0,0}};//end
 
 bool load_track (const char *path);

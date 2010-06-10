@@ -23,13 +23,21 @@
 bool load_track (const char *path)
 {
 	printlog(1, "Loading track: %s", path);
-	char *conf=(char *)calloc(strlen(path)+11+1,sizeof(char));//+1 for \0
+
+	//conf
+	char conf[strlen(path)+11+1];
 	strcpy (conf,path);
 	strcat (conf,"/track.conf");
 
 	load_conf(conf, (char *)&track, track_index);
 
-	free (conf);
+	//obj (tmp)
+	Trimesh mesh;
+	mesh.Load("data/worlds/Sandbox/tracks/Box/Box.obj"); //assume loading fine
+	Trimesh_3D *mesh3d = mesh.Create_3D();
+
+	if (!mesh3d) //fail
+		return false;
 
 	//set camera default values, some from track specs
 	camera.Set_Pos(track.cam_start, track.target_start);
@@ -59,105 +67,19 @@ bool load_track (const char *path)
 	//tmp vars
 	dGeomID geom;
 	Geom *data;
-	//ground plane
-	geom = dCreatePlane (0, 0,0,1,0);
+
+	//tmp plane until respawning implemented
+	geom = dCreatePlane (0, 0,0,1,track.respawn);
 	data = new Geom(geom, track.object);
 	data->mu = track.mu;
 	data->slip = track.slip;
 	data->erp = track.erp;
 	data->cfm = track.cfm;
 
-	//4 more planes as walls
-	geom = dCreatePlane (0, 1,0,0,-100);
+	geom = dCreateBox (0,1,1,1); //tmp for rendering
+	dGeomSetPosition (geom, 0,0,0);
 	data = new Geom(geom, track.object);
-	data->mu = track.mu;
-	data->slip = track.slip;
-	data->erp = track.erp;
-	data->cfm = track.cfm;
-
-	geom = dCreatePlane (0, -1,0,0,-100);
-	data = new Geom(geom, track.object);
-	data->mu = track.mu;
-	data->slip = track.slip;
-	data->erp = track.erp;
-	data->cfm = track.cfm;
-
-	geom = dCreatePlane (0, 0,1,0,-100);
-	data = new Geom(geom, track.object);
-	data->mu = track.mu;
-	data->slip = track.slip;
-	data->erp = track.erp;
-	data->cfm = track.cfm;
-
-	geom = dCreatePlane (0, 0,-1,0,-100);
-	data = new Geom(geom, track.object);
-	data->mu = track.mu;
-	data->slip = track.slip;
-	data->erp = track.erp;
-	data->cfm = track.cfm;
-
-
-	//since a plane is a non-placeable geom, the sepparate components will
-	//not be "rendered" separately, instead create one 3d image sepparately
-
-	//track.f_3d = new file_3d();
-	//glNewList (track.f_3d->list, GL_COMPILE);
-	//the ground and walls for the environment box
-	//glMaterialfv (GL_FRONT, GL_AMBIENT_AND_DIFFUSE, green);
-	//glNormal3f (0.0f, 0.0f, 1.0f);
-	//glBegin (GL_QUADS);
-	//glVertex3f (-100.0f, -100.0f, 0.0f);
-	//glVertex3f (-100.0f, 100.0f, 0.0f);
-	//glVertex3f (100.0f, 100.0f, 0.0f);
-	//glVertex3f (100.0f, -100.0f, 0.0f);
-	//glEnd();
-
-	//glMaterialfv (GL_FRONT, GL_AMBIENT_AND_DIFFUSE, gray);
-	//glBegin (GL_QUADS);
-	//glNormal3f (1.0f, 0.0f, 0.0f);
-	//glVertex3f (-100.0f, -100.0f, 0.0f);
-	//glVertex3f (-100.0f, -100.0f, 10.0f);
-	//glVertex3f (-100.0f, 100.0f, 10.0f);
-	//glVertex3f (-100.0f, 100.0f, 0.0f);
-
-	//glNormal3f (0.0f, -1.0f, 0.0f);
-	//glVertex3f (-100.0f, 100.0f, 0.0f);
-	//glVertex3f (-100.0f, 100.0f, 10.0f);
-	//glVertex3f (100.0f, 100.0f, 10.0f);
-	//glVertex3f (100.0f, 100.0f, 0.0f);
-
-	//glNormal3f (-1.0f, 0.0f, 0.0f);
-	//glVertex3f (100.0f, 100.0f, 0.0f);
-	//glVertex3f (100.0f, 100.0f, 10.0f);
-	//glVertex3f (100.0f, -100.0f, 10.0f);
-	//glVertex3f (100.0f, -100.0f, 0.0f);
-
-	//glNormal3f (0.0f, 1.0f, 0.0f);
-	//glVertex3f (100.0f, -100.0f, 0.0f);
-	//glVertex3f (100.0f, -100.0f, 10.0f);
-	//glVertex3f (-100.0f, -100.0f, 10.0f);
-	//glVertex3f (-100.0f, -100.0f, 0.0f);
-	//glEnd();
-
-	//glEndList();
-
-	//temp solution, ramp
-	//geom = dCreateBox (0,13,13,1);
-	//data = new Geom(geom, track.object);
-
-	//dMatrix3 rot;
-	//dRFromAxisAndAngle (rot, 1, 0, 0, 0.3);
-	//dGeomSetPosition (geom, 0, 3, 1.5);
-	//dGeomSetRotation (geom, rot);
-	
-	//data->mu = track.mu;
-	//data->slip = track.slip;
-	//data->erp = track.erp;
-	//data->cfm = track.cfm;
-
-	//render box using built in
-	//data->f_3d = new file_3d();
-	//debug_draw_box (data->f_3d->list, 13,13,1, gray, black, 0);
+	data->model = mesh3d;
 
 
 	//now lets load some objects!
