@@ -71,10 +71,9 @@ int physics_loop (void *d)
 		//technically, collision detection doesn't need this, but this is easier
 		SDL_mutexP(ode_mutex);
 
-		Car::Physics_Step(internal.stepsize); //control, antigrav...
-
 		for (int i=0; i<internal.multiplier; ++i)
 		{
+			Car::Physics_Step(divided_stepsize); //control, antigrav...
 			Body::Physics_Step(divided_stepsize); //drag (air/liquid "friction")
 
 			dSpaceCollide (space, 0, &Geom::Collision_Callback);
