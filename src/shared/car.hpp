@@ -112,7 +112,6 @@ class Car_Template:public Racetime_Data
 		char *name;
 		dReal fsteer, rsteer, fmotor, rmotor, fbreak, rbreak;
 		file_3d *wheel_graphics; //add right/left wheels
-		dReal inertia_tensor;
 
 		//geoms
 		struct box {
@@ -151,7 +150,7 @@ class Car:public Object
 
 		//public for now
 		//controlling values
-		bool drift_breaks, breaks;
+		bool drift_breaks;
 		dReal throttle, steering; //-1.0 to +1.0
 		dReal velocity; //keep track of car velocity
 
@@ -164,7 +163,6 @@ class Car:public Object
 		dReal max_torque, motor_tweak, max_break;
 		bool torque_compensator;
 		dReal fsteer, rsteer, fmotor, rmotor, fbreak, rbreak;
-		dReal inertia_tensor;
 
 		//just for keeping track
 		dBodyID bodyid,wheel_body[4];

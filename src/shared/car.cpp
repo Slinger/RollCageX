@@ -26,14 +26,12 @@ Car::Car(void)
 	printlog(2, "configuring Car class");
 
 	//default values
-	//control values
 	dir = 1; //initiate to 1 for default
 
+	//control values
 	drift_breaks = true; //if the user does nothing, lock wheels
-	breaks = false;
 	throttle = 0;
 	steering = 0;
-	
 	velocity = 0;
 
 	//linking
