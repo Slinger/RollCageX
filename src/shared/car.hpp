@@ -27,7 +27,7 @@
 //for loading car.conf
 struct Car_Conf
 {
-	dReal max_torque, motor_tweak, max_break;
+	dReal max_torque, gear_tweak, max_break;
 	bool torque_compensator;
 	dReal body_mass, wheel_mass;
 	dReal suspension_spring, suspension_damping;
@@ -59,7 +59,7 @@ const struct Car_Conf car_conf_defaults = {
 
 const struct Conf_Index car_conf_index[] = {
 	{"max_torque",		'R',1, offsetof(struct Car_Conf, max_torque)},
-	{"motor_tweak",		'R',1, offsetof(struct Car_Conf, motor_tweak)},
+	{"gear_tweak",		'R',1, offsetof(struct Car_Conf, gear_tweak)},
 	{"max_break",		'R',1, offsetof(struct Car_Conf, max_break)},
 	{"torque_compensator",	'b',1, offsetof(struct Car_Conf, torque_compensator)},
 	{"body_mass",		'R',1, offsetof(struct Car_Conf, body_mass)},
@@ -77,7 +77,7 @@ const struct Conf_Index car_conf_index[] = {
 	{"wheel_erp",		'R',1, offsetof(struct Car_Conf, wheel_erp)},
 	{"wheel_cfm",		'R',1, offsetof(struct Car_Conf, wheel_cfm)},
 	{"wheel_bounce",	'R',1, offsetof(struct Car_Conf, wheel_bounce)},
-	{"body",		'R',3, offsetof(struct Car_Conf, body[0])},
+	{"body",		'R',3, offsetof(struct Car_Conf, body)},
 	{"body_mu",		'R',1, offsetof(struct Car_Conf, body_mu)},
 	{"body_slip",		'R',1, offsetof(struct Car_Conf, body_slip)},
 	{"body_erp",		'R',1, offsetof(struct Car_Conf, body_erp)},
@@ -89,9 +89,9 @@ const struct Conf_Index car_conf_index[] = {
 	{"wheel_angular_drag",	'R',1, offsetof(struct Car_Conf, wheel_angular_drag)},
 	
 	//the following is for sizes not yet determined
-	{"s",	'R',	4,	offsetof(struct Car_Conf, s[0])}, //flipover
-	{"w",	'R',	2,	offsetof(struct Car_Conf, w[0])}, //wheel
-	{"wp",	'R',	2,	offsetof(struct Car_Conf, wp[0])}, //wheel pos
+	{"s",	'R',	4,	offsetof(struct Car_Conf, s)}, //flipover
+	{"w",	'R',	2,	offsetof(struct Car_Conf, w)}, //wheel
+	{"wp",	'R',	2,	offsetof(struct Car_Conf, wp)}, //wheel pos
 	{"jx",	'R',	1,	offsetof(struct Car_Conf, jx)}, //joint x position
 	{"",0,0}};//end
 
@@ -160,7 +160,7 @@ class Car:public Object
 		friend class Camera; //needs access to car info
 
 		//configuration data (copied from Car_Template)
-		dReal max_torque, motor_tweak, max_break;
+		dReal max_torque, gear_tweak, max_break;
 		bool torque_compensator;
 		dReal fsteer, rsteer, fmotor, rmotor, fbreak, rbreak;
 

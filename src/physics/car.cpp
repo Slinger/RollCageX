@@ -101,7 +101,7 @@ void Car::Physics_Step(dReal step)
 						rotation = -rotation;
 					//)
 
-					torque[i]=carp->max_torque/(1+rotation*carp->motor_tweak);
+					torque[i]=carp->max_torque/(1+rotation*carp->gear_tweak);
 
 					//if front wheel, front motor, if rear, rear motor
 					if (i == 0 || i == 3)

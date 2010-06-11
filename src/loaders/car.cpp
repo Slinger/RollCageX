@@ -275,7 +275,7 @@ Car *Car_Template::Spawn (dReal x, dReal y, dReal z)
 	//begin copying of needed configuration data
 	Car *car = new Car();
 	car->max_torque = conf.max_torque;
-	car->motor_tweak = conf.motor_tweak;
+	car->gear_tweak = conf.gear_tweak;
 	car->max_break = conf.max_break;
 	car->torque_compensator = conf.torque_compensator;
 	car->fsteer = fsteer;
