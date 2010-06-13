@@ -24,6 +24,7 @@ extern SDL_cond  *sync_cond;
 
 //prototypes for communication/statistic variables
 extern unsigned int stepsize_warnings;
+extern unsigned int step_count;
 extern Uint32 frame_count;
 extern bool graphics_event_resize;
 extern int graphics_event_resize_w, graphics_event_resize_h;

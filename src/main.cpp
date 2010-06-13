@@ -68,12 +68,10 @@ void print_info()
 	uptime -= start_time;
 	printlog(0, "Race Done!");
 	printlog(1, "<-- Some basic info: -->");
-	printlog(1, "(does not interest most people)");
-	printlog(1, "Startup time (ms):				%i", start_time);
-	printlog(1, "Race time (ms):				%i", uptime);
-	printlog(1, "Threading mode:				%i threads", 3);
-	printlog(1, "Avarage FPS:					%i", (1000*frame_count)/uptime);
-	printlog(1, "Stepsize-too-low (slowdown) warnings:	%i", stepsize_warnings);
+	printlog(1, "Startup time (ms):			%u", start_time);
+	printlog(1, "Race time (ms):			%u (%u steps)", uptime, step_count);
+	printlog(1, "Stepsize (slowdown) warnings:	%u (%u%% of total steps)", stepsize_warnings, (100*stepsize_warnings)/step_count);
+	printlog(1, "Avarage FPS:				%u", (1000*frame_count)/uptime);
 }
 
 //simple demo:
