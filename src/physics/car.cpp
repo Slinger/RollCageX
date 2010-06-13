@@ -76,50 +76,50 @@ void Car::Physics_Step(dReal step)
 
 			//collect wheel torques wanted:
 			dReal torque[4];
-			dReal rotation;
+			dReal rotation, gear_torque;
 			int i;
 			for (i=0; i<4; ++i)
 			{
-				//check if accelerating or decelerating wheel...
+				//wheel rotation
 				rotation = dJointGetHinge2Angle2Rate (carp->joint[i]);
 
-				//if throttle and and current direction is the same, accelerate
+				//how much torque motor could add at this rotation
+				if (rotation < 0.0) //if rotation negative, make it possitive
+					gear_torque=carp->max_torque/(1+(-rotation)*carp->gear_tweak);
+				else
+					gear_torque=carp->max_torque/(1+rotation*carp->gear_tweak);
+
+
+				//check if accelerating or decelerating wheel...
+				
+				//if throttle and and current direction is the same, accelerate. or if rotation is
+				//wrong way, but so slow that the motor is better than breaks, also use accelerate
 				if (	(rotation > 0.0 && carp->throttle > 0.0) ||
-					(rotation < 0.0 && carp->throttle < 0.0) )
+					(rotation < 0.0 && carp->throttle < 0.0) ||
+					(gear_torque > carp->max_break) )
 				{
 					//make sure we don't exceed gloobal wheel rotation limiter (if in air)
 					if ( !(carp->wheel_geom_data[i]->colliding) && (rotation > internal.max_wheel_rotation) )
 					{
+						torque[i]=0.0; //make sure no torque
 						carp->wheel_geom_data[i]->colliding = false; //reset collision detection...
 						continue; //go to next wheel
 					}
 
-					//ok, see how much torque can be geared out of motor
-
-					//(need positive
-					if (rotation < 0.0)
-						rotation = -rotation;
-					//)
-
-					torque[i]=carp->max_torque/(1+rotation*carp->gear_tweak);
-
 					//if front wheel, front motor, if rear, rear motor
 					if (i == 0 || i == 3)
-						torque[i]*=carp->fmotor;
+						torque[i]=carp->fmotor*gear_torque;
 					else
-						torque[i]*=carp->rmotor;
+						torque[i]=carp->rmotor*gear_torque;
 
 				}
 				else //wheel must break (before it can start rotating in wanted direction)
 				{
-					//how much torque possible
-					torque[i] = carp->max_break;
-
 					//if front wheel, front break, if rear, rear break
 					if (i == 0 || i == 3)
-						torque[i]*=carp->fbreak;
+						torque[i]=carp->fbreak*carp->max_break;
 					else
-						torque[i]*=carp->rbreak;
+						torque[i]=carp->rbreak*carp->max_break;
 				}
 			}
 
