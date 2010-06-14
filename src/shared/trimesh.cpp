@@ -10,6 +10,7 @@
  */
 
 #include "trimesh.hpp"
+#include "geom.hpp"
 #include "printlog.hpp"
 #include "../graphics/gl_extensions.hpp"
 
@@ -296,7 +297,7 @@ Trimesh_3D *Trimesh::Create_3D()
 	}
 
 	//create Trimesh_3D class from this data:
-	//set the name. NOTE: both Trimesh_3D and Trimesh_Geom_Data will have the same name
+	//set the name. NOTE: both Trimesh_3D and Trimesh_Geom will have the same name
 	//this is not a problem since they are different classes and Racetime_Data::Find will notice that
 	Trimesh_3D *mesh = new Trimesh_3D(name.c_str(), vbo->id, material_list, mcount);
 
@@ -310,20 +311,139 @@ Trimesh_3D *Trimesh::Create_3D()
 	return mesh;
 }
 
-//method Trimesh_Geom_Data from Trimesh
-Trimesh_Geom_Data *Trimesh::Create_Geom_Data()
+//
+//for geom 3d collision detection trimesh:
+//
+Trimesh_Geom::Trimesh_Geom(const char *name,
+		Vector_Float *v, unsigned int vcount,
+		unsigned int *i, unsigned int icount,
+		Vector_Float *n): Racetime_Data(name), vertices(v), indices(i), normals(n) //set name and values
+{
+	printf("TODO: ode uses int for i/vcount and indices, we use unsigned int - check if small enough to cast?\n");
+	
+	//just tell ode to create trimesh from this data
+	data = dGeomTriMeshDataCreate();
+
+	dGeomTriMeshDataBuildSingle1 (data,
+			vertices, sizeof(Vector_Float), vcount,
+			indices, icount, 3*sizeof(unsigned int),
+			normals);
+}
+
+Geom *Trimesh_Geom::Create_Geom(Object *obj)
+{
+	//create geom without space, callback, array callback or ray callback
+	dGeomID g = dCreateTriMesh(0, data, 0, 0, 0);
+	Geom *geom = new Geom(g, obj);
+
+	return geom;
+}
+
+Trimesh_Geom::~Trimesh_Geom()
+{
+	delete[] vertices;
+	delete[] indices;
+	delete[] normals;
+
+	dGeomTriMeshDataDestroy(data);
+}
+
+//method Trimesh_Geom from Trimesh
+Trimesh_Geom *Trimesh::Create_Geom()
 {
 	printlog(2, "Creating collision trimesh from class");
 
 	//already created?
-	if (Trimesh_Geom_Data *tmp = Racetime_Data::Find<Trimesh_Geom_Data>(name.c_str()))
+	if (Trimesh_Geom *tmp = Racetime_Data::Find<Trimesh_Geom>(name.c_str()))
 		return tmp;
 
+	//check that we got any data
+	if (triangles.empty())
+	{
+		printlog(0, "ERROR: trimesh is empty (at least no useful data)");
+		return NULL;
+	}
 
-	//TODO!
-	return NULL;
+	//lets start!
+	Vector_Float *v, *n;
+	unsigned int *i;
+	//sizes
+	unsigned int verts=vertices.size();
+	unsigned int tris=triangles.size();
+
+	//allocate
+	v = new Vector_Float[verts]; //one vertex per vertex
+	i = new unsigned int[tris*3]; //3 indices per triangle
+	n = new Vector_Float[tris]; //one normal per triangle
+
+	//copy
+	unsigned int loop;
+	//vertices
+	for (loop=0; loop<verts; ++loop)
+	{
+		v[loop] = vertices[loop];
+	}
+	//indices
+	for (loop=0; loop<tris; ++loop)
+	{
+		i[loop*3+0] = triangles[loop].vertex[0];
+		i[loop*3+1] = triangles[loop].vertex[1];
+		i[loop*3+2] = triangles[loop].vertex[2];
+	}
+	//normals
+	for (loop=0; loop<tris; ++loop)
+	{
+		//NOTE: ode uses one, not indexed, normal per triangle,
+		//we store them as 3 indexed nomrals per triangle - translate
+
+		//all 3 normals are the same, use it
+		if (	(triangles[loop].normal[0]) == (triangles[loop].normal[1]) &&
+			(triangles[loop].normal[0]) == (triangles[loop].normal[2])	)
+		{
+			n[loop] = normals[triangles[loop].normal[0]]; //copy first specified normal
+		}
+		else //trouble, smooth surface normals? calculate a new normal!
+		{
+			//the same as in Generate_Missing_Normals
+
+			//get vertices
+			Vector_Float v1 = vertices[triangles[loop].vertex[0]];
+			Vector_Float v2 = vertices[triangles[loop].vertex[1]];
+			Vector_Float v3 = vertices[triangles[loop].vertex[2]];
+
+			//create two vectors (a and b)
+			float ax = (v2.x-v1.x);
+			float ay = (v2.y-v1.y);
+			float az = (v2.z-v1.z);
+
+			float bx = (v3.x-v1.x);
+			float by = (v3.y-v1.y);
+			float bz = (v3.z-v1.z);
+
+			//cross product gives normal:
+			float x = (ay*bz)-(az*by);
+			float y = (az*bx)-(ax*bz);
+			float z = (ax*by)-(ay*bx);
+			
+			//set and make unit:
+			float l = v_length(x, y, z);
+
+			n[loop].x = x/l;
+			n[loop].y = y/l;
+			n[loop].z = z/l;
+		}
+	}
+
+	//create
+	return new Trimesh_Geom(name.c_str(),
+			v, verts,
+			i, tris*3,
+			n);
 }
 
+//
+//for trimesh file loading
+//
 
 //wrapper for loading
 bool Trimesh::Load(const char *file)

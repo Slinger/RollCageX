@@ -33,11 +33,16 @@ bool load_track (const char *path)
 
 	//obj (tmp)
 	Trimesh mesh;
-	mesh.Load("data/worlds/Sandbox/tracks/Box/Box.obj"); //assume loading fine
-	Trimesh_3D *mesh3d = mesh.Create_3D();
+	Trimesh_Geom *meshgeom;
+	Trimesh_3D *mesh3d;
 
-	if (!mesh3d) //fail
+	//if something went wrong with loading or generating of mesh structs, fail.
+	if (!(	(mesh.Load("data/worlds/Sandbox/tracks/Box/Box.obj"))	&&
+		(meshgeom = mesh.Create_Geom())				&&
+		(mesh3d = mesh.Create_3D())				))
+	{
 		return false;
+	}
 
 	//set camera default values, some from track specs
 	camera.Set_Pos(track.cam_start, track.target_start);
@@ -60,7 +65,7 @@ bool load_track (const char *path)
 
 	dWorldSetGravity (world,0,0,-track.gravity);
 
-	//(for now, use geoms to describe world)
+	//using trimesh geoms and one plane for describing world, store in track object
 	track.object = new Object();
 	track.space = new Space (track.object);
 
@@ -76,9 +81,9 @@ bool load_track (const char *path)
 	data->erp = track.erp;
 	data->cfm = track.cfm;
 
-	geom = dCreateBox (0,1,1,1); //tmp for rendering
-	dGeomSetPosition (geom, 0,0,0);
-	data = new Geom(geom, track.object);
+	//tmp single trimesh for world
+	data = meshgeom->Create_Geom(track.object);
+	dGeomSetPosition (data->geom_id, 0,0,0);
 	data->model = mesh3d;
 
 

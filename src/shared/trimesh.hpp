@@ -22,6 +22,9 @@
 #include "racetime_data.hpp"
 
 //definitions:
+struct Vector_Float{
+	float x, y, z;
+};
 
 //for indicating missing data
 #define INDEX_ERROR UINT_MAX
@@ -37,9 +40,6 @@
 //optimized trimesh rendering
 class Trimesh_3D: public Racetime_Data
 {
-	public:
-		GLint Get_ID(); //why did I add this here? O_o
-
 	private:
 		//
 		//data to store:
@@ -83,14 +83,19 @@ class Trimesh_3D: public Racetime_Data
 };
 
 //for collision detection (geom) generation
-class Trimesh_Geom_Data: public Racetime_Data
+class Trimesh_Geom: public Racetime_Data
 {
 	public:
-		class Geom *Create_Geom(); //creates geom from trimesh
+		class Geom *Create_Geom(class Object *obj); //creates geom from trimesh
 		//TODO: ode supports callbacks for trimeshes, could be usefull...
 
 	private:
-		Trimesh_Geom_Data(const char*); //sends name to Racetime_Data
+		Trimesh_Geom(const char*, //name
+				Vector_Float *v, unsigned int vcount, //vertices
+				unsigned int *i, unsigned int icount, //indices
+				Vector_Float *n); //normals
+		~Trimesh_Geom();
+
 		friend class Trimesh; //only Trimesh is allowed to create this...
 
 		//
@@ -98,9 +103,9 @@ class Trimesh_Geom_Data: public Racetime_Data
 		//
 
 		dTriMeshDataID data; //collected, pointers
-		dVector3 *vertices;
+		Vector_Float *vertices;
 		unsigned int *indices;
-		dVector3 *normals; //not needed, but already calculating gives extra performance
+		Vector_Float *normals; //not needed, but already calculating gives extra performance
 };
 
 
@@ -109,8 +114,6 @@ class Trimesh_Geom_Data: public Racetime_Data
 class Trimesh
 {
 	public:
-		//Trimesh();
-		//~Trimesh();
 
 		//wrapper that decides loading function by file suffix:
 		bool Load(const char*);
@@ -119,7 +122,7 @@ class Trimesh
 
 		//create "dedicated" (used during race) timeshes from this one:
 		Trimesh_3D *Create_3D();
-		Trimesh_Geom_Data *Create_Geom_Data();
+		Trimesh_Geom *Create_Geom();
 
 		//tools:
 		void Resize(float);
@@ -147,10 +150,6 @@ class Trimesh
 		//
 		//actual data to store:
 		//
-
-		struct Vector_Float{
-			float x, y, z;
-		};
 
 		std::vector<Vector_Float> vertices;
 		std::vector<Vector_Float> normals;
