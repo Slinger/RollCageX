@@ -30,6 +30,7 @@
 #include "../graphics/graphic_list.hpp"
 
 unsigned int stepsize_warnings = 0;
+unsigned int step_count = 0;
 
 bool physics_init(void)
 {
@@ -71,10 +72,9 @@ int physics_loop (void *d)
 		//technically, collision detection doesn't need this, but this is easier
 		SDL_mutexP(ode_mutex);
 
-		Car::Physics_Step(internal.stepsize); //control, antigrav...
-
 		for (int i=0; i<internal.multiplier; ++i)
 		{
+			Car::Physics_Step(divided_stepsize); //control, antigrav...
 			Body::Physics_Step(divided_stepsize); //drag (air/liquid "friction")
 
 			dSpaceCollide (space, 0, &Geom::Collision_Callback);
@@ -107,6 +107,9 @@ int physics_loop (void *d)
 			SDL_Delay (simtime - realtime);
 		else
 			++stepsize_warnings;
+
+		//count how many stepse
+		++step_count;
 	}
 	return 0;
 }

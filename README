@@ -63,9 +63,8 @@ settings, since it contains a plain text version of default configurations.
 While (almost) all input keys can be changed (data/profiles/default/keys.lst),
 the following is the defaults keys for the car:
 
-* Arrow keys for accelerating/reversing and steering
-* Space for non-locking breaks (should be easier than the drifting breaks
-* Left Alt for locking/drifting breaks
+* Arrow keys for accelerating/reversing/breaking and steering
+* Space for locking/drifting breaks
 * Changing of camera modes using F1-F4
 (the camera can also be tweaked along the X, Y and Z axes using A/D, W/S and
 Q/E)

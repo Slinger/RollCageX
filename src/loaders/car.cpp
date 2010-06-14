@@ -180,8 +180,6 @@ Car_Template *Car_Template::Load (const char *path)
 		printlog(0, "WARNING: can not open list of car geoms (%s)!", lst);
 
 	//helper datas:
-	//* inertia tensor for wheel axis (for translating motor torque to rotation speed cahnge)
-	target->inertia_tensor = (target->conf.wheel_mass*target->conf.w[0]*target->conf.w[0])/2; //(m*r*r)/2
 
 	//* set up values for front/rear driving ratios
 	if (target->conf.steer_ratio>100 || target->conf.steer_ratio<0 )
@@ -298,7 +296,7 @@ Car *Car_Template::Spawn (dReal x, dReal y, dReal z)
 	//begin copying of needed configuration data
 	Car *car = new Car();
 	car->max_torque = conf.max_torque;
-	car->motor_tweak = conf.motor_tweak;
+	car->gear_tweak = conf.gear_tweak;
 	car->max_break = conf.max_break;
 	car->torque_compensator = conf.torque_compensator;
 	car->fsteer = fsteer;
@@ -307,7 +305,6 @@ Car *Car_Template::Spawn (dReal x, dReal y, dReal z)
 	car->rmotor = rmotor;
 	car->fbreak = fbreak;
 	car->rbreak = rbreak;
-	car->inertia_tensor = inertia_tensor;
 
 	//start building
 	new Space(car);
@@ -498,13 +495,6 @@ Car *Car_Template::Spawn (dReal x, dReal y, dReal z)
 	dBodySetRotation (wheel_body[2], rot);
 	dBodySetPosition (wheel_body[3], x-conf.wp[0], y+conf.wp[1], z);
 	dBodySetRotation (wheel_body[3], rot);
-
-	//enable finite rotation on rear wheels
-	/*if (internal.finite_rotation)
-	{
-		dBodySetFiniteRotationMode (wheel_body[1], 1);
-		dBodySetFiniteRotationMode (wheel_body[2], 1);
-	}*/
 
 	//create joints (hinge2) for wheels
 	dReal stepsize = internal.stepsize/internal.multiplier;

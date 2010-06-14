@@ -4,8 +4,7 @@ up up
 down down
 right right
 left left
-soft_break space
-drift_break "left alt"
+drift_break space
 
 #camera position offset movement (bind to WASD and Q+E for height)
 camera_x+ d

@@ -52,21 +52,9 @@ void Profile_Events_Step(Uint32 step)
 		{
 			Car *carp = prof->car;
 			if (keys[prof->drift_break])
-			{
 				carp->drift_breaks = true;
-				carp->breaks = false;
-			}
-			//Alt and Ctrl activates "softer" breaks...
-			else if (keys[prof->soft_break])
-			{
-				carp->breaks = true;
-				carp->drift_breaks = false;
-			}
 			else
-			{
 				carp->drift_breaks = false;
-				carp->breaks = false;
-			}
 
 			dReal t_speed = prof->throttle_speed*step;
 			if (keys[prof->up])

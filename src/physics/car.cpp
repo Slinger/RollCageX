@@ -49,7 +49,7 @@ void Car::Physics_Step(dReal step)
 		}
 
 		//control
-		if (carp->drift_breaks)
+		if (carp->drift_breaks) //breaks (lock rear wheels)
 		{
 			if (carp->torque_compensator)
 			{
@@ -65,103 +65,82 @@ void Car::Physics_Step(dReal step)
 				dJointSetHinge2Param (carp->joint[2],dParamFMax2,dInfinity);
 			}
 		}
-		else if (carp->breaks)
+		else //acceleration or soft (non-locking) breaks
 		{
-			if (carp->torque_compensator)
+			//make sure drift break is not locked...
+			if (!carp->torque_compensator)
 			{
-				dReal rotation, torque_needed;
-				dReal torque[4] = {0,0,0,0};
-
-				int i;
-				for (i=0; i<4; ++i)
-				{
-					rotation = dJointGetHinge2Angle2Rate (carp->joint[i]);
-					torque_needed = (carp->inertia_tensor*rotation/step); //T=I*a/t
-
-					//negative rotation, negative values...
-					if (torque_needed < 0)
-					{
-						//the usual situation: only enough torque to slow down the wheel
-						if (-torque_needed > carp->max_break)
-							torque[i] = +carp->max_break;
-						else //wheel will stop rotating
-							torque[i] = -torque_needed;
-					}
-					else //positive rotation, positive values
-					{
-						//the usual situation: only enough torque to slow down the wheel
-						if (torque_needed > carp->max_break)
-							torque[i] = -carp->max_break;
-						else //wheel will stop rotating
-							torque[i] = -torque_needed;
-					}
-				}
-
-				//add breaking torques (even if possibly 0)
-				dBodyAddRelTorque(carp->wheel_body[0], 0, 0, -torque[0]);
-				dBodyAddRelTorque(carp->wheel_body[1], 0, 0, -torque[1]);
-				dBodyAddRelTorque(carp->wheel_body[2], 0, 0, torque[2]);
-				dBodyAddRelTorque(carp->wheel_body[3], 0, 0, torque[3]);
+				dJointSetHinge2Param (carp->joint[1],dParamFMax2,0);
+				dJointSetHinge2Param (carp->joint[2],dParamFMax2,0);
 			}
-			else
-			{
-				dJointSetHinge2Param (carp->joint[1],dParamVel2,0);
-				dJointSetHinge2Param (carp->joint[1],dParamFMax2,carp->max_break*carp->rbreak);
-				dJointSetHinge2Param (carp->joint[2],dParamVel2,0);
-				dJointSetHinge2Param (carp->joint[2],dParamFMax2,carp->max_break*carp->rbreak);
 
-				dJointSetHinge2Param (carp->joint[0],dParamVel2,0);
-				dJointSetHinge2Param (carp->joint[0],dParamFMax2,carp->max_break*carp->fbreak);
-				dJointSetHinge2Param (carp->joint[3],dParamVel2,0);
-				dJointSetHinge2Param (carp->joint[3],dParamFMax2,carp->max_break*carp->fbreak);
-			}
-		}
-		else
-		{
+			//collect wheel torques wanted:
 			dReal torque[4];
+			dReal rotation, gear_torque;
 			int i;
 			for (i=0; i<4; ++i)
 			{
-				//disable motor (used for breaks...)
-				dJointSetHinge2Param (carp->joint[i],dParamFMax2,0);
+				//wheel rotation
+				rotation = dJointGetHinge2Angle2Rate (carp->joint[i]);
 
-				//add torques directly (no "motor")
-				dReal rotation = dJointGetHinge2Angle2Rate (carp->joint[i]);
-
-				//we want total speed, not negative
-				if (rotation < 0)
-					rotation = -rotation;
-
-				//in case wheel is already rotating so fast we get simulation errors, no simulation
-				//only when wheel is in air
-				if ( !(carp->wheel_geom_data[i]->colliding) && rotation > internal.max_wheel_rotation)
-					torque[i] = 0.0;
+				//how much torque motor could add at this rotation
+				if (rotation < 0.0) //if rotation negative, make it possitive
+					gear_torque=carp->max_torque/(1+(-rotation)*carp->gear_tweak);
 				else
+					gear_torque=carp->max_torque/(1+rotation*carp->gear_tweak);
+
+
+				//check if accelerating or decelerating wheel...
+				
+				//if throttle and and current direction is the same, accelerate. or if rotation is
+				//wrong way, but so slow that the motor is better than breaks, also use accelerate
+				if (	(rotation > 0.0 && carp->throttle > 0.0) ||
+					(rotation < 0.0 && carp->throttle < 0.0) ||
+					(gear_torque > carp->max_break) )
 				{
-					//else we will add torque
-					//motor torque is geared by stepless gearbox
-					torque[i]=carp->max_torque/(1+rotation*carp->motor_tweak);
+					//make sure we don't exceed gloobal wheel rotation limiter (if in air)
+					if ( !(carp->wheel_geom_data[i]->colliding) && (rotation > internal.max_wheel_rotation) )
+					{
+						torque[i]=0.0; //make sure no torque
+						carp->wheel_geom_data[i]->colliding = false; //reset collision detection...
+						continue; //go to next wheel
+					}
+
+					//if front wheel, front motor, if rear, rear motor
+					if (i == 0 || i == 3)
+						torque[i]=carp->fmotor*gear_torque;
+					else
+						torque[i]=carp->rmotor*gear_torque;
+
 				}
-
-				//since we are using the wheel collision detection, reset it each time
-				carp->wheel_geom_data[i]->colliding = false; //reset
+				else //wheel must break (before it can start rotating in wanted direction)
+				{
+					//if front wheel, front break, if rear, rear break
+					if (i == 0 || i == 3)
+						torque[i]=carp->fbreak*carp->max_break;
+					else
+						torque[i]=carp->rbreak*carp->max_break;
+				}
 			}
 
-			if (carp->torque_compensator)
+			//apply torques:
+			if (carp->torque_compensator) //only on wheels
 			{
-				dBodyAddRelTorque(carp->wheel_body[0], 0, 0, -torque[0]*carp->throttle*carp->dir*carp->fmotor);
-				dBodyAddRelTorque(carp->wheel_body[1], 0, 0, -torque[1]*carp->throttle*carp->dir*carp->rmotor);
-				dBodyAddRelTorque(carp->wheel_body[2], 0, 0, torque[2]*carp->throttle*carp->dir*carp->rmotor);
-				dBodyAddRelTorque(carp->wheel_body[3], 0, 0, torque[3]*carp->throttle*carp->dir*carp->fmotor);
+				dBodyAddRelTorque(carp->wheel_body[0], 0, 0, -torque[0]*carp->throttle*carp->dir);
+				dBodyAddRelTorque(carp->wheel_body[1], 0, 0, -torque[1]*carp->throttle*carp->dir);
+				dBodyAddRelTorque(carp->wheel_body[2], 0, 0, torque[2]*carp->throttle*carp->dir);
+				dBodyAddRelTorque(carp->wheel_body[3], 0, 0, torque[3]*carp->throttle*carp->dir);
 			}
-			else
+			else //between wheels and body
 			{
-				dJointAddHinge2Torques (carp->joint[0],0,torque[0]*carp->throttle*carp->dir*carp->fmotor);
-				dJointAddHinge2Torques (carp->joint[1],0,torque[1]*carp->throttle*carp->dir*carp->rmotor);
-				dJointAddHinge2Torques (carp->joint[2],0,torque[2]*carp->throttle*carp->dir*carp->rmotor);
-				dJointAddHinge2Torques (carp->joint[3],0,torque[3]*carp->throttle*carp->dir*carp->fmotor);
+				dJointAddHinge2Torques (carp->joint[0],0,torque[0]*carp->throttle*carp->dir);
+				dJointAddHinge2Torques (carp->joint[1],0,torque[1]*carp->throttle*carp->dir);
+				dJointAddHinge2Torques (carp->joint[2],0,torque[2]*carp->throttle*carp->dir);
+				dJointAddHinge2Torques (carp->joint[3],0,torque[3]*carp->throttle*carp->dir);
 			}
 		}
+
+		//steering
 		dJointSetHinge2Param (carp->joint[0],dParamLoStop,carp->steering*carp->dir *carp->fsteer);
 		dJointSetHinge2Param (carp->joint[0],dParamHiStop,carp->steering*carp->dir *carp->fsteer);
 		dJointSetHinge2Param (carp->joint[3],dParamLoStop,carp->steering*carp->dir *carp->fsteer);
@@ -173,16 +152,7 @@ void Car::Physics_Step(dReal step)
 		dJointSetHinge2Param (carp->joint[2],dParamHiStop,carp->steering*carp->dir *carp->rsteer);
 
 
-		//set finite rotation axis (to prevent bending of rear axes)
-		/*if (internal.finite_rotation)
-		{
-			const dReal *rot = dBodyGetRotation (carp->bodyid);
-
-			dBodySetFiniteRotationAxis (carp->wheel_body[1],-rot[0],-rot[4],-rot[8]);
-			dBodySetFiniteRotationAxis (carp->wheel_body[2],-rot[0],-rot[4],-rot[8]);
-		}*/
-
-		//save ccar velocity
+		//save car velocity
 		const dReal *vel = dBodyGetLinearVel (carp->bodyid);
 		const dReal *rot = dBodyGetRotation  (carp->bodyid);
 		carp->velocity = (rot[1]*vel[0] + rot[5]*vel[1] + rot[9]*vel[2]);
