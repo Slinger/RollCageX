@@ -48,7 +48,7 @@ SDLKey get_key (char *name)
 //load profile (conf and key list)
 Profile *Profile_Load (const char *path)
 {
-	printlog(1, "loading profile: %s", path);
+	printlog(1, "Loading profile: %s", path);
 
 	//create
 	Profile *prof = new Profile; //allocate
@@ -80,7 +80,7 @@ Profile *Profile_Load (const char *path)
 	strcpy (list,path);
 	strcat (list,"/keys.lst");
 
-	printlog(1, "loading key list: %s", list);
+	printlog(1, "Loading key list: %s", list);
 	Text_File file;
 
 	if (file.Open(list))

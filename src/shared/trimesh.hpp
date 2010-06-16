@@ -128,11 +128,10 @@ class Trimesh
 		void Resize(float);
 		void Rotate(float,float,float);
 		void Offset(float, float, float);
-
-		void TMP_printinfo();
+		//check if name matches specified
+		bool Compare_Name(const char*);
 	private:
-		//Set_Name(const char*);
-		//char *name; //just for the other trimesh classes (for Racetime_Data name)
+		//just for the other trimesh classes (for Racetime_Data name)
 		std::string name;
 
 		//tools:

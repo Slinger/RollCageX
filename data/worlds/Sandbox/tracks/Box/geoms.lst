@@ -1,0 +1,6 @@
+#optional: use ">" before the model is used to force loading
+#this is usefull for overriding defaults, such as:
+#> "Box.obj" resize 0.1 rotate 90 0 0 offset 0 0 -10
+
+#position  rotation  geom model  optional render model
+0 0 0      0 0 0     "Box.obj"   #"Box.obj"

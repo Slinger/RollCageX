@@ -483,6 +483,13 @@ unsigned int Trimesh::Find_Material(const char *name)
 	return INDEX_ERROR;
 }
 
+bool Trimesh::Compare_Name(const char *n)
+{
+	if (!name.compare(n))
+		return true;
+	return false;
+}
+
 //makes sure all normals are unit
 void Trimesh::Normalize_Normals()
 {

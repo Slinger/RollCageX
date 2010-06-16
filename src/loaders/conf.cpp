@@ -22,11 +22,14 @@
 //loads configuration file to memory (using index)
 int load_conf (const char *name, char *memory, const struct Conf_Index index[])
 {
-	printlog(1, "loading conf file: %s", name);
+	printlog(1, "Loading conf file: %s", name);
 
 	Text_File file;
 	if (!file.Open(name))
+	{
+		printlog(0, "ERROR: could not open file %s!", name);
 		return -1;
+	}
 
 
 	int i;
