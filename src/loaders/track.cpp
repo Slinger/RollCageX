@@ -125,7 +125,39 @@ bool load_track (const char *path)
 				Trimesh *mesh = FindOrLoad(path, file.words[1]);
 
 				//now process the rest for extra options
-				printf("TODO!\n");
+				int pos = 2;
+				while (pos < file.word_count)
+				{
+					int left=file.word_count-pos;
+
+					//resize, takes the word resize and one value
+					if (!strcmp(file.words[pos], "resize") && left >= 2)
+					{
+						mesh->Resize(atof(file.words[pos+1]));
+						pos+=2;
+					}
+					//rotate, takes the word rotate and 3 values
+					if (!strcmp(file.words[pos], "rotate") && left >= 4)
+					{
+						mesh->Rotate(atof(file.words[pos+1]), //x
+								atof(file.words[pos+2]), //y
+								atof(file.words[pos+3])); //z
+						pos+=4;
+					}
+					//offset, takes the word offset and 3 values
+					if (!strcmp(file.words[pos], "offset") && left >= 4)
+					{
+						mesh->Offset(atof(file.words[pos+1]), //x
+								atof(file.words[pos+2]), //y
+								atof(file.words[pos+3])); //z
+						pos+=4;
+					}
+					else
+					{
+						printlog(0, "WARNING: trimesh loading option \"%s\" not known", file.words[pos]);
+						++pos;
+					}
+				}
 			}
 			//geom to create
 			else if (file.word_count == 8 || file.word_count == 7)
@@ -247,9 +279,7 @@ bool load_track (const char *path)
 		}
 	}
 	else
-	{
-		printlog(0, "WARNING: no object list for track, no default objects spawned");
-	}
+		printlog(1, "WARNING: no object list for track, no default objects spawned");
 
 	//that's it!
 	return true;
