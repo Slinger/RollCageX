@@ -40,4 +40,4 @@ build/shared/runlevel.o: shared/runlevel.hpp
 build/shared/space.o: shared/space.hpp shared/geom.hpp shared/printlog.hpp shared/track.hpp
 build/shared/threads.o: shared/threads.hpp
 build/shared/track.o: shared/track.hpp
-build/shared/trimesh.o: shared/trimesh.hpp shared/printlog.hpp shared/../graphics/gl_extensions.hpp
+build/shared/trimesh.o: shared/trimesh.hpp shared/geom.hpp shared/printlog.hpp shared/../graphics/gl_extensions.hpp

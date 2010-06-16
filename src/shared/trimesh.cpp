@@ -13,6 +13,7 @@
 #include "geom.hpp"
 #include "printlog.hpp"
 #include "../graphics/gl_extensions.hpp"
+#include <limits.h>
 
 //length of vector
 #define v_length(x, y, z) (dSqrt( (x)*(x) + (y)*(y) + (z)*(z) ))
@@ -319,8 +320,6 @@ Trimesh_Geom::Trimesh_Geom(const char *name,
 		unsigned int *i, unsigned int icount,
 		Vector_Float *n): Racetime_Data(name), vertices(v), indices(i), normals(n) //set name and values
 {
-	printf("TODO: ode uses int for i/vcount and indices, we use unsigned int - check if small enough to cast?\n");
-	
 	//just tell ode to create trimesh from this data
 	data = dGeomTriMeshDataCreate();
 
@@ -364,14 +363,22 @@ Trimesh_Geom *Trimesh::Create_Geom()
 		return NULL;
 	}
 
-	//lets start!
-	Vector_Float *v, *n;
-	unsigned int *i;
 	//sizes
 	unsigned int verts=vertices.size();
 	unsigned int tris=triangles.size();
 
+	//check (vertice and indix count can't exceed int limit)
+	if (verts>INT_MAX || (tris*3)>INT_MAX)
+	{
+		printlog(0, "ERROR: trimesh is too big for ode collision  trimesh");
+		return NULL;
+	}
+
+	//lets start!
 	//allocate
+	Vector_Float *v, *n;
+	unsigned int *i;
+
 	v = new Vector_Float[verts]; //one vertex per vertex
 	i = new unsigned int[tris*3]; //3 indices per triangle
 	n = new Vector_Float[tris]; //one normal per triangle
