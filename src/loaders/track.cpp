@@ -188,7 +188,13 @@ bool load_track (const char *path)
 
 				//ok, now geom and model should contain useful data...
 				data = geom->Create_Geom(track.object); //create geom from geom-trimesh
+				
+				//configure geom
 				data->model = model; //render geom with model
+				data->mu = track.mu;
+				data->slip = track.slip;
+				data->erp = track.erp;
+				data->cfm = track.cfm;
 
 				//position
 				x = atof(file.words[0]);
