@@ -290,9 +290,9 @@ bool Trimesh::Load_MTL(const char *f)
 			materials[i].ambient[2] == 0	)
 		{
 			printlog(2, "NOTE: found material with ambient colour of 0, setting to diffuse instead");
-			materials[i].ambient[0] = materials[i].ambient[0];
-			materials[i].ambient[1] = materials[i].ambient[1];
-			materials[i].ambient[2] = materials[i].ambient[2];
+			materials[i].ambient[0] = materials[i].diffuse[0];
+			materials[i].ambient[1] = materials[i].diffuse[1];
+			materials[i].ambient[2] = materials[i].diffuse[2];
 		}
 	}
 			
