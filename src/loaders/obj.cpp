@@ -282,6 +282,20 @@ bool Trimesh::Load_MTL(const char *f)
 		return false;
 	}
 
+	//see if any material sets ambient to 0, if so set it to diffuse instead
+	for (unsigned int i=0; i<=mat_nr; ++i)
+	{
+		if (	materials[i].ambient[0] == 0 &&
+			materials[i].ambient[1] == 0 &&	
+			materials[i].ambient[2] == 0	)
+		{
+			printlog(2, "NOTE: found material with ambient colour of 0, setting to diffuse instead");
+			materials[i].ambient[0] = materials[i].ambient[0];
+			materials[i].ambient[1] = materials[i].ambient[1];
+			materials[i].ambient[2] = materials[i].ambient[2];
+		}
+	}
+			
 	//else, ok
 	return true;
 }
