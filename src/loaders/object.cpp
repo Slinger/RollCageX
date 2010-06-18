@@ -70,43 +70,62 @@ Object_Template *Object_Template::Load(const char *path)
 	{
 		printlog(2, "(Mac's hard-coded funbox");
 
-		tmplt = new Object_Template(path);
+		Trimesh mesh;
+		mesh.Load("data/objects/misc/funbox/box.obj"); //assume loading fine
+		if (Trimesh_3D *mesh3d = mesh.Create_3D())
+		{
+			tmplt = new Object_Template(path);
 
-		//graphics
-		/*tmplt->graphics_debug1 = new file_3d();
-		debug_draw_box (tmplt->graphics_debug1->list, 2,2,2, white,gray, 80);
-		tmplt->graphics_debug2 = new file_3d();
-		debug_draw_box (tmplt->graphics_debug2->list, 1,1,1, green,red, 80);*/
+			//graphics
+			tmplt->vbo[0] = mesh3d;
 
-		tmplt->funbox = true; //id
+			tmplt->funbox = true; //id
+		}
+		else
+			tmplt=NULL;
 
 	}
 	else if (!strcmp(path, "data/objects/misc/flipper"))
 	{
 		printlog(2, "(hard-coded flipper)");
 
-		tmplt = new Object_Template(path);
+		Trimesh mesh;
+		mesh.Load("data/objects/misc/flipper/Flipper.obj"); //assume loading fine
+		if (Trimesh_3D *mesh3d = mesh.Create_3D())
+		{
+			tmplt = new Object_Template(path);
 
-		/*tmplt->graphics_debug1 = new file_3d();
-		tmplt->graphics_debug2 = new file_3d();
+			//graphics
+			tmplt->vbo[0] = mesh3d;
 
-		debug_draw_box (tmplt->graphics_debug1->list, 8,8,0.5, red,gray, 30);
-		debug_draw_box (tmplt->graphics_debug2->list, 3,3,2, lblue,black, 0);*/
-		tmplt->flipper = true;
+			tmplt->flipper = true; //id
+		}
+		else
+			tmplt=NULL;
+
 	}
 	else if (!strcmp(path, "data/objects/misc/NH4"))
 	{
 		printlog(2, "(hard-coded \"molecule\")");
 
-		tmplt = new Object_Template(path);
+		Trimesh mesh1, mesh2;
+		Trimesh_3D *model1, *model2;
+		if (	(mesh1.Load("data/objects/misc/NH4/Atom1.obj")) &&
+			(mesh2.Load("data/objects/misc/NH4/Atom2.obj")) &&
+			(model1 = mesh1.Create_3D()) &&
+			(model2 = mesh2.Create_3D())	)
+		{
+			tmplt = new Object_Template(path);
 
-		//draw approximate sphere
-		/*tmplt->graphics_debug1 = new file_3d();
-		debug_draw_sphere (tmplt->graphics_debug1->list,2, lblue,white,42);
-		tmplt->graphics_debug2 = new file_3d();
-		debug_draw_sphere (tmplt->graphics_debug2->list,1.6,white,white,42);*/
+			//graphics
+			tmplt->vbo[0] = model1;
+			tmplt->vbo[1] = model2;
 
-		tmplt->NH4 = true;
+			tmplt->NH4 = true;
+		}
+		else
+			tmplt=NULL;
+
 	}
 	else if (!strcmp(path, "data/objects/misc/beachball"))
 	{
@@ -128,31 +147,50 @@ Object_Template *Object_Template::Load(const char *path)
 	{
 		printlog(2, "(hard-coded building)");
 
-		tmplt = new Object_Template(path);
+		Trimesh mesh_pillar, mesh_roof, mesh_wall;
+		Trimesh_3D *pillar, *roof, *wall;
+		if (	(mesh_pillar.Load("data/objects/misc/building/pillar.obj")) &&
+			(mesh_roof.Load("data/objects/misc/building/roof.obj")) &&
+			(mesh_wall.Load("data/objects/misc/building/wall.obj")) &&
+			(pillar = mesh_pillar.Create_3D()) &&
+			(roof = mesh_roof.Create_3D()) &&
+			(wall = mesh_wall.Create_3D())	)
+		{
+			tmplt = new Object_Template(path);
 
-		//create graphics
-		/*tmplt->graphics_debug1 = new file_3d(); //walls
-		tmplt->graphics_debug2 = new file_3d(); //floor/ceiling
-		tmplt->graphics_debug3 = new file_3d(); //pillars
+			//graphics
+			tmplt->vbo[0] = pillar;
+			tmplt->vbo[1] = roof;
+			tmplt->vbo[2] = wall;
 
-		debug_draw_box (tmplt->graphics_debug1->list, 4,0.4,2.4, dgray,black, 0);
-		debug_draw_box (tmplt->graphics_debug2->list, 4,4,0.2, lgray,gray, 30);
-		debug_draw_capsule (tmplt->graphics_debug3->list, 0.3, 1.4, dgray,gray, 30);*/
-
-		tmplt->building = true;
+			tmplt->building = true;
+		}
+		else
+			tmplt=NULL;
 	}
 	else if (!strcmp(path,"data/objects/misc/pillar"))
 	{
 		//"load" 3d box
 		printlog(2, "(hard-coded pillar)");
 
-		tmplt = new Object_Template(path);
+		Trimesh mesh1, mesh2;
+		Trimesh_3D *model1, *model2;
+		if (	(mesh1.Load("data/objects/misc/pillar/Pillar.obj")) &&
+			(mesh2.Load("data/objects/misc/pillar/Broken.obj")) &&
+			(model1 = mesh1.Create_3D()) &&
+			(model2 = mesh2.Create_3D())	)
+		{
+			tmplt = new Object_Template(path);
 
-		/*tmplt->graphics_debug1 = new file_3d();
-		tmplt->graphics_debug2 = new file_3d();
-		debug_draw_box (tmplt->graphics_debug1->list, 2,2,5, gray,gray, 50); //complete
-		debug_draw_box (tmplt->graphics_debug2->list, 2,2,5/2, gray,gray, 50); //broken in half*/
-		tmplt->pillar = true;
+			//graphics
+			tmplt->vbo[0] = model1;
+			tmplt->vbo[1] = model2;
+
+			tmplt->pillar = true;
+		}
+		else
+			tmplt=NULL;
+
 	}
 
 
@@ -176,7 +214,7 @@ void debug_joint_fixed(dBodyID body1, dBodyID body2, Object *obj)
 
 	//use feedback
 	//set threshold, buffer and dummy script
-	jd->Set_Buffer_Event(25000, 1000, (Script*)1337);
+	jd->Set_Buffer_Event(30000, 1000, (Script*)1337);
 }
 
 //spawn a "loaded" (actually hard-coded) object
@@ -266,51 +304,53 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 	dGeomSetBody (geom, body1);
 	dBodySetPosition (body1, x, y, z);
 
-	//data->f_3d = graphics_debug1;
-	data->Set_Buffer_Body(bd); //send collision forces to body
+	data->model = vbo[0];
+	data->Set_Buffer_Body(bd); //send collision forces to body*/
 
+	
 	//the outer boxes (different offsets)
-	geom = dCreateBox(0, 1, 1, 1);
+	geom = dCreateBox(0, 1.0, 1.0, 1.0);
 	data = new Geom(geom, obj);
 	dGeomSetBody (geom, body1);
-	dGeomSetOffsetPosition(geom, 1,0,0); //offset
+	dGeomSetOffsetPosition(geom, 0.70,0,0); //offset
 	//data->f_3d = graphics_debug2; //graphics
 	data->Set_Buffer_Body(bd);
 
-	geom = dCreateBox(0, 1, 1, 1);
+	geom = dCreateBox(0, 1.0, 1.0, 1.0);
 	data = new Geom(geom, obj);
 	dGeomSetBody (geom, body1);
-	dGeomSetOffsetPosition(geom, 0,1,0); //offset
+	dGeomSetOffsetPosition(geom, 0,0.70,0); //offset
 	//data->f_3d = graphics_debug2; //graphics
 	data->Set_Buffer_Body(bd);
 
-	geom = dCreateBox(0, 1, 1, 1);
+	geom = dCreateBox(0, 1.0, 1.0, 1.0);
 	data = new Geom(geom, obj);
 	dGeomSetBody (geom, body1);
-	dGeomSetOffsetPosition(geom, 0,0,1); //offset
+	dGeomSetOffsetPosition(geom, 0,0,0.70); //offset
 	//data->f_3d = graphics_debug2; //graphics
 	data->Set_Buffer_Body(bd);
 
-	geom = dCreateBox(0, 1, 1, 1);
+	geom = dCreateBox(0, 1.0, 1.0, 1.0);
 	data = new Geom(geom, obj);
 	dGeomSetBody (geom, body1);
-	dGeomSetOffsetPosition(geom, -1,0,0); //offset
+	dGeomSetOffsetPosition(geom, -0.70,0,0); //offset
 	//data->f_3d = graphics_debug2; //graphics
 	data->Set_Buffer_Body(bd);
 
-	geom = dCreateBox(0, 1, 1, 1);
+	geom = dCreateBox(0, 1.0, 1.0, 1.0);
 	data = new Geom(geom, obj);
 	dGeomSetBody (geom, body1);
-	dGeomSetOffsetPosition(geom, 0,-1,0); //offset
+	dGeomSetOffsetPosition(geom, 0,-0.70,0); //offset
 	//data->f_3d = graphics_debug2; //graphics
 	data->Set_Buffer_Body(bd);
 
-	geom = dCreateBox(0, 1, 1, 1);
+	geom = dCreateBox(0, 1.0, 1.0, 1.0);
 	data = new Geom(geom, obj);
 	dGeomSetBody (geom, body1);
-	dGeomSetOffsetPosition(geom, 0,0,-1); //offset
+	dGeomSetOffsetPosition(geom, 0,0,-0.70); //offset
 	//data->f_3d = graphics_debug2; //graphics
 	data->Set_Buffer_Body(bd);
+	
 	}
 	//
 	//
@@ -338,7 +378,7 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 //	data->bounce = 4.0;
 	
 	//Graphics
-	//data->f_3d = graphics_debug1;
+	data->model = vbo[0];
 
 
 	//flipper sensor
@@ -351,8 +391,6 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 	//enable script execution on sensor triggering (but not when untriggered)
 	data->Set_Sensor_Event ( ((Script*)1337) , NULL); //(triggered,untriggered)
 
-	//graphics
-	//data->f_3d = graphics_debug2;
 	//
 	}
 	//
@@ -369,7 +407,7 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 	//center sphere
 	dGeomID geom  = dCreateSphere (0, 1); //geom
 	Geom *data = new Geom(geom, obj);
-	data->Set_Buffer_Event(100000, 100, (Script*)1337);
+	data->Set_Buffer_Event(800000, 100, (Script*)1337);
 
 	dBodyID body1 = dBodyCreate (world);
 
@@ -384,11 +422,11 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 
 	dBodySetPosition (body1, x, y, z);
 
-	data->mu = 0;
+	data->mu = 0.5;
 	data->bounce = 1.5;
 	
 	//Next, Graphics
-	//data->f_3d = graphics_debug1;
+	data->model = vbo[0];
 
 	dReal pos[4][3] = {
 		{0, 0, 1.052},
@@ -405,7 +443,7 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 	//connected spheres
 	geom  = dCreateSphere (0, 0.8); //geom
 	data = new Geom(geom, obj);
-	data->Set_Buffer_Event(100000, 100, (Script*)1337);
+	data->Set_Buffer_Event(400000, 100, (Script*)1337);
 	body = dBodyCreate (world);
 
 	dMassSetSphere (&m,1,0.5); //radius
@@ -422,14 +460,14 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 	data->bounce = 2.0;
 	
 	//Next, Graphics
-	//data->f_3d = graphics_debug2;
+	data->model = vbo[1];
 
 	//connect to main sphere
 	
 	joint = dJointCreateBall (world, 0);
 
 	Joint *jd = new Joint(joint, obj);
-	jd->Set_Buffer_Event(1000, 500, (Script*)1337);
+	jd->Set_Buffer_Event(100000, 500, (Script*)1337);
 
 	dJointAttach (joint, body1, body);
 	dJointSetBallAnchor (joint, x+pos[i][0], y+pos[i][1], z+pos[i][2]);
@@ -477,7 +515,7 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 	//
 	//
 
-	Object *obj = new Object(); //no space (no geoms collide)
+	Object *obj = new Object();
 	new Space(obj);
 	dBodyID old_body[12] = {0,0,0,0,0,0,0,0,0,0,0,0};
 	dBodyID old_pillar[4] = {0,0,0,0};
@@ -506,7 +544,7 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 
 			new Body (body1[i], obj);
 
-			//data->f_3d = graphics_debug1;
+			data->model = vbo[2];
 		}
 		
 		const dReal k = 1.5*4+0.4/2;
@@ -565,7 +603,7 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 
 			new Body (body2[i], obj);
 
-			//data->f_3d = graphics_debug2;
+			data->model = vbo[1];
 		}
 
 		const dReal k2=2.4-0.2/2;
@@ -632,7 +670,7 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 			//friction
 			data->mu = 1;
 			//Next, Graphics
-			//data->f_3d = graphics_debug3;
+			data->model = vbo[0];
 		}
 
 		dBodySetPosition (body[0], x+2, y+2, z+2.4/2);
@@ -683,14 +721,14 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 		dGeomSetPosition(g->geom_id, x,y,(z+2.5));
 
 		//render
-		//g->f_3d = graphics_debug1;
+		g->model = vbo[0];
 
 		//identification
 		g->TMP_pillar_geom = true;
 
 		//destruction
 		g->Set_Buffer_Event(200000, 10000, (Script*)1337);
-		//g->TMP_pillar_graphics = graphics_debug2;
+		g->TMP_pillar_graphics = vbo[1];
 	}
 	else
 		printlog(0, "ERROR: trying to spawn unidentified object?!");

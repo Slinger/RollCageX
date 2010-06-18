@@ -60,7 +60,7 @@ class Geom: public Component
 		dGeomID flipper_geom;
 
 		bool TMP_pillar_geom;
-		//file_3d *TMP_pillar_graphics; //TMP
+		Trimesh_3D *TMP_pillar_graphics; //TMP
 
 		//register if geom is colliding
 		bool colliding; //set after each collision
