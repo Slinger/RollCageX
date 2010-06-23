@@ -26,7 +26,54 @@
 #include "shared/runlevel.hpp"
 #include "shared/profile.hpp"
 #include "shared/track.hpp"
+#include "shared/trimesh.hpp"
 
+
+//this function is just until proper menus
+bool select_and_load_race(Profile *prof)
+{
+	//MENU: select race type
+	// - assuming 1P free roam -
+
+	//MENU: select world/track
+	if (!load_track(internal.usr_track))
+		return false; //GOTO: track selection menu
+
+	//MENU: P1: select team/car
+	Car_Template *car_template = Car_Template::Load(internal.usr_car);
+	if (!car_template)
+		return false; //GOTO: car selection menu
+
+	//models for rim and tyre
+	Trimesh_3D *tyre=NULL, *rim;
+	Trimesh mesh; //for loading
+
+	//MENU: P1: select {track,world}/tyre
+	printf("TODO: load tyre: %s\n", internal.usr_tyre);
+
+	//MENU: P1: select {car,team}/rim
+	if (!	((mesh.Load(internal.usr_rim)) && (rim = mesh.Create_3D())) )
+	{
+		return false;
+	}
+
+	if (!rim)
+		printf("hmmm....\n");
+	//TMP: load box for online spawning
+	box = Object_Template::Load("data/objects/misc/box");
+	sphere = Object_Template::Load("data/objects/misc/beachball");
+	funbox = Object_Template::Load("data/objects/misc/funbox");
+	if (!box || !sphere || !funbox)
+		return false;
+
+	//spawn car
+	Car *player_car = car_template->Spawn(track.start[0], track.start[1], track.start[2],  tyre, rim);
+	prof->car = player_car;
+	camera.car = player_car;
+
+	//ok!
+	return true;
+}
 
 Uint32 start_time = 0;
 void start_race(void)
@@ -97,7 +144,7 @@ int main (int argc, char *argv[])
 	load_conf ("data/internal.conf", (char *)&internal, internal_index);
 
 	if (!graphics_init())
-		return -1;
+		return false;
 
 	//TODO: there should be menus here, but menu/osd system is not implemented yet... also:
 	//on failure, rcx should not just terminate but instead abort the race and warn the user
@@ -114,35 +161,12 @@ int main (int argc, char *argv[])
 		return -1;
 	}
 
-	//MENU: select race type
-	// - assuming 2P free roam -
 
-	//MENU: select world/track
-	if (!load_track(internal.usr_track))
-		return -1; //GOTO: track selection menu
-
-	//MENU: P1: select team/car
-	Car_Template *car_template = Car_Template::Load(internal.usr_car);
-	if (!car_template)
-		return -1; //GOTO: car selection menu
-
-	//MENU: P1: select {track,world}/tyre
-	printf("TODO: load tyre: %s\n", internal.usr_tyre);
-
-	//MENU: P1: select {car,team}/rim
-	printf("TODO: load rim: %s\n", internal.usr_rim);
-
-	//TMP: load box for online spawning
-	box = Object_Template::Load("data/objects/misc/box");
-	sphere = Object_Template::Load("data/objects/misc/beachball");
-	funbox = Object_Template::Load("data/objects/misc/funbox");
-	if (!box || !sphere || !funbox)
-		return -1;
-
-	//spawn car
-	Car *player_car = car_template->Spawn(track.start[0], track.start[1], track.start[2]);
-	prof->car = player_car;
-	camera.car = player_car;
+	//tmp: instead of menus, just load some defaults...
+	if (!select_and_load_race(prof))
+	{
+		return -1; //just quit if failure
+	}
 
 	//MENU: race configured, start?
 	start_race();

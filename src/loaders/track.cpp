@@ -250,11 +250,7 @@ bool load_track (const char *path)
 				strcpy (obj_name, "data/objects/");
 				strcat (obj_name, file.words[1]);
 
-				obj = Object_Template::Load(obj_name);
-
-				//failure to load object
-				if (!obj)
-					break;
+				obj = Object_Template::Load(obj_name); //NULL if failure
 			}
 			//three words (x, y and z coord for spawning): spawning
 			else if (file.word_count == 3)
@@ -264,7 +260,7 @@ bool load_track (const char *path)
 				if (!obj)
 				{
 					printlog(0, "ERROR: trying to spawn object without specifying what object!");
-					break;
+					continue; //go to next
 				}
 
 				//translate words to values

@@ -111,7 +111,7 @@ class Car_Template:public Racetime_Data
 {
 	public:
 		static Car_Template *Load(const char *path);
-		class Car *Spawn(dReal x, dReal y, dReal z);
+		class Car *Spawn(dReal x, dReal y, dReal z, Trimesh_3D *tyre, Trimesh_3D *rim);
 
 	private:
 		Car_Template(const char *name); //only allocate through spawn function

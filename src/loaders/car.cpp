@@ -282,7 +282,7 @@ Car_Template *Car_Template::Load (const char *path)
 }
 
 
-Car *Car_Template::Spawn (dReal x, dReal y, dReal z)
+Car *Car_Template::Spawn (dReal x, dReal y, dReal z,  Trimesh_3D *tyre, Trimesh_3D *rim)
 {
 	printlog(1, "spawning car at: %f %f %f", x,y,z);
 
@@ -364,8 +364,6 @@ Car *Car_Template::Spawn (dReal x, dReal y, dReal z)
 		gdata->slip = conf.body_slip;
 		gdata->erp = conf.body_erp;
 		gdata->cfm = conf.body_cfm;
-		//graphics
-		//gdata->f_3d = box_graphics[i];
 	}
 	//then: spheres
 	struct sphere sphere;
@@ -386,8 +384,6 @@ Car *Car_Template::Spawn (dReal x, dReal y, dReal z)
 		gdata->slip = conf.body_slip;
 		gdata->erp = conf.body_erp;
 		gdata->cfm = conf.body_cfm;
-		//graphics
-		//gdata->f_3d = sphere_graphics[i];
 	}
 	//finally: capsule
 	struct capsule capsule;
@@ -413,8 +409,6 @@ Car *Car_Template::Spawn (dReal x, dReal y, dReal z)
 		gdata->slip = conf.body_slip;
 		gdata->erp = conf.body_erp;
 		gdata->cfm = conf.body_cfm;
-		//graphics
-		//gdata->f_3d = capsule_graphics[i];
 	}
 
 	//side detection sensors:
@@ -475,12 +469,16 @@ Car *Car_Template::Spawn (dReal x, dReal y, dReal z)
 		//rotational drag
 		bdata->Set_Angular_Drag (conf.wheel_angular_drag);
 
-		//graphics
-		//wheel_data[i]->f_3d = wheel_graphics;
-		
 		//(we need easy access to wheel body ids if using finite rotation)
 		car->wheel_body[i] = wheel_body[i];
 		car->wheel_geom_data[i] = wheel_data[i];
+
+		//graphics.
+		//note: it's now possible to render two models for each wheel:
+		//one for the geom and one for the body
+		//this is great in this case where the wheels got two models (rim+tyre)
+		bdata->model = rim;
+		wheel_data[i]->model = tyre;
 	}
 
 	//place and rotate wheels

@@ -47,7 +47,6 @@ Object_Template *Object_Template::Load(const char *path)
 		//"load" 3d box
 		printlog(2, "(hard-coded box)");
 
-	//just test:
 	Trimesh mesh;
 	mesh.Load("data/objects/misc/box/box.obj"); //assume loading fine
 	Trimesh_3D *mesh3d = mesh.Create_3D();

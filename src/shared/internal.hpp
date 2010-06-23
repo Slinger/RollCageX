@@ -78,7 +78,7 @@ const struct internal_struct internal_defaults = {
 	"data/worlds/Sandbox/tracks/Box",
 	"data/teams/Nemesis/cars/Venom",
 	"data/worlds/Sandbox/tyres/???",
-	"data/teams/Nemesis/rims/???"};
+	"data/teams/Nemesis/rims/2/Split.obj"};
 
 const struct Conf_Index internal_index[] = {
 	{"verbosity",		'i',1, offsetof(struct internal_struct, verbosity)},
