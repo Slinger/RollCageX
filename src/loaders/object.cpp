@@ -213,7 +213,7 @@ void debug_joint_fixed(dBodyID body1, dBodyID body2, Object *obj)
 
 	//use feedback
 	//set threshold, buffer and dummy script
-	jd->Set_Buffer_Event(30000, 1000, (Script*)1337);
+	jd->Set_Buffer_Event(25000, 1000, (Script*)1337);
 }
 
 //spawn a "loaded" (actually hard-coded) object
@@ -406,7 +406,7 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 	//center sphere
 	dGeomID geom  = dCreateSphere (0, 1); //geom
 	Geom *data = new Geom(geom, obj);
-	data->Set_Buffer_Event(800000, 100, (Script*)1337);
+	data->Set_Buffer_Event(100000, 100, (Script*)1337);
 
 	dBodyID body1 = dBodyCreate (world);
 
@@ -442,7 +442,7 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 	//connected spheres
 	geom  = dCreateSphere (0, 0.8); //geom
 	data = new Geom(geom, obj);
-	data->Set_Buffer_Event(400000, 100, (Script*)1337);
+	data->Set_Buffer_Event(100000, 100, (Script*)1337);
 	body = dBodyCreate (world);
 
 	dMassSetSphere (&m,1,0.5); //radius
@@ -466,7 +466,7 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 	joint = dJointCreateBall (world, 0);
 
 	Joint *jd = new Joint(joint, obj);
-	jd->Set_Buffer_Event(100000, 500, (Script*)1337);
+	jd->Set_Buffer_Event(1000, 500, (Script*)1337);
 
 	dJointAttach (joint, body1, body);
 	dJointSetBallAnchor (joint, x+pos[i][0], y+pos[i][1], z+pos[i][2]);
