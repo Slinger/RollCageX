@@ -45,11 +45,14 @@ bool select_and_load_race(Profile *prof)
 		return false; //GOTO: car selection menu
 
 	//models for rim and tyre
-	Trimesh_3D *tyre=NULL, *rim;
+	Trimesh_3D *tyre, *rim;
 	Trimesh mesh; //for loading
 
 	//MENU: P1: select {track,world}/tyre
-	printf("TODO: load tyre: %s\n", internal.usr_tyre);
+	if (!	((mesh.Load(internal.usr_tyre)) && (tyre = mesh.Create_3D())) )
+	{
+		return false;
+	}
 
 	//MENU: P1: select {car,team}/rim
 	if (!	((mesh.Load(internal.usr_rim)) && (rim = mesh.Create_3D())) )
@@ -57,8 +60,6 @@ bool select_and_load_race(Profile *prof)
 		return false;
 	}
 
-	if (!rim)
-		printf("hmmm....\n");
 	//TMP: load box for online spawning
 	box = Object_Template::Load("data/objects/misc/box");
 	sphere = Object_Template::Load("data/objects/misc/beachball");

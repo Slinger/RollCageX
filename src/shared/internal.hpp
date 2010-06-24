@@ -77,7 +77,7 @@ const struct internal_struct internal_defaults = {
 	"data/profiles/default",
 	"data/worlds/Sandbox/tracks/Box",
 	"data/teams/Nemesis/cars/Venom",
-	"data/worlds/Sandbox/tyres/???",
+	"data/worlds/Sandbox/tyres/2/Slick.obj",
 	"data/teams/Nemesis/rims/2/Split.obj"};
 
 const struct Conf_Index internal_index[] = {

@@ -1,4 +1,4 @@
-build/main.o: ./shared/info.hpp ./shared/internal.hpp ./shared/threads.hpp ./shared/printlog.hpp ./shared/runlevel.hpp ./shared/profile.hpp ./shared/track.hpp
+build/main.o: ./shared/info.hpp ./shared/internal.hpp ./shared/threads.hpp ./shared/printlog.hpp ./shared/runlevel.hpp ./shared/profile.hpp ./shared/track.hpp ./shared/trimesh.hpp
 build/events/body.o: events/../shared/body.hpp events/event_lists.hpp events/../shared/printlog.hpp
 build/events/event_lists.o: events/event_lists.hpp
 build/events/events.o: events/../shared/threads.hpp events/../shared/internal.hpp events/../shared/runlevel.hpp events/../shared/printlog.hpp events/../shared/geom.hpp events/../shared/profile.hpp events/../shared/joint.hpp events/../shared/camera.hpp events/timers.hpp
