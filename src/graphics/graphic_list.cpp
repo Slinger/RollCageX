@@ -195,12 +195,13 @@ void Graphic_List_Render()
 
 			if (vbo->vbo_id != Trimesh_3D::current_vbo)
 			{
-				glBindBuffer(GL_STATIC_DRAW, vbo->vbo_id);
-				Trimesh_3D::current_vbo=vbo->vbo_id;
+				//bind and configure the new vbo
+				glBindBuffer(GL_ARRAY_BUFFER, vbo->vbo_id);
+				glVertexPointer(3, GL_FLOAT, sizeof(Trimesh_3D::Vertex), BUFFER_OFFSET(0));
+				glNormalPointer(GL_FLOAT, sizeof(Trimesh_3D::Vertex), BUFFER_OFFSET(sizeof(float)*3));
 
-				printf("TODO: need to configure vertex/normal pointers after binding buffer?\n");
-				//glVertexPointer(3, GL_FLOAT, sizeof(Trimesh_3D::Vertex), BUFFER_OFFSET(0));
-				//glNormalPointer(GL_FLOAT, sizeof(Trimesh_3D::Vertex), BUFFER_OFFSET(sizeof(float)*3));
+				//indicate this is used now
+				Trimesh_3D::current_vbo=vbo->vbo_id;
 			}
 
 			//loop through materials, and draw section(s) of model with this material
