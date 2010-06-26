@@ -21,11 +21,13 @@
 #include "text_file.hpp"
 
 
+//
 //keep track of all loaded models (cleared between loading)
-std::vector<Trimesh> trimeshes;
+//
+std::vector<Trimesh*> trimeshes;
 
 //helper function for finding or loading model files
-Trimesh *FindOrLoad(const char *path, const char *name)
+Trimesh *FindOrLoadMesh(const char *path, const char *name)
 {
 	//merge path and name (path+/+name+\0)...
 	char file[strlen(path)+1+strlen(name)+1];
@@ -35,23 +37,33 @@ Trimesh *FindOrLoad(const char *path, const char *name)
 
 	//already loaded?
 	for (size_t i=0; i!=trimeshes.size(); ++i)
-		if (trimeshes[i].Compare_Name(file))
+		if (trimeshes[i]->Compare_Name(file))
 		{
 			printlog(2, "model already loaded");
-			return &trimeshes[i];
+			return trimeshes[i];
 		}
 
 	//else, try loading...
-	Trimesh mesh; //copy needed for some stupid reason
-	trimeshes.push_back(mesh);
-	if (trimeshes.back().Load(file)) //try loading
-		return &trimeshes.back(); //ok, worked
-	else //did not load
+	Trimesh *mesh = new Trimesh();
+	if (mesh->Load(file))
 	{
-		trimeshes.pop_back(); //remove new trimesh (not useful)
-		return NULL; //return failure
+		trimeshes.push_back(mesh);
+		return mesh; //ok, worked
 	}
+	//else¸ failure
+	delete mesh;
+	return NULL;
 }
+
+//remove all loading meshes
+void RemoveMeshes()
+{
+	for (size_t i=0; i!=trimeshes.size(); ++i)
+		delete trimeshes[i];
+	trimeshes.clear();
+}
+//
+//
 
 
 bool load_track (const char *path)
@@ -122,7 +134,7 @@ bool load_track (const char *path)
 			//if requesting loading of file
 			if (!strcmp(file.words[0], ">") && file.word_count >= 2)
 			{
-				Trimesh *mesh = FindOrLoad(path, file.words[1]);
+				Trimesh *mesh = FindOrLoadMesh(path, file.words[1]);
 
 				//now process the rest for extra options
 				int pos = 2;
@@ -170,14 +182,14 @@ bool load_track (const char *path)
 
 				//no alternative render model
 				if ( (file.word_count == 7) &&
-						(mesh1 = FindOrLoad(path, file.words[6])) &&
+						(mesh1 = FindOrLoadMesh(path, file.words[6])) &&
 						(model = mesh1->Create_3D()) &&
 						(geom = mesh1->Create_Geom()) );
 
 				//one collision and one render model
 				else if ( (file.word_count == 8) &&
-						(mesh1 = FindOrLoad(path, file.words[6])) &&
-						(mesh2 = FindOrLoad(path, file.words[7])) &&
+						(mesh1 = FindOrLoadMesh(path, file.words[6])) &&
+						(mesh2 = FindOrLoadMesh(path, file.words[7])) &&
 						(model = mesh1->Create_3D()) &&
 						(geom = mesh2->Create_Geom()) );
 				//in case failure to load
@@ -223,7 +235,7 @@ bool load_track (const char *path)
 		printlog(0, "SERIOUS WARNING: no geom list for track! can not create any terrain...");
 	}
 
-	trimeshes.clear();
+	RemoveMeshes();
 
 	//
 	//objects
