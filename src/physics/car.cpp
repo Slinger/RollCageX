@@ -83,11 +83,14 @@ void Car::Physics_Step(dReal step)
 				//wheel rotation
 				rotation = dJointGetHinge2Angle2Rate (carp->joint[i]);
 
-				//how much torque motor could add at this rotation
-				if (rotation < 0.0) //if rotation negative, make it possitive
-					gear_torque=carp->max_torque/(1+(-rotation)*carp->gear_tweak);
+				dReal absrotation; //always positive
+				if (rotation < 0.0)
+					absrotation=-rotation;
 				else
-					gear_torque=carp->max_torque/(1+rotation*carp->gear_tweak);
+					absrotation=rotation;
+
+				//how much torque motor could add at this rotation
+				gear_torque=carp->max_torque/(1+absrotation*carp->gear_tweak);
 
 
 				//check if accelerating or decelerating wheel...
@@ -99,10 +102,11 @@ void Car::Physics_Step(dReal step)
 					(gear_torque > carp->max_break) )
 				{
 					//make sure we don't exceed gloobal wheel rotation limiter (if in air)
-					if ( !(carp->wheel_geom_data[i]->colliding) && (rotation > internal.max_wheel_rotation) )
+					if (carp->wheel_geom_data[i]->colliding)
+						carp->wheel_geom_data[i]->colliding = false; //reset collision detection until next time...
+					else if (absrotation > internal.max_wheel_rotation) //in air and rotating too fast
 					{
 						torque[i]=0.0; //make sure no torque
-						carp->wheel_geom_data[i]->colliding = false; //reset collision detection...
 						continue; //go to next wheel
 					}
 
