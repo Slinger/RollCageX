@@ -166,6 +166,7 @@ int main (int argc, char *argv[])
 	//tmp: instead of menus, just load some defaults...
 	if (!select_and_load_race(prof))
 	{
+		printlog(0, "One or more errors, can not start!");
 		return -1; //just quit if failure
 	}
 
