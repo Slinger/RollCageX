@@ -50,7 +50,7 @@ class VBO: Racetime_Data
 			}
 
 			//so if already exists
-			for (VBO *p=head; p; ++p)
+			for (VBO *p=head; p; p=p->next)
 				if ( (p->usage)+needed <= VBO_SIZE ) //enough to hold
 					return p;
 
