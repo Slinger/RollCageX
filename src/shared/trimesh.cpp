@@ -173,7 +173,7 @@ Trimesh_3D *Trimesh::Create_3D()
 
 	//first: how big should vertex list be?
 	unsigned int vcount=3*triangles.size(); //3 vertices per triangle
-	Trimesh_3D::Vertex vertex_list[vcount];
+	Trimesh_3D::Vertex *vertex_list = new Trimesh_3D::Vertex[vcount];
 
 	//make material list as big as the number of materials (might be bigger than needed, but safe+easy)
 	unsigned int mcount=0;
@@ -307,6 +307,9 @@ Trimesh_3D *Trimesh::Create_3D()
 
 	//increase vbo usage counter
 	vbo->usage+=needed_vbo_size;
+
+	//free tmp memory
+	delete[] vertex_list;
 
 	//ok, done
 	return mesh;
