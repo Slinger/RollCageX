@@ -40,7 +40,7 @@ void Geom::TMP_Events_Step(Uint32 step)
 				//geom1
 				dGeomID g = dCreateBox(0, 2,2,5.0/2.0);
 				Geom *gd = new Geom(g, geom->object_parent);
-				gd->Set_Buffer_Event(100000, 500, (Script*)1337);
+				gd->Set_Buffer_Event(100000, 5000, (Script*)1337);
 
 				//body1
 				dBodyID b = dBodyCreate(world);
