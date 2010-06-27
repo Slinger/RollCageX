@@ -460,6 +460,13 @@ bool Trimesh::Load(const char *file)
 {
 	const char *suffix = strrchr(file, '.');
 
+	//in case something really wrong
+	if (!suffix)
+	{
+		printlog(0, "ERROR: no suffix for file \"%s\"", file);
+		return false;
+	}
+
 	//see if match:
 	if (!strcasecmp(suffix, ".obj"))
 		return Load_OBJ(file);

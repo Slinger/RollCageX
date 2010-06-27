@@ -136,6 +136,10 @@ bool load_track (const char *path)
 			{
 				Trimesh *mesh = FindOrLoadMesh(path, file.words[1]);
 
+				if (!mesh)
+					continue; //failure to load, skip this line...
+
+
 				//now process the rest for extra options
 				int pos = 2;
 				while (pos < file.word_count)
@@ -149,7 +153,7 @@ bool load_track (const char *path)
 						pos+=2;
 					}
 					//rotate, takes the word rotate and 3 values
-					if (!strcmp(file.words[pos], "rotate") && left >= 4)
+					else if (!strcmp(file.words[pos], "rotate") && left >= 4)
 					{
 						mesh->Rotate(atof(file.words[pos+1]), //x
 								atof(file.words[pos+2]), //y
@@ -157,7 +161,7 @@ bool load_track (const char *path)
 						pos+=4;
 					}
 					//offset, takes the word offset and 3 values
-					if (!strcmp(file.words[pos], "offset") && left >= 4)
+					else if (!strcmp(file.words[pos], "offset") && left >= 4)
 					{
 						mesh->Offset(atof(file.words[pos+1]), //x
 								atof(file.words[pos+2]), //y

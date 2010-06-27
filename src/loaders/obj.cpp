@@ -168,7 +168,8 @@ bool Trimesh::Load_OBJ(const char *f)
 	Normalize_Normals();
 	Generate_Missing_Normals(); //creates missing normals - unit, don't need normalizing
 
-	printf("TODO: check if index verification takes long time for big models...\n");
+	//check so normals are ok (not outside valid range)
+	//takes a little time, but is good for safety
 	size_t tl=triangles.size();
 	size_t vl=vertices.size();
 	size_t nl=normals.size();
@@ -188,8 +189,6 @@ bool Trimesh::Load_OBJ(const char *f)
 		}
 
 	}
-	printf("... well, did it?\n");
-	//
 
 	printlog(1, "OBJ info: %u triangles, %u materials", triangles.size(), materials.size());
 
