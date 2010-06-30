@@ -46,15 +46,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 The current version of rcx does not require installation in order to run.
 Instead, just place rcx (on windows: rcx.exe) in a directory of your choice.
-In the archive, there are two directories: src and data. src is only needed
-for compilation, and data provides configuration files.
+In the archive, there are two directories: src and data. While data is needed,
+src is only needed for compilation.
 
-Src is not needed for rcx to run, and in the absence of the data directory,
-it will use defaults. However: it is recommended to keep the data directory
-since there is no default geometrical shape for cars (they will be invisible).
-
-The data directory is also useful if you want to easily change the default
-settings, since it contains a plain text version of default configurations.
+Src is not needed for rcx to run - it contains the sourcecode for compilation
+and modification of rcx. The data directory contains the default configuration
+and all 3d models.
 
 
 
@@ -73,9 +70,9 @@ For quitting the game, just press Esc.
 
 There are also a couple of demo/debug keys (these keys can not be changed):
 * F5 - spawn box
-* F6 - spawn sphere
+* F6 - spawn sphere ("beachball")
 * F7 - spawn funbox (a composite object consisting of several boxes)
-* F8 - switch car
+* F8 - switch between rendering of models, models+geoms or only geoms
 
 
 
@@ -107,9 +104,13 @@ screen (in reality).
 
 The requirements for running rcx is modest, a recommended minimum would be:
 
-* Processor:	1GHz, 32bit
-* Memory:	10MiB free
-* Graphics:	basic OpenGL 3D acceleration (nvidious not recommended)
+* Processor:	1.5GHz, 32bit (i386)
+* Memory:	32MiB free
+* Graphics:	OpenGL 1.5 or later, 8MiB
+
+Note that the memory and processor requirements also depends on OS and other
+programs running at the same time as rcx. If you want to use many high detail
+models, be prepared that the requirements might increase a bit.
 
 Note: hardware opengl acceleration recommended, but of course, software
 rendering is an alternative, assuming you got enough processing power.
@@ -129,7 +130,7 @@ libraries):
    5.1) [OPENGL]
    As mentioned above, some kind of OpenGL implementation is needed for
    rendering of 3D graphics. This is OS dependent, but it is quite common
-   (either hardware or software).
+   (either hardware or software). This version requires 1.5 or later.
 
    5.2) [SDL]
    RCX uses the library "Simple DirectMedia Layer" for some OS independent
@@ -145,7 +146,8 @@ libraries):
 If you want/need to compile rcx, check if your distro provides development
 libraries for ODE and SDL in separate packages and if so, install them. Also
 make sure you got at least a Make program and a C++ compiler (such as GNU Make
-and the GNU C++ Compiler, g++).  
+and the GNU C++ Compiler, g++).
+
 Then just cd into the src directory and type "make" to compile rcx.
 
 
@@ -165,13 +167,13 @@ static binary ("rcx.exe").
 
 9) [CREDITS]
 
-  * Mats Wahlberg ("Slinger")	Creator (coder)
-  * "XEWEASEL"			3D Models
+  * Mats Wahlberg ("Slinger")	Creator (coder) + dev 3D models
+  * "XEWEASEL"			High Definition 3D Models
 
   Special Thanks:
   * "K.Mac"			Extensive testing, hacks and new ideas
   * "MeAkaJon"			Creator/maintainer of gorcx.net webpage
-  * "Spontificus"		Testing, hacks, github registration and various fixes
+  * "Spontificus"		Testing, hacks, fixes, road generation algorithm
 
   Other Projects that made RCX possible:
   * "Simple DirectMedia Layer"	OS/hardware abstractions

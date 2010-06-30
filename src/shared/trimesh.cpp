@@ -79,6 +79,7 @@ class VBO: Racetime_Data
 		}
 		~VBO()
 		{
+			printlog(2, "removing vbo\n");
 			glDeleteBuffers(1, &id);
 			//VBOs only removed on end of race (are racetime_data), all of them, so can safely just destroy old list
 			head = NULL;
@@ -116,6 +117,8 @@ Trimesh_3D::Trimesh_3D(const char *name, GLuint vbo, Material *mpointer, unsigne
 //only called together with all other racetime_data destruction (at end of race)
 Trimesh_3D::~Trimesh_3D()
 {
+	printlog(2, "Removing rendering trimesh");
+
 	//remove local data:
 	delete[] materials;
 
@@ -178,6 +181,8 @@ Trimesh_3D *Trimesh::Create_3D()
 	//make material list as big as the number of materials (might be bigger than needed, but safe+easy)
 	unsigned int mcount=0;
 	Trimesh_3D::Material *material_list = new Trimesh_3D::Material[materials.size()];
+
+	printlog(2, "number of vertices: %u", vcount);
 
 	//some values needed:
 	unsigned int start, stop; //keeps track of data to copy from old triangle list
@@ -297,6 +302,8 @@ Trimesh_3D *Trimesh::Create_3D()
 		}
 	}
 
+	printlog(2, "number of (used) materials: %u", mcount);
+
 	//create Trimesh_3D class from this data:
 	//set the name. NOTE: both Trimesh_3D and Trimesh_Geom will have the same name
 	//this is not a problem since they are different classes and Racetime_Data::Find will notice that
@@ -343,6 +350,8 @@ Geom *Trimesh_Geom::Create_Geom(Object *obj)
 
 Trimesh_Geom::~Trimesh_Geom()
 {
+	printlog(2, "Removing collision trimesh");
+
 	delete[] vertices;
 	delete[] indices;
 	delete[] normals;
@@ -370,10 +379,12 @@ Trimesh_Geom *Trimesh::Create_Geom()
 	unsigned int verts=vertices.size();
 	unsigned int tris=triangles.size();
 
+	printlog(2, "Number of vertices: %u, number of triangles: %u", verts, tris);
+
 	//check (vertice and indix count can't exceed int limit)
 	if (verts>INT_MAX || (tris*3)>INT_MAX)
 	{
-		printlog(0, "ERROR: trimesh is too big for ode collision  trimesh");
+		printlog(0, "ERROR: trimesh is too big for ode collision trimesh");
 		return NULL;
 	}
 
@@ -401,6 +412,7 @@ Trimesh_Geom *Trimesh::Create_Geom()
 		i[loop*3+2] = triangles[loop].vertex[2];
 	}
 	//normals
+	unsigned int new_normals=0;
 	for (loop=0; loop<tris; ++loop)
 	{
 		//NOTE: ode uses one, not indexed, normal per triangle,
@@ -414,6 +426,7 @@ Trimesh_Geom *Trimesh::Create_Geom()
 		}
 		else //trouble, smooth surface normals? calculate a new normal!
 		{
+			++new_normals;
 			//the same as in Generate_Missing_Normals
 
 			//get vertices
@@ -444,6 +457,8 @@ Trimesh_Geom *Trimesh::Create_Geom()
 		}
 	}
 
+	printlog(2, "How many normals recalculated (from smooth): %u", new_normals);
+
 	//create
 	return new Trimesh_Geom(name.c_str(),
 			v, verts,
@@ -458,6 +473,8 @@ Trimesh_Geom *Trimesh::Create_Geom()
 //wrapper for loading
 bool Trimesh::Load(const char *file)
 {
+	printlog(2, "Loading trimesh from file \"%s\", determining file type", file);
+
 	const char *suffix = strrchr(file, '.');
 
 	//in case something really wrong
@@ -503,6 +520,8 @@ bool Trimesh::Compare_Name(const char *n)
 //makes sure all normals are unit
 void Trimesh::Normalize_Normals()
 {
+	printlog(2, "Making sure all normals are unit for trimesh");
+
 	size_t end = normals.size();
 	float l;
 
@@ -523,6 +542,8 @@ void Trimesh::Normalize_Normals()
 //counter-clockwise order of triangles assumed
 void Trimesh::Generate_Missing_Normals()
 {
+	printlog(2, "Generating missing normals for trimesh");
+
 	size_t end = triangles.size();
 	unsigned int *nindex;
 	Vector_Float v1, v2, v3;
