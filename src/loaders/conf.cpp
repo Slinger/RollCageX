@@ -20,16 +20,13 @@
 #include <string>
 
 //loads configuration file to memory (using index)
-int load_conf (const char *name, char *memory, const struct Conf_Index index[])
+bool load_conf (const char *name, char *memory, const struct Conf_Index index[])
 {
 	printlog(1, "Loading conf file: %s", name);
 
 	Text_File file;
 	if (!file.Open(name))
-	{
-		printlog(0, "ERROR: could not open file %s!", name);
-		return -1;
-	}
+		return false;
 
 
 	int i;
@@ -129,5 +126,5 @@ int load_conf (const char *name, char *memory, const struct Conf_Index index[])
 
 	}
 
-	return 0;
+	return true;
 }
