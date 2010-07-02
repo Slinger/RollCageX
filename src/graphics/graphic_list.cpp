@@ -12,6 +12,7 @@
 #include "graphic_list.hpp"
 #include "gl_extensions.hpp"
 
+#include "../shared/internal.hpp"
 #include "../shared/printlog.hpp"
 #include "../shared/trimesh.hpp"
 #include "../shared/geom.hpp"
@@ -171,15 +172,42 @@ void Graphic_List_Render()
 	//copy needed data
 	size_t *count=&(buffer_out->count);
 	list_element *list=buffer_out->list;
+
+	//variables
 	unsigned int m_loop;
 	Trimesh_3D *vbo;
+	GLuint bound_vbo = 0; //keep track of which vbo is bound
+
+
+
+	//configure rendering options:
+	//(currently pretty redundant, but good when adding other stuff like menus)
+
+	//enable lighting
+	glEnable (GL_LIGHT0);
+	glEnable (GL_LIGHTING);
+
+	glShadeModel (GL_SMOOTH); //by default, can be changed
+
+	//glClearDepth (1.0); pointless to define this?
+
+	//depth testing (proper overlapping)
+	glDepthFunc (GL_LESS);
+	glEnable (GL_DEPTH_TEST);
+
+	//culling of backs
+	if (internal.culling)
+		glEnable(GL_CULL_FACE);
+
+
 
 	//enable rendering of vertices and normals
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_NORMAL_ARRAY);
-	glVertexPointer(3, GL_FLOAT, sizeof(Trimesh_3D::Vertex), BUFFER_OFFSET(0));
-	glNormalPointer(GL_FLOAT, sizeof(Trimesh_3D::Vertex), BUFFER_OFFSET(sizeof(float)*3));
 
+
+
+	//NOTE: new opengl vbo rendering commands (2.0 I think). For compatibility lets stick to 1.5 instead
 	//glEnableVertexAttribArray(0);
 	//glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Trimesh_3D::Vertex), (BUFFER_OFFSET(0)));
 	//glEnableVertexAttribArray(1);
@@ -193,7 +221,7 @@ void Graphic_List_Render()
 
 			vbo = list[i].model; //point at model (cleaner code)
 
-			if (vbo->vbo_id != Trimesh_3D::current_vbo)
+			if (vbo->vbo_id != bound_vbo)
 			{
 				//bind and configure the new vbo
 				glBindBuffer(GL_ARRAY_BUFFER, vbo->vbo_id);
@@ -201,7 +229,7 @@ void Graphic_List_Render()
 				glNormalPointer(GL_FLOAT, sizeof(Trimesh_3D::Vertex), BUFFER_OFFSET(sizeof(float)*3));
 
 				//indicate this is used now
-				Trimesh_3D::current_vbo=vbo->vbo_id;
+				bound_vbo = vbo->vbo_id;
 			}
 
 			//loop through materials, and draw section(s) of model with this material
@@ -223,6 +251,7 @@ void Graphic_List_Render()
 	glDisableClientState(GL_NORMAL_ARRAY);
 	glDisableClientState(GL_VERTEX_ARRAY);
 
+	//new/not used (see above)
 	//glDisableVertexAttribArray(0);
 	//glDisableVertexAttribArray(1);
 }

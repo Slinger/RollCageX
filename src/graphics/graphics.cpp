@@ -113,17 +113,7 @@ bool graphics_init(void)
 		if (!SDL_WM_ToggleFullScreen(screen))
 			printlog(0, "Error: unable to toggle fullscreen");
 
-	//configuration of opengl:
-	//glClearDepth (1.0); pointless to define this?
-
-	glDepthFunc (GL_LESS); //depth testing (proper overlapping)
-	glEnable (GL_DEPTH_TEST);
-
-	if (internal.culling)
-		glEnable(GL_CULL_FACE);
-
-	glShadeModel (GL_SMOOTH); //by default, can be changed
-
+	//set up window, as if resized
 	graphics_resize (screen->w, screen->h);
 
 	//title:

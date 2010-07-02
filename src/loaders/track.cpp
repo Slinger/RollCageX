@@ -91,13 +91,13 @@ bool load_track (const char *path)
 	//all data loaded, start building
 	glClearColor (track.sky[0],track.sky[1],track.sky[2],1.0f); //background
 	
+	//sun position and colour
 	glLightfv (GL_LIGHT0, GL_AMBIENT, track.ambient);
 	glLightfv (GL_LIGHT0, GL_DIFFUSE, track.diffuse);
 	glLightfv (GL_LIGHT0, GL_SPECULAR, track.specular);
 	glLightfv (GL_LIGHT0, GL_POSITION, track.position);
-	glEnable (GL_LIGHT0);
-	glEnable (GL_LIGHTING);
 
+	//gravity
 	dWorldSetGravity (world,0,0,-track.gravity);
 
 	//

@@ -76,7 +76,6 @@ class Trimesh_3D: public Racetime_Data
 
 		//VBO and position in VBO of array:
 		GLuint vbo_id; //which vbo got this model
-		static GLuint current_vbo; //which vbo is active
 
 		//only graphics list rendering can access this stuff
 		friend void Graphic_List_Render();

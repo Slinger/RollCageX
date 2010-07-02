@@ -21,7 +21,7 @@
 
 
 //keep track of VBOs (new generated if not enough room in already existing)
-class VBO: Racetime_Data
+class VBO: public Racetime_Data
 {
 	public:
 		//find a vbo with enough room, if not create a new one
@@ -49,7 +49,7 @@ class VBO: Racetime_Data
 		GLsizei usage; //how much of buffer is used (possibly GLint instead?)
 
 	private:
-		VBO(): Racetime_Data("internal_VBO_tracking_class") //name all vbo classes this...
+		VBO(): Racetime_Data("VBO tracking class") //name all vbo classes this...
 		{
 			printlog(1, "creating new vbo, %u bytes of size", VBO_SIZE);
 
@@ -80,7 +80,6 @@ VBO *VBO::head=NULL;
 //
 //Trimesh_3D stuff:
 //
-GLuint Trimesh_3D::current_vbo = 0;
 
 //constructor
 Trimesh_3D::Trimesh_3D(const char *name, GLuint vbo, Material *mpointer, unsigned int mcount): Racetime_Data(name)
@@ -92,12 +91,8 @@ Trimesh_3D::Trimesh_3D(const char *name, GLuint vbo, Material *mpointer, unsigne
 	materials=mpointer;
 	material_count=mcount;
 
-	//if this vbo is not bound
-	if (vbo != current_vbo)
-	{
-		glBindBuffer(GL_ARRAY_BUFFER, vbo);
-		current_vbo=vbo;
-	}
+	//assume this vbo is not bound
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 }
 
 //only called together with all other racetime_data destruction (at end of race)
@@ -107,9 +102,6 @@ Trimesh_3D::~Trimesh_3D()
 
 	//remove local data:
 	delete[] materials;
-
-	//make sure next time creating vbos not fooled by this old value
-	current_vbo=0;
 }
 
 //method for creating a Trimesh_3D from Trimesh
