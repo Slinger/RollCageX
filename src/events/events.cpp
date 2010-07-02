@@ -85,6 +85,7 @@ int events_loop (void *d)
 					if (event.active.gain == 0)
 						printlog(1, "(FIXME: pause when losing focus (or being iconified)!)");
 				break;
+
 				//check for special key presses
 				case SDL_KEYDOWN:
 					switch (event.key.keysym.sym)
@@ -108,10 +109,26 @@ int events_loop (void *d)
 							funbox->Spawn (0,0,10);
 						break;
 
-						//tmp: switch cars
+						//switch what to render
 						case SDLK_F8:
-							printf("DEBUG RENDERING SWITCHING TODO!\n");
+							if (render_models && !render_geoms)
+							{
+								printlog(1, "rendering models and geoms");
+								render_geoms = true;
+							}
+							else if (render_models && render_geoms)
+							{
+								printlog(1, "rendering only geoms");
+								render_models = false;
+							}
+							else //!models && geoms
+							{
+								printlog(1, "rendering only models");
+								render_models = true;
+								render_geoms = false;
+							}
 						break;
+
 
 						default:
 							break;

@@ -23,6 +23,8 @@ extern SDL_cond  *sync_cond;
 
 
 //prototypes for communication/statistic variables
+extern bool render_models;
+extern bool render_geoms;
 extern unsigned int stepsize_warnings;
 extern unsigned int step_count;
 extern Uint32 frame_count;

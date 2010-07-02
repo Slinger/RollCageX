@@ -29,12 +29,17 @@
 #include "../shared/camera.hpp"
 #include "gl_extensions.hpp"
 #include "graphic_list.hpp"
+#include "geom_render.hpp"
 
 SDL_Surface *screen;
 Uint32 flags = SDL_OPENGL | SDL_RESIZABLE;
 
 //count frames
 Uint32 frame_count = 0;
+
+//controls what to render:
+bool render_models = true;
+bool render_geoms = false;
 
 //if multithreading, event thread will alert graphics thread about resizing events (to avoid stealing the context)
 bool graphics_event_resize = false;
@@ -184,7 +189,13 @@ int graphics_loop ()
 			//place sun
 			glLightfv (GL_LIGHT0, GL_POSITION, track.position);
 
-			Graphic_List_Render();
+			//render models
+			if (render_models)
+				Graphic_List_Render();
+
+			//render geoms
+			if (render_geoms)
+				Geom_Render();
 
 		glPopMatrix();
 
