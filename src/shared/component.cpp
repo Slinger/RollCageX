@@ -44,18 +44,11 @@ Component::~Component()
 		prev->next = next;
 	}
 	else
-	{
-		printlog(2, "(is head)");
 		object_parent->components = next;
-	}
 
 	if (next)
 	{
 		next->prev = prev;
-	}
-	else
-	{
-		printlog(2, "(is tail)");
 	}
 }
 

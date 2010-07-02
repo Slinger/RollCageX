@@ -18,7 +18,7 @@
 
 bool Trimesh::Load_OBJ(const char *f)
 {
-	printlog(1, "Loading trimesh from OBJ file %s", f);
+	printlog(2, "Loading trimesh from OBJ file %s", f);
 
 	Text_File file;
 
@@ -197,7 +197,7 @@ bool Trimesh::Load_OBJ(const char *f)
 
 bool Trimesh::Load_MTL(const char *f)
 {
-	printlog(1, "Loading trimesh material(s) from MTL file %s", f);
+	printlog(2, "Loading trimesh material(s) from MTL file %s", f);
 
 	Text_File file;
 

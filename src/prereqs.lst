@@ -18,6 +18,7 @@ build/loaders/object.o: loaders/../shared/object.hpp loaders/colours.hpp loaders
 build/loaders/profile.o: loaders/../shared/profile.hpp loaders/../shared/printlog.hpp loaders/text_file.hpp
 build/loaders/text_file.o: loaders/text_file.hpp loaders/../shared/printlog.hpp
 build/loaders/track.o: loaders/../shared/track.hpp loaders/../shared/camera.hpp loaders/../shared/geom.hpp loaders/../shared/printlog.hpp loaders/../shared/object.hpp loaders/colours.hpp loaders/text_file.hpp
+build/loaders/trimesh.o: loaders/../shared/trimesh.hpp loaders/../shared/printlog.hpp
 build/physics/body.o: physics/../shared/body.hpp physics/../shared/printlog.hpp physics/../shared/track.hpp physics/../shared/internal.hpp physics/../events/event_lists.hpp
 build/physics/camera.o: physics/../shared/camera.hpp physics/../shared/internal.hpp physics/../shared/track.hpp
 build/physics/car.o: physics/../shared/car.hpp physics/../shared/internal.hpp
@@ -40,4 +41,6 @@ build/shared/runlevel.o: shared/runlevel.hpp
 build/shared/space.o: shared/space.hpp shared/geom.hpp shared/printlog.hpp shared/track.hpp
 build/shared/threads.o: shared/threads.hpp
 build/shared/track.o: shared/track.hpp
-build/shared/trimesh.o: shared/trimesh.hpp shared/geom.hpp shared/printlog.hpp shared/../graphics/gl_extensions.hpp
+build/shared/trimesh.o: shared/trimesh.hpp shared/printlog.hpp
+build/shared/trimesh_3d.o: shared/trimesh.hpp shared/../graphics/gl_extensions.hpp shared/printlog.hpp
+build/shared/trimesh_geom.o: shared/trimesh.hpp shared/geom.hpp shared/printlog.hpp

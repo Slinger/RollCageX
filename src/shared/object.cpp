@@ -62,17 +62,12 @@ Object::~Object()
 
 	//1: remove it from the list
 	if (prev == NULL) //first link
-	{
-		printlog(2, "(object is head)");
 		head = next;
-	}
 	else
 		prev->next = next;
 
 	if (next) //not last link
 		next->prev = prev;
-	else
-		printlog(2, "(object is last)");
 
 
 	//remove components

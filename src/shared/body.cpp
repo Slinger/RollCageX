@@ -56,17 +56,12 @@ Body::~Body()
 
 	//1: remove it from the list
 	if (!prev) //head in list, change head pointer
-	{
-		printlog(2, "(body is head)");
 		head = next;
-	}
 	else //not head in list, got a previous link to update
 		prev->next = next;
 
 	if (next) //not last link in list
 		next->prev = prev;
-	else
-		printlog(2, "(body is last)");
 
 	//2: remove it from memory
 
