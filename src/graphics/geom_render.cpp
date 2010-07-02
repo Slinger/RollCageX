@@ -60,6 +60,10 @@ class Render_Buffers:public Racetime_Data
 			glDeleteBuffers(1, &vertexVBO);
 			glDeleteBuffers(1, &indexVBO);
 
+			//delete building arrays
+			delete[] vertices;
+			delete[] indices;
+
 			//just making sure not fooled in next race
 			Got_Buffers = false;
 		}
