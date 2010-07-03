@@ -11,6 +11,7 @@
 
 #include "geom_render.hpp"
 #include "gl_extensions.hpp"
+#include "../shared/geom.hpp"
 #include "../shared/racetime_data.hpp"
 #include "../shared/printlog.hpp"
 #include <limits.h>
@@ -23,13 +24,17 @@
 bool Got_Buffers = false;
 GLuint vertexVBO, indexVBO;
 
-struct vertex {
+struct geom_vertex {
 	float x;
 	float y;
 	float z;
 };
-vertex *vertices; //when building
-unsigned short *indices; //when building
+geom_vertex *vertices; //when building
+struct geom_index {
+	unsigned short a;
+	unsigned short b;
+};
+geom_index *indices; //when building
 
 //keep track, so not overflowing
 unsigned int vertex_usage, index_usage;
@@ -43,8 +48,8 @@ class Render_Buffers:public Racetime_Data
 			printlog(1, "generating buffers for geom rendering");
 
 			//allocate for building
-			vertices = new vertex[VERTEX_SIZE]; //3 floats per vertex
-			indices = new unsigned short[INDEX_SIZE];
+			vertices = new geom_vertex[VERTEX_SIZE]; //3 floats per vertex
+			indices = new geom_index[INDEX_SIZE];
 
 			//create
 			glGenBuffers(1, &vertexVBO);
@@ -82,23 +87,86 @@ void Geom_Render()
 	index_usage=0;
 	
 
-	//TMP: just a triangle
-	vertices[0].x=0; vertices[0].y=0; vertices[0].z=0; 
-	vertices[1].x=5; vertices[1].y=0; vertices[1].z=5; 
-	vertices[2].x=0; vertices[2].y=0; vertices[2].z=5; 
-	vertex_usage+=3;
+	//geom
+	Geom *geom;
+	dGeomID g;
 
-	indices[0]=0; indices[1]=1; indices[2]=2;
-	index_usage+=3;
-	//END
+	//index/vertex looping pointers
+	geom_vertex *v = vertices;
+	geom_index *i = indices;
+
+	//position/rotation of geom
+	const dReal *pos;
+	const dReal *rot;
+
+	//different variables for sizes
+	dVector3 result;
+	dReal x,y,z,l,r;
+
+	for (geom=Geom::head; geom; geom=geom->next)
+	{
+		g = geom->geom_id;
+
+		switch (dGeomGetClass(g))
+		{
+			case dSphereClass:
+				break;
+
+			case dBoxClass:
+				pos = dGeomGetPosition(g);
+				dGeomBoxGetLengths(g, result);
+				x=result[0]/2.0;
+				y=result[1]/2.0;
+				z=result[2]/2.0;
+
+				//vertices:
+				v->x=pos[0]-x; v->y=pos[1]-y; v->z=pos[2]-z; ++v;
+				v->x=pos[0]+x; v->y=pos[1]-y; v->z=pos[2]-z; ++v;
+				v->x=pos[0]+x; v->y=pos[1]-y; v->z=pos[2]+z; ++v;
+				v->x=pos[0]-x; v->y=pos[1]-y; v->z=pos[2]+z; ++v;
+				v->x=pos[0]-x; v->y=pos[1]+y; v->z=pos[2]-z; ++v;
+				v->x=pos[0]+x; v->y=pos[1]+y; v->z=pos[2]-z; ++v;
+				v->x=pos[0]+x; v->y=pos[1]+y; v->z=pos[2]+z; ++v;
+				v->x=pos[0]-x; v->y=pos[1]+y; v->z=pos[2]+z; ++v;
+
+				//indices:
+				i->a=0+(vertex_usage); i->b=1+(vertex_usage); ++i;
+				i->a=1+(vertex_usage); i->b=2+(vertex_usage); ++i;
+				i->a=2+(vertex_usage); i->b=3+(vertex_usage); ++i;
+				i->a=3+(vertex_usage); i->b=0+(vertex_usage); ++i;
+
+				i->a=0+(vertex_usage); i->b=4+(vertex_usage); ++i;
+				i->a=1+(vertex_usage); i->b=5+(vertex_usage); ++i;
+				i->a=2+(vertex_usage); i->b=6+(vertex_usage); ++i;
+				i->a=3+(vertex_usage); i->b=7+(vertex_usage); ++i;
+
+				i->a=4+(vertex_usage); i->b=5+(vertex_usage); ++i;
+				i->a=5+(vertex_usage); i->b=6+(vertex_usage); ++i;
+				i->a=6+(vertex_usage); i->b=7+(vertex_usage); ++i;
+				i->a=7+(vertex_usage); i->b=4+(vertex_usage); ++i;
+
+				//increase counters
+				vertex_usage+=8;
+				index_usage+=12;
+
+				break;
+
+			default:
+				break;
+		}
+
+		//check so not overflowing
+		if ( (vertex_usage+8) >VERTEX_SIZE || (index_usage+12) >INDEX_SIZE )
+				break;
+	}
 
 	//send and configure data
-	glBindBuffer(GL_ARRAY_BUFFER, vertexVBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertex)*vertex_usage, vertices, GL_STREAM_DRAW);
-	glVertexPointer(3, GL_FLOAT, 0, 0);
+	glBindBuffer(GL_ARRAY_BUFFER, vertexVBO); //bind
+	glBufferData(GL_ARRAY_BUFFER, sizeof(geom_vertex)*vertex_usage, vertices, GL_STREAM_DRAW); //alloc+init
+	glVertexPointer(3, GL_FLOAT, 0, 0); //(no) array striding
 	
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexVBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned short)*index_usage, indices, GL_STREAM_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(geom_index)*index_usage, indices, GL_STREAM_DRAW);
 	
 	//configure rendering options:
 	glDisable (GL_LIGHTING);
@@ -110,7 +178,7 @@ void Geom_Render()
 	//render buffer
 	glEnableClientState(GL_VERTEX_ARRAY);
 
-	glDrawElements(GL_TRIANGLES, index_usage, GL_UNSIGNED_SHORT, 0);
+	glDrawElements(GL_LINES, 2*index_usage, GL_UNSIGNED_SHORT, 0);
 
 	glDisableClientState(GL_VERTEX_ARRAY);
 

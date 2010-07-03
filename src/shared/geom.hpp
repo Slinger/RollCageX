@@ -98,8 +98,13 @@ class Geom: public Component
 		static Geom *head; // = NULL;
 		Geom *prev;
 		Geom *next;
+
+		//tmp
 		friend void Body::TMP_Events_Step(Uint32 step); //this is just TMP for accessing above...
+		//
+
 		friend void Graphic_List_Update(); //to allow loop through geoms
+		friend void Geom_Render(); //same as above, but for debug collision render
 };
 
 #endif

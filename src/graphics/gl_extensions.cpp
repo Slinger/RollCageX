@@ -55,6 +55,8 @@ bool Verify_Extension(const char *name)
 //loader
 bool Load_GL_Extensions()
 {
+	printlog(1, "Loading needed GL extensions");
+
 	//see if got vbo extension
 	if (!Verify_Extension("GL_ARB_vertex_buffer_object"))
 		return false;
