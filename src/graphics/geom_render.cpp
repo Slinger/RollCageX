@@ -103,6 +103,10 @@ void Geom_Render()
 	dVector3 result;
 	dReal x,y,z,l,r;
 
+	//macros to reduce repetitive typing...
+#define Vertex(X,Y,Z) (v->x)=(pos[0]+(X)); (v->y)=(pos[1]+(Y)); (v->z)=(pos[2]+(Z)); ++v;
+#define Index(A,B) (i->a)=(vertex_usage+(A)); (i->b)=(vertex_usage+(B)); ++i;
+
 	for (geom=Geom::head; geom; geom=geom->next)
 	{
 		g = geom->geom_id;
@@ -114,36 +118,37 @@ void Geom_Render()
 
 			case dBoxClass:
 				pos = dGeomGetPosition(g);
+				rot = dGeomGetRotation(g);
 				dGeomBoxGetLengths(g, result);
 				x=result[0]/2.0;
 				y=result[1]/2.0;
 				z=result[2]/2.0;
 
 				//vertices:
-				v->x=pos[0]-x; v->y=pos[1]-y; v->z=pos[2]-z; ++v;
-				v->x=pos[0]+x; v->y=pos[1]-y; v->z=pos[2]-z; ++v;
-				v->x=pos[0]+x; v->y=pos[1]-y; v->z=pos[2]+z; ++v;
-				v->x=pos[0]-x; v->y=pos[1]-y; v->z=pos[2]+z; ++v;
-				v->x=pos[0]-x; v->y=pos[1]+y; v->z=pos[2]-z; ++v;
-				v->x=pos[0]+x; v->y=pos[1]+y; v->z=pos[2]-z; ++v;
-				v->x=pos[0]+x; v->y=pos[1]+y; v->z=pos[2]+z; ++v;
-				v->x=pos[0]-x; v->y=pos[1]+y; v->z=pos[2]+z; ++v;
+				Vertex(-x, -y, -z);
+				Vertex(+x, -y, -z);
+				Vertex(+x, -y, +z);
+				Vertex(-x, -y, +z);
+				Vertex(-x, +y, -z);
+				Vertex(+x, +y, -z);
+				Vertex(+x, +y, +z);
+				Vertex(-x, +y, +z);
 
 				//indices:
-				i->a=0+(vertex_usage); i->b=1+(vertex_usage); ++i;
-				i->a=1+(vertex_usage); i->b=2+(vertex_usage); ++i;
-				i->a=2+(vertex_usage); i->b=3+(vertex_usage); ++i;
-				i->a=3+(vertex_usage); i->b=0+(vertex_usage); ++i;
+				Index(0, 1);
+				Index(1, 2);
+				Index(2, 3);
+				Index(3, 0);
 
-				i->a=0+(vertex_usage); i->b=4+(vertex_usage); ++i;
-				i->a=1+(vertex_usage); i->b=5+(vertex_usage); ++i;
-				i->a=2+(vertex_usage); i->b=6+(vertex_usage); ++i;
-				i->a=3+(vertex_usage); i->b=7+(vertex_usage); ++i;
+				Index(0, 4);
+				Index(1, 5);
+				Index(2, 6);
+				Index(3, 7);
 
-				i->a=4+(vertex_usage); i->b=5+(vertex_usage); ++i;
-				i->a=5+(vertex_usage); i->b=6+(vertex_usage); ++i;
-				i->a=6+(vertex_usage); i->b=7+(vertex_usage); ++i;
-				i->a=7+(vertex_usage); i->b=4+(vertex_usage); ++i;
+				Index(4, 5);
+				Index(5, 6);
+				Index(6, 7);
+				Index(7, 4);
 
 				//increase counters
 				vertex_usage+=8;
@@ -161,6 +166,11 @@ void Geom_Render()
 	}
 
 	//send and configure data
+	//NOTE: using glBufferData to allocate vbo and send data to it in one step.
+	//alternatives includes using the same allocated buffer for every frame and
+	//use glMapBuffer or glBufferSubData to just send the new data. but this
+	//has shown not to give any fps increase on systems I've tried. (most
+	//likely the generating and sending of new data is much slower than sending)
 	glBindBuffer(GL_ARRAY_BUFFER, vertexVBO); //bind
 	glBufferData(GL_ARRAY_BUFFER, sizeof(geom_vertex)*vertex_usage, vertices, GL_STREAM_DRAW); //alloc+init
 	glVertexPointer(3, GL_FLOAT, 0, 0); //(no) array striding
