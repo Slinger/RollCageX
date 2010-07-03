@@ -104,8 +104,15 @@ void Geom_Render()
 	dReal x,y,z,l,r;
 
 	//macros to reduce repetitive typing...
-#define Vertex(X,Y,Z) (v->x)=(pos[0]+(X)); (v->y)=(pos[1]+(Y)); (v->z)=(pos[2]+(Z)); ++v;
-#define Index(A,B) (i->a)=(vertex_usage+(A)); (i->b)=(vertex_usage+(B)); ++i;
+#define Vertex(X,Y,Z) \
+	(v->x)=(pos[0]+((X)*rot[0]+(Y)*rot[1]+(Z)*rot[2])); \
+	(v->y)=(pos[1]+((X)*rot[4]+(Y)*rot[5]+(Z)*rot[6])); \
+	(v->z)=(pos[2]+((X)*rot[8]+(Y)*rot[9]+(Z)*rot[10])); \
+	++v;
+
+#define Index(A,B) (i->a)=(vertex_usage+(A)); \
+	(i->b)=(vertex_usage+(B)); \
+	++i;
 
 	for (geom=Geom::head; geom; geom=geom->next)
 	{
