@@ -22,11 +22,6 @@
 #include "../shared/geom.hpp"
 #include "../shared/body.hpp"
 
-//Just in case it's not defined...
-#ifndef M_PI
-#define M_PI (3.14159265358979323846)
-#endif
-
 //load data for spawning object (object data), hard-coded debug version
 Object_Template *Object_Template::Load(const char *path)
 {

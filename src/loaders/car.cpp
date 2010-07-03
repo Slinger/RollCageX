@@ -20,11 +20,6 @@
 #include "colours.hpp"
 #include "text_file.hpp"
 
-//Just in case it's not defined...
-#ifndef M_PI
-#define M_PI (3.14159265358979323846)
-#endif
-
 
 Car_Template *Car_Template::Load (const char *path)
 {
@@ -236,47 +231,6 @@ Car_Template *Car_Template::Load (const char *path)
 
 		//if any steps above failed, model will be NULL
 	}
-
-	//graphics models
-	//float w_r = target->conf.w[0];
-	//float w_w = target->conf.w[1];
-	//wheels:
-	//(note: wheel axis is along z)
-	//target->wheel_graphics = new file_3d();
-	//glNewList (target->wheel_graphics->list, GL_COMPILE);
-	//tyre
-	//glMaterialfv (GL_FRONT, GL_AMBIENT_AND_DIFFUSE, black);
-	//glMaterialfv (GL_FRONT, GL_SPECULAR, dgray);
-	//glMateriali (GL_FRONT, GL_SHININESS, 30);
-
-	//glBegin (GL_QUAD_STRIP);
-	//float v;
-	//for (v=0; v<=2*M_PI; v+=2*M_PI/10)
-	//{
-		//glNormal3f (sin(v), cos(v), 0.0f);
-		//glVertex3f(w_r*sin(v), w_r*cos(v), -w_w/2.0f);
-		//glVertex3f(w_r*sin(v), w_r*cos(v), w_w/2.0f);
-	//}
-
-	//glMaterialfv (GL_FRONT, GL_SPECULAR, black);
-
-	//glEnd();
-	//rim
-	//glMaterialfv (GL_FRONT, GL_AMBIENT_AND_DIFFUSE, lgray);
-	//glNormal3f (0.0f, 0.0f, 1.0f);
-	//glBegin (GL_QUADS);
-		//glVertex3f(w_r*0.9f, w_r/5, w_w/3.0f);
-		//glVertex3f(w_r*0.9f, -w_r/5, w_w/3.0f);
-		//glVertex3f(-w_r*0.9f, -w_r/5, w_w/3.0f);
-		//glVertex3f(-w_r*0.9f, w_r/5, w_w/3.0f);
-
-		//glVertex3f(w_r/5, w_r*0.9f, w_w/3.0f);
-		//glVertex3f(w_r/5, -w_r*0.9f, w_w/3.0f);
-		//glVertex3f(-w_r/5, -w_r*0.9f, w_w/3.0f);
-		//glVertex3f(-w_r/5, w_r*0.9f, w_w/3.0f);
-	//glEnd();
-
-	//glEndList();
 
 	return target;
 }

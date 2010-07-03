@@ -21,11 +21,6 @@
 #include "../shared/threads.hpp"
 #include "../shared/printlog.hpp"
 
-//Just in case it's not defined...
-#ifndef M_PI
-#define M_PI (3.14159265358979323846)
-#endif
-
 #include "../shared/camera.hpp"
 #include "gl_extensions.hpp"
 #include "graphic_list.hpp"
