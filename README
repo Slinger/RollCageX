@@ -51,7 +51,7 @@ src is only needed for compilation.
 
 Src is not needed for rcx to run - it contains the sourcecode for compilation
 and modification of rcx. The data directory contains the default configuration
-and all 3d models.
+and all 3d models. With lack of data directory rcx will not render any models.
 
 
 
@@ -127,16 +127,16 @@ which hopefully will work.
 RCX needs OpenGL and two libraries (the compiled windows binary includes these
 libraries):
 
-   5.1) [OPENGL]
+   7.1) [OPENGL]
    As mentioned above, some kind of OpenGL implementation is needed for
    rendering of 3D graphics. This is OS dependent, but it is quite common
    (either hardware or software). This version requires 1.5 or later.
 
-   5.2) [SDL]
+   7.2) [SDL]
    RCX uses the library "Simple DirectMedia Layer" for some OS independent
    functionality.
 
-   5.3) [ODE]
+   7.3) [ODE]
    RCX uses the library "Open Dynamics Engine" for some physics simulations.
 
 
@@ -173,7 +173,7 @@ static binary ("rcx.exe").
   Special Thanks:
   * "K.Mac"			Extensive testing, hacks and new ideas
   * "MeAkaJon"			Creator/maintainer of gorcx.net webpage
-  * "Spontificus"		Testing, hacks, fixes, road generation algorithm
+  * "Spontificus"		Testing, hacks and various fixes
 
   Other Projects that made RCX possible:
   * "Simple DirectMedia Layer"	OS/hardware abstractions

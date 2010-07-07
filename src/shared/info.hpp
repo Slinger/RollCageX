@@ -12,7 +12,7 @@
 #ifndef _RCX_INFO_H
 #define _RCX_INFO_H
 //general info
-const char VERSION[] = "0.07 (50\% done)"; //supports alphanumeric versioning
+const char VERSION[] = "0.07 (60\% done)"; //supports alphanumeric versioning
 
 const char ISSUE[] =
 "    RollCageX  Copyright (C) 2009-2010 Mats Wahlberg (\"Slinger\" on gorcx.net forum)\n\n\
@@ -33,7 +33,7 @@ const char ISSUE[] =
     = Special Thanks =\n\
       * \"K.Mac\"				Extensive testing, hacks and new ideas\n\
       * \"MeAkaJon\"			Creator/maintainer of gorcx.net webpage\n\
-      * \"Spontificus\"			Testing, hacks, github registration and various fixes\n\n\
+      * \"Spontificus\"			Testing, hacks and various fixes\n\n\
     = Other Projects that made RCX possible =\n\
       * \"Simple DirectMedia Layer\"	OS/hardware abstractions\n\
       * \"Open Dynamics Engine\"		Rigid body dynamics and collision detection\n\
