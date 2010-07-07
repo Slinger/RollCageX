@@ -17,6 +17,7 @@
 #include "../shared/trimesh.hpp"
 #include "../shared/geom.hpp"
 #include "../shared/body.hpp"
+#include "../shared/camera.hpp"
 
 #include <stdlib.h>
 #include <SDL/SDL_opengl.h>
@@ -25,6 +26,8 @@
 //offset for vbo
 #define BUFFER_OFFSET(i) ((char *)NULL + (i))
 
+//
+#define v_length(x, y, z) (dSqrt( (x)*(x) + (y)*(y) + (z)*(z) ))
 
 //just normal (component) list for now:
 
@@ -175,9 +178,8 @@ void Graphic_List_Render()
 
 	//variables
 	unsigned int m_loop;
-	Trimesh_3D *vbo;
+	Trimesh_3D *model;
 	GLuint bound_vbo = 0; //keep track of which vbo is bound
-
 
 
 	//configure rendering options:
@@ -205,8 +207,6 @@ void Graphic_List_Render()
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_NORMAL_ARRAY);
 
-
-
 	//NOTE: new opengl vbo rendering commands (2.0 I think). For compatibility lets stick to 1.5 instead
 	//glEnableVertexAttribArray(0);
 	//glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Trimesh_3D::Vertex), (BUFFER_OFFSET(0)));
@@ -215,34 +215,66 @@ void Graphic_List_Render()
 
 	for (size_t i=0; i<(*count); ++i)
 	{
+		model = list[i].model; //point at model (cleaner code)
+
+		//will be checking if objects are visible from camera (currently only one)
+		//TODO: new camera direction tracking system...
+		//need direction and position of camera:
+		float cpos[3], cdir[3];
+		cpos[0]=camera.pos[0];
+		cpos[1]=camera.pos[1];
+		cpos[2]=camera.pos[2];
+
+		cdir[0]=camera.t_pos[0]-camera.pos[0];
+		cdir[1]=camera.t_pos[1]-camera.pos[1];
+		cdir[2]=camera.t_pos[2]-camera.pos[2];
+
+		//normalize...
+		float l = v_length(cdir[0], cdir[1], cdir[2]);
+		cdir[0]/=l;
+		cdir[1]/=l;
+		cdir[2]/=l;
+
+		//check if even visible from camera...
+		//dot product between camera direction and position
+		//(position is relative to camera. useing values from matrix)
+		float projection=	cdir[0]*(list[i].matrix[12]-cpos[0])+
+					cdir[1]*(list[i].matrix[13]-cpos[1])+
+					cdir[2]*(list[i].matrix[14]-cpos[2]);
+
+		//if projection is behind camera, and no chance of model still reaching into view, ignore this model
+		//TODO: can rule out more through view angle... but maybe takes more processing than gives?
+		if ( (projection + model->radius) < 0.0 )
+			continue;
+		//
+		
+
 		glPushMatrix();
 
 			glMultMatrixf (list[i].matrix);
 
-			vbo = list[i].model; //point at model (cleaner code)
-
-			if (vbo->vbo_id != bound_vbo)
+			if (model->vbo_id != bound_vbo)
 			{
 				//bind and configure the new vbo
-				glBindBuffer(GL_ARRAY_BUFFER, vbo->vbo_id);
+				glBindBuffer(GL_ARRAY_BUFFER, model->vbo_id);
 				glVertexPointer(3, GL_FLOAT, sizeof(Trimesh_3D::Vertex), BUFFER_OFFSET(0));
 				glNormalPointer(GL_FLOAT, sizeof(Trimesh_3D::Vertex), BUFFER_OFFSET(sizeof(float)*3));
 
 				//indicate this is used now
-				bound_vbo = vbo->vbo_id;
+				bound_vbo = model->vbo_id;
 			}
 
 			//loop through materials, and draw section(s) of model with this material
-			for (m_loop=0; m_loop< (vbo->material_count); ++m_loop)
+			for (m_loop=0; m_loop< (model->material_count); ++m_loop)
 			{
-				glMaterialfv(GL_FRONT, GL_AMBIENT, vbo->materials[m_loop].ambient);
-				glMaterialfv(GL_FRONT, GL_DIFFUSE, vbo->materials[m_loop].diffuse);
-				glMaterialfv(GL_FRONT, GL_SPECULAR, vbo->materials[m_loop].specular);
-				glMaterialfv(GL_FRONT, GL_EMISSION, vbo->materials[m_loop].emission);
-				glMaterialf (GL_FRONT, GL_SHININESS, vbo->materials[m_loop].shininess);
+				glMaterialfv(GL_FRONT, GL_AMBIENT, model->materials[m_loop].ambient);
+				glMaterialfv(GL_FRONT, GL_DIFFUSE, model->materials[m_loop].diffuse);
+				glMaterialfv(GL_FRONT, GL_SPECULAR, model->materials[m_loop].specular);
+				glMaterialfv(GL_FRONT, GL_EMISSION, model->materials[m_loop].emission);
+				glMaterialf (GL_FRONT, GL_SHININESS, model->materials[m_loop].shininess);
 
 				//draw
-				glDrawArrays(GL_TRIANGLES, vbo->materials[m_loop].start, vbo->materials[m_loop].size);
+				glDrawArrays(GL_TRIANGLES, model->materials[m_loop].start, model->materials[m_loop].size);
 			}
 
 		glPopMatrix();

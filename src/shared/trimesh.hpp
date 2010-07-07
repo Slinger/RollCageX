@@ -65,13 +65,14 @@ class Trimesh_3D: public Racetime_Data
 			GLfloat shininess;
 		};
 
-		Trimesh_3D(const char* n, GLuint vbo, Material* m, unsigned int mc); //constructor
+		Trimesh_3D(const char* n, float r, GLuint vbo, Material* m, unsigned int mc); //constructor
 		~Trimesh_3D(); //destructor
 		friend class Trimesh; //only Trimesh is allowed to create this...
 
 		//everything needed to render:
 		Material *materials;
 		unsigned int material_count;
+		float radius; //for checking if visible or not
 
 
 		//VBO and position in VBO of array:
@@ -142,6 +143,7 @@ class Trimesh
 		void Normalize_Normals(); //make sure normals are unit (for some loaders, like obj, maybe not...)
 		void Generate_Missing_Normals(); //if loaded incomplete normals, solve
 		unsigned int Find_Material(const char *); //find first matching material by name
+		float Find_Longest_Distance(); //find vertex furthest from center, and return its length
 
 		//functions for loading 3d files:
 		//obj files (obj.cpp)

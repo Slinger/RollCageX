@@ -17,18 +17,18 @@
 #include "car.hpp"
 
 struct Camera_Settings {
-	dReal target[3];
-	dReal anchor[3], distance[3];
-	dReal radius;
-	dReal linear_stiffness;
-	dReal angular_stiffness;
-	dReal damping;
+	float target[3];
+	float anchor[3], distance[3];
+	float radius;
+	float linear_stiffness;
+	float angular_stiffness;
+	float damping;
 	bool relative_damping;
-	dReal rotation_tightness;
-	dReal target_tightness;
+	float rotation_tightness;
+	float target_tightness;
 	bool reverse, in_air;
-	dReal air_time, ground_time;
-	dReal offset_scale_speed;
+	float air_time, ground_time;
+	float offset_scale_speed;
 };
 
 class Camera
@@ -36,10 +36,11 @@ class Camera
 	public:
 		Camera();
 		void Set_Settings(Camera_Settings *settings);
-		void Set_Pos(dReal p[3], dReal tp[3]);
+
+		void Set_Pos(float p[3], float tp[3]);
 
 		//movement (might change or be removed at some point)
-		void Move(dReal x, dReal y, dReal z);
+		void Move(float x, float y, float z);
 
 		//these should probably be static (for using more cameras), but this will do for now
 		void Physics_Step(dReal step);
@@ -49,14 +50,16 @@ class Camera
 		Car *car;
 	private:
 		struct Camera_Settings *settings;
-		dReal pos[3];
-		dReal t_pos[3];
-		dReal vel[3];
-		dReal up[3];
-		dReal air_timer;
-		dReal offset_scale; //0-1   0 in air, 1 on ground
+		float pos[3];
+		float t_pos[3];
+		float vel[3];
+		float up[3];
+		float air_timer;
+		float offset_scale; //0-1   0 in air, 1 on ground
 		bool reverse;
 		bool in_air;
+
+		friend void Graphic_List_Render();
 };
 
 extern Camera camera;

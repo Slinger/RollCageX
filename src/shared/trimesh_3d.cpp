@@ -82,17 +82,9 @@ VBO *VBO::head=NULL;
 //
 
 //constructor
-Trimesh_3D::Trimesh_3D(const char *name, GLuint vbo, Material *mpointer, unsigned int mcount): Racetime_Data(name)
+Trimesh_3D::Trimesh_3D(const char *name, float r, GLuint vbo, Material *mpointer, unsigned int mcount):
+	Racetime_Data(name), materials(mpointer), material_count(mcount), radius(r), vbo_id(vbo)
 {
-	//set the vbo id for this trimesh_3d
-	vbo_id = vbo;
-
-	//pointer to materials
-	materials=mpointer;
-	material_count=mcount;
-
-	//assume this vbo is not bound
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 }
 
 //only called together with all other racetime_data destruction (at end of race)
@@ -145,6 +137,10 @@ Trimesh_3D *Trimesh::Create_3D()
 	//
 	//ok, ready to go!
 	//
+	
+	//quickly find furthest vertex of obj, so can determine radius
+	float radius = Find_Longest_Distance();
+	
 	//build a tmp list of all vertices sorted by material to minimize calls
 	//(and list with no unused materials nor duplicates)
 
@@ -281,7 +277,10 @@ Trimesh_3D *Trimesh::Create_3D()
 	//create Trimesh_3D class from this data:
 	//set the name. NOTE: both Trimesh_3D and Trimesh_Geom will have the same name
 	//this is not a problem since they are different classes and Racetime_Data::Find will notice that
-	Trimesh_3D *mesh = new Trimesh_3D(name.c_str(), vbo->id, material_list, mcount);
+	Trimesh_3D *mesh = new Trimesh_3D(name.c_str(), radius, vbo->id, material_list, mcount);
+
+	//assume this vbo is not bound
+	glBindBuffer(GL_ARRAY_BUFFER, vbo->id);
 
 	//transfer data to vbo...
 	glBufferSubData(GL_ARRAY_BUFFER, vbo->usage, needed_vbo_size, vertex_list);

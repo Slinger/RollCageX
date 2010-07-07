@@ -57,8 +57,8 @@ void Camera::Set_Pos(dReal p[], dReal tp[])
 {
 	if (settings)
 	{
-		memcpy(pos, p, sizeof(dReal)*3);
-		memcpy(t_pos, tp, sizeof(dReal)*3);
+		memcpy(pos, p, sizeof(float)*3);
+		memcpy(t_pos, tp, sizeof(float)*3);
 	}
 
 	up[0]=0;

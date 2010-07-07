@@ -213,3 +213,28 @@ void Trimesh::Offset(float x, float y, float z)
 		vertices[i].z += z;
 	}
 }
+
+float Trimesh::Find_Longest_Distance()
+{
+	printlog(2, "Finding longest distance vertex in trimesh");
+
+	size_t end = vertices.size();
+	size_t i;
+	float biggest=0.0;
+
+	//for optimum performance, no sqrt or similar, just store the one biggest axis
+	for (i=0; i<end; ++i)
+	{
+		if (vertices[i].x > biggest)
+			biggest = vertices[i].x;
+
+		if (vertices[i].y > biggest)
+			biggest = vertices[i].y;
+
+		if (vertices[i].z > biggest)
+			biggest = vertices[i].z;
+	}
+
+	//go with the worst-case-scanario: assume this is the length along every axis
+	return (1.73*biggest);
+}
