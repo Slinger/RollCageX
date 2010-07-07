@@ -165,10 +165,8 @@ bool Trimesh::Load_OBJ(const char *f)
 	}
 
 	//ok, lets just make sure all data is good:
-	Normalize_Normals();
-	Generate_Missing_Normals(); //creates missing normals - unit, don't need normalizing
 
-	//check so normals are ok (not outside valid range)
+	//check so vertex indices are ok (not outside valid range)
 	//takes a little time, but is good for safety
 	size_t tl=triangles.size();
 	size_t vl=vertices.size();
@@ -184,11 +182,14 @@ bool Trimesh::Load_OBJ(const char *f)
 			(triangles[i].normal[1] >= nl && triangles[i].normal[1] != INDEX_ERROR) ||
 			(triangles[i].normal[2] >= nl && triangles[i].normal[2] != INDEX_ERROR)	)
 		{
-			printlog(0, "ERROR: normal index out of range, trying to bypass problem (not rendering)");
-			triangles[i].normal[0] = triangles[i].normal[1] = triangles[i].normal[2] = 0; //set them all to 0
+			printlog(0, "ERROR: normal index out of range, trying to bypass problem (generating new)");
+			triangles[i].normal[0] = triangles[i].normal[1] = triangles[i].normal[2] = INDEX_ERROR; //set them all to 0
 		}
 
 	}
+
+	Normalize_Normals();
+	Generate_Missing_Normals(); //creates missing normals - unit, don't need normalizing
 
 	printlog(1, "OBJ info: %u triangles, %u materials", triangles.size(), materials.size());
 
