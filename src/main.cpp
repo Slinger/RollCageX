@@ -80,7 +80,7 @@ Trimesh_3D *load_model(const char *path, const char *file)
 
 	//load
 	if (!mesh.Load(model))
-		return false;
+		return NULL;
 
 	//if transforming needed
 	mesh.Resize(modelconf.resize);
@@ -89,7 +89,7 @@ Trimesh_3D *load_model(const char *path, const char *file)
 	
 	//"create" 3d model
 	if (! (mesh3d = mesh.Create_3D()) )
-		return false;
+		return NULL;
 
 	//ok, done
 	return mesh3d;
@@ -114,10 +114,10 @@ bool select_and_load_race(Profile *prof)
 	Trimesh_3D *tyre, *rim;
 
 	//MENU: P1: select {track,world}/tyre
-	tyre = load_model(internal.usr_tyre, "tyre.conf"); //TODO: error sensitivity?
+	tyre = load_model(internal.usr_tyre, "tyre.conf");
 
 	//MENU: P1: select {car,team}/rim
-	rim = load_model(internal.usr_rim, "rim.conf"); //TODO: error sensitivity?
+	rim = load_model(internal.usr_rim, "rim.conf");
 
 	//TMP: load box for online spawning
 	box = Object_Template::Load("data/objects/misc/box");

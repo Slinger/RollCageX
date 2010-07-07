@@ -45,18 +45,12 @@ Object_Template *Object_Template::Load(const char *path)
 	Trimesh mesh;
 	mesh.Load("data/objects/misc/box/box.obj"); //assume loading fine
 	Trimesh_3D *mesh3d = mesh.Create_3D();
-	if (mesh3d) //got data
-	{
 
 		tmplt = new Object_Template(path);
 
 		//the debug box will only spawn one component - one "3D file"
 		tmplt->vbo[0] = mesh3d;
 		tmplt->box = true;
-
-	}
-	else
-		tmplt = NULL;
 
 	//end of test
 	}
@@ -66,18 +60,13 @@ Object_Template *Object_Template::Load(const char *path)
 
 		Trimesh mesh;
 		mesh.Load("data/objects/misc/funbox/box.obj"); //assume loading fine
-		if (Trimesh_3D *mesh3d = mesh.Create_3D())
-		{
-			tmplt = new Object_Template(path);
+		Trimesh_3D *mesh3d = mesh.Create_3D();
+		tmplt = new Object_Template(path);
 
-			//graphics
-			tmplt->vbo[0] = mesh3d;
+		//graphics
+		tmplt->vbo[0] = mesh3d;
 
-			tmplt->funbox = true; //id
-		}
-		else
-			tmplt=NULL;
-
+		tmplt->funbox = true; //id
 	}
 	else if (!strcmp(path, "data/objects/misc/flipper"))
 	{
@@ -85,18 +74,13 @@ Object_Template *Object_Template::Load(const char *path)
 
 		Trimesh mesh;
 		mesh.Load("data/objects/misc/flipper/Flipper.obj"); //assume loading fine
-		if (Trimesh_3D *mesh3d = mesh.Create_3D())
-		{
-			tmplt = new Object_Template(path);
+		Trimesh_3D *mesh3d = mesh.Create_3D();
+		tmplt = new Object_Template(path);
 
-			//graphics
-			tmplt->vbo[0] = mesh3d;
+		//graphics
+		tmplt->vbo[0] = mesh3d;
 
-			tmplt->flipper = true; //id
-		}
-		else
-			tmplt=NULL;
-
+		tmplt->flipper = true; //id
 	}
 	else if (!strcmp(path, "data/objects/misc/NH4"))
 	{
@@ -104,22 +88,17 @@ Object_Template *Object_Template::Load(const char *path)
 
 		Trimesh mesh1, mesh2;
 		Trimesh_3D *model1, *model2;
-		if (	(mesh1.Load("data/objects/misc/NH4/Atom1.obj")) &&
-			(mesh2.Load("data/objects/misc/NH4/Atom2.obj")) &&
-			(model1 = mesh1.Create_3D()) &&
-			(model2 = mesh2.Create_3D())	)
-		{
-			tmplt = new Object_Template(path);
+		mesh1.Load("data/objects/misc/NH4/Atom1.obj");
+		mesh2.Load("data/objects/misc/NH4/Atom2.obj");
+		model1 = mesh1.Create_3D();
+		model2 = mesh2.Create_3D();
+		tmplt = new Object_Template(path);
 
-			//graphics
-			tmplt->vbo[0] = model1;
-			tmplt->vbo[1] = model2;
+		//graphics
+		tmplt->vbo[0] = model1;
+		tmplt->vbo[1] = model2;
 
-			tmplt->NH4 = true;
-		}
-		else
-			tmplt=NULL;
-
+		tmplt->NH4 = true;
 	}
 	else if (!strcmp(path, "data/objects/misc/beachball"))
 	{
@@ -128,39 +107,30 @@ Object_Template *Object_Template::Load(const char *path)
 		Trimesh mesh;
 		mesh.Load("data/objects/misc/beachball/sphere.obj"); //assume loading fine
 		Trimesh_3D *mesh3d = mesh.Create_3D();
-		if (mesh3d) //got data
-		{
-			tmplt = new Object_Template(path);
-			tmplt->vbo[0] = mesh3d;
-			tmplt->sphere = true;
-		}
-		else
-			tmplt=NULL;
-	}
+		tmplt = new Object_Template(path);
+		tmplt->vbo[0] = mesh3d;
+		tmplt->sphere = true;
+}
 	else if (!strcmp(path, "data/objects/misc/building"))
 	{
 		printlog(2, "(hard-coded building)");
 
 		Trimesh mesh_pillar, mesh_roof, mesh_wall;
 		Trimesh_3D *pillar, *roof, *wall;
-		if (	(mesh_pillar.Load("data/objects/misc/building/pillar.obj")) &&
-			(mesh_roof.Load("data/objects/misc/building/roof.obj")) &&
-			(mesh_wall.Load("data/objects/misc/building/wall.obj")) &&
-			(pillar = mesh_pillar.Create_3D()) &&
-			(roof = mesh_roof.Create_3D()) &&
-			(wall = mesh_wall.Create_3D())	)
-		{
-			tmplt = new Object_Template(path);
+		mesh_pillar.Load("data/objects/misc/building/pillar.obj");
+		mesh_roof.Load("data/objects/misc/building/roof.obj");
+		mesh_wall.Load("data/objects/misc/building/wall.obj");
+		pillar = mesh_pillar.Create_3D();
+		roof = mesh_roof.Create_3D();
+		wall = mesh_wall.Create_3D();
+		tmplt = new Object_Template(path);
 
-			//graphics
-			tmplt->vbo[0] = pillar;
-			tmplt->vbo[1] = roof;
-			tmplt->vbo[2] = wall;
+		//graphics
+		tmplt->vbo[0] = pillar;
+		tmplt->vbo[1] = roof;
+		tmplt->vbo[2] = wall;
 
-			tmplt->building = true;
-		}
-		else
-			tmplt=NULL;
+		tmplt->building = true;
 	}
 	else if (!strcmp(path,"data/objects/misc/pillar"))
 	{
@@ -169,22 +139,17 @@ Object_Template *Object_Template::Load(const char *path)
 
 		Trimesh mesh1, mesh2;
 		Trimesh_3D *model1, *model2;
-		if (	(mesh1.Load("data/objects/misc/pillar/Pillar.obj")) &&
-			(mesh2.Load("data/objects/misc/pillar/Broken.obj")) &&
-			(model1 = mesh1.Create_3D()) &&
-			(model2 = mesh2.Create_3D())	)
-		{
-			tmplt = new Object_Template(path);
+		mesh1.Load("data/objects/misc/pillar/Pillar.obj");
+		mesh2.Load("data/objects/misc/pillar/Broken.obj");
+		model1 = mesh1.Create_3D();
+		model2 = mesh2.Create_3D();
+		tmplt = new Object_Template(path);
 
-			//graphics
-			tmplt->vbo[0] = model1;
-			tmplt->vbo[1] = model2;
+		//graphics
+		tmplt->vbo[0] = model1;
+		tmplt->vbo[1] = model2;
 
-			tmplt->pillar = true;
-		}
-		else
-			tmplt=NULL;
-
+		tmplt->pillar = true;
 	}
 
 
