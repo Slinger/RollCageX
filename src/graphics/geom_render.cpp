@@ -17,8 +17,9 @@
 #include <limits.h>
 #include <math.h>
 
-#define VERTEX_SIZE USHRT_MAX //max index range for ushort
-#define INDEX_SIZE 10000 //arbitrary
+//arbitrary, but high enough to store most data
+#define VERTEX_SIZE 2000
+#define INDEX_SIZE 3000
 
 //only allocate memory and buffers _if_ going to render
 //(and then keep the memory until end of race)
