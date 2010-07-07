@@ -60,6 +60,12 @@ class Camera
 		bool in_air;
 
 		friend void Graphic_List_Render();
+
+		//physics simulation functions
+		void Accelerate(dReal step, dVector3 c_pos);
+		void Collide(dReal step);
+		void Damp(dReal step);
+		void Rotate(dReal step, dVector3 t_pos);
 };
 
 extern Camera camera;
