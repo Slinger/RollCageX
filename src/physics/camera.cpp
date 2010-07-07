@@ -222,15 +222,9 @@ void Camera::Physics_Step(dReal step)
 			int count = dCollide ( (dGeomID)(track.space->space_id), geom, internal.contact_points, &contact[0], sizeof(dContactGeom));
 
 			int i;
-			dReal depth;
 			dReal V;
 			for (i=0; i<count; ++i)
 			{
-				depth = contact[i].depth;
-				camera.pos[0]-=contact[i].normal[0]*depth;
-				camera.pos[1]-=contact[i].normal[1]*depth;
-				camera.pos[2]-=contact[i].normal[2]*depth;
-
 				//remove movement into colliding object
 				//velocity along collision axis
 				V = camera.vel[0]*contact[i].normal[0] + camera.vel[1]*contact[i].normal[1] + camera.vel[2]*contact[i].normal[2];
