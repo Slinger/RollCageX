@@ -24,8 +24,8 @@ struct Camera_Settings {
 	float angular_stiffness;
 	float damping;
 	bool relative_damping;
-	float rotation_tightness;
-	float target_tightness;
+	float rotation_speed;
+	float focus_speed;
 	bool reverse, in_air;
 	float air_time, ground_time;
 	float offset_scale_speed;
@@ -37,7 +37,7 @@ class Camera
 		Camera();
 		void Set_Settings(Camera_Settings *settings);
 
-		void Set_Pos(float p[3], float tp[3]);
+		void Set_Pos(float p[3], float d[3]);
 
 		//movement (might change or be removed at some point)
 		void Move(float x, float y, float z);
@@ -51,7 +51,7 @@ class Camera
 	private:
 		struct Camera_Settings *settings;
 		float pos[3];
-		float t_pos[3];
+		float dir[3];
 		float vel[3];
 		float up[3];
 		float air_timer;
@@ -62,10 +62,10 @@ class Camera
 		friend void Graphic_List_Render();
 
 		//physics simulation functions
-		void Accelerate(dReal step, dVector3 c_pos);
+		void Accelerate(dReal step);
 		void Collide(dReal step);
 		void Damp(dReal step);
-		void Rotate(dReal step, dVector3 t_pos);
+		void Rotate(dReal step);
 };
 
 extern Camera camera;

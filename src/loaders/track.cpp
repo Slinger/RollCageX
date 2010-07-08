@@ -80,7 +80,7 @@ bool load_track (const char *path)
 	load_conf(conf, (char *)&track, track_index);
 
 	//set camera default values, some from track specs
-	camera.Set_Pos(track.cam_start, track.target_start);
+	camera.Set_Pos(track.cam_start, track.focus_start);
 
 	//append forced data
 	track.position[3] = 0.0f; //directional

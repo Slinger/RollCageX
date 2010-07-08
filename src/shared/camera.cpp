@@ -22,7 +22,7 @@ Camera::Camera()
 	for (int i=0; i<3; ++i)
 	{
 		pos[i]=0;
-		t_pos[i]=0;
+		dir[i]=0;
 		vel[i]=0;
 		up[i]=0;
 	}
@@ -53,12 +53,12 @@ void Camera::Set_Settings (Camera_Settings *set)
 	}
 }
 
-void Camera::Set_Pos(dReal p[], dReal tp[])
+void Camera::Set_Pos(dReal p[], dReal d[])
 {
 	if (settings)
 	{
 		memcpy(pos, p, sizeof(float)*3);
-		memcpy(t_pos, tp, sizeof(float)*3);
+		memcpy(dir, d, sizeof(float)*3);
 	}
 
 	up[0]=0;

@@ -218,29 +218,11 @@ void Graphic_List_Render()
 		model = list[i].model; //point at model (cleaner code)
 
 		//will be checking if objects are visible from camera (currently only one)
-		//TODO: new camera direction tracking system...
-		//need direction and position of camera:
-		float cpos[3], cdir[3];
-		cpos[0]=camera.pos[0];
-		cpos[1]=camera.pos[1];
-		cpos[2]=camera.pos[2];
-
-		cdir[0]=camera.t_pos[0]-camera.pos[0];
-		cdir[1]=camera.t_pos[1]-camera.pos[1];
-		cdir[2]=camera.t_pos[2]-camera.pos[2];
-
-		//normalize...
-		float l = v_length(cdir[0], cdir[1], cdir[2]);
-		cdir[0]/=l;
-		cdir[1]/=l;
-		cdir[2]/=l;
-
-		//check if even visible from camera...
 		//dot product between camera direction and position
 		//(position is relative to camera. useing values from matrix)
-		float projection=	cdir[0]*(list[i].matrix[12]-cpos[0])+
-					cdir[1]*(list[i].matrix[13]-cpos[1])+
-					cdir[2]*(list[i].matrix[14]-cpos[2]);
+		float projection=	camera.dir[0]*(list[i].matrix[12]-camera.pos[0])+
+					camera.dir[1]*(list[i].matrix[13]-camera.pos[1])+
+					camera.dir[2]*(list[i].matrix[14]-camera.pos[2]);
 
 		//if projection is behind camera, and no chance of model still reaching into view, ignore this model
 		//TODO: can rule out more through view angle... but maybe takes more processing than gives?
