@@ -23,10 +23,6 @@
 //
 
 
-//
-//TODO: I've messed this up somehow...
-//(pos, camera.pos, r_pos - something mixed)
-//
 void Camera::Accelerate(dReal step)
 {
 	//calculate some needed values
@@ -182,15 +178,15 @@ void Camera::Damp(dReal step)
 		//damping (of relative movement)
 		dVector3 a_vel; //anchor velocity
 		dBodyGetRelPointVel (car->bodyid, settings->anchor[0], settings->anchor[1], settings->anchor[2]*car->dir, a_vel);
-		float vel[3] = {vel[0]-a_vel[0], vel[1]-a_vel[1], vel[2]-a_vel[2]}; //velocity relative to anchor
+		float r_vel[3] = {vel[0]-a_vel[0], vel[1]-a_vel[1], vel[2]-a_vel[2]}; //velocity relative to anchor
 
 		float damping = (step*settings->damping);
 		if (damping > 1)
 			damping=1;
 
-		vel[0]-=damping*vel[0];
-		vel[1]-=damping*vel[1];
-		vel[2]-=damping*vel[2];
+		vel[0]-=damping*r_vel[0];
+		vel[1]-=damping*r_vel[1];
+		vel[2]-=damping*r_vel[2];
 	}
 	else
 	{
@@ -425,22 +421,20 @@ void Camera::Physics_Step(dReal step)
 			}
 		}
 
+		//store old velocity
+		dReal old_vel[3] = {vel[0], vel[1], vel[2]};
+
 		//perform movement
 		Accelerate(step);
 		Collide(step);
 		Damp(step);
 
-
 		//during the step, camera will have linear acceleration from old velocity to new
-		//avarge velocity over the step is between new and old velocity
-
-		//store old velocity
-		dReal old_vel[3] = {vel[0], vel[1], vel[2]};
-
 		pos[0]+=((vel[0]+old_vel[0])/2)*step;
 		pos[1]+=((vel[1]+old_vel[1])/2)*step;
 		pos[2]+=((vel[2]+old_vel[2])/2)*step;
 
+		//avarge velocity over the step is between new and old velocity
 		//rotate camera (focus and rotation)
 		Rotate(step);
 	}

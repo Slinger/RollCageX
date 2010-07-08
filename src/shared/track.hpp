@@ -44,8 +44,8 @@ extern struct Track_Struct {
 	dReal wind[3];
 
 	dReal start[3];
-	dReal cam_start[3];
-	dReal focus_start[3];
+	float cam_start[3];
+	float focus_start[3];
 
 	dReal respawn;
 
@@ -86,8 +86,8 @@ const struct Conf_Index track_index[] = {
 	{"density",	'R',1,	offsetof(Track_Struct, density)},
 	{"wind",	'R',3,	offsetof(Track_Struct, wind)},
 	{"start",	'R',3,	offsetof(Track_Struct, start)},
-	{"cam_start",	'R',3,	offsetof(Track_Struct, cam_start)},
-	{"focus_start",	'R',3,	offsetof(Track_Struct, focus_start)},
+	{"cam_start",	'f',3,	offsetof(Track_Struct, cam_start)},
+	{"focus_start",	'f',3,	offsetof(Track_Struct, focus_start)},
 	{"respawn",	'R',1,	offsetof(Track_Struct, respawn)},
 	{"",0,0}};//end
 
