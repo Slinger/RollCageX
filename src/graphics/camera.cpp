@@ -14,9 +14,30 @@
 //set camera view before rendering
 void Camera::Graphics_Step()
 {
-	//TODO: replace with custom function!
-		//set camera
-		gluLookAt(camera.pos[0], camera.pos[1], camera.pos[2], camera.pos[0]+camera.dir[0], camera.pos[1]+camera.dir[1], camera.pos[2]+camera.dir[2], camera.up[0], camera.up[1], camera.up[2]);
+	//already got correct (unit and perpendicular) "up" (up) and "forward" (dir)
+	//use cross product to find "right" ( = | dir X up | )
+	float right[3];
+	right[0] = camera.dir[1]*camera.up[2] - camera.dir[2]*camera.up[1];
+	right[1] = camera.dir[2]*camera.up[0] - camera.dir[0]*camera.up[2];
+	right[2] = camera.dir[0]*camera.up[1] - camera.dir[1]*camera.up[0];
+
+	//normalize
+	float l = sqrt(right[0]*right[0]+right[1]*right[1]+right[2]*right[2]);
+	right[0]/=l; right[1]/=l; right[2]/=l;
+
+	//build matrix...
+	GLfloat matrix[16] = {
+		right[0], camera.up[0], -camera.dir[0], 0.0,
+		right[1], camera.up[1], -camera.dir[1], 0.0,
+		right[2], camera.up[2], -camera.dir[2], 0.0,
+		0.0,	0.0,	0.0,	1.0};
+
+
+	//multiply matrix
+	glMultMatrixf(matrix);
+
+	//"move" camera
+	glTranslatef(-camera.pos[0], -camera.pos[1], -camera.pos[2]);
 }
 
 
