@@ -206,7 +206,15 @@ void Camera::Damp(dReal step)
 //the following is smooth rotation and focusing
 //
 
-//first of all, helper function that "rotates" a vector towards another vector
+//first of all, some helper functions/macros
+
+//cross product (A=BxC)
+#define VCross(A,B,C){ \
+	(A)[0]=(B)[1]*(C)[2]-(B)[2]*(C)[1]; \
+	(A)[1]=(B)[2]*(C)[0]-(B)[0]*(C)[2]; \
+	(A)[2]=(B)[0]*(C)[1]-(B)[1]*(C)[0];}
+
+//"rotates" a vector towards another vector
 void VRotate(float *lU0, float *lU1, float V, float *U)
 {
 	// U0
@@ -328,6 +336,28 @@ void Camera::Rotate(dReal step)
 		t_up[2] = rotation[10]*car->dir;
 	}
 	
+
+	//---
+	//find new values
+	//---
+	
+	float right[3];
+
+	//1) find wanted up, tilt towards it
+	VCross(right, t_dir, t_up); //right
+	VCross(t_up, right, t_dir); //new dir
+	VRotate(up, t_up, step*(settings->tilt_speed), c_up);
+
+	//2) find wanted dir, swing towards it
+	//first make t_dir and c_dir perpendicular to c_up (TODO: can be solved in different ways...)
+	VCross(right, t_dir, c_up);
+	VCross(t_dir, c_up, right);
+	
+	VCross(right, dir, c_up);
+	VCross(c_dir, c_up, right);
+
+	VRotate(c_dir, t_dir, step*(settings->swing_speed), c_dir);
+	/*
 	//1) rotate direction of camera (aim dir towards target):
 	VRotate(dir, t_dir, step*(settings->focus_speed), c_dir);
 
@@ -346,8 +376,11 @@ void Camera::Rotate(dReal step)
 	
 	//t/c_up now perpendicular to dir, rotate
 	VRotate(c_up, t_up, step*(settings->rotation_speed), c_up);
+	*/
 
-	//3) update values:
+	//---
+	//update values:
+	//---
 	//(doing this in one quick action reduces chance of updating while rendering)
 	memcpy(dir, c_dir, sizeof(float)*3);
 	memcpy(up, c_up, sizeof(float)*3);
