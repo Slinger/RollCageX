@@ -40,9 +40,10 @@ extern struct internal_struct {
 
 	//graphics
 	int res[2]; //resolution
-	int dist;
+	float dist;
 	bool force;
 	float angle;
+	float clipping[2];
 	bool fullscreen;
 	bool culling;
 	
@@ -68,9 +69,10 @@ const struct internal_struct internal_defaults = {
 	0.05,0.10,0.5,1,
 	//graphics
 	{1200,800},
-	2800,
+	2800.0,
 	false,
-	0,
+	60,
+	{1.0, 1000.0},
 	false,
 	true,
 	//TMP menu:
@@ -104,11 +106,12 @@ const struct Conf_Index internal_index[] = {
 	{"auto_disable_steps",	'i',1, offsetof(struct internal_struct, dis_steps)},
 	//graphics
 	{"resolution",		'i',2, offsetof(struct internal_struct, res)},
-	{"eye_distance",	'i',1, offsetof(struct internal_struct, dist)},
+	{"eye_distance",	'f',1, offsetof(struct internal_struct, dist)},
 	{"force_angle",		'b',1, offsetof(struct internal_struct, force)},
 	{"view_angle",		'f',1, offsetof(struct internal_struct, angle)},
 	{"fullscreen",		'b',1, offsetof(struct internal_struct, fullscreen)},
 	{"backface_culling",	'b',1, offsetof(struct internal_struct, culling)},
+	{"clipping",		'f',2, offsetof(struct internal_struct, clipping)},
 
 	//TMP:
 	{"TMP:profile",		's',1, offsetof(struct internal_struct, usr_profile)},

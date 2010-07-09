@@ -1,6 +1,6 @@
 #OBJS	= build/main.o build/shared/shared.o build/events/events.o build/loaders/loaders.o build/graphics/graphics.o build/physics/physics.o
 OBJS    = $(patsubst %.cpp,build/%.o, $(wildcard */*.cpp) main.cpp)
-LIBLST	= sdl gl glu ode
+LIBLST	= sdl gl ode
 
 LIBS	= `pkg-config --libs $(LIBLST)`
 FLAGS	= `pkg-config --cflags $(LIBLST)`

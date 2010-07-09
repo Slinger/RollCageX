@@ -52,30 +52,35 @@ void graphics_resize (int new_w, int new_h)
 	glMatrixMode (GL_PROJECTION);
 	glLoadIdentity();
 
-	//lets calculate viewing angle (height) based on the players _real_
-	//viewing angle... the player should specify an eye_distance in internal
-	//conf
+	//lets calculate viewing angle based on the players _real_ viewing angle...
+	//the player should specify an eye_distance in internal.conf
 	//
 	//(divide your screens resolution height or width with real height or
-	//width, and multiply that with your eyes distance from the screen,
-	//then use that value here - instead of 2087)
+	//width, and multiply that with your eyes distance from the screen)
 	//
-	GLdouble angle;
+	GLfloat angle;
 		
 	if (!internal.force) //good
 	{
-		//some explanation: angle up+down      ratio h/z        rad to angle
-		angle = (GLdouble) 2*atan((GLdouble) (h/2)/internal.dist) *180/M_PI;
+		//angle between w/2 (distance from center of screen to right edge) and players eye distance
+		angle = atan( (((GLfloat) w)/2.0)/internal.dist );
 		printlog(1, "(perspective: %f degrees, based on (your) eye distance: %i pixels", angle, internal.dist);
 	}
 	else //bad...
 	{
-		angle = internal.angle;
+		angle = (internal.angle * M_PI/360.);;
 		printlog(1, "Angle forced to: %f degrees. And you are an evil person...", angle);
 	}
 
-	gluPerspective (angle, (GLdouble) w/h, 1, 1000);
+	//x position at close clipping
+	GLfloat x = internal.clipping[0] * tan(angle);
+	//y -''- (calculated from x through window resolution aspect)
+	GLfloat y = x * ((GLfloat) h/w);
 
+	//set values
+	glFrustum(-x, x, -y, y, internal.clipping[0], internal.clipping[1]);
+
+	//switch back to usual matrix
 	glMatrixMode (GL_MODELVIEW);
 	glLoadIdentity();
 }
