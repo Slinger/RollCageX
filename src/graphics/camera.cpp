@@ -27,9 +27,9 @@ void Camera::Graphics_Step()
 
 	//build matrix...
 	GLfloat matrix[16] = {
-		right[0], camera.up[0], -camera.dir[0], 0.0,
-		right[1], camera.up[1], -camera.dir[1], 0.0,
-		right[2], camera.up[2], -camera.dir[2], 0.0,
+		camera.right[0], camera.up[0], -camera.dir[0], 0.0,
+		camera.right[1], camera.up[1], -camera.dir[1], 0.0,
+		camera.right[2], camera.up[2], -camera.dir[2], 0.0,
 		0.0,	0.0,	0.0,	1.0};
 
 

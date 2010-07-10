@@ -16,7 +16,14 @@
 #include <math.h>
 
 //length of vector
-#define v_length(x, y, z) (dSqrt( (x)*(x) + (y)*(y) + (z)*(z) ))
+#define VLength(V) (dSqrt( (V)[0]*(V)[0] + (V)[1]*(V)[1] + (V)[2]*(V)[2] ))
+
+//cross product (A=BxC)
+#define VCross(A,B,C){ \
+	(A)[0]=(B)[1]*(C)[2]-(B)[2]*(C)[1]; \
+	(A)[1]=(B)[2]*(C)[0]-(B)[0]*(C)[2]; \
+	(A)[2]=(B)[0]*(C)[1]-(B)[1]*(C)[0];}
+
 
 //
 //spring physics for calculating acceleration
@@ -47,10 +54,10 @@ void Camera::Accelerate(dReal step)
 	float r_pos[3] = {pos[0]-a_pos[0], pos[1]-a_pos[1], pos[2]-a_pos[2]};
 
 	//vector lengths
-	float r_pos_l = v_length(r_pos[0], r_pos[1], r_pos[2]);
+	float r_pos_l = VLength(r_pos);
 	//how far from car we want to stay
 	//(TODO: could be computed just once - only when changing camera)
-	float c_pos_l = v_length(c_pos[0], c_pos[1], c_pos[2]);
+	float c_pos_l = VLength(c_pos);
 
 	//unit vectors
 	float r_pos_u[3] = {r_pos[0]/r_pos_l, r_pos[1]/r_pos_l, r_pos[2]/r_pos_l};
@@ -124,7 +131,7 @@ void Camera::Accelerate(dReal step)
 			dir[2]=c_pos_u[2]-dot*r_pos_u[2];
 
 			//not unit, get length and modify accel to compensate for not unit
-			accel /= v_length(dir[0], dir[1], dir[2]);
+			accel /= VLength(dir);
 
 			vel[0]+=(accel*dir[0]);
 			vel[1]+=(accel*dir[1]);
@@ -208,12 +215,6 @@ void Camera::Damp(dReal step)
 
 //first of all, some helper functions/macros
 
-//cross product (A=BxC)
-#define VCross(A,B,C){ \
-	(A)[0]=(B)[1]*(C)[2]-(B)[2]*(C)[1]; \
-	(A)[1]=(B)[2]*(C)[0]-(B)[0]*(C)[2]; \
-	(A)[2]=(B)[0]*(C)[1]-(B)[1]*(C)[0];}
-
 //"rotates" a vector towards another vector
 void VRotate(float *lU0, float *lU1, float V, float *U)
 {
@@ -254,12 +255,12 @@ void VRotate(float *lU0, float *lU1, float V, float *U)
 	//(copy+normalize:
 	float U0[3], U1[3];
 
-	float l = v_length(lU0[0], lU0[1], lU0[2]);
+	float l = VLength(lU0);
 	U0[0] = lU0[0]/l;
 	U0[1] = lU0[1]/l;
 	U0[2] = lU0[2]/l;
 
-	l = v_length(lU1[0], lU1[1], lU1[2]);
+	l = VLength(lU1);
 	U1[0] = lU1[0]/l;
 	U1[1] = lU1[1]/l;
 	U1[2] = lU1[2]/l;
@@ -302,10 +303,12 @@ void Camera::Rotate(dReal step)
 	//while working with new camera values, store them here
 	float c_dir[3];
 	float c_up[3];
+	float c_right[3];
 
 
 	//calculate wanted direction and rotation
 	float t_dir[3];
+	float t_up[3];
 
 	dVector3 result;
 	if (reverse && !in_air) //move target and position to opposite side (if not just spinning in air)
@@ -321,7 +324,6 @@ void Camera::Rotate(dReal step)
 	t_dir[2]=result[2]-pos[2];
 
 
-	float t_up[3];
 	if (in_air) //if in air, use absolute up instead
 	{
 		t_up[0]=0.0;
@@ -341,20 +343,20 @@ void Camera::Rotate(dReal step)
 	//find new values
 	//---
 	
-	float right[3];
+	float tmp[3];
 
 	//1) find wanted up, tilt towards it
-	VCross(right, t_dir, t_up); //right
-	VCross(t_up, right, t_dir); //new dir
+	VCross(tmp, t_dir, t_up); //right
+	VCross(t_up, tmp, t_dir); //new dir
 	VRotate(up, t_up, step*(settings->tilt_speed), c_up);
 
 	//2) find wanted dir, swing towards it
 	//first make t_dir and c_dir perpendicular to c_up (TODO: can be solved in different ways...)
-	VCross(right, t_dir, c_up);
-	VCross(t_dir, c_up, right);
+	VCross(tmp, t_dir, c_up);
+	VCross(t_dir, c_up, tmp);
 	
-	VCross(right, dir, c_up);
-	VCross(c_dir, c_up, right);
+	VCross(tmp, dir, c_up);
+	VCross(c_dir, c_up, tmp);
 
 	VRotate(c_dir, t_dir, step*(settings->swing_speed), c_dir);
 	/*
@@ -378,13 +380,19 @@ void Camera::Rotate(dReal step)
 	VRotate(c_up, t_up, step*(settings->rotation_speed), c_up);
 	*/
 
+	//TMP
+	VCross(c_right, c_dir, c_up);
+	float l = VLength(c_right);
+	c_right[0]/=l;
+	c_right[1]/=l;
+	c_right[2]/=l;
 	//---
 	//update values:
 	//---
 	//(doing this in one quick action reduces chance of updating while rendering)
 	memcpy(dir, c_dir, sizeof(float)*3);
 	memcpy(up, c_up, sizeof(float)*3);
-	
+	memcpy(right, c_right, sizeof(float)*3);
 }
 
 //collide camera with track, generate acceleration on camera if collisding
