@@ -10,7 +10,7 @@ build/events/timers.o: events/timers.hpp events/../shared/object.hpp events/../s
 build/graphics/camera.o: graphics/../shared/camera.hpp
 build/graphics/geom_render.o: graphics/geom_render.hpp graphics/gl_extensions.hpp graphics/../shared/geom.hpp graphics/../shared/racetime_data.hpp graphics/../shared/printlog.hpp
 build/graphics/gl_extensions.o: graphics/gl_extensions.hpp graphics/../shared/printlog.hpp
-build/graphics/graphic_list.o: graphics/graphic_list.hpp graphics/gl_extensions.hpp graphics/../shared/internal.hpp graphics/../shared/printlog.hpp graphics/../shared/trimesh.hpp graphics/../shared/geom.hpp graphics/../shared/body.hpp
+build/graphics/graphic_list.o: graphics/graphic_list.hpp graphics/gl_extensions.hpp graphics/../shared/internal.hpp graphics/../shared/printlog.hpp graphics/../shared/trimesh.hpp graphics/../shared/geom.hpp graphics/../shared/body.hpp graphics/../shared/camera.hpp
 build/graphics/graphics.o: graphics/../shared/internal.hpp graphics/../shared/info.hpp graphics/../shared/track.hpp graphics/../shared/runlevel.hpp graphics/../shared/threads.hpp graphics/../shared/printlog.hpp graphics/../shared/camera.hpp graphics/gl_extensions.hpp graphics/graphic_list.hpp graphics/geom_render.hpp
 build/loaders/car.o: loaders/../shared/internal.hpp loaders/../shared/racetime_data.hpp loaders/../shared/car.hpp loaders/../shared/printlog.hpp loaders/../shared/track.hpp loaders/../shared/geom.hpp loaders/../shared/body.hpp loaders/../shared/joint.hpp loaders/colours.hpp loaders/text_file.hpp
 build/loaders/conf.o: loaders/conf.hpp loaders/text_file.hpp loaders/../shared/printlog.hpp
@@ -42,6 +42,6 @@ build/shared/runlevel.o: shared/runlevel.hpp
 build/shared/space.o: shared/space.hpp shared/geom.hpp shared/printlog.hpp shared/track.hpp
 build/shared/threads.o: shared/threads.hpp
 build/shared/track.o: shared/track.hpp
-build/shared/trimesh.o: shared/trimesh.hpp shared/printlog.hpp
 build/shared/trimesh_3d.o: shared/trimesh.hpp shared/../graphics/gl_extensions.hpp shared/printlog.hpp
+build/shared/trimesh.o: shared/trimesh.hpp shared/printlog.hpp
 build/shared/trimesh_geom.o: shared/trimesh.hpp shared/geom.hpp shared/printlog.hpp

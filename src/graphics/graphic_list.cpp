@@ -220,9 +220,10 @@ void Graphic_List_Render()
 		//will be checking if objects are visible from camera (currently only one)
 		//dot product between camera direction and position
 		//(position is relative to camera. useing values from matrix)
-		float projection=	camera.dir[0]*(list[i].matrix[12]-camera.pos[0])+
-					camera.dir[1]*(list[i].matrix[13]-camera.pos[1])+
-					camera.dir[2]*(list[i].matrix[14]-camera.pos[2]);
+		float projection=	camera.rotation[1]*(list[i].matrix[12]-camera.pos[0])+
+					camera.rotation[4]*(list[i].matrix[13]-camera.pos[1])+
+					camera.rotation[7]*(list[i].matrix[14]-camera.pos[2]);
+		//(dir is second column in rotation matrix)
 
 		//if projection is behind camera, and no chance of model still reaching into view, ignore this model
 		//TODO: can rule out more through view angle... but maybe takes more processing than gives?

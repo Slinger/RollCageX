@@ -15,8 +15,13 @@
 
 #include <math.h>
 
-//length of vector
+//length of vector (=|V|)
 #define VLength(V) (dSqrt( (V)[0]*(V)[0] + (V)[1]*(V)[1] + (V)[2]*(V)[2] ))
+
+//normalization of vector (A=A/|A|)
+#define VNormalize(V){ \
+	float l=VLength(V); \
+	(V)[0]/=l; (V)[1]/=l; (V)[2]/=l;}
 
 //cross product (A=BxC)
 #define VCross(A,B,C){ \
@@ -24,6 +29,14 @@
 	(A)[1]=(B)[2]*(C)[0]-(B)[0]*(C)[2]; \
 	(A)[2]=(B)[0]*(C)[1]-(B)[1]*(C)[0];}
 
+//dot product (=AxB)
+#define VDot(A,B) ( (A)[0]*(B)[0] (A)[1]*(B)[1] (A)[2]*(B)[2] )
+
+//subtraction of one vector from another (A=B-C)
+#define VSubtract(A,B,C){ \
+       (A)[0]=(B)[0]-(C)[0]; \
+       (A)[1]=(B)[1]-(C)[1]; \
+       (A)[2]=(B)[2]-(C)[2];}
 
 //
 //spring physics for calculating acceleration
@@ -300,15 +313,31 @@ void VRotate(float *lU0, float *lU1, float V, float *U)
 //could of course use spring physics, but this is simpler and works ok
 void Camera::Rotate(dReal step)
 {
+	//
+	//the camera rotation is in form of a 3x3 rotation matrix
+	//the wanted (target) rotation is also in a 3x3 rotation matrix
+	//
+	//on order to move from the current matrix to the wanted (but not directly)
+	//the matrix is rotated. the rotation is performed around one single axis
+	//which will have to be computed...
+	//
+
+	//---
+	//first: needed values
+	//---
+
+	//float tmp[3];
+
 	//while working with new camera values, store them here
-	float c_dir[3];
-	float c_up[3];
-	float c_right[3];
+	float c_right[3] = {rotation[0], rotation[3], rotation[6]};
+	float c_dir[3] = {rotation[1], rotation[4], rotation[7]};
+	float c_up[3] = {rotation[2], rotation[5], rotation[8]};
 
 
-	//calculate wanted direction and rotation
+	//calculate wanted
 	float t_dir[3];
 	float t_up[3];
+	float t_right[3];
 
 	dVector3 result;
 	if (reverse && !in_air) //move target and position to opposite side (if not just spinning in air)
@@ -338,12 +367,51 @@ void Camera::Rotate(dReal step)
 		t_up[2] = rotation[10]*car->dir;
 	}
 	
+	//target right from dirXup
+	VCross(t_right, t_dir, t_up);
+
+	//modify t_up to be perpendicular to t_dir (and t_right)
+	VCross(t_up, t_right, t_dir);
+
+	//will need all vectors to be unit...
+	VNormalize(t_dir);
+	VNormalize(t_up);
+	VNormalize(t_right);
+
+	//store them in target matrix:
+	//target[9] = {	t_right[0], t_dir[0], t_up[0],
+			//t_right[1], t_dir[1], t_up[1],
+			//t_right[2], t_dir[2], t_up[2]	};
+
+
 
 	//---
-	//find new values
+	//find axis to rotate around
 	//---
 	
-	float tmp[3];
+	float d_right[3], d_dir[3], d_up[3];
+	VSubtract(d_right, t_right, c_right);
+	VSubtract(d_dir, t_dir, c_dir);
+	VSubtract(d_up, t_up, c_up);
+
+	float cross1[3], cross2[3], cross3[3];
+	VCross(cross1, d_right, d_dir);
+	VCross(cross2, d_dir, d_up);
+	VCross(cross3, d_up, d_right);
+
+	VNormalize(cross1);
+	VNormalize(cross2);
+	VNormalize(cross3);
+
+	/*printf("1> %f %f %f\n", d_right[0], d_right[1], d_right[2]);
+	printf("2> %f %f %f\n", d_dir[0], d_dir[1], d_dir[2]);
+	printf("3> %f %f %f\n", d_up[0], d_up[1], d_up[2]);*/
+	printf("1> %f %f %f\n", cross1[0], cross1[1], cross1[2]);
+	printf("2> %f %f %f\n", cross2[0], cross2[1], cross2[2]);
+	printf("3> %f %f %f\n", cross3[0], cross3[1], cross3[2]);
+	/*
+	//first of all, which vector is closest to wanted position?
+	//rotate it towards wanted position and rotate the two others around this vector.
 
 	//1) find wanted up, tilt towards it
 	VCross(tmp, t_dir, t_up); //right
@@ -359,40 +427,23 @@ void Camera::Rotate(dReal step)
 	VCross(c_dir, c_up, tmp);
 
 	VRotate(c_dir, t_dir, step*(settings->swing_speed), c_dir);
-	/*
-	//1) rotate direction of camera (aim dir towards target):
-	VRotate(dir, t_dir, step*(settings->focus_speed), c_dir);
-
-	//2) rotate camera up (rotate camera up like car up):
-	//perpendicular to direction: modify both "up"s
-	//dot product of camera direction and up then remove projection
-	float proj = (dir[0]*t_up[0] + dir[1]*t_up[1] + dir[2]*t_up[2]);
-	t_up[0]-=proj*dir[0];
-	t_up[1]-=proj*dir[1];
-	t_up[2]-=proj*dir[2];
-
-	proj = (dir[0]*up[0] + dir[1]*up[1] + dir[2]*up[2]);
-	c_up[0]=up[0]-proj*dir[0];
-	c_up[1]=up[1]-proj*dir[1];
-	c_up[2]=up[2]-proj*dir[2];
-	
-	//t/c_up now perpendicular to dir, rotate
-	VRotate(c_up, t_up, step*(settings->rotation_speed), c_up);
-	*/
 
 	//TMP
 	VCross(c_right, c_dir, c_up);
 	float l = VLength(c_right);
 	c_right[0]/=l;
 	c_right[1]/=l;
-	c_right[2]/=l;
+	c_right[2]/=l;*/
+
 	//---
 	//update values:
 	//---
+
 	//(doing this in one quick action reduces chance of updating while rendering)
-	memcpy(dir, c_dir, sizeof(float)*3);
-	memcpy(up, c_up, sizeof(float)*3);
-	memcpy(right, c_right, sizeof(float)*3);
+	//memcpy(dir, c_dir, sizeof(float)*3);
+	//memcpy(up, c_up, sizeof(float)*3);
+	//memcpy(right, c_right, sizeof(float)*3);
+	//rotation[0] = 
 }
 
 //collide camera with track, generate acceleration on camera if collisding
