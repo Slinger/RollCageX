@@ -30,7 +30,7 @@
 	(A)[2]=(B)[0]*(C)[1]-(B)[1]*(C)[0];}
 
 //dot product (=AxB)
-#define VDot(A,B) ( (A)[0]*(B)[0] (A)[1]*(B)[1] (A)[2]*(B)[2] )
+#define VDot(A,B) ( (A)[0]*(B)[0] + (A)[1]*(B)[1] + (A)[2]*(B)[2] )
 
 //subtraction of one vector from another (A=B-C)
 #define VSubtract(A,B,C){ \
@@ -226,11 +226,27 @@ void Camera::Damp(dReal step)
 //the following is smooth rotation and focusing
 //
 
-//first of all, some helper functions/macros
-
-//"rotates" a vector towards another vector
-void VRotate(float *lU0, float *lU1, float V, float *U)
+//rotate a vector towards another vector along an axis
+//(current, towards, angle, speed)
+void VRotate(float *Vc, float *Vt, float *A, float speed)
 {
+	//remove part of vectors along axis:
+	float proj = VDot(Vc, A);
+	//float proj2 = VDot(Vt, A);
+	//(just like many other places, these two are theorethically equal)
+
+	float Vctmp[3] = {Vc[0]-proj*A[0], Vc[1]-proj*A[1], Vc[2]-proj*A[2]};
+	float Vttmp[3] = {Vt[0]-proj*A[0], Vt[1]-proj*A[1], Vt[2]-proj*A[2]};
+
+	//figure out angle that differs the current and wanted rotation:
+	float V;
+	V = acos(VDot(Vctmp, Vttmp) / (VLength(Vctmp) * VLength(Vttmp)) );
+
+	printf("V: %f\n", V);
+
+	//TODO!
+
+	/*
 	// U0
 	// ^     U
 	// |     ^
@@ -306,7 +322,7 @@ void VRotate(float *lU0, float *lU1, float V, float *U)
 	U[1] = U0[1]*cos(V)+X[1]*sin(V);
 	U[2] = U0[2]*cos(V)+X[2]*sin(V);
 
-	//we're done!
+	//we're done!*/
 }
 
 //rotate and focus camera
@@ -326,8 +342,6 @@ void Camera::Rotate(dReal step)
 	//first: needed values
 	//---
 
-	//float tmp[3];
-
 	//while working with new camera values, store them here
 	float c_right[3] = {rotation[0], rotation[3], rotation[6]};
 	float c_dir[3] = {rotation[1], rotation[4], rotation[7]};
@@ -335,9 +349,9 @@ void Camera::Rotate(dReal step)
 
 
 	//calculate wanted
+	float t_right[3];
 	float t_dir[3];
 	float t_up[3];
-	float t_right[3];
 
 	dVector3 result;
 	if (reverse && !in_air) //move target and position to opposite side (if not just spinning in air)
@@ -378,37 +392,82 @@ void Camera::Rotate(dReal step)
 	VNormalize(t_up);
 	VNormalize(t_right);
 
-	//store them in target matrix:
-	//target[9] = {	t_right[0], t_dir[0], t_up[0],
-			//t_right[1], t_dir[1], t_up[1],
-			//t_right[2], t_dir[2], t_up[2]	};
 
+
+	//no smooth rotation?...
+	if (settings->rotation_speed == 0.0)
+	{
+		rotation[0]=t_right[0]; rotation[1]=t_dir[0]; rotation[2]=t_up[0];
+		rotation[3]=t_right[1]; rotation[4]=t_dir[1]; rotation[5]=t_up[1];
+		rotation[6]=t_right[2]; rotation[7]=t_dir[2]; rotation[8]=t_up[2];
+		return;
+	}
 
 
 	//---
 	//find axis to rotate around
 	//---
 	
+	//"difference" between current and wanted rotations
 	float d_right[3], d_dir[3], d_up[3];
 	VSubtract(d_right, t_right, c_right);
 	VSubtract(d_dir, t_dir, c_dir);
 	VSubtract(d_up, t_up, c_up);
 
-	float cross1[3], cross2[3], cross3[3];
-	VCross(cross1, d_right, d_dir);
-	VCross(cross2, d_dir, d_up);
-	VCross(cross3, d_up, d_right);
+	//3 alternative rotation axes (are equal)
+	float A1[3], A2[3], A3[3];
+	VCross(A1, d_right, d_dir);
+	VCross(A2, d_dir, d_up);
+	VCross(A3, d_up, d_right);
 
-	VNormalize(cross1);
-	VNormalize(cross2);
-	VNormalize(cross3);
+	//compare lengths and choose the one that seems most accurate
+	float L1, L2, L3;
+	L1 = VLength(A1);
+	L2 = VLength(A2);
+	L3 = VLength(A3);
+	float L, *A; //what we decide to choose
 
-	/*printf("1> %f %f %f\n", d_right[0], d_right[1], d_right[2]);
-	printf("2> %f %f %f\n", d_dir[0], d_dir[1], d_dir[2]);
-	printf("3> %f %f %f\n", d_up[0], d_up[1], d_up[2]);*/
-	printf("1> %f %f %f\n", cross1[0], cross1[1], cross1[2]);
-	printf("2> %f %f %f\n", cross2[0], cross2[1], cross2[2]);
-	printf("3> %f %f %f\n", cross3[0], cross3[1], cross3[2]);
+	//if 2 is bigger than 1
+	if (L2 > L1)
+	{
+		L = L2;
+		A = A2;
+	}
+	else //no, 1 is bigger
+	{
+		L = L1;
+		A = A1;
+	}
+	if (L3 > L) //wait! - 3 was even bigger
+	{
+		L = L3;
+		A = A3;
+	}
+
+	//make sure not too small
+	//(since too equal current and wanted rotation, or possibly some computation error?)
+	if (L < 0.0001) //TODO: check how big this should be...
+	{
+		rotation[0]=t_right[0]; rotation[1]=t_dir[0]; rotation[2]=t_up[0];
+		rotation[3]=t_right[1]; rotation[4]=t_dir[1]; rotation[5]=t_up[1];
+		rotation[6]=t_right[2]; rotation[7]=t_dir[2]; rotation[8]=t_up[2];
+		return;
+	}
+
+
+	//ok, normalize axis:
+	A[0]/=L; A[1]/=L; A[2]/=L;
+
+
+	//---
+	//nice, got an axis, lets start rotation...
+	//---
+
+	float speed = internal.stepsize*settings->rotation_speed;
+	printf("~equal?\n");
+	VRotate(c_right, t_right, A, speed);
+	VRotate(c_dir, t_dir, A, speed);
+	VRotate(c_up, t_up, A, speed);
 	/*
 	//first of all, which vector is closest to wanted position?
 	//rotate it towards wanted position and rotate the two others around this vector.
@@ -439,11 +498,10 @@ void Camera::Rotate(dReal step)
 	//update values:
 	//---
 
-	//(doing this in one quick action reduces chance of updating while rendering)
-	//memcpy(dir, c_dir, sizeof(float)*3);
-	//memcpy(up, c_up, sizeof(float)*3);
-	//memcpy(right, c_right, sizeof(float)*3);
-	//rotation[0] = 
+	//just copy the (noew modified) values back
+	rotation[0] = c_right[0]; rotation[1] = c_dir[0]; rotation[2] = c_up[0];
+	rotation[3] = c_right[1]; rotation[4] = c_dir[1]; rotation[5] = c_up[1];
+	rotation[6] = c_right[2]; rotation[7] = c_dir[2]; rotation[8] = c_up[2];
 }
 
 //collide camera with track, generate acceleration on camera if collisding

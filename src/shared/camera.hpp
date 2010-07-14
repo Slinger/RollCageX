@@ -24,7 +24,7 @@ struct Camera_Settings {
 	float angular_stiffness;
 	float damping;
 	bool relative_damping;
-	float tilt_speed, swing_speed;
+	float rotation_speed;
 	bool reverse, in_air;
 	float air_time, ground_time;
 	float offset_scale_speed;
