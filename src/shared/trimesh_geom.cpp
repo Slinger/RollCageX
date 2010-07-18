@@ -14,7 +14,7 @@
 #include "printlog.hpp"
 
 //length of vector
-#define v_length(x, y, z) (dSqrt( (x)*(x) + (y)*(y) + (z)*(z) ))
+#define v_length(x, y, z) (sqrt( (x)*(x) + (y)*(y) + (z)*(z) ))
 
 //
 //for geom 3d collision detection trimesh:

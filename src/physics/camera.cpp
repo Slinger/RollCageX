@@ -16,7 +16,7 @@
 #include <math.h>
 
 //length of vector (=|V|)
-#define VLength(V) (dSqrt( (V)[0]*(V)[0] + (V)[1]*(V)[1] + (V)[2]*(V)[2] ))
+#define VLength(V) (sqrt( (V)[0]*(V)[0] + (V)[1]*(V)[1] + (V)[2]*(V)[2] ))
 
 //normalization of vector (A=A/|A|)
 #define VNormalize(V){ \
@@ -228,10 +228,10 @@ void Camera::Damp(dReal step)
 
 //rotate a vector towards another vector along an axis
 //(current, towards, angle, speed)
-void VRotate(float *Vc, float *Vt, float *A, float speed)
+void VRotate(float *Vc, float *Vt, float *A, float speed, float max)
 {
 	//remove part of vectors along axis:
-	float proj = VDot(Vc, A);
+	/*float proj = VDot(Vc, A);
 	//float proj2 = VDot(Vt, A);
 	//(just like many other places, these two are theorethically equal)
 
@@ -242,7 +242,7 @@ void VRotate(float *Vc, float *Vt, float *A, float speed)
 	float V;
 	V = acos(VDot(Vctmp, Vttmp) / (VLength(Vctmp) * VLength(Vttmp)) );
 
-	printf("V: %f\n", V);
+	printf("V: %f\n", V);*/
 
 	//TODO!
 
@@ -407,6 +407,12 @@ void Camera::Rotate(dReal step)
 	//---
 	//find axis to rotate around
 	//---
+	//
+	//NOTE: while one could calculate the axis from any cross product (3 alternatives),
+	//lets calculate all 3 and see which one could be most accurate.
+	//The same for calculating the maximum rotation around the axis - any 3 can be used,
+	//but here we just choose one of the two axis change that were used to calculate the axis
+	//(since the one discarded must be the least reliable)
 	
 	//"difference" between current and wanted rotations
 	float d_right[3], d_dir[3], d_up[3];
@@ -425,28 +431,34 @@ void Camera::Rotate(dReal step)
 	L1 = VLength(A1);
 	L2 = VLength(A2);
 	L3 = VLength(A3);
-	float L, *A; //what we decide to choose
+
+	//what we select
+	float L, *A, *D;
+	//L - length, A - axis, D - change of direction)
 
 	//if 2 is bigger than 1
 	if (L2 > L1)
 	{
 		L = L2;
 		A = A2;
+		D = d_right;
 	}
 	else //no, 1 is bigger
 	{
 		L = L1;
 		A = A1;
+		D = d_dir;
 	}
 	if (L3 > L) //wait! - 3 was even bigger
 	{
 		L = L3;
 		A = A3;
+		D = d_up;
 	}
 
 	//make sure not too small
 	//(since too equal current and wanted rotation, or possibly some computation error?)
-	if (L < 0.0001) //TODO: check how big this should be...
+	if (L < 0.000001) //TODO: good?
 	{
 		rotation[0]=t_right[0]; rotation[1]=t_dir[0]; rotation[2]=t_up[0];
 		rotation[3]=t_right[1]; rotation[4]=t_dir[1]; rotation[5]=t_up[1];
@@ -463,36 +475,31 @@ void Camera::Rotate(dReal step)
 	//nice, got an axis, lets start rotation...
 	//---
 
-	float speed = internal.stepsize*settings->rotation_speed;
-	printf("~equal?\n");
-	VRotate(c_right, t_right, A, speed);
-	VRotate(c_dir, t_dir, A, speed);
-	VRotate(c_up, t_up, A, speed);
-	/*
-	//first of all, which vector is closest to wanted position?
-	//rotate it towards wanted position and rotate the two others around this vector.
+	//max needed rotation angle:
+	//since difference in direction is perpendicular to axis of rotation
+	//and kinda like the hypotenuse of the c and t directions, Vmax is easily gotten:
+	//(note: the old solution gave a slightly different V, but this is simpler)
+	float Vmax = 2.0*asin(VLength(D)/2.0);
 
-	//1) find wanted up, tilt towards it
-	VCross(tmp, t_dir, t_up); //right
-	VCross(t_up, tmp, t_dir); //new dir
-	VRotate(up, t_up, step*(settings->tilt_speed), c_up);
+	//and how much to rotate!
+	//TODO: speed should probably be affected by Vmax - slow down when reaching target...
+	float Vspeed = internal.stepsize*settings->rotation_speed; //*Vmax; ?
 
-	//2) find wanted dir, swing towards it
-	//first make t_dir and c_dir perpendicular to c_up (TODO: can be solved in different ways...)
-	VCross(tmp, t_dir, c_up);
-	VCross(t_dir, c_up, tmp);
-	
-	VCross(tmp, dir, c_up);
-	VCross(c_dir, c_up, tmp);
+	//check if we can reach target in this step, if so just jump
+	if (Vspeed > Vmax)
+	{
+		rotation[0]=t_right[0]; rotation[1]=t_dir[0]; rotation[2]=t_up[0];
+		rotation[3]=t_right[1]; rotation[4]=t_dir[1]; rotation[5]=t_up[1];
+		rotation[6]=t_right[2]; rotation[7]=t_dir[2]; rotation[8]=t_up[2];
+		return;
+	}
 
-	VRotate(c_dir, t_dir, step*(settings->swing_speed), c_dir);
-
-	//TMP
-	VCross(c_right, c_dir, c_up);
-	float l = VLength(c_right);
-	c_right[0]/=l;
-	c_right[1]/=l;
-	c_right[2]/=l;*/
+	//nope, we will have to rotate the axes...
+	//TODO: this could use a simple rotation matrix instead...
+	//TODO: not implemented yet!
+	VRotate(c_right, t_right, A, Vspeed, Vmax);
+	VRotate(c_dir, t_dir, A, Vspeed, Vmax);
+	VRotate(c_up, t_up, A, Vspeed, Vmax);
 
 	//---
 	//update values:

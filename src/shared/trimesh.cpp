@@ -14,7 +14,7 @@
 #include <limits.h>
 
 //length of vector
-#define v_length(x, y, z) (dSqrt( (x)*(x) + (y)*(y) + (z)*(z) ))
+#define v_length(x, y, z) (sqrt( (x)*(x) + (y)*(y) + (z)*(z) ))
 
 //default values for material
 const Trimesh::Material Trimesh::Material_Default = 

@@ -59,7 +59,7 @@ void Camera::Set_Settings (Camera_Settings *set)
 }
 
 //length of vector
-#define VLength(V) (dSqrt( (V)[0]*(V)[0] + (V)[1]*(V)[1] + (V)[2]*(V)[2] ))
+#define VLength(V) (sqrt( (V)[0]*(V)[0] + (V)[1]*(V)[1] + (V)[2]*(V)[2] ))
 
 //cross product (A=BxC)
 #define VCross(A,B,C){ \

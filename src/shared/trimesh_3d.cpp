@@ -17,7 +17,7 @@
 #include "printlog.hpp"
 
 //length of vector
-#define v_length(x, y, z) (dSqrt( (x)*(x) + (y)*(y) + (z)*(z) ))
+#define v_length(x, y, z) (sqrt( (x)*(x) + (y)*(y) + (z)*(z) ))
 
 
 //keep track of VBOs (new generated if not enough room in already existing)

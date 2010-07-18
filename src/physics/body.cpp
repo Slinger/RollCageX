@@ -15,7 +15,7 @@
 #include "../shared/internal.hpp"
 #include "../events/event_lists.hpp"
 
-#define v_length(x, y, z) (dSqrt( (x)*(x) + (y)*(y) + (z)*(z) ))
+#define v_length(x, y, z) (sqrt( (x)*(x) + (y)*(y) + (z)*(z) ))
 //functions for body drag
 
 //NOTE: modifying specified drag to the current mass (rice-burning optimization, or actually good idea?)

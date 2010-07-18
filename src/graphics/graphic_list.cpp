@@ -27,7 +27,7 @@
 #define BUFFER_OFFSET(i) ((char *)NULL + (i))
 
 //
-#define v_length(x, y, z) (dSqrt( (x)*(x) + (y)*(y) + (z)*(z) ))
+#define v_length(x, y, z) (sqrt( (x)*(x) + (y)*(y) + (z)*(z) ))
 
 //just normal (component) list for now:
 
