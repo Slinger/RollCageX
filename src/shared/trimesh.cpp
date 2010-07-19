@@ -222,7 +222,6 @@ float Trimesh::Find_Longest_Distance()
 	size_t i;
 	float biggest=0.0, length;
 
-	printf("1\n");
 	//for optimum performance, no sqrt or similar, just store the one biggest axis
 	for (i=0; i<end; ++i)
 	{
@@ -232,6 +231,5 @@ float Trimesh::Find_Longest_Distance()
 			biggest=length;
 	}
 
-	printf("2\n");
 	return biggest;
 }
