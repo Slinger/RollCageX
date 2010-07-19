@@ -104,7 +104,6 @@ void Car::Physics_Step(dReal step)
 					//make sure we don't exceed gloobal wheel rotation limit
 					if (absrotation > internal.max_wheel_rotation) //in air and rotating too fast
 					{
-						printf("tmp\n");
 						torque[i]=0.0; //make sure no torque
 						continue; //go to next wheel
 					}
