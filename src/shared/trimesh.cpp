@@ -220,21 +220,18 @@ float Trimesh::Find_Longest_Distance()
 
 	size_t end = vertices.size();
 	size_t i;
-	float biggest=0.0;
+	float biggest=0.0, length;
 
+	printf("1\n");
 	//for optimum performance, no sqrt or similar, just store the one biggest axis
 	for (i=0; i<end; ++i)
 	{
-		if (vertices[i].x > biggest)
-			biggest = vertices[i].x;
+		length = v_length(vertices[i].x, vertices[i].y, vertices[i].z);
 
-		if (vertices[i].y > biggest)
-			biggest = vertices[i].y;
-
-		if (vertices[i].z > biggest)
-			biggest = vertices[i].z;
+		if (length > biggest)
+			biggest=length;
 	}
 
-	//go with the worst-case-scanario: assume this is the length along every axis
-	return (1.73*biggest);
+	printf("2\n");
+	return biggest;
 }
