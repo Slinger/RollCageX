@@ -1,35 +1,60 @@
-#OBJS	= build/main.o build/shared/shared.o build/events/events.o build/loaders/loaders.o build/graphics/graphics.o build/physics/physics.o
+#.o file in build dir for each .cpp file (plus main.cpp)
 OBJS    = $(patsubst %.cpp,build/%.o, $(wildcard */*.cpp) main.cpp)
+
+#needed libraries
 LIBLST	= sdl gl ode
 
-LIBS	= `pkg-config --libs $(LIBLST)`
+#library flag and inclusion arguments
+LIBS	= `pkg-config --libs $(LIBLST)` -lm
 FLAGS	= `pkg-config --cflags $(LIBLST)`
-ARGS	= -O2 -pipe -Wall -march=native -mtune=native -lm $(FLAGS)
 
-all: rcx
+#gcc options:
+#generate dependecy files, optimization level 2, all warnings,
+#optimization for architecture and inclusion of library compiler flags
+ARGS	= -MD -O2 -pipe -Wall -march=native -mtune=native $(FLAGS)
+
+#good default rule name, "all"
+all: ../rcx
 
 #final normal target
-rcx: builddirs $(OBJS)
+../rcx: build $(OBJS)
 	@echo "Linking..."
 	@g++ -o ../rcx $(OBJS) $(LIBS) $(ARGS)
 
-#prerequisites
-include prereqs.lst
+#prerequisites (.d files for obj files)
+#(note: generated efter last compile)
+-include $(OBJS:.o=.d)
 
 #universal build rule
 $(OBJS): build/%.o:%.cpp
 	@echo "Compiling $(<)..."
 	@g++ -c -o $@ $< $(ARGS)
 
-.PHONY: builddirs clean distclean
-
-builddirs:
-	@echo "Making sure build directories exists..."
+#if build dir not exists, create it (plus subdirs)
+build:
+	@echo "Creating build directories..."
 	@mkdir -p build/shared build/events build/loaders build/graphics build/physics
 
 clean:
-	-rm -rf build
+	@echo "Removing build files..."
+	@-rm -rf build
 
 distclean: clean
-	-rm -f ../rcx
+	@echo "Removing rcx binary..."
+	@-rm -f ../rcx
+
+
+#for 'doze ("make w32" is easier to type than "make ../rcx.exe")
+w32: ../rcx.exe
+
+#static compilation (reuses this makefiles with rewritten variables)
+../rcx.exe:
+	@echo "Compiling static windows binary..."
+	@make \
+		LIBS='`sdl-config --static-libs --libs` `ode-config --libs` -lm -lopengl32 -lglu32 -static -lstdc++ -lwinmm -lgdi32' \
+		FLAGS='`sdl-config --cflags` `ode-config --cflags`' \
+		ARGS='-MD -O2 -pipe -Wall -march=i686 -mtune=i686 $$(FLAGS) -Dwindows'
+
+#these rules don't generate any files
+.PHONY: all w32 clean distclean
 
