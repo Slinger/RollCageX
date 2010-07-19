@@ -10,7 +10,7 @@ ARGS	= -MD -O2 -pipe -Wall -march=i686 -mtune=i686 $(FLAGS) -Dwindows
 
 all: ../rcx.exe
 
-../rcx.exe: builddirs $(OBJS)
+../rcx.exe: build $(OBJS)
 	@echo "Linking..."
 	@g++ -o ../rcx.exe $(OBJS) $(ARGS) $(LIBS)
 
@@ -22,11 +22,12 @@ $(OBJS): build/%.o:%.cpp
 	@echo "Compiling $(<)..."
 	@g++ -c -o $@ $< $(ARGS)
 
-.PHONY: builddirs clean distclean
 
-builddirs:
-	@echo "Making sure build directories exists..."
+build:
+	@echo "Creating build directories..."
 	@mkdir -p build/shared build/events build/loaders build/graphics build/physics
+
+.PHONY: clean distclean
 
 clean:
 	@echo "Removing build files"

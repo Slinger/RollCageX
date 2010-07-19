@@ -17,7 +17,7 @@ ARGS	= -MD -O2 -pipe -Wall -march=native -mtune=native $(FLAGS)
 all: ../rcx
 
 #final normal target
-../rcx: builddirs $(OBJS)
+../rcx: build $(OBJS)
 	@echo "Linking..."
 	@g++ -o ../rcx $(OBJS) $(LIBS) $(ARGS)
 
@@ -30,18 +30,19 @@ $(OBJS): build/%.o:%.cpp
 	@echo "Compiling $(<)..."
 	@g++ -c -o $@ $< $(ARGS)
 
-#these rules don't generate any files
-.PHONY: builddirs clean distclean
-
-builddirs:
-	@echo "Making sure build directories exists..."
+#if build dir not exists, create it (plus subdirs)
+build:
+	@echo "Creating build directories..."
 	@mkdir -p build/shared build/events build/loaders build/graphics build/physics
 
+#these rules don't generate any files
+.PHONY: clean distclean
+
 clean:
-	@echo "Removing build files"
+	@echo "Removing build files..."
 	@-rm -rf build
 
 distclean: clean
-	@echo "Removing rcx binary"
+	@echo "Removing rcx binary..."
 	@-rm -f ../rcx
 
