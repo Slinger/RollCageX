@@ -225,9 +225,10 @@ void Graphic_List_Render()
 					camera.rotation[7]*(list[i].matrix[14]-camera.pos[2]);
 		//(dir is second column in rotation matrix)
 
-		//if projection is behind camera, and no chance of model still reaching into view, ignore this model
+		//if projection is: behind camera or too far ahead
+		//and no chance of model still reaching into view ("radius"), then ignore this model
 		//TODO: can rule out more through view angle... but maybe takes more processing than gives?
-		if ( (projection + model->radius) < 0.0 )
+		if ( ((projection + model->radius) < 0.0) || ((projection - model->radius) > internal.clipping[1]) )
 			continue;
 		//
 		
