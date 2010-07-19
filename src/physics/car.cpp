@@ -101,11 +101,10 @@ void Car::Physics_Step(dReal step)
 					(rotation < 0.0 && carp->throttle < 0.0) ||
 					(gear_torque > carp->max_break) )
 				{
-					//make sure we don't exceed gloobal wheel rotation limiter (if in air)
-					if (carp->wheel_geom_data[i]->colliding)
-						carp->wheel_geom_data[i]->colliding = false; //reset collision detection until next time...
-					else if (absrotation > internal.max_wheel_rotation) //in air and rotating too fast
+					//make sure we don't exceed gloobal wheel rotation limit
+					if (absrotation > internal.max_wheel_rotation) //in air and rotating too fast
 					{
+						printf("tmp\n");
 						torque[i]=0.0; //make sure no torque
 						continue; //go to next wheel
 					}
