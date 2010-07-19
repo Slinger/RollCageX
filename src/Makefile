@@ -1,26 +1,36 @@
-#OBJS	= build/main.o build/shared/shared.o build/events/events.o build/loaders/loaders.o build/graphics/graphics.o build/physics/physics.o
+#.o file in build dir for each .cpp file (plus main.cpp)
 OBJS    = $(patsubst %.cpp,build/%.o, $(wildcard */*.cpp) main.cpp)
+
+#needed libraries
 LIBLST	= sdl gl glu ode
 
-LIBS	= `pkg-config --libs $(LIBLST)`
+#library flag and inclusion arguments
+LIBS	= `pkg-config --libs $(LIBLST)` -lm
 FLAGS	= `pkg-config --cflags $(LIBLST)`
-ARGS	= -O2 -pipe -Wall -march=native -mtune=native -lm $(FLAGS)
 
-all: rcx
+#gcc options:
+#generate dependecy files, optimization level 2, all warnings,
+#optimization for architecture and inclusion of library compiler flags
+ARGS	= -MD -O2 -pipe -Wall -march=native -mtune=native $(FLAGS)
+
+#good default rule name, "all"
+all: ../rcx
 
 #final normal target
-rcx: builddirs $(OBJS)
+../rcx: builddirs $(OBJS)
 	@echo "Linking..."
 	@g++ -o ../rcx $(OBJS) $(LIBS) $(ARGS)
 
-#prerequisites
-include prereqs.lst
+#prerequisites (.d files for obj files)
+#(note: generated efter last compile)
+-include $(OBJS:.o=.d)
 
 #universal build rule
 $(OBJS): build/%.o:%.cpp
 	@echo "Compiling $(<)..."
 	@g++ -c -o $@ $< $(ARGS)
 
+#these rules don't generate any files
 .PHONY: builddirs clean distclean
 
 builddirs:
@@ -28,8 +38,10 @@ builddirs:
 	@mkdir -p build/shared build/events build/loaders build/graphics build/physics
 
 clean:
-	-rm -rf build
+	@echo "Removing build files"
+	@-rm -rf build
 
 distclean: clean
-	-rm -f ../rcx
+	@echo "Removing rcx binary"
+	@-rm -f ../rcx
 
