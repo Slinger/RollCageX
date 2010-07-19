@@ -35,9 +35,6 @@ build:
 	@echo "Creating build directories..."
 	@mkdir -p build/shared build/events build/loaders build/graphics build/physics
 
-#these rules don't generate any files
-.PHONY: clean distclean
-
 clean:
 	@echo "Removing build files..."
 	@-rm -rf build
@@ -45,4 +42,19 @@ clean:
 distclean: clean
 	@echo "Removing rcx binary..."
 	@-rm -f ../rcx
+
+
+#for 'doze ("make w32" is easier to type than "make ../rcx.exe")
+w32: ../rcx.exe
+
+#static compilation (reuses this makefiles with rewritten variables)
+../rcx.exe:
+	@echo "Compiling static windows binary..."
+	@make \
+		LIBS='`sdl-config --static-libs --libs` `ode-config --libs` -lm -lopengl32 -lglu32 -static -lstdc++ -lwinmm -lgdi32' \
+		FLAGS='`sdl-config --cflags` `ode-config --cflags`' \
+		ARGS='-MD -O2 -pipe -Wall -march=i686 -mtune=i686 $$(FLAGS) -Dwindows'
+
+#these rules don't generate any files
+.PHONY: all w32 clean distclean
 
