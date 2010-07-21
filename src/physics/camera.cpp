@@ -226,103 +226,47 @@ void Camera::Damp(dReal step)
 //the following is smooth rotation and focusing
 //
 
-//rotate a vector towards another vector along an axis
-//(current, towards, angle, speed)
-void VRotate(float *Vc, float *Vt, float *A, float speed, float max)
+//rotate vector V towards vector V1, along axis A by angle (angle1 - between V and V1)
+//this could use a simple rotation matrix instead, but a trig solution seems cleanest
+void VRotate(float *V, float *V1, float *A, float angle, float angle1)
 {
 	//remove part of vectors along axis:
-	/*float proj = VDot(Vc, A);
+	//(both V and V1 should have ~equal~ dot product)
+	float proj = VDot(V, A);
+	float Vp[3] = {proj*A[0], proj*A[1], proj*A[2]}; //part of Vector Along axis
+
+	//modify given vectors so perpendicular to axis (remove projection on axis)
+	V[0]-=Vp[0]; V[1]-=Vp[1]; V[2]-=Vp[2];
+	V1[0]-=Vp[0]; V1[1]-=Vp[1]; V1[2]-=Vp[2];
 	//float proj2 = VDot(Vt, A);
-	//(just like many other places, these two are theorethically equal)
+	//(just like many other places in this code, these two are theorethically equal)
 
-	float Vctmp[3] = {Vc[0]-proj*A[0], Vc[1]-proj*A[1], Vc[2]-proj*A[2]};
-	float Vttmp[3] = {Vt[0]-proj*A[0], Vt[1]-proj*A[1], Vt[2]-proj*A[2]};
-
-	//figure out angle that differs the current and wanted rotation:
-	float V;
-	V = acos(VDot(Vctmp, Vttmp) / (VLength(Vctmp) * VLength(Vttmp)) );
-
-	printf("V: %f\n", V);*/
-
-	//TODO!
-
-	/*
-	// U0
-	// ^     U
-	// |     ^
-	// |__V /
-	// |  \/
-	// |  /
-	// | /
-	// *-----------> X
-	// |
-	//  |
-	//   |
-	//    |
-	//     |
-	//      |
-	//       V
-	//       U1
+	// V
+	// ^       V1
+	// | angle ^
+	// |__   /
+	// |  \ /
+	// |   /
+	// |_ /
+	// *-|----------> Vx
 	//
-	// (all these vectors are /made/ unit)
+	// (need Vx to calculate V1)
 	//
-	// U0 is a vector V radians away from U0/towards U1
-	// (goal is to go towards U1 without a direct jump)
-	//
-	// Calculation of U:
-	// U = U0*cos(V)+X*sin(V)
-	//
-	// X is unknown, but part of U1 and perpendicular to U0, V1 between U0-U1
-	// since:
-	// U1 = U0*cos(V1) + X*sin(V1)  =>  X = (U1 - U0*cos(V1))/sin(V1)
-	//
-	// V1 is unknown, but can easily be calculated from dot product U0*U1
-	// U0 * U1 = cos(V1)
-	//
-	// lets do this the other way:
+	// V1 = V*cos(angle1) + Vx*sin(angle1) => Vx = (V1-V*cos(angle1))/sin(angle1)
 	
-	//(copy+normalize:
-	float U0[3], U1[3];
+	float Vx[3];
+	//note cos and sin could be calculated once and reused... but that's probably just rice-burning...?
+	Vx[0] = (V1[0] - V[0]*cos(angle1)) /sin(angle1);
+	Vx[1] = (V1[1] - V[1]*cos(angle1)) /sin(angle1);
+	Vx[2] = (V1[2] - V[2]*cos(angle1)) /sin(angle1);
 
-	float l = VLength(lU0);
-	U0[0] = lU0[0]/l;
-	U0[1] = lU0[1]/l;
-	U0[2] = lU0[2]/l;
+	//new value on V:
+	V[0] = V[0]*cos(angle) + Vx[0]*sin(angle);
+	V[1] = V[1]*cos(angle) + Vx[1]*sin(angle);
+	V[2] = V[2]*cos(angle) + Vx[2]*sin(angle);
 
-	l = VLength(lU1);
-	U1[0] = lU1[0]/l;
-	U1[1] = lU1[1]/l;
-	U1[2] = lU1[2]/l;
-	//)
-	
-	// V1:
-	float cos_V1 = (U0[0]*U1[0] + U0[1]*U1[1] + U0[2]*U1[2]);
-	float V1 = acos(cos_V1);
-	float sin_V1 = sin(V1); //useful for later
-
-	//(safety check:
-	//overshooting, or disabled (TODO: if V1 really small?)
-	if (V > V1 || V == 0.0)
-	{
-		U[0] = U1[0];
-		U[1] = U1[1];
-		U[2] = U1[2];
-		return;
-	}
-	//)
-
-	// X:
-	float X[3];
-	X[0] = (U1[0] - U0[0]*cos_V1)/sin_V1;
-	X[1] = (U1[1] - U0[1]*cos_V1)/sin_V1;
-	X[2] = (U1[2] - U0[2]*cos_V1)/sin_V1;
-
-	// U (writes directly to argument pointer):
-	U[0] = U0[0]*cos(V)+X[0]*sin(V);
-	U[1] = U0[1]*cos(V)+X[1]*sin(V);
-	U[2] = U0[2]*cos(V)+X[2]*sin(V);
-
-	//we're done!*/
+	//removed part of V along axis before, give it back:
+	V[0]+=Vp[0]; V[1]+=Vp[1]; V[2]+=Vp[2];
 }
 
 //rotate and focus camera
@@ -495,17 +439,17 @@ void Camera::Rotate(dReal step)
 	}
 
 	//nope, we will have to rotate the axes...
-	//TODO: this could use a simple rotation matrix instead...
-	//TODO: not implemented yet!
+	//NOTE: will modify both vectors, but that's ok
 	VRotate(c_right, t_right, A, Vspeed, Vmax);
 	VRotate(c_dir, t_dir, A, Vspeed, Vmax);
 	VRotate(c_up, t_up, A, Vspeed, Vmax);
+	//TODO. just rotate two, then X product
 
 	//---
 	//update values:
 	//---
 
-	//just copy the (noew modified) values back
+	//just copy the (now modified) values back
 	rotation[0] = c_right[0]; rotation[1] = c_dir[0]; rotation[2] = c_up[0];
 	rotation[3] = c_right[1]; rotation[4] = c_dir[1]; rotation[5] = c_up[1];
 	rotation[6] = c_right[2]; rotation[7] = c_dir[2]; rotation[8] = c_up[2];
