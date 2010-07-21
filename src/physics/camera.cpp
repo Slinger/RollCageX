@@ -261,9 +261,9 @@ void VRotate(float *V, float *V1, float *A, float angle, float angle1)
 	Vx[2] = (V1[2] - V[2]*cos(angle1)) /sin(angle1);
 
 	//new value on V:
-	V[0] = V[0]*cos(angle) + Vx[0]*sin(angle);
-	V[1] = V[1]*cos(angle) + Vx[1]*sin(angle);
-	V[2] = V[2]*cos(angle) + Vx[2]*sin(angle);
+	V[0] = (V[0]*cos(angle)) + (Vx[0]*sin(angle));
+	V[1] = (V[1]*cos(angle)) + (Vx[1]*sin(angle));
+	V[2] = (V[2]*cos(angle)) + (Vx[2]*sin(angle));
 
 	//removed part of V along axis before, give it back:
 	V[0]+=Vp[0]; V[1]+=Vp[1]; V[2]+=Vp[2];
@@ -410,7 +410,6 @@ void Camera::Rotate(dReal step)
 		return;
 	}
 
-
 	//ok, normalize axis:
 	A[0]/=L; A[1]/=L; A[2]/=L;
 
@@ -439,10 +438,20 @@ void Camera::Rotate(dReal step)
 
 	//nope, we will have to rotate the axes...
 	//NOTE: will modify both vectors, but that's ok
-	VRotate(c_right, t_right, A, Vspeed, Vmax);
+
+	//I don't trust the precision of the VRotate function...
+	//only rotate two axes:
 	VRotate(c_dir, t_dir, A, Vspeed, Vmax);
 	VRotate(c_up, t_up, A, Vspeed, Vmax);
-	//TODO. just rotate two, then X product
+
+	//calculate the third, and recalculate one of the first two:
+	VCross(c_right, c_dir, c_up);
+	VCross(c_dir, c_up, c_right);
+
+	//make them unit:
+	VNormalize(c_right);
+	VNormalize(c_dir);
+	VNormalize(c_up);
 
 	//---
 	//update values:
