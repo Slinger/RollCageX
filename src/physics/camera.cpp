@@ -426,8 +426,7 @@ void Camera::Rotate(dReal step)
 	float Vmax = 2.0*asin(VLength(D)/2.0);
 
 	//and how much to rotate!
-	//TODO: speed should probably be affected by Vmax - slow down when reaching target...
-	float Vspeed = internal.stepsize*settings->rotation_speed; //*Vmax; ?
+	float Vspeed = internal.stepsize*settings->rotation_speed*Vmax;
 
 	//check if we can reach target in this step, if so just jump
 	if (Vspeed > Vmax)
