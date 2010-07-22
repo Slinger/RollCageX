@@ -5,7 +5,7 @@ OBJS    = $(patsubst %.cpp,build/%.o, $(wildcard */*.cpp) main.cpp)
 LIBLST	= sdl gl ode
 
 #library flag and inclusion arguments
-LIBS	= `pkg-config --libs $(LIBLST)` -lm
+LIBS	= `pkg-config --libs $(LIBLST)`
 FLAGS	= `pkg-config --cflags $(LIBLST)`
 
 #gcc options:
@@ -51,7 +51,7 @@ w32: ../rcx.exe
 ../rcx.exe:
 	@echo "Compiling static windows binary..."
 	@make \
-		LIBS='`sdl-config --static-libs --libs` `ode-config --libs` -lm -lopengl32 -lglu32 -static -lstdc++ -lwinmm -lgdi32' \
+		LIBS='`sdl-config --static-libs --libs` `ode-config --libs` -lopengl32 -static -lstdc++ -lwinmm -lgdi32' \
 		FLAGS='`sdl-config --cflags` `ode-config --cflags`' \
 		ARGS='-MD -O2 -pipe -Wall -march=i686 -mtune=i686 $$(FLAGS) -Dwindows'
 
