@@ -26,8 +26,6 @@
 //offset for vbo
 #define BUFFER_OFFSET(i) ((char *)NULL + (i))
 
-//
-#define v_length(x, y, z) (sqrt( (x)*(x) + (y)*(y) + (z)*(z) ))
 
 //just normal (component) list for now:
 
@@ -160,6 +158,9 @@ void Graphic_List_Update()
 	tmp->filled = true; //this buffer is now filled with new data
 }
 
+//updated on resizing, needed here:
+extern float view_angle_rate_x, view_angle_rate_y;
+
 void Graphic_List_Render()
 {
 	//see if in buffer got complete set of new data, if so switch
@@ -179,8 +180,17 @@ void Graphic_List_Render()
 	//variables
 	unsigned int m_loop;
 	Trimesh_3D *model;
+	float *matrix;
+	Trimesh_3D::Material *materials;
+	unsigned int material_count;
+	float radius;
+
 	GLuint bound_vbo = 0; //keep track of which vbo is bound
 
+	//data needed to eliminate models not visible by camera:
+	float dir_proj, up_proj, right_proj; //model position relative to camera
+	float dir_max, up_max, right_max; //limit for what camera can render
+	float pos[3]; //relative pos
 
 	//configure rendering options:
 	//(currently pretty redundant, but good when adding other stuff like menus)
@@ -215,27 +225,40 @@ void Graphic_List_Render()
 
 	for (size_t i=0; i<(*count); ++i)
 	{
-		model = list[i].model; //point at model (cleaner code)
+		//for cleaner code, set pointers:
+		model = list[i].model;
+		matrix = list[i].matrix;
+		materials = model->materials;
+		material_count = model->material_count;
+		radius = model->radius;
 
-		//will be checking if objects are visible from camera (currently only one)
-		//dot product between camera direction and position
-		//(position is relative to camera. useing values from matrix)
-		float projection=	camera.rotation[1]*(list[i].matrix[12]-camera.pos[0])+
-					camera.rotation[4]*(list[i].matrix[13]-camera.pos[1])+
-					camera.rotation[7]*(list[i].matrix[14]-camera.pos[2]);
-		//(dir is second column in rotation matrix)
+		//check if object is not visible from current camera:
+		//model pos relative to camera
+		pos[0] = matrix[12]-camera.pos[0];
+		pos[1] = matrix[13]-camera.pos[1];
+		pos[2] = matrix[14]-camera.pos[2];
 
-		//if projection is: behind camera or too far ahead
-		//and no chance of model still reaching into view ("radius"), then ignore this model
-		//TODO: can rule out more through view angle... but maybe takes more processing than gives?
-		if ( ((projection + model->radius) < 0.0) || ((projection - model->radius) > internal.clipping[1]) )
+		//position of camera relative to camera/screen
+		//this is really just a matrix multiplication, but we separate each line into a variable
+		right_proj = pos[0]*camera.rotation[0]+pos[1]*camera.rotation[3]+pos[2]*camera.rotation[6];
+		dir_proj = pos[0]*camera.rotation[1]+pos[1]*camera.rotation[4]+pos[2]*camera.rotation[7];
+		up_proj = pos[0]*camera.rotation[2]+pos[1]*camera.rotation[5]+pos[2]*camera.rotation[8];
+
+		//limit of what range is rendered (compensates for "radius" of model that might still be seen)
+		right_max = view_angle_rate_x*(dir_proj+radius) + radius; //right/left
+		dir_max = internal.clipping[1] + radius; //beyound far clipping
+		up_max = view_angle_rate_y*(dir_proj+radius) + radius; //above/below
+
+		//check if visible:
+		if (	(right_proj > right_max) || (-right_proj > right_max)	||
+			(dir_proj > dir_max)	||
+			(up_proj > up_max) || (-up_proj > up_max)	)
 			continue;
 		//
 		
-
 		glPushMatrix();
 
-			glMultMatrixf (list[i].matrix);
+			glMultMatrixf (matrix);
 
 			if (model->vbo_id != bound_vbo)
 			{
@@ -249,16 +272,16 @@ void Graphic_List_Render()
 			}
 
 			//loop through materials, and draw section(s) of model with this material
-			for (m_loop=0; m_loop< (model->material_count); ++m_loop)
+			for (m_loop=0; m_loop< (material_count); ++m_loop)
 			{
-				glMaterialfv(GL_FRONT, GL_AMBIENT, model->materials[m_loop].ambient);
-				glMaterialfv(GL_FRONT, GL_DIFFUSE, model->materials[m_loop].diffuse);
-				glMaterialfv(GL_FRONT, GL_SPECULAR, model->materials[m_loop].specular);
-				glMaterialfv(GL_FRONT, GL_EMISSION, model->materials[m_loop].emission);
-				glMaterialf (GL_FRONT, GL_SHININESS, model->materials[m_loop].shininess);
+				glMaterialfv(GL_FRONT, GL_AMBIENT, materials[m_loop].ambient);
+				glMaterialfv(GL_FRONT, GL_DIFFUSE, materials[m_loop].diffuse);
+				glMaterialfv(GL_FRONT, GL_SPECULAR, materials[m_loop].specular);
+				glMaterialfv(GL_FRONT, GL_EMISSION, materials[m_loop].emission);
+				glMaterialf (GL_FRONT, GL_SHININESS, materials[m_loop].shininess);
 
 				//draw
-				glDrawArrays(GL_TRIANGLES, model->materials[m_loop].start, model->materials[m_loop].size);
+				glDrawArrays(GL_TRIANGLES, materials[m_loop].start, materials[m_loop].size);
 			}
 
 		glPopMatrix();

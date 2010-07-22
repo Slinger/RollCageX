@@ -56,6 +56,7 @@ class Camera
 
 		//camera direction (rotation matrix)
 		float rotation[3*3];
+		//(right, dir, up)
 
 		float air_timer;
 		float offset_scale; //0-1   0 in air, 1 on ground
