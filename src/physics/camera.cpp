@@ -228,18 +228,14 @@ void Camera::Damp(dReal step)
 
 //rotate vector V towards vector V1, along axis A by angle (angle1 - between V and V1)
 //this could use a simple rotation matrix instead, but a trig solution seems cleanest
-void VRotate(float *V, float *V1, float *A, float angle, float angle1)
+void VRotate(float *V, float *V1, float *A, float angle)
 {
 	//remove part of vectors along axis:
-	//(both V and V1 should have ~equal~ dot product)
-	float proj = VDot(V, A);
+	float proj = VDot(V, A); //how much of V (and V1) is along axis
 	float Vp[3] = {proj*A[0], proj*A[1], proj*A[2]}; //part of Vector Along axis
 
-	//modify given vectors so perpendicular to axis (remove projection on axis)
+	//modify given vector so perpendicular to axis (remove projection on axis)
 	V[0]-=Vp[0]; V[1]-=Vp[1]; V[2]-=Vp[2];
-	V1[0]-=Vp[0]; V1[1]-=Vp[1]; V1[2]-=Vp[2];
-	//float proj2 = VDot(Vt, A);
-	//(just like many other places in this code, these two are theorethically equal)
 
 	// V
 	// ^       V1
@@ -252,18 +248,27 @@ void VRotate(float *V, float *V1, float *A, float angle, float angle1)
 	//
 	// (need Vx to calculate V1)
 	//
-	// V1 = V*cos(angle1) + Vx*sin(angle1) => Vx = (V1-V*cos(angle1))/sin(angle1)
 	
+	//just use cross product to find Vx
 	float Vx[3];
-	//note cos and sin could be calculated once and reused... but that's probably just rice-burning...?
-	Vx[0] = (V1[0] - V[0]*cos(angle1)) /sin(angle1);
-	Vx[1] = (V1[1] - V[1]*cos(angle1)) /sin(angle1);
-	Vx[2] = (V1[2] - V[2]*cos(angle1)) /sin(angle1);
+	VCross(Vx, V, A);
+
+	//note: since A is unit, perpendicular to V, |Vx|=|V| !)
 
 	//new value on V:
-	V[0] = (V[0]*cos(angle)) + (Vx[0]*sin(angle));
-	V[1] = (V[1]*cos(angle)) + (Vx[1]*sin(angle));
-	V[2] = (V[2]*cos(angle)) + (Vx[2]*sin(angle));
+	//(V1 negative proj on Vx: rotation "wrong way")
+	if (VDot(Vx, V1) < 0.0)
+	{
+		V[0] = (V[0]*cos(angle)) - (Vx[0]*sin(angle));
+		V[1] = (V[1]*cos(angle)) - (Vx[1]*sin(angle));
+		V[2] = (V[2]*cos(angle)) - (Vx[2]*sin(angle));
+	}
+	else
+	{
+		V[0] = (V[0]*cos(angle)) + (Vx[0]*sin(angle));
+		V[1] = (V[1]*cos(angle)) + (Vx[1]*sin(angle));
+		V[2] = (V[2]*cos(angle)) + (Vx[2]*sin(angle));
+	}
 
 	//removed part of V along axis before, give it back:
 	V[0]+=Vp[0]; V[1]+=Vp[1]; V[2]+=Vp[2];
@@ -436,19 +441,22 @@ void Camera::Rotate(dReal step)
 		return;
 	}
 
-	//nope, we will have to rotate the axes...
-	//NOTE: will modify both vectors, but that's ok
 
-	//I don't trust the precision of the VRotate function...
-	//only rotate two axes:
-	VRotate(c_dir, t_dir, A, Vspeed, Vmax);
-	VRotate(c_up, t_up, A, Vspeed, Vmax);
+	//
+	//nope, we will have to rotate the axes...
+	//
+
+	//while VRotate got a fairly good accuracy, it got limited calculation precision.
+	//so vectors might not be perpendicular and unit after many simulations...
+	//thus: only rotate two axes:
+	VRotate(c_dir, t_dir, A, Vspeed);
+	VRotate(c_up, t_up, A, Vspeed);
 
 	//calculate the third, and recalculate one of the first two:
 	VCross(c_right, c_dir, c_up);
 	VCross(c_dir, c_up, c_right);
 
-	//make them unit:
+	//and make them unit:
 	VNormalize(c_right);
 	VNormalize(c_dir);
 	VNormalize(c_up);
