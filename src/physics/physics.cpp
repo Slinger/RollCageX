@@ -102,13 +102,17 @@ int physics_loop (void *d)
 		}
 
 		simtime += stepsize_ms;
-		realtime = SDL_GetTicks();
-		if (simtime > realtime)
-			SDL_Delay (simtime - realtime);
-		else
-			++stepsize_warnings;
 
-		//count how many stepse
+		if (internal.sync_physics)
+		{
+			realtime = SDL_GetTicks();
+			if (simtime > realtime)
+				SDL_Delay (simtime - realtime);
+			else
+				++stepsize_warnings;
+		}
+
+		//count how many steps
 		++step_count;
 	}
 	return 0;
