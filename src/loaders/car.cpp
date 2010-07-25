@@ -430,6 +430,7 @@ Car *Car_Template::Spawn (dReal x, dReal y, dReal z)
 		//allocate (geom) data
 		wheel_data[i] = new Geom(wheel_geom, car);
 
+		//data:
 		//friction
 		wheel_data[i]->mu = conf.wheel_mu;
 		wheel_data[i]->mu_rim = conf.rim_mu;
@@ -441,6 +442,8 @@ Car *Car_Template::Spawn (dReal x, dReal y, dReal z)
 		wheel_data[i]->erp = conf.wheel_erp;
 		wheel_data[i]->cfm = conf.wheel_cfm;
 
+		//rim or tyre:
+		wheel_data[i]->rim_angle = cos(conf.rim_angle/180.0*M_PI);
 
 		//drag
 		bdata = new Body (wheel_body[i], car);
@@ -451,7 +454,7 @@ Car *Car_Template::Spawn (dReal x, dReal y, dReal z)
 		//graphics
 		wheel_data[i]->f_3d = wheel_graphics;
 		
-		//(we need easy access to wheel body ids if using finite rotation)
+		//(we need easy access to wheel body ids
 		car->wheel_body[i] = wheel_body[i];
 		car->wheel_geom_data[i] = wheel_data[i];
 	}

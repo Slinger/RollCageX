@@ -125,9 +125,24 @@ void Geom::Collision_Callback (void *data, dGeomID o1, dGeomID o2)
 				//dot product between wheel axis and force direction (contact normal)
 				dReal dot = contact[i].geom.normal[0]*fdir[0]+contact[i].geom.normal[1]*fdir[1]+contact[i].geom.normal[2]*fdir[2];
 
-				//tyre
-				if (-internal.rim_angle < dot && dot < internal.rim_angle)
+				//rim (outside range for tyre)
+				if (dot > wheel->rim_angle || (-dot) > wheel->rim_angle)
 				{
+					contact[i].surface.mode = mode;
+
+					contact[i].surface.mu = mu_rim;
+					contact[i].surface.soft_erp = erp;
+					contact[i].surface.soft_cfm = cfm;
+					contact[i].surface.bounce = bounce; //in case specified
+					dJointID c = dJointCreateContact (world,contactgroup,&contact[i]);
+					dJointAttach (c,b1,b2);
+
+					if (feedback)
+						new Collision_Feedback(c, geom1, geom2);
+				}
+				else //tyre
+				{
+					//TODO: pacejka
 					contact[i].surface.mode = mode_tyre;
 
 					contact[i].fdir1[0] = fdir[0];
@@ -145,22 +160,6 @@ void Geom::Collision_Callback (void *data, dGeomID o1, dGeomID o2)
 					if (feedback)
 						new Collision_Feedback(c, geom1, geom2);
 				}
-				//rim
-				else
-				{
-					contact[i].surface.mode = mode;
-
-					contact[i].surface.mu = mu_rim;
-					contact[i].surface.soft_erp = erp;
-					contact[i].surface.soft_cfm = cfm;
-					contact[i].surface.bounce = bounce; //in case specified
-					dJointID c = dJointCreateContact (world,contactgroup,&contact[i]);
-					dJointAttach (c,b1,b2);
-
-					if (feedback)
-						new Collision_Feedback(c, geom1, geom2);
-				}
-
 			}
 		}
 
