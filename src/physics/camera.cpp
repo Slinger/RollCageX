@@ -385,17 +385,17 @@ void Camera::Rotate(dReal step)
 	float L, *A, *D;
 	//L - length, A - axis, D - change of direction)
 
-	//if 2 is bigger than 1
-	if (L2 > L1)
-	{
-		L = L2;
-		A = A2;
-		D = d_right;
-	}
-	else //no, 1 is bigger
+	//if 1 is bigger than 2
+	if (L1 > L2)
 	{
 		L = L1;
 		A = A1;
+		D = d_right;
+	}
+	else //no, 2 is bigger
+	{
+		L = L2;
+		A = A2;
 		D = d_dir;
 	}
 	if (L3 > L) //wait! - 3 was even bigger
