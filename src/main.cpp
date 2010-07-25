@@ -129,7 +129,7 @@ bool select_and_load_race(Profile *prof)
 	//spawn car
 	Car *player_car = car_template->Spawn(track.start[0], track.start[1], track.start[2],  tyre, rim);
 	prof->car = player_car;
-	camera.car = player_car;
+	camera.Set_Car(player_car);
 
 	//ok!
 	return true;

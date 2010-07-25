@@ -35,6 +35,7 @@ struct list_element
 {
 	GLfloat matrix[16]; //4x4
 	Trimesh_3D *model; //model to render
+	Object *object; //object to which this component belongs
 };
 
 //keeps track of a buffer of elements:
@@ -101,6 +102,9 @@ void Graphic_List_Update()
 			//set what to render
 			list[*count].model = g->model;
 
+			//set object owning this component:
+			list[*count].object = g->object_parent;
+
 			//if buffer full...
 			if (++(*count) == buffer_size)
 			{
@@ -142,6 +146,9 @@ void Graphic_List_Update()
 
 			//set what to render
 			list[*count].model = b->model;
+
+			//set object owning this component:
+			list[*count].object = b->object_parent;
 
 			//if buffer full...
 			if (++(*count) == buffer_size)
@@ -249,10 +256,11 @@ void Graphic_List_Render()
 		dir_max = internal.clipping[1] + radius; //beyound far clipping
 		up_max = view_angle_rate_y*(dir_proj+radius) + radius; //above/below
 
-		//check if visible:
-		if (	(right_proj > right_max) || (-right_proj > right_max)	||
-			(dir_proj > dir_max)	||
-			(up_proj > up_max) || (-up_proj > up_max)	)
+		//check if visible (or hidden for this camera):
+		if (	(list[i].object == camera.hide)				||
+			(right_proj > right_max) || (-right_proj > right_max)	||
+			(dir_proj > dir_max)					||
+			(up_proj > up_max) || (-up_proj > up_max)		)
 			continue;
 		//
 		

@@ -19,6 +19,7 @@
 struct Camera_Settings {
 	float target[3];
 	float anchor[3], distance[3];
+	bool hide_car;
 	float radius;
 	float linear_stiffness;
 	float angular_stiffness;
@@ -33,9 +34,16 @@ struct Camera_Settings {
 class Camera
 {
 	public:
+		//constructor
 		Camera();
+
+		//select settings
 		void Set_Settings(Camera_Settings *settings);
 
+		//focus on this car
+		void Set_Car(Car*);
+
+		//sets position and rotation of camera from two points
 		void Set_Pos(float p[3], float d[3]);
 
 		//movement (might change or be removed at some point)
@@ -45,10 +53,10 @@ class Camera
 		void Physics_Step(dReal step);
 		void Graphics_Step();
 
-		//public for now...
-		Car *car;
 	private:
 		struct Camera_Settings *settings;
+		Car *car;
+		Object *hide;
 
 		//position/velocity
 		float pos[3];

@@ -18,6 +18,7 @@ Camera::Camera()
 {
 	settings=NULL;
 	car = NULL;
+	hide = NULL;
 
 	//right, dir, up
 	rotation[0]=0; rotation[1]=1; rotation[2]=0; 
@@ -56,6 +57,23 @@ void Camera::Set_Settings (Camera_Settings *set)
 			offset_scale = 1;
 		}
 	}
+
+	//if not rendering car
+	if (settings->hide_car)
+		hide=car;
+	else
+		hide=NULL;
+}
+
+void Camera::Set_Car (Car *c)
+{
+	car = c;
+
+	//just make sure car stays hidden if current settings wants that
+	if (settings && settings->hide_car)
+		hide=car;
+	else
+		hide=NULL;
 }
 
 //length of vector
