@@ -32,7 +32,7 @@ class VBO: public Racetime_Data
 			//check so enough space in even a new vbo:
 			if (needed > VBO_SIZE)
 			{
-				printlog(0, "ERROR: needed more room than max vbo size (%i)!", VBO_SIZE);
+				printlog(0, "ERROR: needed more room than max vbo size (%uB needed, %uB available)!", needed, VBO_SIZE);
 				return NULL;
 			}
 
