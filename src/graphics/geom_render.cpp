@@ -17,6 +17,11 @@
 #include <limits.h>
 #include <math.h>
 
+//
+//one VBO+tmp data for "stream drawing" of graphics:
+//(data is first generated in ram, then sent to vbo in vram)
+//
+
 //arbitrary, but high enough to store most data
 #define VERTEX_SIZE 2000
 #define INDEX_SIZE 3000
@@ -32,6 +37,7 @@ struct geom_vertex {
 	float z;
 };
 geom_vertex *vertices; //when building
+
 struct geom_index {
 	unsigned short a;
 	unsigned short b;
@@ -41,48 +47,47 @@ geom_index *indices; //when building
 //keep track, so not overflowing
 unsigned int vertex_usage, index_usage;
 
-class Render_Buffers:public Racetime_Data
+//creates vbo and allocates memory
+void Geom_Render_Create()
 {
-	public:
-		//allocate one buffer
-		Render_Buffers(): Racetime_Data("geom rendering VBOs tracking class")
-		{
-			printlog(1, "generating buffers for geom rendering");
+	printlog(2, "generating buffers for geom rendering");
 
-			//allocate for building
-			vertices = new geom_vertex[VERTEX_SIZE]; //3 floats per vertex
-			indices = new geom_index[INDEX_SIZE];
+	//allocate for building
+	vertices = new geom_vertex[VERTEX_SIZE];
+	indices = new geom_index[INDEX_SIZE];
 
-			//create
-			glGenBuffers(1, &vertexVBO);
-			glGenBuffers(1, &indexVBO);
+	//create
+	glGenBuffers(1, &vertexVBO);
+	glGenBuffers(1, &indexVBO);
 
-			//ok!
-			Got_Buffers = true;
-		}
+	//ok!
+	Got_Buffers = true;
+}
 
-		~Render_Buffers()
-		{
-			//delete
-			glDeleteBuffers(1, &vertexVBO);
-			glDeleteBuffers(1, &indexVBO);
+//removes vbo and memory
+void Geom_Render_Clear()
+{
+	//indicate now removed
+	Got_Buffers = false;
 
-			//delete building arrays
-			delete[] vertices;
-			delete[] indices;
+	//delete
+	glDeleteBuffers(1, &vertexVBO);
+	glDeleteBuffers(1, &indexVBO);
 
-			//just making sure not fooled in next race
-			Got_Buffers = false;
-		}
-};
+	//delete building arrays
+	delete[] vertices;
+	delete[] indices;
+}
 
+
+//
 //render geoms
-//NOTE: when binding this buffer, will have to rebind the proper model boffer again...
+//
 void Geom_Render()
 {
 	//check if rendering
 	if (!Got_Buffers)
-		new Render_Buffers();
+		Geom_Render_Create();
 
 	//build data
 	vertex_usage=0;

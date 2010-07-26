@@ -49,6 +49,9 @@ class VBO: public Racetime_Data
 		GLsizei usage; //how much of buffer is used (possibly GLint instead?)
 
 	private:
+		//normally, Racetime_Data is only for tracking loaded data, one class for each loaded...
+		//but this is slightly different: one vbo class can store several model sets
+		//(making it a Racetime_Data makes sure all VBOs gets deleted at the same time as models)
 		VBO(): Racetime_Data("VBO tracking class") //name all vbo classes this...
 		{
 			printlog(1, "creating new vbo, %u bytes of size", VBO_SIZE);

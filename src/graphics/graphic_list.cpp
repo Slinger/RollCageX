@@ -46,6 +46,8 @@ struct list_buffer
 	list_element *list;
 };
 
+//the buffers are initially set at this size, and increased when needed
+//(but never decreased. but since relatively smal, no out-of-memory problems?)
 size_t buffer_size = INITIAL_GRAPHIC_LIST_BUFFER_SIZE;
 
 //buffers
@@ -108,7 +110,7 @@ void Graphic_List_Update()
 			//if buffer full...
 			if (++(*count) == buffer_size)
 			{
-				printlog(1, "Note: Graphic_List buffers were too small, resizing");
+				printlog(2, "Note: Graphic_List buffers were too small, resizing");
 
 				buffer_size+=INITIAL_GRAPHIC_LIST_BUFFER_SIZE;
 				buffer1.list = (list_element*) realloc(buffer1.list, sizeof(list_element)*buffer_size);

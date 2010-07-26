@@ -46,6 +46,10 @@ float view_angle_rate_x=0.0;
 float view_angle_rate_y=0.0;
 //
 
+//used to remove temporary memory after each race rendering
+extern void Geom_Render_Clear();
+//
+
 void graphics_resize (int new_w, int new_h)
 {
 	screen = SDL_SetVideoMode (new_w, new_h, 0, flags);
@@ -208,6 +212,10 @@ int graphics_loop ()
 		SDL_PumpEvents();
 		SDL_mutexV(sdl_mutex);
 	}
+
+	//during rendering, memory might be allocated to use as buffers
+	//(this will quickly be reallocated in each race and can be removed)
+	Geom_Render_Clear();
 
 	return 0;
 }
