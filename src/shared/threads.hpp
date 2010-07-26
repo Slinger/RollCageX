@@ -31,6 +31,8 @@ extern Uint32 physics_time;
 extern unsigned int graphics_count;
 extern bool graphics_event_resize;
 extern int graphics_event_resize_w, graphics_event_resize_h;
+//events:
+extern unsigned int events_count;
 
 //functions
 bool graphics_init(void);

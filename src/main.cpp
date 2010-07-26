@@ -28,7 +28,7 @@
 #include "shared/track.hpp"
 
 Uint32 starttime = 0;
-Uint32 uptime = 0;
+Uint32 racetime = 0;
 Uint32 simtime = 0; 
 
 void Run_Race(void)
@@ -64,7 +64,7 @@ void Run_Race(void)
 	//done!
 	printlog(0, "Race Done!");
 
-	uptime = SDL_GetTicks() - starttime;
+	racetime = SDL_GetTicks() - starttime;
 	simtime = physics_time - starttime;
 }
 
@@ -162,11 +162,23 @@ int main (int argc, char *argv[])
 	
 	//might be interesting
 	printlog(1, "\n\n   <[ Info ]>");
-	printlog(1, "Startup time:	%ums", starttime);
-	printlog(1, "Race time:		%ums", uptime);
-	printlog(1, "Simulated time:	%ums (%u%% of real time) - %u steps", simtime, (simtime*100)/uptime, physics_count);
-	printlog(1, "Physics lag:		%u steps (%u%% of total steps)", physics_lag, (100*physics_lag)/physics_count);
-	printlog(1, "Avarage FPS:		%u", (1000*graphics_count)/uptime);
+	printlog(1, "Startup time:		%ums", starttime);
+	printlog(1, "Race time:			%ums", racetime);
+
+	printlog(1, "Simulated time:		%ums (%u%% of real time)",
+						simtime, (100*simtime)/racetime);
+
+	printlog(1, "Avarage physics/second:	%u steps (%u in total)",
+						(1000*physics_count)/racetime, physics_count);
+
+	printlog(1, "Physics lag:			%u%% of steps (%u steps in total)",
+						(100*physics_lag)/physics_count, physics_lag);
+
+	printlog(1, "Avarage graphics/second:	%u steps (FPS)",
+						(1000*graphics_count)/racetime);
+
+	printlog(1, "Avarage events/second:	%u steps (%u in total, %u%% of physics steps)",
+						(1000*events_count)/racetime, events_count, (100*events_count)/physics_count);
 
 	printf("\nBye!\n\n");
 

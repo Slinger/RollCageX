@@ -26,6 +26,7 @@
 #include "timers.hpp"
 
 
+unsigned int events_count = 0;
 
 //TMP: keep track of demo spawn stuff
 Object_Template *box = NULL;
@@ -146,6 +147,7 @@ int events_loop (void *d)
 		//done
 		SDL_mutexV(ode_mutex);
 
+		++events_count;
 		time_old = time;
 	}
 	return 0;
