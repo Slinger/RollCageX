@@ -28,6 +28,9 @@
 #include "shared/track.hpp"
 #include "shared/trimesh.hpp"
 
+Uint32 starttime = 0;
+Uint32 racetime = 0;
+Uint32 simtime = 0; 
 
 //tmp
 Trimesh_3D *load_model(const char *path, const char *file)
@@ -136,13 +139,10 @@ bool select_and_load_race(Profile *prof)
 }
 
 Uint32 start_time = 0;
-void start_race(void)
+void Run_Race(void)
 {
-	Uint32 simtime = SDL_GetTicks(); //set simulated time to realtime
-	start_time = simtime; //how long it took for race to start
-
 	//start
-	printlog (0, "Starting Race (multithreaded)");
+	printlog (0, "Starting Race");
 
 	ode_mutex = SDL_CreateMutex(); //create mutex for ode locking
 	sdl_mutex = SDL_CreateMutex(); //only use sdl in 1 thread
@@ -151,6 +151,8 @@ void start_race(void)
 	sync_cond = SDL_CreateCond();
 
 	runlevel  = running;
+
+	starttime = SDL_GetTicks(); //how long it took for race to start
 
 	//launch threads
 	SDL_Thread *physics = SDL_CreateThread (physics_loop, NULL);
@@ -166,19 +168,12 @@ void start_race(void)
 	SDL_DestroyMutex(sdl_mutex);
 	SDL_DestroyMutex(sync_mutex);
 	SDL_DestroyCond(sync_cond);
-	//done!
-}
 
-void print_info()
-{
-	Uint32 uptime = SDL_GetTicks();
-	uptime -= start_time;
+	//done!
 	printlog(0, "Race Done!");
-	printlog(1, "<-- Some basic info: -->");
-	printlog(1, "Startup time (ms):			%u", start_time);
-	printlog(1, "Race time (ms):			%u (%u steps)", uptime, step_count);
-	printlog(1, "Stepsize (slowdown) warnings:	%u (%u%% of total steps)", stepsize_warnings, (100*stepsize_warnings)/step_count);
-	printlog(1, "Avarage FPS:				%u", (1000*frame_count)/uptime);
+
+	racetime = SDL_GetTicks() - starttime;
+	simtime = physics_time - starttime;
 }
 
 //simple demo:
@@ -230,7 +225,7 @@ int main (int argc, char *argv[])
 	}
 
 	//MENU: race configured, start?
-	start_race();
+	Run_Race();
 
 	//race done, remove all objects...
 	Object::Destroy_All();
@@ -250,10 +245,28 @@ int main (int argc, char *argv[])
 	// - assumes player wants to quit -
 	graphics_quit();
 	
-	//some basic info (until menu for printing it)
-	print_info();
+	//might be interesting
+	printlog(1, "\n\n   <[ Info ]>");
+	printlog(1, "Startup time:		%ums", starttime);
+	printlog(1, "Race time:			%ums", racetime);
+
+	printlog(1, "Simulated time:		%ums (%u%% of real time)",
+						simtime, (100*simtime)/racetime);
+
+	printlog(1, "Avarage physics/second:	%u steps (%u in total)",
+						(1000*physics_count)/racetime, physics_count);
+
+	printlog(1, "Physics lag:			%u%% of steps (%u steps in total)",
+						(100*physics_lag)/physics_count, physics_lag);
+
+	printlog(1, "Avarage graphics/second:	%u steps (FPS)",
+						(1000*graphics_count)/racetime);
+
+	printlog(1, "Avarage events/second:	%u steps (%u in total, %u%% of physics steps)",
+						(1000*events_count)/racetime, events_count, (100*events_count)/physics_count);
 
 	printf("\nBye!\n\n");
+
 	return 0;
 }
 

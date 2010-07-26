@@ -20,7 +20,7 @@ extern struct internal_struct {
 	int verbosity;
 
 	//for multithreading
-	bool sync_graphics, sync_events;
+	bool sync_physics, sync_graphics, sync_events;
 
 	//physics
 	dReal stepsize;
@@ -54,9 +54,7 @@ extern struct internal_struct {
 
 const struct internal_struct internal_defaults = {
 	1, //verbosity 1 until cheanged
-	//threading options
-	true,true,
-	//physics
+	true,true,true,
 	0.01,
 	5,
 	4,
@@ -84,6 +82,7 @@ const struct internal_struct internal_defaults = {
 
 const struct Conf_Index internal_index[] = {
 	{"verbosity",		'i',1, offsetof(struct internal_struct, verbosity)},
+	{"sync_physics",	'b',1, offsetof(struct internal_struct, sync_physics)},
 	{"sync_graphics",	'b',1, offsetof(struct internal_struct, sync_graphics)},
 	{"sync_events",		'b',1, offsetof(struct internal_struct, sync_events)},
 	{"stepsize",		'R',1, offsetof(struct internal_struct, stepsize)},

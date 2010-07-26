@@ -46,7 +46,10 @@ class Geom: public Component
 		//placeholder for more physics data
 		dReal mu, mu_rim, erp, cfm, slip, bounce;
 
+		//TODO: wheel-specific data should probably be stored in car struct,
+		//pointed to called "wheel" (NULL if not wheel)
 		bool wheel; //true if wheel side slip and connected to hinge2
+		dReal rim_angle;
 		dJointID hinge2;
 
 		//End of physics data
