@@ -29,8 +29,9 @@
 
 #include "../graphics/graphic_list.hpp"
 
-unsigned int stepsize_warnings = 0;
-unsigned int step_count = 0;
+unsigned int physics_lag = 0;
+unsigned int physics_count = 0;
+Uint32 physics_time = 0;
 
 bool physics_init(void)
 {
@@ -62,7 +63,7 @@ int physics_loop (void *d)
 {
 	printlog(1, "Starting physics loop");
 
-	Uint32 simtime = SDL_GetTicks(); //set simulated time to realtime
+	physics_time = SDL_GetTicks(); //set simulated time to realtime
 	Uint32 realtime; //real time (with possible delay since last update)
 	Uint32 stepsize_ms = (Uint32) (internal.stepsize*1000.0+0.0001);
 	dReal divided_stepsize = internal.stepsize/internal.multiplier;
@@ -101,19 +102,19 @@ int physics_loop (void *d)
 			SDL_mutexV(sync_mutex);
 		}
 
-		simtime += stepsize_ms;
+		physics_time += stepsize_ms;
 
 		if (internal.sync_physics)
 		{
 			realtime = SDL_GetTicks();
-			if (simtime > realtime)
-				SDL_Delay (simtime - realtime);
+			if (physics_time > realtime)
+				SDL_Delay (physics_time - realtime);
 			else
-				++stepsize_warnings;
+				++physics_lag;
 		}
 
 		//count how many steps
-		++step_count;
+		++physics_count;
 	}
 	return 0;
 }

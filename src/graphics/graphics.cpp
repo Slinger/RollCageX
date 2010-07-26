@@ -33,7 +33,7 @@ SDL_Surface *screen;
 Uint32 flags = SDL_OPENGL | SDL_RESIZABLE;
 
 //count frames
-Uint32 frame_count = 0;
+unsigned int graphics_count = 0;
 
 //if multithreading, event thread will alert graphics thread about resizing events (to avoid stealing the context)
 bool graphics_event_resize = false;
@@ -138,7 +138,7 @@ int graphics_loop ()
 		}
 
 		//keep track of how many rendered frames
-		++frame_count;
+		++graphics_count;
 
 		//see if we need to resize
 		if (graphics_event_resize)
