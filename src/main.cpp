@@ -256,7 +256,7 @@ int main (int argc, char *argv[])
 	printlog(1, "Avarage physics/second:	%u steps (%u in total)",
 						(1000*physics_count)/racetime, physics_count);
 
-	printlog(1, "Physics lag:			%u%% of steps (%u steps in total)",
+	printlog(1, "Physics lag:			%u%% of steps (%u in total)",
 						(100*physics_lag)/physics_count, physics_lag);
 
 	printlog(1, "Avarage graphics/second:	%u steps (FPS)",

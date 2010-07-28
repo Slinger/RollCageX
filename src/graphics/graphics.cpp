@@ -46,9 +46,6 @@ float view_angle_rate_x=0.0;
 float view_angle_rate_y=0.0;
 //
 
-//used to remove temporary memory after each race rendering
-extern void Geom_Render_Clear();
-//
 
 void graphics_resize (int new_w, int new_h)
 {

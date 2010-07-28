@@ -22,6 +22,12 @@
 // * VBO index buffer for short[1] vertices 
 // * transformed when generated, no matrices for GL
 
+//arbitrary, but high enough to render most small simulations
+//(if not high enough, will be increased)
+#define VERTEX_BLOCK 2000 //min number of vertices per mem increase
+#define INDEX_BLOCK 3000 //min number of indices per mem increase
+
 void Geom_Render();
+void Geom_Render_Clear(); //for removing VBO+ram memory
 
 #endif

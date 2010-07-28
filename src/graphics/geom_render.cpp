@@ -22,10 +22,6 @@
 //(data is first generated in ram, then sent to vbo in vram)
 //
 
-//arbitrary, but high enough to store most data
-#define VERTEX_SIZE 2000
-#define INDEX_SIZE 3000
-
 //only allocate memory and buffers _if_ going to render
 //(and then keep the memory until end of race)
 bool Got_Buffers = false;
@@ -37,24 +33,70 @@ struct geom_vertex {
 	float z;
 };
 geom_vertex *vertices; //when building
+geom_vertex *v; //pointer for easily looping through
 
 struct geom_index {
 	unsigned short a;
 	unsigned short b;
 };
 geom_index *indices; //when building
+geom_index *i; //pointer
 
 //keep track, so not overflowing
+unsigned int vertex_size, index_size;
 unsigned int vertex_usage, index_usage;
+
+//makes sure got big enough index/vertex buffers
+void Assure_Memory(unsigned int vertex_needed, unsigned int index_needed)
+{
+	int v_lacking = vertex_needed-(vertex_size-vertex_usage);
+	int i_lacking = index_needed-(index_size-index_usage);
+
+	//if positive, there is need for more memory than there currently is
+	if (v_lacking > 0)
+	{
+		//try to allocate this chunk of data if possible
+		if (v_lacking < VERTEX_BLOCK)
+			vertex_size += VERTEX_BLOCK;
+		else //no, needed even more memory...
+			vertex_size += v_lacking;
+		
+		size_t memory = sizeof(geom_vertex)*vertex_size;
+		printlog(1, "growing geom rendering vertex buffer to %u bytes", memory);
+		vertices = (geom_vertex*)realloc(vertices, memory);
+
+		//since we've changed the memory, reconfigure pointer:
+		v = &vertices[vertex_usage];
+	}
+
+	if (i_lacking > 0)
+	{
+		if (i_lacking < INDEX_BLOCK)
+			index_size += INDEX_BLOCK;
+		else
+			index_size += i_lacking;
+		
+		size_t memory = sizeof(geom_index)*index_size;
+		printlog(1, "growing geom rendering index buffer to %u bytes", memory);
+		indices = (geom_index*)realloc(indices, memory);
+
+		i = &indices[index_usage];
+	}
+
+}
 
 //creates vbo and allocates memory
 void Geom_Render_Create()
 {
-	printlog(2, "generating buffers for geom rendering");
+	size_t v_mem = sizeof(geom_vertex)*VERTEX_BLOCK;
+	size_t i_mem = sizeof(geom_index)*INDEX_BLOCK;
+	printlog(1, "generating buffers for geom rendering (vertices: %u bytes, indices: %u bytes)", v_mem, i_mem);
 
 	//allocate for building
-	vertices = new geom_vertex[VERTEX_SIZE];
-	indices = new geom_index[INDEX_SIZE];
+	vertices = (geom_vertex*)malloc(v_mem);
+	vertex_size = VERTEX_BLOCK;
+	indices = (geom_index*)malloc(i_mem);
+	index_size = INDEX_BLOCK;
 
 	//create
 	glGenBuffers(1, &vertexVBO);
@@ -75,14 +117,36 @@ void Geom_Render_Clear()
 	glDeleteBuffers(1, &indexVBO);
 
 	//delete building arrays
-	delete[] vertices;
-	delete[] indices;
+	free(vertices);
+	free(indices);
 }
 
 
 //
 //render geoms
 //
+
+//macros to reduce repetitive typing...
+//vertex (absolute rotation)
+#define AVertex(X,Y,Z){ \
+	(v->x)=(pos[0]+(X)); \
+	(v->y)=(pos[1]+(Y)); \
+	(v->z)=(pos[2]+(Z)); \
+	++v; ++new_vertices;}
+
+//vertex (relative rotation)
+#define RVertex(X,Y,Z){ \
+	(v->x)=(pos[0]+((X)*rot[0]+(Y)*rot[1]+(Z)*rot[2])); \
+	(v->y)=(pos[1]+((X)*rot[4]+(Y)*rot[5]+(Z)*rot[6])); \
+	(v->z)=(pos[2]+((X)*rot[8]+(Y)*rot[9]+(Z)*rot[10])); \
+	++v; ++new_vertices;}
+
+//index
+#define Index(A,B){ \
+	(i->a)=(vertex_usage+(A)); \
+	(i->b)=(vertex_usage+(B)); \
+	++i; ++new_indices;}
+
 void Geom_Render()
 {
 	//check if rendering
@@ -92,15 +156,14 @@ void Geom_Render()
 	//build data
 	vertex_usage=0;
 	index_usage=0;
-	
+
+	//index/vertex looping pointers
+	v = &vertices[0];
+	i = &indices[0];
 
 	//geom
 	Geom *geom;
 	dGeomID g;
-
-	//index/vertex looping pointers
-	geom_vertex *v = vertices;
-	geom_index *i = indices;
 
 	//position/rotation of geom
 	const dReal *pos;
@@ -116,27 +179,6 @@ void Geom_Render()
 	float vseg = 2.0*M_PI/8.0;
 
 
-	//macros to reduce repetitive typing...
-	//vertex (absolute rotation)
-#define AVertex(X,Y,Z){ \
-	(v->x)=(pos[0]+(X)); \
-	(v->y)=(pos[1]+(Y)); \
-	(v->z)=(pos[2]+(Z)); \
-	++v; ++new_vertices;}
-
-	//vertex (relative rotation)
-#define RVertex(X,Y,Z){ \
-	(v->x)=(pos[0]+((X)*rot[0]+(Y)*rot[1]+(Z)*rot[2])); \
-	(v->y)=(pos[1]+((X)*rot[4]+(Y)*rot[5]+(Z)*rot[6])); \
-	(v->z)=(pos[2]+((X)*rot[8]+(Y)*rot[9]+(Z)*rot[10])); \
-	++v; ++new_vertices;}
-
-	//index
-#define Index(A,B){ \
-	(i->a)=(vertex_usage+(A)); \
-	(i->b)=(vertex_usage+(B)); \
-	++i; ++new_indices;}
-
 	for (geom=Geom::head; geom; geom=geom->next)
 	{
 		g = geom->geom_id;
@@ -146,6 +188,8 @@ void Geom_Render()
 		switch (dGeomGetClass(g))
 		{
 			case dSphereClass:
+				Assure_Memory (24, 24);
+
 				pos = dGeomGetPosition(g);
 				r = dGeomSphereGetRadius(g);
 
@@ -173,6 +217,8 @@ void Geom_Render()
 				break;
 
 			case dBoxClass:
+				Assure_Memory (8, 12);
+
 				pos = dGeomGetPosition(g);
 				rot = dGeomGetRotation(g);
 				dGeomBoxGetLengths(g, result);
@@ -209,6 +255,8 @@ void Geom_Render()
 				break;
 
 			case dCapsuleClass:
+				Assure_Memory (18, 40);
+
 				pos = dGeomGetPosition(g);
 				rot = dGeomGetRotation(g);
 				dGeomCapsuleGetParams(g, &r, &l);
@@ -253,6 +301,8 @@ void Geom_Render()
 				break;
 
 			case dCylinderClass:
+				Assure_Memory (18, 40);
+
 				pos = dGeomGetPosition(g);
 				rot = dGeomGetRotation(g);
 				dGeomCylinderGetParams(g, &r, &l);
@@ -292,15 +342,14 @@ void Geom_Render()
 				break;
 
 			case dTriMeshClass:
+
 				//how many triangles in trimesh
 				triangles = dGeomTriMeshGetTriangleCount(g);
 
-				//if too much to store, don't render
-				if (	(vertex_usage+triangles*3) > VERTEX_SIZE ||
-					(index_usage+triangles*2) > INDEX_SIZE	)
-					break;
+				//make sure
+				Assure_Memory (triangles*3, triangles*3);
 
-				//else, we can now generate:
+				//we can now generate:
 				pos = dGeomGetPosition(g);
 				rot = dGeomGetRotation(g);
 
@@ -324,13 +373,9 @@ void Geom_Render()
 				break;
 		}
 
+		//update usage counters
 		vertex_usage+=new_vertices;
 		index_usage+=new_indices;
-
-		//check so not overflowing (enough room for any of above models next render)
-		//(assumes no model needs more than 64 vertices and indices)
-		if ( (vertex_usage+64) >VERTEX_SIZE || (index_usage+64) >INDEX_SIZE )
-			break;
 	}
 
 	//send and configure data
