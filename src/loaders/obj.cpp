@@ -260,14 +260,18 @@ bool Trimesh::Load_MTL(const char *f)
 				//only one of these are used:
 				if (file.words[0][1] == 's' && file.word_count == 2) //shininess
 				{
-					//usually, this vary between 0 to 1000 for obj, since opengl uses 0 to 128 translate
+					//from what I've read, this vary between 0 to 1000 for obj
 					//materials[mat_nr].shininess = (atof(file.words[1])*(128.0/1000.0));
-					//but maybe, just maybe, some exporters actually use opengl range?!
+					//...but all mtl files I've seen are under 128 (valid opengl range),
+					//so lets just load it directly (without converting)...?
 					materials[mat_nr].shininess = atof(file.words[1]);
-					printf("TODO: should shininess (Ns) be converted from 0-1000 to 0-128 range, or not needed?!\n");
 
+					//seems like there are mtl files out there with Ns>128?
 					if (materials[mat_nr].shininess > 128.0)
-						printf("OK, Ns WENT ABOVE 128! WTF...\n");
+					{
+						materials[mat_nr].shininess=128.0;
+						printlog(0, "ERROR: mtl file got Ns>128, please tell me (Slinger) to fix the mtl loader!");
+					}
 				}
 			}
 
