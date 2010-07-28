@@ -72,26 +72,26 @@ void graphics_resize (int new_w, int new_h)
 	{
 		//angle between w/2 (distance from center of screen to right edge) and players eye distance
 		angle = atan( (((GLfloat) w)/2.0)/internal.dist );
-		printlog(1, "(perspective: %f degrees, based on (your) eye distance: %f pixels", angle, internal.dist);
+		printlog(1, "(perspective: %f degrees, based on (your) eye distance: %f pixels", angle*180/M_PI, internal.dist);
 	}
 	else //bad...
 	{
 		printlog(1, "Angle forced to: %f degrees. And you are an evil person...", internal.angle);
-		angle = (internal.angle * M_PI/360);;
+		angle = (internal.angle * M_PI/180);;
 	}
 
+	//useful for more things:
 	//x = rate*depth
 	view_angle_rate_x = tan(angle);
+	//y = rate*depth (calculated from ratio of window resolution aspect)
+	view_angle_rate_y = view_angle_rate_x * ((GLfloat) h/w);
 	//
 
 	//x position at close clipping
 	GLfloat x = internal.clipping[0] * view_angle_rate_x;
-	//y -''- (calculated from x through window resolution aspect)
-	GLfloat y = x * ((GLfloat) h/w);
+	//y -''- 
+	GLfloat y = internal.clipping[0] * view_angle_rate_y;
 
-	//can get y rate from the y value (rate=y/depth):
-	view_angle_rate_y = y/internal.clipping[0];
-	//
 
 	//set values
 	glFrustum(-x, x, -y, y, internal.clipping[0], internal.clipping[1]);
