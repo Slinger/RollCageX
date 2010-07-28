@@ -12,6 +12,7 @@
 //#include "../shared/shared.hpp"
 #include "../shared/track.hpp"
 
+#include "../shared/internal.hpp"
 #include "../shared/camera.hpp"
 #include "../shared/geom.hpp"
 #include "../shared/printlog.hpp"
@@ -20,6 +21,7 @@
 #include "colours.hpp"
 #include "text_file.hpp"
 
+#include <stdlib.h>
 
 //
 //keep track of all loaded models (cleared between loading)
@@ -114,10 +116,6 @@ bool load_track (const char *path)
 	//tmp plane until respawning implemented
 	geom = dCreatePlane (0, 0,0,1,track.respawn);
 	data = new Geom(geom, track.object);
-	data->mu = track.mu;
-	data->slip = track.slip;
-	data->erp = track.erp;
-	data->cfm = track.cfm;
 
 	//loading of model files
 	char glist[strlen(path)+10+1];
@@ -129,51 +127,97 @@ bool load_track (const char *path)
 
 	if (file.Open(glist))
 	{
+		//store surface properties (defaults at first)
+		dReal mu = internal.mu;
+		dReal slip = internal.slip;
+		dReal bounce = internal.bounce;
+		dReal erp = internal.erp;
+		dReal cfm = internal.cfm;
+		//(they can be float or double - atof returns double which works for both)
+		
 		while (file.Read_Line())
 		{
-			//if requesting loading of file
+			//if requesting optional stuff
 			if (!strcmp(file.words[0], ">") && file.word_count >= 2)
 			{
-				Trimesh *mesh = FindOrLoadMesh(path, file.words[1]);
-
-				if (!mesh)
-					continue; //failure to load, skip this line...
-
-
-				//now process the rest for extra options
-				int pos = 2;
-				while (pos < file.word_count)
+				//model manipulation
+				if (!strcmp(file.words[1], "model"))
 				{
-					int left=file.word_count-pos;
+					printlog(2, "overriding model properties");
 
-					//resize, takes the word resize and one value
-					if (!strcmp(file.words[pos], "resize") && left >= 2)
+					Trimesh *mesh = FindOrLoadMesh(path, file.words[2]);
+
+					if (!mesh)
+						continue; //failure to load, skip this line...
+
+
+					//now process the rest for extra options
+					int pos = 3;
+					while (pos < file.word_count)
 					{
-						mesh->Resize(atof(file.words[pos+1]));
-						pos+=2;
-					}
-					//rotate, takes the word rotate and 3 values
-					else if (!strcmp(file.words[pos], "rotate") && left >= 4)
-					{
-						mesh->Rotate(atof(file.words[pos+1]), //x
-								atof(file.words[pos+2]), //y
-								atof(file.words[pos+3])); //z
-						pos+=4;
-					}
-					//offset, takes the word offset and 3 values
-					else if (!strcmp(file.words[pos], "offset") && left >= 4)
-					{
-						mesh->Offset(atof(file.words[pos+1]), //x
-								atof(file.words[pos+2]), //y
-								atof(file.words[pos+3])); //z
-						pos+=4;
-					}
-					else
-					{
-						printlog(0, "WARNING: trimesh loading option \"%s\" not known", file.words[pos]);
-						++pos;
+						int left=file.word_count-pos;
+
+						//resize, takes the word resize and one value
+						if (!strcmp(file.words[pos], "resize") && left >= 2)
+						{
+							mesh->Resize(atof(file.words[pos+1]));
+							pos+=2;
+						}
+						//rotate, takes the word rotate and 3 values
+						else if (!strcmp(file.words[pos], "rotate") && left >= 4)
+						{
+							mesh->Rotate(atof(file.words[pos+1]), //x
+									atof(file.words[pos+2]), //y
+									atof(file.words[pos+3])); //z
+							pos+=4;
+						}
+						//offset, takes the word offset and 3 values
+						else if (!strcmp(file.words[pos], "offset") && left >= 4)
+						{
+							mesh->Offset(atof(file.words[pos+1]), //x
+									atof(file.words[pos+2]), //y
+									atof(file.words[pos+3])); //z
+							pos+=4;
+						}
+						else
+						{
+							printlog(0, "WARNING: trimesh loading option \"%s\" not known", file.words[pos]);
+							++pos;
+						}
 					}
 				}
+				//surface manipulation
+				else if (!strcmp(file.words[1], "surface"))
+				{
+					printlog(2, "changing surface properties");
+
+					int pos = 2;
+					//as long as there are two words left (option name and value)
+					while ( (file.word_count-pos) >= 2)
+					{
+						if (!strcmp(file.words[pos], "mu"))
+							mu = atof(file.words[++pos]);
+						else if (!strcmp(file.words[pos], "slip"))
+							slip = atof(file.words[++pos]);
+						else if (!strcmp(file.words[pos], "bounce"))
+							bounce = atof(file.words[++pos]);
+						else if (!strcmp(file.words[pos], "erp"))
+							erp = atof(file.words[++pos]);
+						else if (!strcmp(file.words[pos], "cfm"))
+							cfm = atof(file.words[++pos]);
+						else
+						{
+							printlog(0, "WARNING: trimesh surface option \"%s\" unknown", file.words[pos]);
+						}
+
+						//one step forward
+						pos+=1;
+					}
+
+				}
+				else
+					printlog(0, "WARNING: optional line in geoms.lst malformated");
+
 			}
 			//geom to create
 			else if (file.word_count == 8 || file.word_count == 7)
@@ -207,10 +251,11 @@ bool load_track (const char *path)
 				
 				//configure geom
 				data->model = model; //render geom with model
-				data->mu = track.mu;
-				data->slip = track.slip;
-				data->erp = track.erp;
-				data->cfm = track.cfm;
+				data->mu = mu;
+				data->slip = slip;
+				data->bounce = bounce;
+				data->erp = erp;
+				data->cfm = cfm;
 
 				//position
 				x = atof(file.words[0]);

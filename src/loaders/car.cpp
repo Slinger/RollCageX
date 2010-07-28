@@ -318,6 +318,7 @@ Car *Car_Template::Spawn (dReal x, dReal y, dReal z,  Trimesh_3D *tyre, Trimesh_
 		gdata->slip = conf.body_slip;
 		gdata->erp = conf.body_erp;
 		gdata->cfm = conf.body_cfm;
+		gdata->bounce = conf.body_bounce;
 	}
 	//then: spheres
 	struct sphere sphere;

@@ -81,7 +81,8 @@ void Geom::Collision_Callback (void *data, dGeomID o1, dGeomID o2)
 		{
 			mode |= dContactBounce;
 
-			bounce = (geom1->bounce)*(geom2->bounce);
+			//instead of usual product, use sum
+			bounce = (geom1->bounce)+(geom2->bounce);
 		}
 
 		//determine if _one_of the geoms is a wheel

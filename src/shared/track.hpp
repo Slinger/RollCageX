@@ -35,10 +35,6 @@ extern struct Track_Struct {
 	float position[4]; //light position
 	
 	dReal gravity;
-	dReal mu; //friction (normal)
-	dReal slip; //for wheel friction
-	dReal erp;
-	dReal cfm;
 
 	dReal density; //for air drag (friction)
 	dReal wind[3];
@@ -61,10 +57,6 @@ const struct Track_Struct track_defaults = {
 	{1.0,1.0,1.0},
 	{-1.0,0.5,1.0},
 	9.82,
-	1.0,
-	1.0,
-	0.8,
-	0.01,
 	1.29,
 	{0.5,1.0,0.0},
 	{0,-20,1.5},
@@ -79,10 +71,6 @@ const struct Conf_Index track_index[] = {
 	{"specular",	'f',3,	offsetof(Track_Struct, specular[0])},
 	{"position",	'f',3,	offsetof(Track_Struct, position[0])},
 	{"gravity",	'R',1,	offsetof(Track_Struct, gravity)},
-	{"mu",		'R',1,	offsetof(Track_Struct, mu)},
-	{"slip",	'R',1,	offsetof(Track_Struct, slip)},
-	{"erp",		'R',1,	offsetof(Track_Struct, erp)},
-	{"cfm",		'R',1,	offsetof(Track_Struct, cfm)},
 	{"density",	'R',1,	offsetof(Track_Struct, density)},
 	{"wind",	'R',3,	offsetof(Track_Struct, wind)},
 	{"start",	'R',3,	offsetof(Track_Struct, start)},

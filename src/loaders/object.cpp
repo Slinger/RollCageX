@@ -381,8 +381,8 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 
 	dBodySetPosition (body1, x, y, z);
 
-	data->mu = 0.5;
-	data->bounce = 1.5;
+	//data->mu = 0.5;
+	//data->bounce = 1.5;
 	
 	//Next, Graphics
 	data->model = model[0];
@@ -415,8 +415,8 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 
 	dBodySetPosition (body, x+pos[i][0], y+pos[i][1], z+pos[i][2]);
 
-	data->mu = 1;
-	data->bounce = 2.0;
+	//data->mu = 1;
+	//data->bounce = 2.0;
 	
 	//Next, Graphics
 	data->model = model[1];
@@ -461,8 +461,8 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 
 	dBodySetPosition (body1, x, y, z);
 
-	data->mu = 1;
-	data->bounce = 1.5;
+	//data->mu = 1;
+	//data->bounce = 1.5;
 	
 	//Next, Graphics
 	data->model=model[0];

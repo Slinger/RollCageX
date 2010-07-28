@@ -65,9 +65,9 @@ Geom::Geom (dGeomID geom, Object *obj): Component(obj) //pass object argument to
 	erp = internal.erp;
 	cfm = internal.cfm;
 	slip = internal.slip;
+	bounce = internal.bounce;
 
 	wheel = false; //not a wheel
-	bounce = 0.0; //no bouncyness
 
 	collide = true; //on collision, create opposing forces
 
