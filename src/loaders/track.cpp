@@ -187,15 +187,15 @@ bool load_track (const char *path)
 				//no alternative render model
 				if ( (file.word_count == 7) &&
 						(mesh1 = FindOrLoadMesh(path, file.words[6])) &&
-						(model = mesh1->Create_3D()) &&
-						(geom = mesh1->Create_Geom()) );
+						(geom = mesh1->Create_Geom()) &&
+						(model = mesh1->Create_3D()) );
 
 				//one collision and one render model
 				else if ( (file.word_count == 8) &&
 						(mesh1 = FindOrLoadMesh(path, file.words[6])) &&
 						(mesh2 = FindOrLoadMesh(path, file.words[7])) &&
-						(model = mesh1->Create_3D()) &&
-						(geom = mesh2->Create_Geom()) );
+						(geom = mesh1->Create_Geom()) &&
+						(model = mesh2->Create_3D()) );
 				//in case failure to load
 				else
 				{
