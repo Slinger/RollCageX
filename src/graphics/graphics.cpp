@@ -76,8 +76,8 @@ void graphics_resize (int new_w, int new_h)
 	}
 	else //bad...
 	{
-		angle = (internal.angle * M_PI/360.);;
-		printlog(1, "Angle forced to: %f degrees. And you are an evil person...", angle);
+		printlog(1, "Angle forced to: %f degrees. And you are an evil person...", internal.angle);
+		angle = (internal.angle * M_PI/360);;
 	}
 
 	//x = rate*depth

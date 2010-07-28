@@ -71,7 +71,7 @@ const struct internal_struct internal_defaults = {
 	16000000,
 	2800.0,
 	false,
-	60,
+	60.0,
 	{1.0, 1000.0},
 	false,
 	true,
