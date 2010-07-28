@@ -230,12 +230,6 @@ void Camera::Damp(dReal step)
 //this could use a simple rotation matrix instead, but a trig solution seems cleanest
 void VRotate(float *V, float *V1, float *A, float angle)
 {
-	/*printf("vrotate\n");
-	printf("V: %f %f %f\n", V[0], V[1], V[2]);
-	printf("V1: %f %f %f\n", V1[0], V1[1], V1[2]);
-	printf("A: %f %f %f\n", A[0], A[1], A[2]);
-	printf("angle: %f\n", angle);*/
-
 	//remove part of vectors along axis:
 	float proj = VDot(V, A); //how much of V (and V1) is along axis
 	float Vp[3] = {proj*A[0], proj*A[1], proj*A[2]}; //part of Vector Along axis
