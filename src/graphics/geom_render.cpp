@@ -107,12 +107,14 @@ void Geom_Render()
 	const dReal *rot;
 
 	//different variables for sizes
-	dVector3 result;
+	dVector3 result, v0, v1, v2;
 	dReal x,y,z,l,r;
 
 	//misc
 	unsigned int loop, new_indices, new_vertices;
+	int tloop, triangles;
 	float vseg = 2.0*M_PI/8.0;
+
 
 	//macros to reduce repetitive typing...
 	//vertex (absolute rotation)
@@ -286,6 +288,35 @@ void Geom_Render()
 				//connect circles
 				for (loop=0; loop<8; ++loop)
 					Index(loop, loop+8);
+
+				break;
+
+			case dTriMeshClass:
+				//how many triangles in trimesh
+				triangles = dGeomTriMeshGetTriangleCount(g);
+
+				//if too much to store, don't render
+				if (	(vertex_usage+triangles*3) > VERTEX_SIZE ||
+					(index_usage+triangles*2) > INDEX_SIZE	)
+					break;
+
+				//else, we can now generate:
+				pos = dGeomGetPosition(g);
+				rot = dGeomGetRotation(g);
+
+				for (tloop=0; tloop<triangles; ++tloop)
+				{
+					//vertices (3 per tri):
+					dGeomTriMeshGetTriangle(g, tloop, &v0, &v1, &v2);
+					RVertex(v0[0], v0[1], v0[2]);
+					RVertex(v1[0], v1[1], v1[2]);
+					RVertex(v2[0], v2[1], v2[2]);
+
+					//indices (3 per tri):
+					Index(tloop*3+0, tloop*3+1);
+					Index(tloop*3+1, tloop*3+2);
+					Index(tloop*3+2, tloop*3+0);
+				}
 
 				break;
 
