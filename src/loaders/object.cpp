@@ -49,7 +49,7 @@ Object_Template *Object_Template::Load(const char *path)
 		tmplt = new Object_Template(path);
 
 		//the debug box will only spawn one component - one "3D file"
-		tmplt->vbo[0] = mesh3d;
+		tmplt->model[0] = mesh3d;
 		tmplt->box = true;
 
 	//end of test
@@ -64,7 +64,7 @@ Object_Template *Object_Template::Load(const char *path)
 		tmplt = new Object_Template(path);
 
 		//graphics
-		tmplt->vbo[0] = mesh3d;
+		tmplt->model[0] = mesh3d;
 
 		tmplt->funbox = true; //id
 	}
@@ -78,7 +78,7 @@ Object_Template *Object_Template::Load(const char *path)
 		tmplt = new Object_Template(path);
 
 		//graphics
-		tmplt->vbo[0] = mesh3d;
+		tmplt->model[0] = mesh3d;
 
 		tmplt->flipper = true; //id
 	}
@@ -95,8 +95,8 @@ Object_Template *Object_Template::Load(const char *path)
 		tmplt = new Object_Template(path);
 
 		//graphics
-		tmplt->vbo[0] = model1;
-		tmplt->vbo[1] = model2;
+		tmplt->model[0] = model1;
+		tmplt->model[1] = model2;
 
 		tmplt->NH4 = true;
 	}
@@ -108,7 +108,7 @@ Object_Template *Object_Template::Load(const char *path)
 		mesh.Load("data/objects/misc/beachball/sphere.obj"); //assume loading fine
 		Trimesh_3D *mesh3d = mesh.Create_3D();
 		tmplt = new Object_Template(path);
-		tmplt->vbo[0] = mesh3d;
+		tmplt->model[0] = mesh3d;
 		tmplt->sphere = true;
 }
 	else if (!strcmp(path, "data/objects/misc/building"))
@@ -126,9 +126,9 @@ Object_Template *Object_Template::Load(const char *path)
 		tmplt = new Object_Template(path);
 
 		//graphics
-		tmplt->vbo[0] = pillar;
-		tmplt->vbo[1] = roof;
-		tmplt->vbo[2] = wall;
+		tmplt->model[0] = pillar;
+		tmplt->model[1] = roof;
+		tmplt->model[2] = wall;
 
 		tmplt->building = true;
 	}
@@ -146,8 +146,8 @@ Object_Template *Object_Template::Load(const char *path)
 		tmplt = new Object_Template(path);
 
 		//graphics
-		tmplt->vbo[0] = model1;
-		tmplt->vbo[1] = model2;
+		tmplt->model[0] = model1;
+		tmplt->model[1] = model2;
 
 		tmplt->pillar = true;
 	}
@@ -222,7 +222,7 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 //	data->bounce = 2.0;
 	
 	//Next, Graphics
-	data->model = vbo[0];
+	data->model = model[0];
 
 	//done
 	}
@@ -263,7 +263,7 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 	dGeomSetBody (geom, body1);
 	dBodySetPosition (body1, x, y, z);
 
-	data->model = vbo[0];
+	data->model = model[0];
 	data->Set_Buffer_Body(bd); //send collision forces to body*/
 
 	
@@ -337,7 +337,7 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 //	data->bounce = 4.0;
 	
 	//Graphics
-	data->model = vbo[0];
+	data->model = model[0];
 
 
 	//flipper sensor
@@ -385,7 +385,7 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 	data->bounce = 1.5;
 	
 	//Next, Graphics
-	data->model = vbo[0];
+	data->model = model[0];
 
 	dReal pos[4][3] = {
 		{0, 0, 1.052},
@@ -419,7 +419,7 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 	data->bounce = 2.0;
 	
 	//Next, Graphics
-	data->model = vbo[1];
+	data->model = model[1];
 
 	//connect to main sphere
 	
@@ -465,7 +465,7 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 	data->bounce = 1.5;
 	
 	//Next, Graphics
-	data->model=vbo[0];
+	data->model=model[0];
 	}
 	//
 	else if (building)
@@ -503,7 +503,7 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 
 			new Body (body1[i], obj);
 
-			data->model = vbo[2];
+			data->model = model[2];
 		}
 		
 		const dReal k = 1.5*4+0.4/2;
@@ -562,7 +562,7 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 
 			new Body (body2[i], obj);
 
-			data->model = vbo[1];
+			data->model = model[1];
 		}
 
 		const dReal k2=2.4-0.2/2;
@@ -629,7 +629,7 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 			//friction
 			data->mu = 1;
 			//Next, Graphics
-			data->model = vbo[0];
+			data->model = model[0];
 		}
 
 		dBodySetPosition (body[0], x+2, y+2, z+2.4/2);
@@ -680,14 +680,14 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 		dGeomSetPosition(g->geom_id, x,y,(z+2.5));
 
 		//render
-		g->model = vbo[0];
+		g->model = model[0];
 
 		//identification
 		g->TMP_pillar_geom = true;
 
 		//destruction
 		g->Set_Buffer_Event(200000, 100000, (Script*)1337);
-		g->TMP_pillar_graphics = vbo[1];
+		g->TMP_pillar_graphics = model[1];
 	}
 	else
 		printlog(0, "ERROR: trying to spawn unidentified object?!");

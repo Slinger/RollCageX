@@ -29,6 +29,10 @@ Object_Template::Object_Template(const char *name): Racetime_Data(name)
 	building = false;
 	sphere = false;
 	pillar = false;
+
+	//make sure all model pointers are null
+	for (int i=0; i<10; ++i)
+		model[i]=NULL;
 }
 
 

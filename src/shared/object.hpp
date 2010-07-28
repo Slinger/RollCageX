@@ -40,7 +40,7 @@ class Object_Template:public Racetime_Data
 		Script *spawn;
 
 		//tmp vbo test graphics
-		Trimesh_3D *vbo[10];
+		Trimesh_3D *model[10];
 
 		//temporary solution
 		bool box;
