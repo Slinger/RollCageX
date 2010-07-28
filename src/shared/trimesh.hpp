@@ -29,11 +29,6 @@ struct Vector_Float{
 //for indicating missing data
 #define INDEX_ERROR UINT_MAX
 
-//how big each VBO should be:
-#define VBO_SIZE 8388608 //8MiB - or should it be MB? need to test...
-//end of definitions
-
-
 
 //specialized trimesh classes:
 

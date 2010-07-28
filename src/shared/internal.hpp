@@ -40,6 +40,7 @@ extern struct internal_struct {
 
 	//graphics
 	int res[2]; //resolution
+	int vbo_size;
 	float dist;
 	bool force;
 	float angle;
@@ -67,6 +68,7 @@ const struct internal_struct internal_defaults = {
 	0.05,0.10,0.5,1,
 	//graphics
 	{1200,800},
+	16000000,
 	2800.0,
 	false,
 	60,
@@ -105,6 +107,7 @@ const struct Conf_Index internal_index[] = {
 	{"auto_disable_steps",	'i',1, offsetof(struct internal_struct, dis_steps)},
 	//graphics
 	{"resolution",		'i',2, offsetof(struct internal_struct, res)},
+	{"VBO_size",		'i',1, offsetof(struct internal_struct, vbo_size)},
 	{"eye_distance",	'f',1, offsetof(struct internal_struct, dist)},
 	{"force_angle",		'b',1, offsetof(struct internal_struct, force)},
 	{"view_angle",		'f',1, offsetof(struct internal_struct, angle)},

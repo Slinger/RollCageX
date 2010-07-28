@@ -12,6 +12,7 @@
 //
 //for vbo 3d rendering trimesh:
 //
+#include "internal.hpp"
 #include "trimesh.hpp"
 #include "../graphics/gl_extensions.hpp"
 #include "printlog.hpp"
@@ -30,15 +31,15 @@ class VBO: public Racetime_Data
 			printlog(2, "Locating vbo to hold %u bytes of data", needed);
 
 			//check so enough space in even a new vbo:
-			if (needed > VBO_SIZE)
+			if (needed > (unsigned int) internal.vbo_size)
 			{
-				printlog(0, "ERROR: needed more room than max vbo size (%uB needed, %uB available)!", needed, VBO_SIZE);
+				printlog(0, "ERROR: needed more room than max vbo size (%uB needed, %iB is specified)!", needed, internal.vbo_size);
 				return NULL;
 			}
 
 			//so if already exists
 			for (VBO *p=head; p; p=p->next)
-				if ( (p->usage)+needed <= VBO_SIZE ) //enough to hold
+				if ( (p->usage)+needed <= (unsigned int) internal.vbo_size ) //enough to hold
 					return p;
 
 			//else, did not find enough room, create
@@ -54,7 +55,7 @@ class VBO: public Racetime_Data
 		//(making it a Racetime_Data makes sure all VBOs gets deleted at the same time as models)
 		VBO(): Racetime_Data("VBO tracking class") //name all vbo classes this...
 		{
-			printlog(1, "creating new vbo, %u bytes of size", VBO_SIZE);
+			printlog(1, "creating new vbo, %u bytes of size", internal.vbo_size);
 
 			//place on top of list
 			next=head;
@@ -63,7 +64,7 @@ class VBO: public Racetime_Data
 			//create and bind vbo:
 			glGenBuffers(1, &id);
 			glBindBuffer(GL_ARRAY_BUFFER, id);
-			glBufferData(GL_ARRAY_BUFFER, VBO_SIZE, NULL, GL_STATIC_DRAW);
+			glBufferData(GL_ARRAY_BUFFER, internal.vbo_size, NULL, GL_STATIC_DRAW);
 			//
 			usage=0; //no data yet
 		}

@@ -105,8 +105,8 @@ screen (in reality).
 The requirements for running rcx is modest, a recommended minimum would be:
 
 * Processor:	1.5GHz, 32bit (i386)
-* Memory:	32MiB free
-* Graphics:	OpenGL 1.5 or later, 8MiB
+* Memory:	32MiB RAM memory free
+* Graphics:	OpenGL 1.5 or later, 16MiB video memory
 
 Note that the memory and processor requirements also depends on OS and other
 programs running at the same time as rcx. If you want to use many high detail
@@ -115,10 +115,11 @@ models, be prepared that the requirements might increase a bit.
 Note: hardware opengl acceleration recommended, but of course, software
 rendering is an alternative, assuming you got enough processing power.
 
-Also, a POSIX compliant OS is recommended (such as GNU or BSD). Windows is not
+Also, a POSIX compliant OS should be used (such as GNU or BSD). A GNU variant
+is recommended (such as GNU/kfreebsd or GNU/linux). Note that Windows is not
 a targeted OS, because it's not POSIX compliant and generally difficult to
 use/develop on. There is however a windows compiled version of rcx (rcx.exe)
-which hopefully will work.
+which might work.
 
 
 
