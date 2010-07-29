@@ -198,7 +198,7 @@ void Graphic_List_Render()
 
 	//data needed to eliminate models not visible by camera:
 	float dir_proj, up_proj, right_proj; //model position relative to camera
-	float dir_max, up_max, right_max; //limit for what camera can render
+	float dir_min, dir_max, up_max, right_max; //limit for what camera can render
 	float pos[3]; //relative pos
 
 	//configure rendering options:
@@ -254,15 +254,16 @@ void Graphic_List_Render()
 		up_proj = pos[0]*camera.rotation[2]+pos[1]*camera.rotation[5]+pos[2]*camera.rotation[8];
 
 		//limit of what range is rendered (compensates for "radius" of model that might still be seen)
-		right_max = view_angle_rate_x*(dir_proj+radius) + radius; //right/left
+		dir_min = internal.clipping[0] - radius; //behind close clipping
 		dir_max = internal.clipping[1] + radius; //beyound far clipping
+		right_max = view_angle_rate_x*(dir_proj+radius) + radius; //right/left
 		up_max = view_angle_rate_y*(dir_proj+radius) + radius; //above/below
 
 		//check if visible (or hidden for this camera):
 		if (	(list[i].object == camera.hide)				||
-			(right_proj > right_max) || (-right_proj > right_max)	||
-			(dir_proj > dir_max)					||
-			(up_proj > up_max) || (-up_proj > up_max)		)
+			(dir_proj > dir_max)	|| (dir_proj < dir_min)		||
+			(right_proj > right_max)|| (-right_proj > right_max)	||
+			(up_proj > up_max)	|| (-up_proj > up_max)		)
 			continue;
 		//
 		
