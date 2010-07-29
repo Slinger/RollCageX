@@ -194,13 +194,23 @@ void Geom_Render()
 	int tloop, triangles;
 	float vseg = 2.0*M_PI/8.0;
 
-	unsigned char colour[3] = {0, 100, 0};
+	unsigned char colour[3] = {0, 0, 0};
 
 	for (geom=Geom::head; geom; geom=geom->next)
 	{
 		g = geom->geom_id;
 		new_vertices=0;
 		new_indices=0;
+
+		//pseudorandom colour:
+		colour[0]+=30;
+		colour[1]+=50;
+		colour[2]+=90;
+		//(clamp to 0-127 range, using bit mask - 1111111)
+		colour[0]&=0x7f;
+		colour[1]&=0x7f;
+		colour[2]&=0x7f;
+		//
 
 		switch (dGeomGetClass(g))
 		{
