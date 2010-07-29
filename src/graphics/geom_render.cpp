@@ -17,24 +17,31 @@
 #include <limits.h>
 #include <math.h>
 
+#define BUFFER_OFFSET(i) ((char *)NULL + (i))
+
 //
-//one VBO+tmp data for "stream drawing" of graphics:
+//two VBO+two tmp data for "stream drawing" of graphics:
 //(data is first generated in ram, then sent to vbo in vram)
 //
 
 //only allocate memory and buffers _if_ going to render
 //(and then keep the memory until end of race)
 bool Got_Buffers = false;
-GLuint vertexVBO, indexVBO;
+GLuint vertexVBO, colourVBO, indexVBO;
 
+//vertices
 struct geom_vertex {
 	float x;
 	float y;
 	float z;
+	unsigned char r;
+	unsigned char g;
+	unsigned char b;
 };
 geom_vertex *vertices; //when building
 geom_vertex *v; //pointer for easily looping through
 
+//indices
 struct geom_index {
 	unsigned short a;
 	unsigned short b;
@@ -45,6 +52,7 @@ geom_index *i; //pointer
 //keep track, so not overflowing
 unsigned int vertex_size, index_size;
 unsigned int vertex_usage, index_usage;
+
 
 //makes sure got big enough index/vertex buffers
 void Assure_Memory(unsigned int vertex_needed, unsigned int index_needed)
@@ -100,6 +108,7 @@ void Geom_Render_Create()
 
 	//create
 	glGenBuffers(1, &vertexVBO);
+	glGenBuffers(1, &colourVBO);
 	glGenBuffers(1, &indexVBO);
 
 	//ok!
@@ -114,6 +123,7 @@ void Geom_Render_Clear()
 
 	//delete
 	glDeleteBuffers(1, &vertexVBO);
+	glDeleteBuffers(1, &colourVBO);
 	glDeleteBuffers(1, &indexVBO);
 
 	//delete building arrays
@@ -132,6 +142,9 @@ void Geom_Render_Clear()
 	(v->x)=(pos[0]+(X)); \
 	(v->y)=(pos[1]+(Y)); \
 	(v->z)=(pos[2]+(Z)); \
+	(v->r)=(colour[0]); \
+	(v->g)=(colour[1]); \
+	(v->b)=(colour[2]); \
 	++v; ++new_vertices;}
 
 //vertex (relative rotation)
@@ -139,6 +152,9 @@ void Geom_Render_Clear()
 	(v->x)=(pos[0]+((X)*rot[0]+(Y)*rot[1]+(Z)*rot[2])); \
 	(v->y)=(pos[1]+((X)*rot[4]+(Y)*rot[5]+(Z)*rot[6])); \
 	(v->z)=(pos[2]+((X)*rot[8]+(Y)*rot[9]+(Z)*rot[10])); \
+	(v->r)=(colour[0]); \
+	(v->g)=(colour[1]); \
+	(v->b)=(colour[2]); \
 	++v; ++new_vertices;}
 
 //index
@@ -178,6 +194,7 @@ void Geom_Render()
 	int tloop, triangles;
 	float vseg = 2.0*M_PI/8.0;
 
+	unsigned char colour[3] = {0, 100, 0};
 
 	for (geom=Geom::head; geom; geom=geom->next)
 	{
@@ -383,11 +400,16 @@ void Geom_Render()
 	//alternatives includes using the same allocated buffer for every frame and
 	//use glMapBuffer or glBufferSubData to just send the new data. but this
 	//has shown not to give any fps increase on systems I've tried. (most
-	//likely the generating and sending of new data is much slower than sending)
+	//likely the generating and sending of new data is much slower than allocation)
+
+	//vertices+colours:
 	glBindBuffer(GL_ARRAY_BUFFER, vertexVBO); //bind
 	glBufferData(GL_ARRAY_BUFFER, sizeof(geom_vertex)*vertex_usage, vertices, GL_STREAM_DRAW); //alloc+init
-	glVertexPointer(3, GL_FLOAT, 0, 0); //(no) array striding
+
+	glVertexPointer(3, GL_FLOAT, sizeof(geom_vertex), BUFFER_OFFSET(0)); //strided
+	glColorPointer(3, GL_UNSIGNED_BYTE, sizeof(geom_vertex), BUFFER_OFFSET(12));
 	
+	//indices:
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexVBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(geom_index)*index_usage, indices, GL_STREAM_DRAW);
 	
@@ -400,10 +422,12 @@ void Geom_Render()
 
 	//render buffer
 	glEnableClientState(GL_VERTEX_ARRAY);
+	glEnableClientState(GL_COLOR_ARRAY);
 
-	glDrawElements(GL_LINES, 2*index_usage, GL_UNSIGNED_SHORT, 0);
+	glDrawElements(GL_LINES, 2*index_usage, GL_UNSIGNED_SHORT, BUFFER_OFFSET(0));
 
 	glDisableClientState(GL_VERTEX_ARRAY);
+	glDisableClientState(GL_COLOR_ARRAY);
 
 	//done
 }
