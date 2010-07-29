@@ -17,7 +17,6 @@
 #include "../shared/geom.hpp"
 #include "../shared/body.hpp"
 #include "../shared/joint.hpp"
-#include "colours.hpp"
 #include "text_file.hpp"
 
 

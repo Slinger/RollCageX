@@ -18,7 +18,6 @@
 #include "../shared/printlog.hpp"
 #include "../shared/object.hpp"
 
-#include "colours.hpp"
 #include "text_file.hpp"
 
 #include <stdlib.h>

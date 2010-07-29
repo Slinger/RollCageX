@@ -10,7 +10,6 @@
  */
 
 #include "../shared/object.hpp"
-#include "colours.hpp"
 
 #include <ode/ode.h>
 
