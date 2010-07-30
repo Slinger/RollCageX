@@ -43,8 +43,8 @@ geom_vertex *v; //pointer for easily looping through
 
 //indices
 struct geom_index {
-	unsigned short a;
-	unsigned short b;
+	unsigned int a;
+	unsigned int b;
 };
 geom_index *indices; //when building
 geom_index *i; //pointer
@@ -137,6 +137,17 @@ void Geom_Render_Clear()
 //
 
 //macros to reduce repetitive typing...
+
+//vertex (absolute rotation and position)
+#define AAVertex(X,Y,Z){ \
+	(v->x)=(X); \
+	(v->y)=(Y); \
+	(v->z)=(Z); \
+	(v->r)=(colour[0]); \
+	(v->g)=(colour[1]); \
+	(v->b)=(colour[2]); \
+	++v; ++new_vertices;}
+
 //vertex (absolute rotation)
 #define AVertex(X,Y,Z){ \
 	(v->x)=(pos[0]+(X)); \
@@ -373,20 +384,16 @@ void Geom_Render()
 				//how many triangles in trimesh
 				triangles = dGeomTriMeshGetTriangleCount(g);
 
-				//make sure
+				//make sure got memory
 				Assure_Memory (triangles*3, triangles*3);
-
-				//we can now generate:
-				pos = dGeomGetPosition(g);
-				rot = dGeomGetRotation(g);
 
 				for (tloop=0; tloop<triangles; ++tloop)
 				{
 					//vertices (3 per tri):
 					dGeomTriMeshGetTriangle(g, tloop, &v0, &v1, &v2);
-					RVertex(v0[0], v0[1], v0[2]);
-					RVertex(v1[0], v1[1], v1[2]);
-					RVertex(v2[0], v2[1], v2[2]);
+					AAVertex(v0[0], v0[1], v0[2]);
+					AAVertex(v1[0], v1[1], v1[2]);
+					AAVertex(v2[0], v2[1], v2[2]);
 
 					//indices (3 per tri):
 					Index(tloop*3+0, tloop*3+1);
@@ -436,7 +443,7 @@ void Geom_Render()
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_COLOR_ARRAY);
 
-	glDrawElements(GL_LINES, 2*index_usage, GL_UNSIGNED_SHORT, BUFFER_OFFSET(0));
+	glDrawElements(GL_LINES, 2*index_usage, GL_UNSIGNED_INT, BUFFER_OFFSET(0));
 
 	glDisableClientState(GL_VERTEX_ARRAY);
 	glDisableClientState(GL_COLOR_ARRAY);

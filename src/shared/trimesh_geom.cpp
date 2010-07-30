@@ -31,6 +31,8 @@ Trimesh_Geom::Trimesh_Geom(const char *name,
 			vertices, sizeof(Vector_Float), vcount,
 			indices, icount, 3*sizeof(unsigned int),
 			normals);
+
+	//perhaps use dGeomTriMeshDataPreprocess here, but it takes a long time to complete...
 }
 
 Geom *Trimesh_Geom::Create_Geom(Object *obj)
