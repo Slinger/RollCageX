@@ -179,16 +179,13 @@ void Geom_Render_Clear()
 unsigned char colour[3];
 void ReColour(float d)
 {
-	//pseudorandom colour:
-	colour[0]= (222*d);
-	colour[1]= (555*d);
-	colour[2]= (888*d);
+	//change value
+	unsigned char change=(unsigned char) 1337.0*d;
 
-	//bitshift operator: moves low bits to higher
-	//this makes small differences bigger
-	colour[0]<<=4;
-	colour[1]<<=4;
-	colour[2]<<=4;
+	//pseudorandom colour:
+	colour[0]= (16*change);
+	colour[1]= (23*change);
+	colour[2]= (42*change);
 }
 
 
@@ -275,7 +272,7 @@ void Geom_Render()
 				z=result[2]/2.0;
 
 				//colour based on size
-				ReColour(x*y*z);
+				ReColour(x+y+z);
 
 				//vertices:
 				RVertex(-x, -y, -z);
@@ -315,7 +312,7 @@ void Geom_Render()
 				l/=2.0;
 
 				//colour based on size
-				ReColour(r*l);
+				ReColour(r+l);
 
 				//vertices:
 
@@ -364,7 +361,7 @@ void Geom_Render()
 				l/=2.0; //for cleaner code, divided here
 
 				//colour based on size
-				ReColour(r*l);
+				ReColour(r+l);
 
 				//circles
 				for (loop=0; loop<8; ++loop)
@@ -407,7 +404,7 @@ void Geom_Render()
 				Assure_Memory (triangles*3, triangles*3);
 
 				//colour based on triangle count
-				ReColour(triangles);
+				ReColour((float)triangles);
 
 				for (tloop=0; tloop<triangles; ++tloop)
 				{
