@@ -61,7 +61,7 @@ void Geom::Collision_Callback (void *data, dGeomID o1, dGeomID o2)
 	//does both components want to collide for real? (not "ghosts"/"sensors")
 	if (geom1->collide&&geom2->collide)
 	{
-		int mode = dContactSoftERP | dContactSoftCFM | dContactApprox1;
+		int mode = dContactApprox1;
 		dReal slip,mu;
 		dReal bounce = 0;
 		dVector3 fdir = {0,0,0};
@@ -130,8 +130,6 @@ void Geom::Collision_Callback (void *data, dGeomID o1, dGeomID o2)
 					contact[i].surface.mode = mode;
 
 					contact[i].surface.mu = mu_rim;
-					contact[i].surface.soft_erp = internal.erp;
-					contact[i].surface.soft_cfm = internal.cfm;
 					contact[i].surface.bounce = bounce; //in case specified
 					dJointID c = dJointCreateContact (world,contactgroup,&contact[i]);
 					dJointAttach (c,b1,b2);
@@ -150,8 +148,6 @@ void Geom::Collision_Callback (void *data, dGeomID o1, dGeomID o2)
 
 					contact[i].surface.slip1 = slip;
 					contact[i].surface.mu = mu;
-					contact[i].surface.soft_erp = internal.erp;
-					contact[i].surface.soft_cfm = internal.cfm;
 					contact[i].surface.bounce = bounce; //in case specified
 					dJointID c = dJointCreateContact (world,contactgroup,&contact[i]);
 					dJointAttach (c,b1,b2);
@@ -169,8 +165,6 @@ void Geom::Collision_Callback (void *data, dGeomID o1, dGeomID o2)
 					contact[i].surface.mode = mode;
 
 					contact[i].surface.mu = mu;
-					contact[i].surface.soft_erp = internal.erp;
-					contact[i].surface.soft_cfm = internal.cfm;
 					contact[i].surface.bounce = bounce; //in case specified
 					dJointID c = dJointCreateContact (world,contactgroup,&contact[i]);
 					dJointAttach (c,b1,b2);
