@@ -179,17 +179,16 @@ void Geom_Render_Clear()
 unsigned char colour[3];
 void ReColour(float d)
 {
-	d*=100.0; //sensitivity
-	
 	//pseudorandom colour:
-	colour[0]= (1*d);
-	colour[1]= (3*d);
-	colour[2]= (5*d);
+	colour[0]= (222*d);
+	colour[1]= (555*d);
+	colour[2]= (888*d);
 
-	//(clamp to 0-127 range, using bit mask - 1111111)
-	colour[0]&=0x7f;
-	colour[1]&=0x7f;
-	colour[2]&=0x7f;
+	//bitshift operator: moves low bits to higher
+	//this makes small differences bigger
+	colour[0]<<=4;
+	colour[1]<<=4;
+	colour[2]<<=4;
 }
 
 
