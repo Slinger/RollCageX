@@ -177,15 +177,15 @@ void Geom_Render_Clear()
 
 //change colour:
 unsigned char colour[3];
-void ReColour(float d)
+void Volume_Colour(float v)
 {
-	//change value
-	unsigned char change=(unsigned char) 1337.0*d;
+	//change value (how sensitive to volume)
+	unsigned char change=(unsigned char) 42.0*v;
 
 	//pseudorandom colour:
-	colour[0]= (16*change);
-	colour[1]= (23*change);
-	colour[2]= (42*change);
+	colour[0]= (85*change);
+	colour[1]= (28*change);
+	colour[2]= (9*change);
 }
 
 
@@ -235,8 +235,8 @@ void Geom_Render()
 				pos = dGeomGetPosition(g);
 				r = dGeomSphereGetRadius(g);
 
-				//colour based on size
-				ReColour(r);
+				//colour based on volume
+				Volume_Colour(r*r*M_PI);
 
 				//vertices:
 				//circles around sphere
@@ -267,12 +267,15 @@ void Geom_Render()
 				pos = dGeomGetPosition(g);
 				rot = dGeomGetRotation(g);
 				dGeomBoxGetLengths(g, result);
+
+				//colour based on volume
+				Volume_Colour(result[0]*result[1]*result[2]);
+
+				//half of lengths
 				x=result[0]/2.0;
 				y=result[1]/2.0;
 				z=result[2]/2.0;
 
-				//colour based on size
-				ReColour(x+y+z);
 
 				//vertices:
 				RVertex(-x, -y, -z);
@@ -309,10 +312,10 @@ void Geom_Render()
 				rot = dGeomGetRotation(g);
 				dGeomCapsuleGetParams(g, &r, &l);
 
-				l/=2.0;
+				//colour based on volume
+				Volume_Colour(r*r*M_PI+r*M_PI*l);
 
-				//colour based on size
-				ReColour(r+l);
+				l/=2.0;
 
 				//vertices:
 
@@ -358,10 +361,10 @@ void Geom_Render()
 				rot = dGeomGetRotation(g);
 				dGeomCylinderGetParams(g, &r, &l);
 
-				l/=2.0; //for cleaner code, divided here
+				//colour based on volume
+				Volume_Colour(r+l);
 
-				//colour based on size
-				ReColour(r+l);
+				l/=2.0; //for cleaner code, divided here
 
 				//circles
 				for (loop=0; loop<8; ++loop)
@@ -404,7 +407,7 @@ void Geom_Render()
 				Assure_Memory (triangles*3, triangles*3);
 
 				//colour based on triangle count
-				ReColour((float)triangles);
+				Volume_Colour((float)triangles);
 
 				for (tloop=0; tloop<triangles; ++tloop)
 				{
