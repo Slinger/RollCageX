@@ -429,6 +429,8 @@ void Geom_Render()
 	glDisable (GL_DEPTH_TEST);
 	glDisable (GL_CULL_FACE);
 
+	//(I wounder if this is deprecated in latest ogl?)
+	glLineWidth(2.0); //wide lines
 
 	//render buffer
 	glEnableClientState(GL_VERTEX_ARRAY);
