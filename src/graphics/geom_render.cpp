@@ -174,6 +174,26 @@ void Geom_Render_Clear()
 	(i->b)=(vertex_usage+(B)); \
 	++i; ++new_indices;}
 
+
+//change colour:
+unsigned char colour[3];
+void ReColour(float d)
+{
+	d*=100.0; //sensitivity
+	
+	//pseudorandom colour:
+	colour[0]= (1*d);
+	colour[1]= (3*d);
+	colour[2]= (5*d);
+
+	//(clamp to 0-127 range, using bit mask - 1111111)
+	colour[0]&=0x7f;
+	colour[1]&=0x7f;
+	colour[2]&=0x7f;
+}
+
+
+//render geoms
 void Geom_Render()
 {
 	//check if rendering
@@ -205,23 +225,11 @@ void Geom_Render()
 	int tloop, triangles;
 	float vseg = 2.0*M_PI/8.0;
 
-	unsigned char colour[3] = {0, 0, 0};
-
 	for (geom=Geom::head; geom; geom=geom->next)
 	{
 		g = geom->geom_id;
 		new_vertices=0;
 		new_indices=0;
-
-		//pseudorandom colour:
-		colour[0]+=30;
-		colour[1]+=50;
-		colour[2]+=90;
-		//(clamp to 0-127 range, using bit mask - 1111111)
-		colour[0]&=0x7f;
-		colour[1]&=0x7f;
-		colour[2]&=0x7f;
-		//
 
 		switch (dGeomGetClass(g))
 		{
@@ -230,6 +238,9 @@ void Geom_Render()
 
 				pos = dGeomGetPosition(g);
 				r = dGeomSphereGetRadius(g);
+
+				//colour based on size
+				ReColour(r);
 
 				//vertices:
 				//circles around sphere
@@ -263,6 +274,9 @@ void Geom_Render()
 				x=result[0]/2.0;
 				y=result[1]/2.0;
 				z=result[2]/2.0;
+
+				//colour based on size
+				ReColour(x*y*z);
 
 				//vertices:
 				RVertex(-x, -y, -z);
@@ -300,6 +314,9 @@ void Geom_Render()
 				dGeomCapsuleGetParams(g, &r, &l);
 
 				l/=2.0;
+
+				//colour based on size
+				ReColour(r*l);
 
 				//vertices:
 
@@ -347,6 +364,9 @@ void Geom_Render()
 
 				l/=2.0; //for cleaner code, divided here
 
+				//colour based on size
+				ReColour(r*l);
+
 				//circles
 				for (loop=0; loop<8; ++loop)
 					RVertex(r*sin(loop*vseg), r*cos(loop*vseg), l);
@@ -386,6 +406,9 @@ void Geom_Render()
 
 				//make sure got memory
 				Assure_Memory (triangles*3, triangles*3);
+
+				//colour based on triangle count
+				ReColour(triangles);
 
 				for (tloop=0; tloop<triangles; ++tloop)
 				{
