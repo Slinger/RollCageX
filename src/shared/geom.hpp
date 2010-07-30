@@ -44,6 +44,7 @@ class Geom: public Component
 
 		//Physics data:
 		//placeholder for more physics data
+		dReal spring, damping;
 		dReal mu, mu_rim, slip, bounce;
 
 		//TODO: wheel-specific data should probably be stored in car struct,

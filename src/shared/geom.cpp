@@ -60,6 +60,8 @@ Geom::Geom (dGeomID geom, Object *obj): Component(obj) //pass object argument to
 	model = NULL; //default: don't render
 
 	//collision contactpoint data
+	spring = dInfinity; //infinite spring constant (disabled)
+	damping = 0.0; //no collision damping (only with spring)
 	mu = internal.mu;
 	mu_rim = internal.mu;
 	slip = internal.slip;

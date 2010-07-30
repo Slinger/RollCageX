@@ -29,7 +29,6 @@ extern struct internal_struct {
 	int contact_points;
 	//bool finite_rotation;
 	dReal scale; //TODO
-	dReal max_wheel_rotation;
 	dReal rim_angle;
 	dReal erp,cfm;
 	dReal mu,slip,bounce;
@@ -62,7 +61,6 @@ const struct internal_struct internal_defaults = {
 	4,
 	20,
 	0.1,
-	20,
 	0.6,
 	0.8, 0.01,
 	1.0,1.0,0.0,
@@ -93,9 +91,7 @@ const struct Conf_Index internal_index[] = {
 	{"iterations",		'i',1, offsetof(struct internal_struct, iterations)},
 	{"multiplier",		'i',1, offsetof(struct internal_struct, multiplier)},
 	{"contact_points",	'i',1, offsetof(struct internal_struct, contact_points)},
-	//{"finite_rotation",	'b',1, offsetof(struct internal_struct, finite_rotation)},
 	//TODO: SCALE
-	{"max_wheel_rotation",	'R',1, offsetof(struct internal_struct, max_wheel_rotation)},
 	{"rim_angle",		'R',1, offsetof(struct internal_struct, rim_angle)},
 	{"erp",			'R',1, offsetof(struct internal_struct, erp)},
 	{"cfm",			'R',1, offsetof(struct internal_struct, cfm)},

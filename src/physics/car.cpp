@@ -101,13 +101,6 @@ void Car::Physics_Step(dReal step)
 					(rotation < 0.0 && carp->throttle < 0.0) ||
 					(gear_torque > carp->max_break) )
 				{
-					//make sure we don't exceed gloobal wheel rotation limit
-					if (absrotation > internal.max_wheel_rotation) //in air and rotating too fast
-					{
-						torque[i]=0.0; //make sure no torque
-						continue; //go to next wheel
-					}
-
 					//if front wheel, front motor, if rear, rear motor
 					if (i == 0 || i == 3)
 						torque[i]=carp->fmotor*gear_torque;
