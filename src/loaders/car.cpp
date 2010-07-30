@@ -315,8 +315,6 @@ Car *Car_Template::Spawn (dReal x, dReal y, dReal z,  Trimesh_3D *tyre, Trimesh_
 		//friction
 		gdata->mu = conf.body_mu;
 		gdata->slip = conf.body_slip;
-		gdata->erp = conf.body_erp;
-		gdata->cfm = conf.body_cfm;
 		gdata->bounce = conf.body_bounce;
 	}
 	//then: spheres
@@ -336,8 +334,7 @@ Car *Car_Template::Spawn (dReal x, dReal y, dReal z,  Trimesh_3D *tyre, Trimesh_
 		//friction
 		gdata->mu = conf.body_mu;
 		gdata->slip = conf.body_slip;
-		gdata->erp = conf.body_erp;
-		gdata->cfm = conf.body_cfm;
+		gdata->bounce = conf.body_bounce;
 	}
 	//finally: capsule
 	struct capsule capsule;
@@ -361,8 +358,7 @@ Car *Car_Template::Spawn (dReal x, dReal y, dReal z,  Trimesh_3D *tyre, Trimesh_
 		//friction
 		gdata->mu = conf.body_mu;
 		gdata->slip = conf.body_slip;
-		gdata->erp = conf.body_erp;
-		gdata->cfm = conf.body_cfm;
+		gdata->bounce = conf.body_bounce;
 	}
 
 	//side detection sensors:
@@ -412,10 +408,6 @@ Car *Car_Template::Spawn (dReal x, dReal y, dReal z,  Trimesh_3D *tyre, Trimesh_
 		wheel_data[i]->wheel = true;
 		wheel_data[i]->slip = conf.wheel_slip;
 		wheel_data[i]->bounce = conf.wheel_bounce;
-
-		//hardness
-		wheel_data[i]->erp = conf.wheel_erp;
-		wheel_data[i]->cfm = conf.wheel_cfm;
 
 		//rim or tyre:
 		wheel_data[i]->rim_angle = cos(conf.rim_angle/180.0*M_PI);

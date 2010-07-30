@@ -211,15 +211,6 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 
 	dBodySetPosition (body, x, y, z);
 
-	//now add friction
-	data->mu = 1;
-	//use default
-//	data->erp = 0.8;
-//	data->cfm = 0.001;
-//	data->slip1 = 0.0;
-//	data->slip2 = 0.0;
-//	data->bounce = 2.0;
-	
 	//Next, Graphics
 	data->model = model[0];
 
@@ -327,14 +318,6 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 	Geom *data = new Geom(geom, obj);
 	dGeomSetPosition (geom, x, y, z);
 
-	//use default
-//	data->mu = 1;
-	data->erp = 0.8;
-	data->cfm = 0.000;
-//	data->slip1 = 0.0;
-//	data->slip2 = 0.0;
-//	data->bounce = 4.0;
-	
 	//Graphics
 	data->model = model[0];
 
@@ -380,9 +363,6 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 
 	dBodySetPosition (body1, x, y, z);
 
-	//data->mu = 0.5;
-	//data->bounce = 1.5;
-	
 	//Next, Graphics
 	data->model = model[0];
 
@@ -414,9 +394,6 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 
 	dBodySetPosition (body, x+pos[i][0], y+pos[i][1], z+pos[i][2]);
 
-	//data->mu = 1;
-	//data->bounce = 2.0;
-	
 	//Next, Graphics
 	data->model = model[1];
 
@@ -460,9 +437,6 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 
 	dBodySetPosition (body1, x, y, z);
 
-	//data->mu = 1;
-	//data->bounce = 1.5;
-	
 	//Next, Graphics
 	data->model=model[0];
 	}
@@ -490,7 +464,6 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 			dGeomID geom  = dCreateBox (0, 4,0.4,2.4); //geom
 			Geom *data = new Geom(geom, obj);
 			data->Set_Buffer_Event(100000, 100000, (Script*)1337);
-			data->mu = 1;
 
 			body1[i] = dBodyCreate (world);
 			dGeomSetBody (geom, body1[i]);
@@ -549,7 +522,6 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 			dGeomID geom  = dCreateBox (0, 4,4,0.2); //geom
 			Geom *data = new Geom(geom, obj);
 			data->Set_Buffer_Event(100000, 100000, (Script*)1337);
-			data->mu = 1;
 
 			body2[i] = dBodyCreate (world);
 			dGeomSetBody (geom, body2[i]);
@@ -625,8 +597,6 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 
 			dGeomSetBody (geom, body[i]);
 	
-			//friction
-			data->mu = 1;
 			//Next, Graphics
 			data->model = model[0];
 		}

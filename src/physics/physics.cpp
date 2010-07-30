@@ -41,6 +41,8 @@ bool physics_init(void)
 
 	world = dWorldCreate();
 
+	//set global ode parameters (except those specific to track)
+
 	//TODO: move to "dQuadTreeSpaceCreate()" - much better performance!!!
 	printlog(1, "TODO: create world space using dQuadTreeSpaceCreate() - much better performance!");
 	space = dHashSpaceCreate(0);
@@ -54,7 +56,11 @@ bool physics_init(void)
 	dWorldSetAutoDisableAngularThreshold (world, internal.dis_angular);
 	dWorldSetAutoDisableSteps (world, internal.dis_steps);
 	dWorldSetAutoDisableTime (world, internal.dis_time);
-	
+
+	//joint softness (collisions are specified in physics/geom.cpp)
+	dWorldSetERP (world, internal.erp);
+	dWorldSetCFM (world, internal.cfm);
+
 	return true;
 }
 

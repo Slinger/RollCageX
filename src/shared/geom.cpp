@@ -62,8 +62,6 @@ Geom::Geom (dGeomID geom, Object *obj): Component(obj) //pass object argument to
 	//collision contactpoint data
 	mu = internal.mu;
 	mu_rim = internal.mu;
-	erp = internal.erp;
-	cfm = internal.cfm;
 	slip = internal.slip;
 	bounce = internal.bounce;
 

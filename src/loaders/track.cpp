@@ -98,7 +98,7 @@ bool load_track (const char *path)
 	glLightfv (GL_LIGHT0, GL_SPECULAR, track.specular);
 	glLightfv (GL_LIGHT0, GL_POSITION, track.position);
 
-	//gravity
+	//set track specific global ode params:
 	dWorldSetGravity (world,0,0,-track.gravity);
 
 	//
@@ -130,8 +130,6 @@ bool load_track (const char *path)
 		dReal mu = internal.mu;
 		dReal slip = internal.slip;
 		dReal bounce = internal.bounce;
-		dReal erp = internal.erp;
-		dReal cfm = internal.cfm;
 		//(they can be float or double - atof returns double which works for both)
 		
 		while (file.Read_Line())
@@ -200,10 +198,6 @@ bool load_track (const char *path)
 							slip = atof(file.words[++pos]);
 						else if (!strcmp(file.words[pos], "bounce"))
 							bounce = atof(file.words[++pos]);
-						else if (!strcmp(file.words[pos], "erp"))
-							erp = atof(file.words[++pos]);
-						else if (!strcmp(file.words[pos], "cfm"))
-							cfm = atof(file.words[++pos]);
 						else
 						{
 							printlog(0, "WARNING: trimesh surface option \"%s\" unknown", file.words[pos]);
@@ -253,8 +247,6 @@ bool load_track (const char *path)
 				data->mu = mu;
 				data->slip = slip;
 				data->bounce = bounce;
-				data->erp = erp;
-				data->cfm = cfm;
 
 				//position
 				x = atof(file.words[0]);
