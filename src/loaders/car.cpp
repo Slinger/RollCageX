@@ -315,7 +315,6 @@ Car *Car_Template::Spawn (dReal x, dReal y, dReal z,  Trimesh_3D *tyre, Trimesh_
 		//friction
 		gdata->mu = conf.body_mu;
 		gdata->slip = conf.body_slip;
-		gdata->bounce = conf.body_bounce;
 	}
 	//then: spheres
 	struct sphere sphere;
@@ -334,7 +333,6 @@ Car *Car_Template::Spawn (dReal x, dReal y, dReal z,  Trimesh_3D *tyre, Trimesh_
 		//friction
 		gdata->mu = conf.body_mu;
 		gdata->slip = conf.body_slip;
-		gdata->bounce = conf.body_bounce;
 	}
 	//finally: capsule
 	struct capsule capsule;
@@ -358,7 +356,6 @@ Car *Car_Template::Spawn (dReal x, dReal y, dReal z,  Trimesh_3D *tyre, Trimesh_
 		//friction
 		gdata->mu = conf.body_mu;
 		gdata->slip = conf.body_slip;
-		gdata->bounce = conf.body_bounce;
 	}
 
 	//side detection sensors:

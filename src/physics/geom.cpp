@@ -61,13 +61,19 @@ void Geom::Collision_Callback (void *data, dGeomID o1, dGeomID o2)
 	//does both components want to collide for real? (not "ghosts"/"sensors")
 	if (geom1->collide&&geom2->collide)
 	{
+		//what values/features used by default
 		int mode = dContactApprox1;
-		dReal slip,mu;
-		dReal bounce = 0;
-		dVector3 fdir = {0,0,0};
 
-		mu = (geom1->mu)*(geom2->mu);
-		slip = 0.0;
+		//friction
+		dReal mu = (geom1->mu)*(geom2->mu);
+
+		//optional things:
+		dVector3 fdir = {0.0,0.0,0.0};
+		dReal slip = 0.0;
+		dReal bounce = 0.0;
+		dReal erp = 0.0;
+		dReal cfm = 0.0;
+
 
 		bool feedback = false;
 		//if any of the geoms responds to forces or got a body that responds to force, enable force feedback
@@ -75,12 +81,29 @@ void Geom::Collision_Callback (void *data, dGeomID o1, dGeomID o2)
 			feedback = true;
 
 		//optional bouncyness (good for wheels?)
-		if (geom1->bounce||geom2->bounce)
+		if (geom1->bounce != 0.0 || geom2->bounce != 0.0)
 		{
 			mode |= dContactBounce;
 
-			//instead of usual product, use sum
+			//use sum
 			bounce = (geom1->bounce)+(geom2->bounce);
+		}
+
+		//optional spring+damping erp+cfm override
+		if (geom1->spring != dInfinity || geom2->spring != dInfinity)
+		{
+			//enable overriding
+			mode |= dContactSoftERP | dContactSoftCFM;
+
+			//should be good
+			dReal spring = 1/( 1/(geom1->spring) + 1/(geom2->spring) );
+			//sum
+			dReal damping = geom1->damping + geom2->damping;
+
+			//calculate erp+cfm from stepsize, spring and damping values:
+			dReal stepsize = internal.stepsize;
+			erp = (stepsize*spring)/(stepsize*spring +damping);
+			cfm = 1.0/(stepsize*spring +damping);
 		}
 
 		//determine if _one_of the geoms is a wheel
@@ -130,12 +153,6 @@ void Geom::Collision_Callback (void *data, dGeomID o1, dGeomID o2)
 					contact[i].surface.mode = mode;
 
 					contact[i].surface.mu = mu_rim;
-					contact[i].surface.bounce = bounce; //in case specified
-					dJointID c = dJointCreateContact (world,contactgroup,&contact[i]);
-					dJointAttach (c,b1,b2);
-
-					if (feedback)
-						new Collision_Feedback(c, geom1, geom2);
 				}
 				else //tyre
 				{
@@ -146,15 +163,18 @@ void Geom::Collision_Callback (void *data, dGeomID o1, dGeomID o2)
 					contact[i].fdir1[1] = fdir[1];
 					contact[i].fdir1[2] = fdir[2];
 
-					contact[i].surface.slip1 = slip;
 					contact[i].surface.mu = mu;
-					contact[i].surface.bounce = bounce; //in case specified
-					dJointID c = dJointCreateContact (world,contactgroup,&contact[i]);
-					dJointAttach (c,b1,b2);
-
-					if (feedback)
-						new Collision_Feedback(c, geom1, geom2);
+					contact[i].surface.slip1 = slip;
 				}
+
+				contact[i].surface.soft_erp = erp; //optional
+				contact[i].surface.soft_cfm = cfm; //optional
+				contact[i].surface.bounce = bounce; //optional
+				dJointID c = dJointCreateContact (world,contactgroup,&contact[i]);
+				dJointAttach (c,b1,b2);
+
+				if (feedback)
+					new Collision_Feedback(c, geom1, geom2);
 			}
 		}
 
@@ -165,7 +185,9 @@ void Geom::Collision_Callback (void *data, dGeomID o1, dGeomID o2)
 					contact[i].surface.mode = mode;
 
 					contact[i].surface.mu = mu;
-					contact[i].surface.bounce = bounce; //in case specified
+					contact[i].surface.soft_erp = erp; //optional
+					contact[i].surface.soft_cfm = cfm; //optional
+					contact[i].surface.bounce = bounce; //optional
 					dJointID c = dJointCreateContact (world,contactgroup,&contact[i]);
 					dJointAttach (c,b1,b2);
 

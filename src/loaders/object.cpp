@@ -423,12 +423,12 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 	//center sphere
 	dGeomID geom  = dCreateSphere (0, 1); //geom
 	Geom *data = new Geom(geom, obj);
-	data->Set_Buffer_Event(150000, 10000, (Script*)1337);
+	data->Set_Buffer_Event(8000, 500, (Script*)1337);
 	dBodyID body1 = dBodyCreate (world);
 
 	dMass m;
 	dMassSetSphere (&m,1,1); //radius
-	dMassAdjust (&m,60); //mass
+	dMassAdjust (&m,20); //mass
 	dBodySetMass (body1, &m);
 
 	new Body (body1, obj);
@@ -436,6 +436,10 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 	dGeomSetBody (geom, body1);
 
 	dBodySetPosition (body1, x, y, z);
+
+	//set spring surface for beachball (should be bouncy)
+	data->spring = 2000.0; //springy (soft)
+	data->damping = 0.0; //no damping
 
 	//Next, Graphics
 	data->model=model[0];

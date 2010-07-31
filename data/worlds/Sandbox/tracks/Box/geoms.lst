@@ -1,10 +1,12 @@
 #optional: use "> model" before the model is used to force
-#loading. this is useful for overriding defaults, such as:
-#> model "Box.obj" resize 0.1 rotate 90 0 0 offset 0 0 -10
+#loading. this is useful for overriding model defaults.
+#example/default:
+#> model "Box.obj" resize 1 rotate 0 0 0 offset 0 0 0
 
 #optional: use "> surface" to change default surface
-#parameters (will affect all geoms after) example:
-#> surface mu 0.5 slip 5.0 bounce 10.0
+#parameters (will affect all geoms after).
+#example:
+#> surface mu 0.5 slip 5 bounce 10 spring inf damping 0
 
 #position  rotation  geom model  optional render model
 0 0 0      0 0 0     "Box.obj"   #"Box.obj"

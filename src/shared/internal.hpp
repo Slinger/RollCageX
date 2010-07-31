@@ -27,11 +27,8 @@ extern struct internal_struct {
 	int iterations;
 	int multiplier;
 	int contact_points;
-	//bool finite_rotation;
-	dReal scale; //TODO
-	dReal rim_angle;
 	dReal erp,cfm;
-	dReal mu,slip,bounce;
+	dReal mu,slip;
 	dReal linear_drag, angular_drag;
 
 	dReal dis_linear, dis_angular, dis_time;
@@ -60,12 +57,11 @@ const struct internal_struct internal_defaults = {
 	5,
 	4,
 	20,
-	0.1,
-	0.6,
 	0.8, 0.01,
-	1.0,1.0,0.0,
-	5,5,
-	0.05,0.10,0.5,1,
+	1.0,1.0,
+	5.0,5.0,
+	0.05,0.10,0.5,
+	1,
 	//graphics
 	{1200,800},
 	16000000,
@@ -87,23 +83,23 @@ const struct Conf_Index internal_index[] = {
 	{"sync_physics",	'b',1, offsetof(struct internal_struct, sync_physics)},
 	{"sync_graphics",	'b',1, offsetof(struct internal_struct, sync_graphics)},
 	{"sync_events",		'b',1, offsetof(struct internal_struct, sync_events)},
+
+	//physics
 	{"stepsize",		'R',1, offsetof(struct internal_struct, stepsize)},
 	{"iterations",		'i',1, offsetof(struct internal_struct, iterations)},
 	{"multiplier",		'i',1, offsetof(struct internal_struct, multiplier)},
 	{"contact_points",	'i',1, offsetof(struct internal_struct, contact_points)},
-	//TODO: SCALE
-	{"rim_angle",		'R',1, offsetof(struct internal_struct, rim_angle)},
 	{"erp",			'R',1, offsetof(struct internal_struct, erp)},
 	{"cfm",			'R',1, offsetof(struct internal_struct, cfm)},
 	{"default_mu",		'R',1, offsetof(struct internal_struct, mu)},
 	{"default_slip",	'R',1, offsetof(struct internal_struct, slip)},
-	{"default_bounce",	'R',1, offsetof(struct internal_struct, bounce)},
 	{"default_linear_drag",	'R',1, offsetof(struct internal_struct, linear_drag)},
 	{"default_angular_drag",'R',1, offsetof(struct internal_struct, angular_drag)},
 	{"auto_disable_linear",	'R',1, offsetof(struct internal_struct, dis_linear)},
 	{"auto_disable_angular",'R',1, offsetof(struct internal_struct, dis_angular)},
 	{"auto_disable_time",	'R',1, offsetof(struct internal_struct, dis_time)},
 	{"auto_disable_steps",	'i',1, offsetof(struct internal_struct, dis_steps)},
+
 	//graphics
 	{"resolution",		'i',2, offsetof(struct internal_struct, res)},
 	{"VBO_size",		'i',1, offsetof(struct internal_struct, vbo_size)},

@@ -129,7 +129,9 @@ bool load_track (const char *path)
 		//store surface properties (defaults at first)
 		dReal mu = internal.mu;
 		dReal slip = internal.slip;
-		dReal bounce = internal.bounce;
+		dReal bounce = 0.0;
+		dReal spring = dInfinity;
+		dReal damping = 0.0;
 		//(they can be float or double - atof returns double which works for both)
 		
 		while (file.Read_Line())
@@ -198,6 +200,10 @@ bool load_track (const char *path)
 							slip = atof(file.words[++pos]);
 						else if (!strcmp(file.words[pos], "bounce"))
 							bounce = atof(file.words[++pos]);
+						else if (!strcmp(file.words[pos], "spring"))
+							spring = atof(file.words[++pos]);
+						else if (!strcmp(file.words[pos], "damping"))
+							damping = atof(file.words[++pos]);
 						else
 						{
 							printlog(0, "WARNING: trimesh surface option \"%s\" unknown", file.words[pos]);
@@ -247,6 +253,8 @@ bool load_track (const char *path)
 				data->mu = mu;
 				data->slip = slip;
 				data->bounce = bounce;
+				data->spring = spring;
+				data->damping = damping;
 
 				//position
 				x = atof(file.words[0]);
