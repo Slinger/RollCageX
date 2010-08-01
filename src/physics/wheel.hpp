@@ -20,7 +20,8 @@ class Wheel
 {
 	public:
 		//configures contact points with correct mu and similar
-		void Set_Contacts(dGeomID wheel, dGeomID other, dContact *contact, int count);
+		void Set_Contacts(dGeomID wg, dBodyID wb, dGeomID og, dBodyID ob, dContact *contact, int count);
+		//wheel geom and body, other geom and body, contact structs to configure, and how many contacts)
 
 	private:
 		//not allowing creation and modifying of class unless by friend

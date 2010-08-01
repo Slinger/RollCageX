@@ -11,6 +11,20 @@
 
 #include "wheel.hpp"
 
+//this code tries to implement the "magic formula" 5.2 for tyre friction calculation.
+//I'm probably not using all correct variable names, and I might have made some typo
+//somewhere. There are also a lot of features that could be implemented:
+//
+//	* force feedback - can be calculated here, but sdl lack force feedback right now
+//				(supports gamepads, but not ff specific)
+//
+//	* rolling resistance - would help with realism and makes sence to implement here
+//
+//	* surface friction - different surfaces should give different mu and mu2
+//
+//	* todo...............
+//
+
 //useful vector calculations (from physics/camera.cpp):
 //length of vector (=|V|)
 #define VLength(V) (sqrt( (V)[0]*(V)[0] + (V)[1]*(V)[1] + (V)[2]*(V)[2] ))
@@ -31,9 +45,9 @@
 
 //subtraction of one vector from another (A=B-C)
 #define VSubtract(A,B,C){ \
-       (A)[0]=(B)[0]-(C)[0]; \
-       (A)[1]=(B)[1]-(C)[1]; \
-       (A)[2]=(B)[2]-(C)[2];}
+	(A)[0]=(B)[0]-(C)[0]; \
+	(A)[1]=(B)[1]-(C)[1]; \
+	(A)[2]=(B)[2]-(C)[2];}
 
 
 //nothing here yet...
@@ -41,22 +55,37 @@ Wheel::Wheel()
 {}
 
 //simulation of wheel (mf5.2)
-void Wheel::Set_Contacts(dGeomID wheel, dGeomID other, dContact *contact, int count)
+void Wheel::Set_Contacts(dGeomID wg, dBodyID wb, dGeomID og, dBodyID ob, dContact *contact, int count)
 {
+	//
 	//variables:
-	//directions (X:longitudinal/wheel heading, Y:lateral/sideway, Z:normal/"up"):
+	//
+	//directions (X:longitudinal/wheel travel, Y:lateral/sideway, Z:normal/"up"):
 	dReal X[3], Y[3], Z[3];
-	//angles:
-	dReal Acamber, Aslip;
-	//forces
+	//forces:
 	dReal Fx, Fy, Fz;
 	//slip:
-	dReal slip;
+	dReal slip_ratio, slip_angle;
+	//other things that affects simulation:
+	dReal camber;
 
+	//tmp variables:
+	//for slip:
+	dVector3 pos; //contact point position
+	dVector3 v1, v2; //velocity (on wheel body and other body)
+	dVector3 vel; //velocity (v1 relative v2)
+	dReal velX, velY, velZ; //velocity along directions
+
+	//all of these values are input values, Fx and Fy, but not Fz!, are the output (used as mu1 and mu2)
 	for (int i=0; i<count; ++i)
 	{
+		//
 		//1) input values:
+		//
+
+
 		//directions:
+
 		//Z: vertical to ground/normal direction
 		Z[0] = contact[i].geom.normal[0];
 		Z[1] = contact[i].geom.normal[1];
@@ -64,7 +93,7 @@ void Wheel::Set_Contacts(dGeomID wheel, dGeomID other, dContact *contact, int co
 
 		//Y: simply wheel axis Z
 		//NOTE: this is actually incorrect, since this "Y" might not be tangental to ground.
-		const dReal *rot = dGeomGetRotation(wheel);
+		const dReal *rot = dGeomGetRotation(wg);
 		Y[0] = rot[2];
 		Y[1] = rot[6];
 		Y[2] = rot[10];
@@ -75,27 +104,78 @@ void Wheel::Set_Contacts(dGeomID wheel, dGeomID other, dContact *contact, int co
 		VNormalize(X);
 
 		//Y is not correct (not tangental to ground), but X is, and Z is also ok.
-		//But luckily, ode will recalculate this dir internally, and we won't need tangental
-		//for our uses... I think. NOTE TO SELF: can use cross between X and Z to find correct Y
-#warning "Y incorrect for now - Y=XxZ to recalculate"
+		//Y can be recalculated from X and Z, but first, this Y use useful:
 
-		//
-		//TODO:slip input!
-		//
+		//camber:
 
-		//angles:
-		//get angle between this Y and Z (for camber)
+		//first get angle between current Y and Z
 		dReal tmp = VDot (Z, Y);
-		Acamber = (180/M_PI)*acos(tmp);
-		//acamber is 0-180 between axis and normal...
+		camber = (180.0/M_PI)*acos(tmp);
+		//camber is 0-180 between axis and normal...
 		//we want between wheel up and normal...
-		Acamber -= 90.0;
+		camber -= 90.0;
 		//this gives -90-90 but we want 0-90...
-		if (Acamber < 0.0)
-			Acamber = -Acamber;
+		if (camber < 0.0)
+			camber = -camber;
+
+		//
+		//ok, we can now calculate the correct Y!
+		VCross(Y, X, Z);
+		//note: no need to normalize, since both X and Y are unit.
+		//
+
+
+		//slip+slip_angle:
+
+		//(copy the position (damn, c++ doesn't allow vector assignment, right now...)
+		pos[0] = contact[i].geom.pos[0];
+		pos[1] = contact[i].geom.pos[1];
+		pos[2] = contact[i].geom.pos[2];
+		//)
+
+		//slip: get velocity of contact point (as a point on each body, take the difference)
+		//and slip is the size/length tangental to surface...
+		dBodyGetPointVel(wb, pos[0], pos[1], pos[2], v1);
+
+		//not sure the other geom got a body...
+		if (ob) //the surface got a body, so slip is relative to both
+		{
+			//get other vel
+			dBodyGetPointVel(ob, pos[0], pos[1], pos[2], v2);
+			//relative vel
+			vel[0]=v1[0]-v2[0];
+			vel[1]=v1[1]-v2[1];
+			vel[2]=v1[2]-v2[2];
+		}
+		else //not body...
+		{
+			//vel=v1
+			vel[0]=v1[0];
+			vel[1]=v1[1];
+			vel[2]=v1[2];
+		}
+
+		//get velocity along the simulation X, Y and Z:
+		velX = VDot(X, vel);
+		velY = VDot(Y, vel);
+		velZ = VDot(Z, vel);
+
+		//TODO: perhaps the slip should be the ratio between v1 and v2 (v1/v2-1)...
+		slip_ratio = velX; //slip is along x
+
+		//slip_angle: angle (in degrees) between X and direction of slip. the velocity up/down
+		//(velZ) is not part of this, since only the tangental movement along the surface has to
+		//do with the actual wheel vs surface friction stuff:
+		slip_angle = (180.0/M_PI)*atan(velY/velX);
+
+
+		//TODO:normal force (load). don't know how to solve this, but I suspect it could
+		//be calculated from stepsize, erp, cfm and mass... somehow...
+		//Fz = contact[i].geom.depth*what? +/* (-)velZ*what?;
+
 
 		//rim (outside range for tyre)
-		if (Acamber > rim_angle)
+		if (camber > rim_angle)
 		{
 			//enable the usual contact friction approximation
 			contact[i].surface.mode |= dContactApprox1;
@@ -105,10 +185,17 @@ void Wheel::Set_Contacts(dGeomID wheel, dGeomID other, dContact *contact, int co
 		}
 		else //tyre
 		{
+			//
 			//2) compute output values:
+			//
 			//TODO!
+			//tmp values to make car driveable:
+			Fx = 2000.0;
+			Fy = 2000.0;
 
+			//
 			//3) set output values:
+			//
 			//enable: separate mu for dir 1&2, specify dir 1
 			//(note: dir2 is automatically calculated by ode)
 			contact[i].surface.mode |= dContactMu2 | dContactFDir1;
@@ -117,8 +204,8 @@ void Wheel::Set_Contacts(dGeomID wheel, dGeomID other, dContact *contact, int co
 			contact[i].fdir1[1] = X[1];
 			contact[i].fdir1[2] = X[2];
 
-			contact[i].surface.mu = 0.0; //TODO!
-			contact[i].surface.mu2 = 0.0; //TODO!
+			contact[i].surface.mu = Fx;
+			contact[i].surface.mu2 = Fy;
 		}
 	}
 }
