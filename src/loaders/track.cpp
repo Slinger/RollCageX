@@ -128,7 +128,6 @@ bool load_track (const char *path)
 	{
 		//store surface properties (defaults at first)
 		dReal mu = internal.mu;
-		dReal slip = internal.slip;
 		dReal bounce = 0.0;
 		dReal spring = dInfinity;
 		dReal damping = 0.0;
@@ -196,8 +195,6 @@ bool load_track (const char *path)
 					{
 						if (!strcmp(file.words[pos], "mu"))
 							mu = atof(file.words[++pos]);
-						else if (!strcmp(file.words[pos], "slip"))
-							slip = atof(file.words[++pos]);
 						else if (!strcmp(file.words[pos], "bounce"))
 							bounce = atof(file.words[++pos]);
 						else if (!strcmp(file.words[pos], "spring"))
@@ -251,7 +248,6 @@ bool load_track (const char *path)
 				//configure geom
 				data->model = model; //render geom with model
 				data->mu = mu;
-				data->slip = slip;
 				data->bounce = bounce;
 				data->spring = spring;
 				data->damping = damping;

@@ -175,6 +175,10 @@ Car_Template *Car_Template::Load (const char *path)
 
 	//helper datas:
 
+	//wheel simulation class (mf5.2 + some custom stuff):
+	//TODO: wheel->mf5.2 = conf.mf5.2;
+	target->wheel.rim_angle = target->conf.rim_angle;
+
 	//* set up values for front/rear driving ratios
 	if (target->conf.steer_ratio>100 || target->conf.steer_ratio<0 )
 	{
@@ -239,11 +243,9 @@ Car *Car_Template::Spawn (dReal x, dReal y, dReal z,  Trimesh_3D *tyre, Trimesh_
 {
 	printlog(1, "spawning car at: %f %f %f", x,y,z);
 
-	printlog(1, "Warning: wheels will not collide to other wheels... (wheels use cylinders)");
-	printlog(1, "(note to self: only solution would be moving to capped cylinders... :-/ )");
+	printlog(1, "NOTE: wheels will not collide to other wheels - OPCODE lacks cylinder*cylinder collision");
 
-
-	printlog(1, "TODO: antigravity forces");
+	printlog(1, "TODO: antigravity and downforce - could be combined");
 
 
 	//begin copying of needed configuration data
@@ -314,7 +316,6 @@ Car *Car_Template::Spawn (dReal x, dReal y, dReal z,  Trimesh_3D *tyre, Trimesh_
 		}
 		//friction
 		gdata->mu = conf.body_mu;
-		gdata->slip = conf.body_slip;
 	}
 	//then: spheres
 	struct sphere sphere;
@@ -332,7 +333,6 @@ Car *Car_Template::Spawn (dReal x, dReal y, dReal z,  Trimesh_3D *tyre, Trimesh_
 
 		//friction
 		gdata->mu = conf.body_mu;
-		gdata->slip = conf.body_slip;
 	}
 	//finally: capsule
 	struct capsule capsule;
@@ -355,7 +355,6 @@ Car *Car_Template::Spawn (dReal x, dReal y, dReal z,  Trimesh_3D *tyre, Trimesh_
 		}
 		//friction
 		gdata->mu = conf.body_mu;
-		gdata->slip = conf.body_slip;
 	}
 
 	//side detection sensors:
@@ -400,14 +399,10 @@ Car *Car_Template::Spawn (dReal x, dReal y, dReal z,  Trimesh_3D *tyre, Trimesh_
 
 		//data:
 		//friction
-		wheel_data[i]->mu = conf.wheel_mu;
-		wheel_data[i]->mu_rim = conf.rim_mu;
-		wheel_data[i]->wheel = true;
-		wheel_data[i]->slip = conf.wheel_slip;
 		wheel_data[i]->bounce = conf.wheel_bounce;
-
-		//rim or tyre:
-		wheel_data[i]->rim_angle = cos(conf.rim_angle/180.0*M_PI);
+		wheel_data[i]->mu = conf.rim_mu;
+		//points at our wheel simulation class (indicates wheel)
+		wheel_data[i]->wheel = &wheel;
 
 		//drag
 		bdata = new Body (wheel_body[i], car);
@@ -460,9 +455,6 @@ Car *Car_Template::Spawn (dReal x, dReal y, dReal z,  Trimesh_3D *tyre, Trimesh_
 		//lock steering axis on all wheels
 		dJointSetHinge2Param (car->joint[i],dParamLoStop,0);
 		dJointSetHinge2Param (car->joint[i],dParamHiStop,0);
-
-		//to easily get rotation speed (for slip in sideway), set all geom datas to specify connected hinge2
-		wheel_data[i]->hinge2 = car->joint[i];
 	}
 
 	//to make it possible to tweak the hinge2 anchor x position:

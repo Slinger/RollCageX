@@ -6,7 +6,7 @@
 #optional: use "> surface" to change default surface
 #parameters (will affect all geoms after).
 #example:
-#> surface mu 0.5 slip 5 bounce 10 spring inf damping 0
+#> surface mu 0.5 bounce 10 spring inf damping 0
 
 #position  rotation  geom model  optional render model
 0 0 0      0 0 0     "Box.obj"   #"Box.obj"

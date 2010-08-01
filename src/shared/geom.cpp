@@ -66,10 +66,7 @@ Geom::Geom (dGeomID geom, Object *obj): Component(obj) //pass object argument to
 
 	//defaults from internal.conf
 	mu = internal.mu;
-	mu_rim = internal.mu;
-	slip = internal.slip;
-
-	wheel = false; //not a wheel
+	wheel = NULL; //not a wheel
 
 	collide = true; //on collision, create opposing forces
 

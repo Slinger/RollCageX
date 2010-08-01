@@ -16,6 +16,7 @@
 #include "object.hpp"
 #include "trimesh.hpp"
 #include "script.hpp"
+#include "../physics/wheel.hpp"
 #include <SDL/SDL_stdinc.h> //definition for Uint32
 
 //Geom: (meta)data for geometrical shape (for collision detection), for: 
@@ -45,14 +46,11 @@ class Geom: public Component
 		//Physics data:
 		//placeholder for more physics data
 		dReal spring, damping; //to make surfaces properly soft
-		dReal mu, mu_rim, slip, bounce;
+		dReal mu, bounce;
 		//note: spring+dmaping should give bouncyness, so no need to use both
 
-		//TODO: wheel-specific data should probably be stored in car struct,
-		//pointed to called "wheel" (NULL if not wheel)
-		bool wheel; //true if wheel side slip and connected to hinge2
-		dReal rim_angle;
-		dJointID hinge2;
+		//points at a wheel simulation class, or NULL if not a wheel
+		Wheel *wheel;
 
 		//End of physics data
 		
