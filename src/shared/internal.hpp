@@ -34,6 +34,8 @@ extern struct internal_struct {
 	dReal dis_linear, dis_angular, dis_time;
 	int dis_steps;
 
+	dReal center[3], extents[3];
+	int depth;
 
 	//graphics
 	int res[2]; //resolution
@@ -62,6 +64,8 @@ const struct internal_struct internal_defaults = {
 	5.0,5.0,
 	0.05,0.10,0.5,
 	1,
+	{0,0,0}, {100.0, 100.0, 100.0},
+	8,
 	//graphics
 	{1200,800},
 	16000000,
@@ -99,6 +103,9 @@ const struct Conf_Index internal_index[] = {
 	{"auto_disable_angular",'R',1, offsetof(struct internal_struct, dis_angular)},
 	{"auto_disable_time",	'R',1, offsetof(struct internal_struct, dis_time)},
 	{"auto_disable_steps",	'i',1, offsetof(struct internal_struct, dis_steps)},
+	{"center",		'R',3, offsetof(struct internal_struct, center)},
+	{"extents",		'R',3, offsetof(struct internal_struct, extents)},
+	{"depth",		'i',1, offsetof(struct internal_struct, depth)},
 
 	//graphics
 	{"resolution",		'i',2, offsetof(struct internal_struct, res)},

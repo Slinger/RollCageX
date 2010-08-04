@@ -45,7 +45,7 @@ bool physics_init(void)
 
 	//TODO: move to "dQuadTreeSpaceCreate()" - much better performance!!!
 	printlog(1, "TODO: create world space using dQuadTreeSpaceCreate() - much better performance!");
-	space = dHashSpaceCreate(0);
+	space = dQuadTreeSpaceCreate(0, internal.center, internal.extents, internal.depth);
 	contactgroup = dJointGroupCreate(0);
 
 	dWorldSetQuickStepNumIterations (world, internal.iterations);
@@ -85,6 +85,7 @@ int physics_loop (void *d)
 			Body::Physics_Step(divided_stepsize); //drag (air/liquid "friction")
 
 			dSpaceCollide (space, 0, &Geom::Collision_Callback);
+
 			dWorldQuickStep (world, divided_stepsize);
 			dJointGroupEmpty (contactgroup);
 
