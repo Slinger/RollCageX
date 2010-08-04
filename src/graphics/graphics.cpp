@@ -111,6 +111,13 @@ bool graphics_init(void)
 		return false;
 	}
 
+	//title:
+	char name[10+strlen(VERSION)+40+1];
+	strcpy (name,"RollCageX ");
+	strcat (name,VERSION);
+	strcat (name," (C) 2009-2010 Mats Wahlberg (\"Slinger\")"); 
+	SDL_WM_SetCaption (name, "RCX");
+
 	//first of all, make sure we got all needed extansions:
 	if (!Load_GL_Extensions())
 	{
@@ -128,15 +135,6 @@ bool graphics_init(void)
 
 	//set up window, as if resized
 	graphics_resize (screen->w, screen->h);
-
-	//title:
-	char *name = (char *)calloc(10+strlen(VERSION)+1, sizeof(char));
-	strcpy (name,"RollCageX ");
-	strcat (name,VERSION);
-
-	SDL_WM_SetCaption (name, "RCX");
-
-	free (name);
 
 	//everything ok
 	return true;
