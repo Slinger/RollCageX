@@ -254,9 +254,9 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 	dBodySetPosition (body1, x, y, z);
 
 	data->model = model[0];
-	data->Set_Buffer_Body(bd); //send collision forces to body*/
+	data->Set_Buffer_Body(bd); //send collision forces to body
+	data->bounce = 2.0; //about twice the collision force is used to bounce up
 
-	
 	//the outer boxes (different offsets)
 	geom = dCreateBox(0, 1.0, 1.0, 1.0);
 	data = new Geom(geom, obj);
@@ -423,7 +423,7 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 	//center sphere
 	dGeomID geom  = dCreateSphere (0, 1); //geom
 	Geom *data = new Geom(geom, obj);
-	data->Set_Buffer_Event(8000, 500, (Script*)1337);
+	data->Set_Buffer_Event(500, 1000, (Script*)1337);
 	dBodyID body1 = dBodyCreate (world);
 
 	dMass m;
