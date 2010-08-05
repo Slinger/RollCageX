@@ -117,7 +117,7 @@ void Camera::Set_Pos(float p[], float d[])
 	rotation[6]=new_right[2]; rotation[7]=new_dir[2]; rotation[8]=new_up[2];
 }
 
-void Camera::Move(dReal x, dReal y, dReal z)
+void Camera::Move(float x, float y, float z)
 {
 	if (settings)
 	{
