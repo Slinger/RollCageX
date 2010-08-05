@@ -43,8 +43,6 @@ bool physics_init(void)
 
 	//set global ode parameters (except those specific to track)
 
-	//TODO: move to "dQuadTreeSpaceCreate()" - much better performance!!!
-	printlog(1, "TODO: create world space using dQuadTreeSpaceCreate() - much better performance!");
 	space = dQuadTreeSpaceCreate(0, internal.center, internal.extents, internal.depth);
 	contactgroup = dJointGroupCreate(0);
 
