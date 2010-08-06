@@ -28,12 +28,11 @@ const char ISSUE[] =
    You should have received a copy of the GNU General Public License\n\
    along with this program.  If not, see <http://www.gnu.org/licenses/>.\n\n\
     = Credits =\n\
-      * Mats Wahlberg (\"Slinger\")	Creator (coder)\n\
-      * \"XEWEASEL\"			3D Models\n\n\
-    = Special Thanks =\n\
-      * \"K.Mac\"				Extensive testing, hacks and new ideas\n\
-      * \"MeAkaJon\"			Creator/maintainer of gorcx.net webpage\n\
-      * \"Spontificus\"			Testing, hacks and various fixes\n\n\
+      * Mats Wahlberg (\"Slinger\")	-	Creator (coder)\n\
+      * \"XEWEASEL\" (\"Codie Morgan\")	-	High Definition 3D Models\n\
+      * \"K.Mac\" (\"Mac\")			-	Extensive testing, hacks and new ideas\n\
+      * \"MeAkaJon\"			-	Creator/maintainer of gorcx.net webpage\n\
+      * \"Spontificus\"			-	Testing, hacks and various fixes\n\n\
     = Other Projects that made RCX possible =\n\
       * \"Simple DirectMedia Layer\"	OS/hardware abstractions\n\
       * \"Open Dynamics Engine\"		Rigid body dynamics and collision detection\n\
