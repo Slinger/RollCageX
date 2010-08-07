@@ -85,16 +85,29 @@ void Camera::Set_Car (Car *c)
 	(A)[1]=(B)[2]*(C)[0]-(B)[0]*(C)[2]; \
 	(A)[2]=(B)[0]*(C)[1]-(B)[1]*(C)[0];}
 
+//normalization of vector (A=A/|A|)
+#define VNormalize(V){ \
+	float l=VLength(V); \
+	(V)[0]/=l; (V)[1]/=l; (V)[2]/=l;}
 
 void Camera::Set_Pos(float p[], float d[])
 {
-	//no direction
-	if (d[0] == 0 && d[1] == 0 && d[2] == 0)
+	//set position directly
+	pos[0]=p[0];
+	pos[1]=p[1];
+	pos[2]=p[2];
+
+	//direction to look at
+	float new_dir[3] = {d[0]-p[0], d[1]-p[1], d[2]-p[2]};
+
+	//no direction (keep original rotation)
+	if (new_dir[0] == 0 && new_dir[1] == 0 && new_dir[2] == 0)
 		return;
 
+	//ok, find up direction (might be tricky)
 	//along z, set up to right...
-	float new_right[3], new_dir[3], new_up[3];
-	if (d[0] == 0 && d[2] == 0)
+	float new_right[3], new_up[3];
+	if (new_dir[0] == 0 && new_dir[2] == 0)
 	{
 		new_up[0] = 1; new_up[1] = 0; new_up[2] = 0; 
 	}
@@ -103,13 +116,13 @@ void Camera::Set_Pos(float p[], float d[])
 		new_up[0] = 0; new_up[1] = 0; new_up[2] = 1; 
 	}
 
-	VCross(new_right, d, new_up); //calculate right
-	VCross(new_up, new_right, d); //recalculate proper right
+	VCross(new_right, new_dir, new_up); //calculate right
+	VCross(new_up, new_right, new_dir); //recalculate proper up
 
 	//normalize:
-	float l = VLength(d); new_dir[0]=d[0]/l; new_dir[1]=d[1]/l; new_dir[2]=d[2]/l;
-	l = VLength(new_right); new_right[0]/=l; new_right[1]/=l; new_right[2]/=l; 
-	l = VLength(new_up); new_up[0]/=l; new_up[1]/=l; new_up[2]/=l; 
+	VNormalize(new_dir);
+	VNormalize(new_right);
+	VNormalize(new_up);
 
 	//set matrix to these values
 	rotation[0]=new_right[0]; rotation[1]=new_dir[0]; rotation[2]=new_up[0];
