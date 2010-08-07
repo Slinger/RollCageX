@@ -63,16 +63,22 @@ the following is the defaults keys for the car:
 * Arrow keys for accelerating/reversing/breaking and steering
 * Space for locking/drifting breaks
 * Changing of camera modes using F1-F4
-(the camera can also be tweaked along the X, Y and Z axes using A/D, W/S and
-Q/E)
+* For quitting the game, just press Esc.
 
-For quitting the game, just press Esc.
 
 There are also a couple of demo/debug keys (these keys can not be changed):
-* F5 - spawn box
-* F6 - spawn sphere ("beachball")
-* F7 - spawn funbox (a composite object consisting of several boxes)
-* F8 - switch between rendering of models, models+geoms or only geoms
+
+Camera movement/tweaking:
+* A/D, W/S and Q/E - movement along X, Y and Z axes.
+  Note that these buttons will be used for weapon control in future versions.
+
+Spawning:
+* F5-F8 - spawn some objects: box, beachball, funbox, molecule.
+  Note that this function will also be removed in future versions
+
+Debugging:
+* F9 - simulation paus (camera can still be moved)
+* F10 - wireframe geom/collision rendering toggle (models, geoms, or both)
 
 
 

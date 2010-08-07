@@ -26,23 +26,19 @@ const char ISSUE[] =
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n\
    GNU General Public License for more details.\n\n\
    You should have received a copy of the GNU General Public License\n\
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.\n\n\
-    = Credits =\n\
-      * Mats Wahlberg (\"Slinger\")	-	Creator (coder)\n\
-      * \"XEWEASEL\" (\"Codie Morgan\")	-	High Definition 3D Models\n\
-      * \"K.Mac\" (\"Mac\")			-	Extensive testing, hacks and new ideas\n\
-      * \"MeAkaJon\"			-	Creator/maintainer of gorcx.net webpage\n\
-      * \"Spontificus\"			-	Testing, hacks and various fixes\n\n\
-    = Other Projects that made RCX possible =\n\
-      * \"Simple DirectMedia Layer\"	OS/hardware abstractions\n\
-      * \"Open Dynamics Engine\"		Rigid body dynamics and collision detection\n\
-      * \"The GNU Project\"		Its fight for computer freedom has changed the world\n\n\
+   along with this program.  If not, see <http://www.gnu.org/licenses/>.\n\
+\n               = Credits =\n\n\
+    * Mats Wahlberg (\"Slinger\")     -       Creator (coder)\n\
+    * \"XEWEASEL\" (\"Codie Morgan\")   -       High Definition 3D Models\n\
+    * \"K.Mac\" (\"Mac\")               -       Extensive testing, hacks and new ideas\n\
+    * \"MeAkaJon\"                    -       Creator/maintainer of gorcx.net webpage\n\
+    * \"Spontificus\"                 -       Testing, hacks and various fixes\n\n\
+\n  = Other Projects that made RCX possible =\n\n\
+    * \"Simple DirectMedia Layer\"    -       OS/hardware abstractions\n\
+    * \"Open Dynamics Engine\"        -       Rigid body dynamics and collision detection\n\
+    * \"The GNU Project\"             -       Its fight for computer freedom has changed the world\n\n\
     Default key bindings can be found (and changed) in \"data/profiles/default/keys.lst\"\n\
-    Some other keys worth mentioning (just for testing/demo):\n\
-      * F5 - spawn box\n\
-      * F6 - spawn sphere\n\
-      * F7 - spawn funbox\n\
-      * F8 - toggle debug geom rendering: geoms+models, only geoms or only models\n\
+    More keys exists for debug/testing/demo, see README if you are interested.\n\
     - See README for more info -\n\n";
  
 

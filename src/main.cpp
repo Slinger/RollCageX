@@ -123,10 +123,10 @@ bool select_and_load_race(Profile *prof)
 	rim = load_model(internal.usr_rim, "rim.conf");
 
 	//TMP: load box for online spawning
-	box = Object_Template::Load("data/objects/misc/box");
-	sphere = Object_Template::Load("data/objects/misc/beachball");
-	funbox = Object_Template::Load("data/objects/misc/funbox");
-	if (!box || !sphere || !funbox)
+	if (	!(box = Object_Template::Load("data/objects/misc/box"))		||
+		!(sphere = Object_Template::Load("data/objects/misc/beachball"))||
+		!(funbox = Object_Template::Load("data/objects/misc/funbox"))	||
+		!(molecule = Object_Template::Load("data/objects/misc/NH4"))	)
 		return false;
 
 	//spawn car

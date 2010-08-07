@@ -32,6 +32,7 @@ unsigned int events_count = 0;
 Object_Template *box = NULL;
 Object_Template *sphere = NULL;
 Object_Template *funbox = NULL;
+Object_Template *molecule = NULL;
 
 
 int events_loop (void *d)
@@ -96,7 +97,7 @@ int events_loop (void *d)
 						printlog(1, "(FIXME: pause when losing focus (or being iconified)!)");
 				break;
 
-				//check for special key presses
+				//check for special key presses (debug/demo keys)
 				case SDL_KEYDOWN:
 					switch (event.key.keysym.sym)
 					{
@@ -119,8 +120,21 @@ int events_loop (void *d)
 							funbox->Spawn (0,0,10);
 						break;
 
-						//switch what to render
+						//molecule
 						case SDLK_F8:
+							molecule->Spawn (0,0,10);
+						break;
+
+						//paus physics
+						case SDLK_F9:
+							if (runlevel == paused)
+								runlevel = running;
+							else
+								runlevel = paused;
+						break;
+
+						//switch what to render
+						case SDLK_F10:
 							if (render_models && !render_geoms)
 							{
 								printlog(1, "rendering models and geoms");
@@ -139,14 +153,6 @@ int events_loop (void *d)
 							}
 						break;
 
-						//paus physics
-						case SDLK_F9:
-							if (runlevel == paused)
-								runlevel = running;
-							else
-								runlevel = paused;
-						break;
-
 						default:
 							break;
 					}
@@ -156,6 +162,25 @@ int events_loop (void *d)
 					break;
 			}
 		}
+
+		//(tmp) camera movement keys:
+		Uint8 *keys = SDL_GetKeyState(NULL);
+
+		if (keys[SDLK_d]) //+x
+			camera.Move(+(delta*0.03), 0, 0);
+		if (keys[SDLK_a]) //-x
+			camera.Move(-(delta*0.03), 0, 0);
+
+		if (keys[SDLK_w]) //+y
+			camera.Move(0, +(delta*0.03), 0);
+		if (keys[SDLK_s]) //-y
+			camera.Move(0, -(delta*0.03), 0);
+
+		if (keys[SDLK_q]) //+z
+			camera.Move(0, 0, +(delta*0.03));
+		if (keys[SDLK_e]) //-z
+			camera.Move(0, 0, -(delta*0.03));
+		//
 
 		//car control
 		if (runlevel == running)

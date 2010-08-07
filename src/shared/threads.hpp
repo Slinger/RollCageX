@@ -50,8 +50,9 @@ int physics_loop (void *d);
 
 //TMP: used by events for keeping track of objects spawning
 #include "object.hpp"
-extern Object_Template *box; //keep track of our loaded debug box
+extern Object_Template *box;
 extern Object_Template *sphere;
 extern Object_Template *funbox;
+extern Object_Template *molecule;
 
 #endif

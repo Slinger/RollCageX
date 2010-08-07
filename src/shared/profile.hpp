@@ -36,13 +36,6 @@ struct Profile {
 	SDLKey left;
 	SDLKey drift_break;
 
-	SDLKey cam_x_pos;
-	SDLKey cam_x_neg;
-	SDLKey cam_y_pos;
-	SDLKey cam_y_neg;
-	SDLKey cam_z_pos;
-	SDLKey cam_z_neg;
-
 	struct Camera_Settings cam[4];
 	int camera;
 	SDLKey cam1;
@@ -68,13 +61,6 @@ const Profile profile_defaults = {
 	SDLK_RIGHT,
 	SDLK_LEFT,
 	SDLK_SPACE,
-	//camera control
-	SDLK_d,
-	SDLK_a,
-	SDLK_w,
-	SDLK_s,
-	SDLK_q,
-	SDLK_e,
 	//camera settings:
 	{
 	//1:
@@ -222,13 +208,6 @@ const struct {
 	{"right",		offsetof(Profile, right)},
 	{"left",		offsetof(Profile, left)},
 	{"drift_break",		offsetof(Profile, drift_break)},
-
-	{"camera_x+",		offsetof(Profile, cam_x_pos)},
-	{"camera_x-",		offsetof(Profile, cam_x_neg)},
-	{"camera_y+",		offsetof(Profile, cam_y_pos)},
-	{"camera_y-",		offsetof(Profile, cam_y_neg)},
-	{"camera_z+",		offsetof(Profile, cam_z_pos)},
-	{"camera_z-",		offsetof(Profile, cam_z_neg)},
 
 	{"camera1",		offsetof(Profile, cam1)},
 	{"camera2",		offsetof(Profile, cam2)},
