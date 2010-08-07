@@ -42,7 +42,7 @@ int events_loop (void *d)
 	Uint32 time, time_old, delta;
 	time_old = SDL_GetTicks();
 
-	while (runlevel == running)
+	while (runlevel != done)
 	{
 		//if syncing, sleep until physics signals
 		if (internal.sync_events)
@@ -58,15 +58,21 @@ int events_loop (void *d)
 		time = SDL_GetTicks();
 		delta = time-time_old;
 
-		//process events
-		Geom::TMP_Events_Step(delta);
-		Joint::TMP_Events_Step(delta);
-		Body::TMP_Events_Step(delta);
+		//process events (if running)
+		if (runlevel == running)
+		{
+			//TODO: runlevel = locked;
+			Geom::TMP_Events_Step(delta);
+			Joint::TMP_Events_Step(delta);
+			Body::TMP_Events_Step(delta);
 
-		Object::Events_Step(); //remove inactive objects
+			Object::Events_Step(); //remove inactive objects
 
-		//timers
-		Animation_Timer::Events_Step(delta);
+			//timers
+			Animation_Timer::Events_Step(delta);
+
+			//TODO: runlevel = normal
+		}
 
 		//get SDL events
 		SDL_mutexP(sdl_mutex); //make sure not colliding with other threads
@@ -133,6 +139,13 @@ int events_loop (void *d)
 							}
 						break;
 
+						//paus physics
+						case SDLK_F9:
+							if (runlevel == paused)
+								runlevel = running;
+							else
+								runlevel = paused;
+						break;
 
 						default:
 							break;
@@ -144,7 +157,9 @@ int events_loop (void *d)
 			}
 		}
 
-		Profile_Events_Step(delta);
+		//car control
+		if (runlevel == running)
+			Profile_Events_Step(delta);
 
 
 		//unlock sdl access

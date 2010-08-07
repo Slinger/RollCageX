@@ -72,32 +72,37 @@ int physics_loop (void *d)
 	Uint32 stepsize_ms = (Uint32) (internal.stepsize*1000.0+0.0001);
 	dReal divided_stepsize = internal.stepsize/internal.multiplier;
 
-	while (runlevel == running)
+	//keep running until done
+	while (runlevel != done)
 	{
-		//technically, collision detection doesn't need this, but this is easier
-		SDL_mutexP(ode_mutex);
-
-		for (int i=0; i<internal.multiplier; ++i)
+		//only if in active mode do we simulate
+		if (runlevel == running)
 		{
-			Car::Physics_Step(divided_stepsize); //control, antigrav...
-			Body::Physics_Step(divided_stepsize); //drag (air/liquid "friction")
+			//technically, collision detection doesn't need this, but this is easier
+			SDL_mutexP(ode_mutex);
 
-			dSpaceCollide (space, 0, &Geom::Collision_Callback);
+			for (int i=0; i<internal.multiplier; ++i)
+			{
+				Car::Physics_Step(divided_stepsize); //control, antigrav...
+				Body::Physics_Step(divided_stepsize); //drag (air/liquid "friction")
 
-			dWorldQuickStep (world, divided_stepsize);
-			dJointGroupEmpty (contactgroup);
+				dSpaceCollide (space, 0, &Geom::Collision_Callback);
 
-			Joint::Physics_Step(divided_stepsize); //joint forces
-			Collision_Feedback::Physics_Step(divided_stepsize); //forces from collisions
+				dWorldQuickStep (world, divided_stepsize);
+				dJointGroupEmpty (contactgroup);
+
+				Joint::Physics_Step(divided_stepsize); //joint forces
+				Collision_Feedback::Physics_Step(divided_stepsize); //forces from collisions
+			}
+
+			Geom::Physics_Step(); //sensor/radar handling
+			camera.Physics_Step(internal.stepsize); //move camera to wanted postion
+
+			//done with ode
+			SDL_mutexV(ode_mutex);
+			
+			Graphic_List_Update(); //make copy of position/rotation for rendering
 		}
-
-		Geom::Physics_Step(); //sensor/radar handling
-		camera.Physics_Step(internal.stepsize); //move camera to wanted postion
-
-		//done with ode
-		SDL_mutexV(ode_mutex);
-		
-		Graphic_List_Update(); //make copy of position/rotation for rendering
 
 		//broadcast to wake up sleeping threads
 		if (internal.sync_events || internal.sync_graphics)

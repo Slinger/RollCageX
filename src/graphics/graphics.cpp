@@ -146,7 +146,8 @@ int graphics_loop ()
 {
 	printlog(1, "Starting graphics loop");
 
-	while (runlevel == running)
+	//only stop render if done with race
+	while (runlevel != done)
 	{
 		//make sure only render frame after it's been simulated
 		//quckly lock mutex in order to listen to physics broadcasts
