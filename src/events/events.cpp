@@ -65,6 +65,9 @@ int events_loop (void *d)
 
 		Object::Events_Step(); //remove inactive objects
 
+		//timers
+		Animation_Timer::Events_Step(delta);
+
 		//get SDL events
 		SDL_mutexP(sdl_mutex); //make sure not colliding with other threads
 
@@ -146,9 +149,6 @@ int events_loop (void *d)
 
 		//unlock sdl access
 		SDL_mutexV(sdl_mutex);
-
-		//timers
-		Animation_Timer::Events_Step(delta);
 
 
 		//done

@@ -157,16 +157,15 @@ int graphics_loop ()
 			SDL_mutexV(sync_mutex);
 		}
 
-		//keep track of how many rendered frames
-		++graphics_count;
+
+		//in case event thread can't pump SDL events (limit of some OSes)
+		SDL_mutexP(sdl_mutex);
+		SDL_PumpEvents();
 
 		//see if we need to resize
 		if (graphics_event_resize)
 		{
-			//make sure sdl request doesn't collide with other thread
-			SDL_mutexP(sdl_mutex);
 			screen = SDL_SetVideoMode (graphics_event_resize_w, graphics_event_resize_h, 0, flags);
-			SDL_mutexV(sdl_mutex);
 
 			if (screen)
 			{
@@ -177,7 +176,12 @@ int graphics_loop ()
 				printlog(0, "Warning: resizing failed, will retry");
 		}
 
+		//done with sdl
+		SDL_mutexV(sdl_mutex);
+
 		//start rendering
+
+		//clear screen
 		glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	//	glLoadIdentity();
@@ -202,10 +206,8 @@ int graphics_loop ()
 
 		SDL_GL_SwapBuffers();
 
-		//in case event thread can't pump SDL events (limit of some OSes)
-		SDL_mutexP(sdl_mutex);
-		SDL_PumpEvents();
-		SDL_mutexV(sdl_mutex);
+		//keep track of how many rendered frames
+		++graphics_count;
 	}
 
 	//during rendering, memory might be allocated to use as buffers
