@@ -48,7 +48,7 @@ distclean: clean
 w32: ../rcx.exe
 
 #static compilation (reuses this makefiles with rewritten variables)
-../rcx.exe:
+../rcx.exe: $(OBJS)
 	@echo "Compiling static windows binary..."
 	@make \
 		LIBS='`sdl-config --static-libs --libs` `ode-config --libs` -lopengl32 -static -lstdc++ -lwinmm -lgdi32' \
