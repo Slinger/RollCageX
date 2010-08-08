@@ -11,6 +11,7 @@
 
 #include "geom_render.hpp"
 #include "gl_extensions.hpp"
+#include "../shared/threads.hpp"
 #include "../shared/geom.hpp"
 #include "../shared/racetime_data.hpp"
 #include "../shared/printlog.hpp"
@@ -223,6 +224,9 @@ void Geom_Render()
 	int tloop, triangles;
 	float vseg = 2.0*M_PI/8.0;
 
+	//lock ode: make sure no geoms change while we build render
+	//(not likely, but just to be sure)
+	SDL_mutexP(ode_mutex);
 	for (geom=Geom::head; geom; geom=geom->next)
 	{
 		g = geom->geom_id;
@@ -435,6 +439,8 @@ void Geom_Render()
 		vertex_usage+=new_vertices;
 		index_usage+=new_indices;
 	}
+	//unlock ode access
+	SDL_mutexV(ode_mutex);
 
 	//send and configure data
 	//NOTE: using glBufferData to allocate vbo and send data to it in one step.
