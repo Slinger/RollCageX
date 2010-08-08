@@ -404,7 +404,8 @@ Car *Car_Template::Spawn (dReal x, dReal y, dReal z,  Trimesh_3D *tyre, Trimesh_
 		wheel_data[i]->mu_rim = conf.rim_mu;
 		wheel_data[i]->wheel = true;
 		wheel_data[i]->slip = conf.wheel_slip;
-		wheel_data[i]->bounce = conf.wheel_bounce;
+		wheel_data[i]->spring = conf.tyre_spring;
+		wheel_data[i]->damping = conf.tyre_damping;
 
 		//rim or tyre:
 		wheel_data[i]->rim_angle = cos(conf.rim_angle/180.0*M_PI);

@@ -31,7 +31,7 @@ struct Car_Conf
 	bool torque_compensator;
 	dReal body_mass, wheel_mass;
 	dReal suspension_spring, suspension_damping;
-	dReal wheel_mu, rim_mu, wheel_slip, wheel_bounce;
+	dReal wheel_mu, rim_mu, wheel_slip, tyre_spring, tyre_damping;
 	dReal rim_angle;
 	dReal body_mu, body_slip;
 
@@ -54,7 +54,7 @@ const struct Car_Conf car_conf_defaults = {
 	true,
 	6000, 500,
 	150000.0, 5000.0,
-	2.0, 0.1, 0.00004, 0.0,
+	2.0, 0.1, 0.00004, 300000.0, 10000.0,
 	45.0,
 	0.1, 0.01,
 	{10,5,15}, 1, 4, 0.5,
@@ -88,7 +88,8 @@ const struct Conf_Index car_conf_index[] = {
 	{"rim_angle",		'R',1, offsetof(struct Car_Conf, rim_angle)},
 	{"rim_mu",		'R',1, offsetof(struct Car_Conf, rim_mu)},
 	{"wheel_slip",		'R',1, offsetof(struct Car_Conf, wheel_slip)},
-	{"wheel_bounce",	'R',1, offsetof(struct Car_Conf, wheel_bounce)},
+	{"tyre_spring",		'R',1, offsetof(struct Car_Conf, tyre_spring)},
+	{"tyre_damping",	'R',1, offsetof(struct Car_Conf, tyre_damping)},
 	{"body",		'R',3, offsetof(struct Car_Conf, body)},
 	{"body_mu",		'R',1, offsetof(struct Car_Conf, body_mu)},
 	{"body_slip",		'R',1, offsetof(struct Car_Conf, body_slip)},
