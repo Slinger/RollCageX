@@ -73,29 +73,8 @@ Trimesh_3D *load_model(const char *path, const char *file)
 	strcat(model, "/");
 	strcat(model, modelconf.model);
 
-	//already loaded?
-	if (Trimesh_3D *tmp = Racetime_Data::Find<Trimesh_3D>(model))
-		return tmp;
-
-	//start loading
-	Trimesh mesh;
-	Trimesh_3D *mesh3d;
-
 	//load
-	if (!mesh.Load(model))
-		return NULL;
-
-	//if transforming needed
-	mesh.Resize(modelconf.resize);
-	mesh.Rotate(modelconf.rotate[0], modelconf.rotate[1], modelconf.rotate[2]);
-	mesh.Offset(modelconf.offset[0], modelconf.offset[1], modelconf.offset[2]);
-	
-	//"create" 3d model
-	if (! (mesh3d = mesh.Create_3D()) )
-		return NULL;
-
-	//ok, done
-	return mesh3d;
+	return Trimesh_3D::Quick_Load(model, modelconf.resize, modelconf.rotate, modelconf.offset);
 }
 
 //this function is just until proper menus

@@ -100,6 +100,47 @@ Trimesh_3D::~Trimesh_3D()
 	delete[] materials;
 }
 
+//loading of a 3d model directly
+Trimesh_3D *Trimesh_3D::Quick_Load(const char *name, float resize, float rotate[], float offset[])
+{
+	//check if already exists
+	if (Trimesh_3D *tmp=Racetime_Data::Find<Trimesh_3D>(name))
+		return tmp;
+
+	//no, load
+	Trimesh mesh;
+
+	//failure to load
+	if (!mesh.Load(name))
+		return NULL;
+
+	//pass modification requests (will be ignored if defaults)
+	mesh.Resize(resize);
+	mesh.Rotate(rotate[0], rotate[1], rotate[2]);
+	mesh.Offset(offset[0], offset[1], offset[2]);
+
+	//create a geom from this and return it
+	return mesh.Create_3D();
+}
+
+//simplified
+Trimesh_3D *Trimesh_3D::Quick_Load(const char *name)
+{
+	//check if already exists
+	if (Trimesh_3D *tmp=Racetime_Data::Find<Trimesh_3D>(name))
+		return tmp;
+
+	//no, load
+	Trimesh mesh;
+
+	//failure to load
+	if (!mesh.Load(name))
+		return NULL;
+
+	//create a geom from this and return it
+	return mesh.Create_3D();
+}
+
 //method for creating a Trimesh_3D from Trimesh
 Trimesh_3D *Trimesh::Create_3D()
 {

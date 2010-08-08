@@ -213,22 +213,13 @@ Car_Template *Car_Template::Load (const char *path)
 	}
 	else
 	{
-		Trimesh mesh;
+		char file[strlen(path)+1+strlen(target->conf.model)+1];
+		strcpy(file, path);
+		strcat(file, "/");
+		strcat(file, target->conf.model);
 
-		std::string file; //path to file
-		file=path;
-		file+='/';
-		file+=target->conf.model;
-
-		mesh.Load(file.c_str());
-
-		mesh.Resize(target->conf.resize);
-		mesh.Rotate(target->conf.rotate[0], target->conf.rotate[1], target->conf.rotate[2]);
-		mesh.Offset(target->conf.offset[0], target->conf.offset[1], target->conf.offset[2]);
-
-		target->model = mesh.Create_3D();
-
-		//if any steps above failed, model will be NULL
+		target->model = Trimesh_3D::Quick_Load(file,
+				target->conf.resize, target->conf.rotate, target->conf.offset);
 	}
 
 	return target;

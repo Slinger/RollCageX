@@ -22,6 +22,12 @@ bool Trimesh::Load(const char *file)
 	printlog(1, "Loading trimesh from file \"%s\"", file);
 	printlog(2, "determining file type from suffix");
 
+	if (file == NULL)
+	{
+		printlog(0, "WARNING: empty file path+name for trimesh");
+		return false;
+	}
+
 	const char *suffix = strrchr(file, '.');
 
 	//in case something really wrong
