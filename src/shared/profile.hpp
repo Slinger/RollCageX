@@ -52,9 +52,9 @@ extern Profile *profile_head;
 const Profile profile_defaults = {
 	NULL, //car
 	//steering
-	0.005,
-	0.5,
-	2.0,
+	0.2,
+	30.0,
+	1.0,
 	//control
 	SDLK_UP,
 	SDLK_DOWN,
