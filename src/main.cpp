@@ -32,51 +32,6 @@ Uint32 starttime = 0;
 Uint32 racetime = 0;
 Uint32 simtime = 0; 
 
-//tmp
-Trimesh_3D *load_model(const char *path, const char *file)
-{
-	//small conf for filename and model manipulation stuff
-	struct mconf {
-		Conf_String model;
-		float resize, rotate[3], offset[3];
-	} modelconf = {
-		"",
-		1.0, {0.0,0.0,0.0}, {0.0,0.0,0.0}
-	};
-	const struct Conf_Index modelconfindex[] = {
-	{"model",		's',1, offsetof(mconf, model)},
-	{"resize",		'f',1, offsetof(mconf, resize)},
-	{"rotate",		'f',3, offsetof(mconf, rotate)},
-	{"offset",		'f',3, offsetof(mconf, offset)},
-	{"",0,0}};//end
-
-	//build path+file string for loading conf
-	char conf[strlen(path)+1+strlen(file)+1];
-	strcpy(conf, path);
-	strcat(conf, "/");
-	strcat(conf, file);
-
-	//load conf
-	if (!load_conf(conf, (char*)&modelconf, modelconfindex))
-		return NULL;
-
-	//if we got no filename from the conf, nothing more to do
-	if (!modelconf.model)
-	{
-		printlog(1, "WARNING: could not find model filename in conf \"%s\"", conf);
-		return NULL;
-	}
-
-	//build path+file for model
-	char model[strlen(path)+1+strlen(modelconf.model)+1];
-	strcpy(model, path);
-	strcat(model, "/");
-	strcat(model, modelconf.model);
-
-	//load
-	return Trimesh_3D::Quick_Load(model, modelconf.resize, modelconf.rotate, modelconf.offset);
-}
-
 //this function is just until proper menus
 bool select_and_load_race(Profile *prof)
 {
@@ -96,10 +51,10 @@ bool select_and_load_race(Profile *prof)
 	Trimesh_3D *tyre, *rim;
 
 	//MENU: P1: select {track,world}/tyre
-	tyre = load_model(internal.usr_tyre, "tyre.conf");
+	tyre = Trimesh_3D::Quick_Load_Conf(internal.usr_tyre, "tyre.conf");
 
 	//MENU: P1: select {car,team}/rim
-	rim = load_model(internal.usr_rim, "rim.conf");
+	rim = Trimesh_3D::Quick_Load_Conf(internal.usr_rim, "rim.conf");
 
 	//TMP: load box for online spawning
 	if (	!(box = Object_Template::Load("data/objects/misc/box"))		||

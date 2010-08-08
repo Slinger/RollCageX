@@ -40,6 +40,8 @@ class Trimesh_3D: public Racetime_Data
 		static Trimesh_3D *Quick_Load(const char* name, float resize, float rotate[], float offset[]);
 		//the same, but no modification needed
 		static Trimesh_3D *Quick_Load(const char* name);
+		//all data provided by conf
+		static Trimesh_3D *Quick_Load_Conf(const char* path, const char* file);
 
 	private:
 		//

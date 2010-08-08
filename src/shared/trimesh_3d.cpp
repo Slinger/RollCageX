@@ -15,6 +15,7 @@
 #include "internal.hpp"
 #include "trimesh.hpp"
 #include "../graphics/gl_extensions.hpp"
+#include "../loaders/conf.hpp"
 #include "printlog.hpp"
 
 //length of vector
@@ -139,6 +140,52 @@ Trimesh_3D *Trimesh_3D::Quick_Load(const char *name)
 
 	//create a geom from this and return it
 	return mesh.Create_3D();
+}
+
+//even simpler: all data grabbed from conf file...
+Trimesh_3D *Trimesh_3D::Quick_Load_Conf(const char *path, const char *file)
+{
+	//small conf for filename and model manipulation stuff
+	struct mconf {
+		Conf_String model;
+		float resize, rotate[3], offset[3];
+	} modelconf = { //defaults
+		"",
+		1.0, {0.0,0.0,0.0}, {0.0,0.0,0.0}
+	};
+	//index (for loading)
+	const struct Conf_Index modelconfindex[] = {
+	{"model",		's',1, offsetof(mconf, model)},
+	{"resize",		'f',1, offsetof(mconf, resize)},
+	{"rotate",		'f',3, offsetof(mconf, rotate)},
+	{"offset",		'f',3, offsetof(mconf, offset)},
+	{"",0,0}};
+
+	//build path+file string for loading conf
+	char conf[strlen(path)+1+strlen(file)+1];
+	strcpy(conf, path);
+	strcat(conf, "/");
+	strcat(conf, file);
+
+	//load conf
+	if (!load_conf(conf, (char*)&modelconf, modelconfindex))
+		return NULL;
+
+	//if we got no filename from the conf, nothing more to do
+	if (!modelconf.model)
+	{
+		printlog(1, "WARNING: could not find model filename in conf \"%s\"", conf);
+		return NULL;
+	}
+
+	//build path+file for model
+	char model[strlen(path)+1+strlen(modelconf.model)+1];
+	strcpy(model, path);
+	strcat(model, "/");
+	strcat(model, modelconf.model);
+
+	//load
+	return Trimesh_3D::Quick_Load(model, modelconf.resize, modelconf.rotate, modelconf.offset);
 }
 
 //method for creating a Trimesh_3D from Trimesh
