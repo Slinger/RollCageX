@@ -67,8 +67,8 @@ void Profile_Events_Step(Uint32 step)
 				    carp->throttle += t_speed;
 			}
 
-			t_speed = prof->steer_speed*step;
-			dReal max = prof->steer_max;
+			t_speed = prof->steer_speed*(M_PI/180.0)*step;
+			dReal max = prof->steer_max*(M_PI/180.0);
 			if (keys[prof->left]&&!keys[prof->right])
 			{
 				carp->steering -= t_speed;
