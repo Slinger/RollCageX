@@ -46,10 +46,6 @@ extern struct internal_struct {
 	float clipping[2];
 	bool fullscreen;
 	bool culling;
-	
-
-	//TMP: menu selections
-	Conf_String usr_profile,usr_track,usr_car,usr_tyre,usr_rim;
 } internal;
 
 const struct internal_struct internal_defaults = {
@@ -74,13 +70,7 @@ const struct internal_struct internal_defaults = {
 	60.0,
 	{1.0, 1000.0},
 	false,
-	true,
-	//TMP menu:
-	"data/profiles/default",
-	"data/worlds/Sandbox/tracks/Box",
-	"data/teams/Nemesis/cars/Venom",
-	"data/worlds/Sandbox/tyres/2/Slick.obj",
-	"data/teams/Nemesis/rims/2/Split.obj"};
+	true};
 
 const struct Conf_Index internal_index[] = {
 	{"verbosity",		'i',1, offsetof(struct internal_struct, verbosity)},
@@ -117,12 +107,6 @@ const struct Conf_Index internal_index[] = {
 	{"backface_culling",	'b',1, offsetof(struct internal_struct, culling)},
 	{"clipping",		'f',2, offsetof(struct internal_struct, clipping)},
 
-	//TMP:
-	{"TMP:profile",		's',1, offsetof(struct internal_struct, usr_profile)},
-	{"TMP:track",		's',1, offsetof(struct internal_struct, usr_track)},
-	{"TMP:car",		's',1, offsetof(struct internal_struct, usr_car)},
-	{"TMP:tyre",		's',1, offsetof(struct internal_struct, usr_tyre)},
-	{"TMP:rim",		's',1, offsetof(struct internal_struct, usr_rim)},
 	{"",0,0}};
 
 
