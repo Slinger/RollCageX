@@ -75,6 +75,9 @@ int events_loop (void *d)
 			//TODO: runlevel = normal
 		}
 
+		//current car
+		Car *car = profile_head->car;
+
 		//get SDL events
 		SDL_mutexP(sdl_mutex); //make sure not colliding with other threads
 
@@ -133,8 +136,25 @@ int events_loop (void *d)
 								runlevel = paused;
 						break;
 
-						//switch what to render
+						//switch car
 						case SDLK_F10:
+							//not null
+							if (car)
+							{
+								//next in list
+								car = car->next;
+								//in case at end of list, go to head
+								if (!car)
+									car = Car::head;
+
+								//set new car
+								profile_head->car = car;
+								camera.Set_Car(car);
+							}
+						break;
+
+						//switch what to render
+						case SDLK_F11:
 							if (render_models && !render_geoms)
 							{
 								printlog(1, "rendering models and geoms");

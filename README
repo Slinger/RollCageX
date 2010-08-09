@@ -78,7 +78,8 @@ Spawning:
 
 Debugging:
 * F9 - simulation paus (camera can still be moved)
-* F10 - wireframe geom/collision rendering toggle (models, geoms, or both)
+* F10 - switch car (if more than one)
+* F11 - wireframe geom/collision rendering toggle (models, geoms, or both)
 
 
 

@@ -189,6 +189,9 @@ class Car:public Object
 		//appart from the object list, keep a list of all cars
 		static Car *head;
 		Car *prev, *next;
+
+		//tmp: needs access to above pointers
+		friend int events_loop (void *d);
 };
 
 #endif
