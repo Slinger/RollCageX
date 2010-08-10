@@ -24,7 +24,7 @@
 
 Text_File::Text_File ()
 {
-	open = false; //default until attempting opening
+	fp = false; //default until attempting opening
 	word_count = 0; //no words read yet
 
 	//allocate buffer anyway (even if not open), if reopening
@@ -66,7 +66,7 @@ bool Text_File::Open (const char *file)
 	}
 	else
 	{
-		printlog(0, "ERROR: could not open file %s!", file);
+		printlog(0, "ERROR: Text_File could not open file %s!", file);
 		return false;
 	}
 }
@@ -74,7 +74,7 @@ bool Text_File::Open (const char *file)
 void Text_File::Close()
 {
 	//make sure no old data is left
-	if (open)
+	if (fp)
 	{
 		printlog(2, "Text_File: closing file");
 		fclose (fp);
@@ -84,6 +84,13 @@ void Text_File::Close()
 
 bool Text_File::Read_Line ()
 {
+	//first check if we got an open file...
+	if (!fp)
+	{
+		printlog(0, "ERROR: Text_File tried reading without an open file!");
+		return false;
+	}
+
 	//remove the old words
 	Clear_List();
 

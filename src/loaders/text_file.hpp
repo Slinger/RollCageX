@@ -22,9 +22,6 @@
 class Text_File
 {
 	public:
-		//true if could open file
-		bool open;
-
 		//vector of strings (each string is a word)
 		char **words;
 		//how many words read from line
