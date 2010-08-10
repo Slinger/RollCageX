@@ -1,18 +1,10 @@
 #currently only for keyboard
-#bind normal controll to arrow keys
+#bind normal control to arrow keys
 up up
 down down
 right right
 left left
 drift_break space
-
-#camera position offset movement (bind to WASD and Q+E for height)
-camera_x+ d
-camera_x- a
-camera_y+ w
-camera_y- s
-camera_z+ q
-camera_z- e
 
 #camera change
 camera1 f1

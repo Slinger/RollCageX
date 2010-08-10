@@ -34,6 +34,8 @@ extern struct internal_struct {
 	dReal dis_linear, dis_angular, dis_time;
 	int dis_steps;
 
+	dReal center[3], extents[3];
+	int depth;
 
 	//graphics
 	int res[2]; //resolution
@@ -44,10 +46,6 @@ extern struct internal_struct {
 	float clipping[2];
 	bool fullscreen;
 	bool culling;
-	
-
-	//TMP: menu selections
-	Conf_String usr_profile,usr_track,usr_car,usr_tyre,usr_rim;
 } internal;
 
 const struct internal_struct internal_defaults = {
@@ -62,6 +60,8 @@ const struct internal_struct internal_defaults = {
 	5.0,5.0,
 	0.05,0.10,0.5,
 	1,
+	{0,0,0}, {100.0, 100.0, 100.0},
+	8,
 	//graphics
 	{1200,800},
 	16000000,
@@ -70,13 +70,7 @@ const struct internal_struct internal_defaults = {
 	60.0,
 	{1.0, 1000.0},
 	false,
-	true,
-	//TMP menu:
-	"data/profiles/default",
-	"data/worlds/Sandbox/tracks/Box",
-	"data/teams/Nemesis/cars/Venom",
-	"data/worlds/Sandbox/tyres/2/Slick.obj",
-	"data/teams/Nemesis/rims/2/Split.obj"};
+	true};
 
 const struct Conf_Index internal_index[] = {
 	{"verbosity",		'i',1, offsetof(struct internal_struct, verbosity)},
@@ -98,6 +92,9 @@ const struct Conf_Index internal_index[] = {
 	{"auto_disable_angular",'R',1, offsetof(struct internal_struct, dis_angular)},
 	{"auto_disable_time",	'R',1, offsetof(struct internal_struct, dis_time)},
 	{"auto_disable_steps",	'i',1, offsetof(struct internal_struct, dis_steps)},
+	{"center",		'R',3, offsetof(struct internal_struct, center)},
+	{"extents",		'R',3, offsetof(struct internal_struct, extents)},
+	{"depth",		'i',1, offsetof(struct internal_struct, depth)},
 
 	//graphics
 	{"resolution",		'i',2, offsetof(struct internal_struct, res)},
@@ -109,12 +106,6 @@ const struct Conf_Index internal_index[] = {
 	{"backface_culling",	'b',1, offsetof(struct internal_struct, culling)},
 	{"clipping",		'f',2, offsetof(struct internal_struct, clipping)},
 
-	//TMP:
-	{"TMP:profile",		's',1, offsetof(struct internal_struct, usr_profile)},
-	{"TMP:track",		's',1, offsetof(struct internal_struct, usr_track)},
-	{"TMP:car",		's',1, offsetof(struct internal_struct, usr_car)},
-	{"TMP:tyre",		's',1, offsetof(struct internal_struct, usr_tyre)},
-	{"TMP:rim",		's',1, offsetof(struct internal_struct, usr_rim)},
 	{"",0,0}};
 
 

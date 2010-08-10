@@ -35,6 +35,14 @@ struct Vector_Float{
 //optimized trimesh rendering
 class Trimesh_3D: public Racetime_Data
 {
+	public:
+		//will load and modify a 3d file to use only as a rendering trimesh
+		static Trimesh_3D *Quick_Load(const char* name, float resize, float rotate[], float offset[]);
+		//the same, but no modification needed
+		static Trimesh_3D *Quick_Load(const char* name);
+		//all data provided by conf
+		static Trimesh_3D *Quick_Load_Conf(const char* path, const char* file);
+
 	private:
 		//
 		//data to store:
@@ -81,6 +89,11 @@ class Trimesh_3D: public Racetime_Data
 class Trimesh_Geom: public Racetime_Data
 {
 	public:
+		//will load and modify a 3d file to use only as a collision trimesh
+		static Trimesh_Geom *Quick_Load(const char* name, float resize, float rotate[], float offset[]);
+		//the same, but no modification needed
+		static Trimesh_Geom *Quick_Load(const char* name);
+
 		class Geom *Create_Geom(class Object *obj); //creates geom from trimesh
 		//TODO: ode supports callbacks for trimeshes, could be usefull...
 

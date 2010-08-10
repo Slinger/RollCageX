@@ -20,7 +20,7 @@ struct Camera_Settings {
 	float target[3];
 	float anchor[3], distance[3];
 	bool hide_car;
-	float radius;
+	float radius, angle;
 	float linear_stiffness;
 	float angular_stiffness;
 	float damping;

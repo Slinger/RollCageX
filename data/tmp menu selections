@@ -1,0 +1,37 @@
+#this file is meant to solve some problems with the current lack of menus.
+#the current race mode is just a debug mode thing:
+# one single user (with one profile) controls all cars ("players")
+#
+#the idea here is to mimic menu selections for now:
+#hello, welcome to rcx! select a profile (or create a new):
+profile default
+
+#main menu... player selects "race"... and free-roam mode
+#select world:
+world Sandbox
+#select track:
+track Box
+
+#waiting for players...
+#one player
+#please select team:
+team Nemesis
+#what car?
+car Venom
+#ok, tyre and rim
+diameter 2 #rim diameter
+tyre Slick #by world or track)
+rim Split #by team or car)
+#todo: automatic spawning position instead of
+#manual x and y coords relative to track start
+position -5 0
+
+#another player joins the cage
+team Nemesis
+car Venom
+diameter 2
+tyre Slick
+rim Split
+position 5 0
+
+#ok, end of file: cage is closed, race will start!

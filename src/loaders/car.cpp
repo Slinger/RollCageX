@@ -178,6 +178,8 @@ Car_Template *Car_Template::Load (const char *path)
 	//wheel simulation class (mf5.2 + some custom stuff):
 	//TODO: wheel->mf5.2 = conf.mf5.2;
 	target->wheel.rim_angle = target->conf.rim_angle;
+	target->wheel.spring = target->conf.tyre_spring;
+	target->wheel.damping = target->conf.tyre_damping;
 
 	//* set up values for front/rear driving ratios
 	if (target->conf.steer_ratio>100 || target->conf.steer_ratio<0 )
@@ -217,22 +219,13 @@ Car_Template *Car_Template::Load (const char *path)
 	}
 	else
 	{
-		Trimesh mesh;
+		char file[strlen(path)+1+strlen(target->conf.model)+1];
+		strcpy(file, path);
+		strcat(file, "/");
+		strcat(file, target->conf.model);
 
-		std::string file; //path to file
-		file=path;
-		file+='/';
-		file+=target->conf.model;
-
-		mesh.Load(file.c_str());
-
-		mesh.Resize(target->conf.resize);
-		mesh.Rotate(target->conf.rotate[0], target->conf.rotate[1], target->conf.rotate[2]);
-		mesh.Offset(target->conf.offset[0], target->conf.offset[1], target->conf.offset[2]);
-
-		target->model = mesh.Create_3D();
-
-		//if any steps above failed, model will be NULL
+		target->model = Trimesh_3D::Quick_Load(file,
+				target->conf.resize, target->conf.rotate, target->conf.offset);
 	}
 
 	return target;
@@ -398,8 +391,7 @@ Car *Car_Template::Spawn (dReal x, dReal y, dReal z,  Trimesh_3D *tyre, Trimesh_
 		wheel_data[i] = new Geom(wheel_geom, car);
 
 		//data:
-		//friction
-		wheel_data[i]->bounce = conf.wheel_bounce;
+		//friction (use rim mu by default until knowing it's tyre)
 		wheel_data[i]->mu = conf.rim_mu;
 		//points at our wheel simulation class (indicates wheel)
 		wheel_data[i]->wheel = &wheel;

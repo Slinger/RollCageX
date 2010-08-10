@@ -41,14 +41,10 @@ Object_Template *Object_Template::Load(const char *path)
 		//"load" 3d box
 		printlog(2, "(hard-coded box)");
 
-	Trimesh mesh;
-	mesh.Load("data/objects/misc/box/box.obj"); //assume loading fine
-	Trimesh_3D *mesh3d = mesh.Create_3D();
-
 		tmplt = new Object_Template(path);
 
 		//the debug box will only spawn one component - one "3D file"
-		tmplt->model[0] = mesh3d;
+		tmplt->model[0] = Trimesh_3D::Quick_Load("data/objects/misc/box/box.obj");
 		tmplt->box = true;
 
 	//end of test
@@ -57,13 +53,10 @@ Object_Template *Object_Template::Load(const char *path)
 	{
 		printlog(2, "(Mac's hard-coded funbox");
 
-		Trimesh mesh;
-		mesh.Load("data/objects/misc/funbox/box.obj"); //assume loading fine
-		Trimesh_3D *mesh3d = mesh.Create_3D();
 		tmplt = new Object_Template(path);
 
 		//graphics
-		tmplt->model[0] = mesh3d;
+		tmplt->model[0] = Trimesh_3D::Quick_Load("data/objects/misc/funbox/box.obj");
 
 		tmplt->funbox = true; //id
 	}
@@ -71,13 +64,10 @@ Object_Template *Object_Template::Load(const char *path)
 	{
 		printlog(2, "(hard-coded flipper)");
 
-		Trimesh mesh;
-		mesh.Load("data/objects/misc/flipper/Flipper.obj"); //assume loading fine
-		Trimesh_3D *mesh3d = mesh.Create_3D();
 		tmplt = new Object_Template(path);
 
 		//graphics
-		tmplt->model[0] = mesh3d;
+		tmplt->model[0] = Trimesh_3D::Quick_Load("data/objects/misc/flipper/Flipper.obj");
 
 		tmplt->flipper = true; //id
 	}
@@ -85,17 +75,11 @@ Object_Template *Object_Template::Load(const char *path)
 	{
 		printlog(2, "(hard-coded \"molecule\")");
 
-		Trimesh mesh1, mesh2;
-		Trimesh_3D *model1, *model2;
-		mesh1.Load("data/objects/misc/NH4/Atom1.obj");
-		mesh2.Load("data/objects/misc/NH4/Atom2.obj");
-		model1 = mesh1.Create_3D();
-		model2 = mesh2.Create_3D();
 		tmplt = new Object_Template(path);
 
 		//graphics
-		tmplt->model[0] = model1;
-		tmplt->model[1] = model2;
+		tmplt->model[0] = Trimesh_3D::Quick_Load("data/objects/misc/NH4/Atom1.obj");
+		tmplt->model[1] = Trimesh_3D::Quick_Load("data/objects/misc/NH4/Atom2.obj");
 
 		tmplt->NH4 = true;
 	}
@@ -103,31 +87,20 @@ Object_Template *Object_Template::Load(const char *path)
 	{
 		printlog(2, "(hard-coded beachball)");
 
-		Trimesh mesh;
-		mesh.Load("data/objects/misc/beachball/sphere.obj"); //assume loading fine
-		Trimesh_3D *mesh3d = mesh.Create_3D();
 		tmplt = new Object_Template(path);
-		tmplt->model[0] = mesh3d;
+		tmplt->model[0] = Trimesh_3D::Quick_Load("data/objects/misc/beachball/sphere.obj");
 		tmplt->sphere = true;
 }
 	else if (!strcmp(path, "data/objects/misc/building"))
 	{
 		printlog(2, "(hard-coded building)");
 
-		Trimesh mesh_pillar, mesh_roof, mesh_wall;
-		Trimesh_3D *pillar, *roof, *wall;
-		mesh_pillar.Load("data/objects/misc/building/pillar.obj");
-		mesh_roof.Load("data/objects/misc/building/roof.obj");
-		mesh_wall.Load("data/objects/misc/building/wall.obj");
-		pillar = mesh_pillar.Create_3D();
-		roof = mesh_roof.Create_3D();
-		wall = mesh_wall.Create_3D();
 		tmplt = new Object_Template(path);
 
 		//graphics
-		tmplt->model[0] = pillar;
-		tmplt->model[1] = roof;
-		tmplt->model[2] = wall;
+		tmplt->model[0] = Trimesh_3D::Quick_Load("data/objects/misc/building/pillar.obj");
+		tmplt->model[1] = Trimesh_3D::Quick_Load("data/objects/misc/building/roof.obj");
+		tmplt->model[2] = Trimesh_3D::Quick_Load("data/objects/misc/building/wall.obj");
 
 		tmplt->building = true;
 	}
@@ -136,17 +109,11 @@ Object_Template *Object_Template::Load(const char *path)
 		//"load" 3d box
 		printlog(2, "(hard-coded pillar)");
 
-		Trimesh mesh1, mesh2;
-		Trimesh_3D *model1, *model2;
-		mesh1.Load("data/objects/misc/pillar/Pillar.obj");
-		mesh2.Load("data/objects/misc/pillar/Broken.obj");
-		model1 = mesh1.Create_3D();
-		model2 = mesh2.Create_3D();
 		tmplt = new Object_Template(path);
 
 		//graphics
-		tmplt->model[0] = model1;
-		tmplt->model[1] = model2;
+		tmplt->model[0] = Trimesh_3D::Quick_Load("data/objects/misc/pillar/Pillar.obj");
+		tmplt->model[1] = Trimesh_3D::Quick_Load("data/objects/misc/pillar/Broken.obj");
 
 		tmplt->pillar = true;
 	}
@@ -254,9 +221,9 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 	dBodySetPosition (body1, x, y, z);
 
 	data->model = model[0];
-	data->Set_Buffer_Body(bd); //send collision forces to body*/
+	data->Set_Buffer_Body(bd); //send collision forces to body
+	data->bounce = 2.0; //about twice the collision force is used to bounce up
 
-	
 	//the outer boxes (different offsets)
 	geom = dCreateBox(0, 1.0, 1.0, 1.0);
 	data = new Geom(geom, obj);
@@ -423,7 +390,7 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 	//center sphere
 	dGeomID geom  = dCreateSphere (0, 1); //geom
 	Geom *data = new Geom(geom, obj);
-	data->Set_Buffer_Event(8000, 500, (Script*)1337);
+	data->Set_Buffer_Event(500, 1000, (Script*)1337);
 	dBodyID body1 = dBodyCreate (world);
 
 	dMass m;

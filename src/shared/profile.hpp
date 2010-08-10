@@ -36,13 +36,6 @@ struct Profile {
 	SDLKey left;
 	SDLKey drift_break;
 
-	SDLKey cam_x_pos;
-	SDLKey cam_x_neg;
-	SDLKey cam_y_pos;
-	SDLKey cam_y_neg;
-	SDLKey cam_z_pos;
-	SDLKey cam_z_neg;
-
 	struct Camera_Settings cam[4];
 	int camera;
 	SDLKey cam1;
@@ -59,29 +52,22 @@ extern Profile *profile_head;
 const Profile profile_defaults = {
 	NULL, //car
 	//steering
-	0.005,
-	0.5,
-	2.0,
+	0.2,
+	30.0,
+	1.0,
 	//control
 	SDLK_UP,
 	SDLK_DOWN,
 	SDLK_RIGHT,
 	SDLK_LEFT,
 	SDLK_SPACE,
-	//camera control
-	SDLK_d,
-	SDLK_a,
-	SDLK_w,
-	SDLK_s,
-	SDLK_q,
-	SDLK_e,
 	//camera settings:
 	{
 	//1:
 	{{0,5,0.5},
 	{0,3.4,0.5}, {0,0,0},
 	true,
-	0,
+	0, 0,
 	0,
 	0,
 	0,
@@ -94,7 +80,7 @@ const Profile profile_defaults = {
 	{{0,7,1.4},
 	{0,-1.5,-1.2}, {0,0,0},
 	false,
-	0,
+	0, 0,
 	500,
 	0,
 	25,
@@ -107,7 +93,7 @@ const Profile profile_defaults = {
 	{{0,3,2},
 	{0,0,0}, {0,-20,5},
 	false,
-	3,
+	3, 70,
 	70,
 	700,
 	10,
@@ -120,7 +106,7 @@ const Profile profile_defaults = {
 	{{0,0,0},
 	{0,0,0}, {0,-40,16},
 	false,
-	4,
+	4, 60,
 	50,
 	500,
 	4,
@@ -152,6 +138,7 @@ const struct Conf_Index profile_index[] = {
 	{"camera1:anchor_distance",	'f' ,3 ,offsetof(Profile, cam[0].distance)},
 	{"camera1:hide_car",		'b' ,1 ,offsetof(Profile, cam[0].hide_car)},
 	{"camera1:collision_radius",	'f' ,1 ,offsetof(Profile, cam[0].radius)},
+	{"camera1:collision_angle",	'f' ,1 ,offsetof(Profile, cam[0].angle)},
 	{"camera1:linear_stiffness",	'f' ,1 ,offsetof(Profile, cam[0].linear_stiffness)},
 	{"camera1:angular_stiffness",	'f' ,1 ,offsetof(Profile, cam[0].angular_stiffness)},
 	{"camera1:damping",		'f' ,1 ,offsetof(Profile, cam[0].damping)},
@@ -168,6 +155,7 @@ const struct Conf_Index profile_index[] = {
 	{"camera2:anchor_distance",	'f' ,3 ,offsetof(Profile, cam[1].distance)},
 	{"camera2:hide_car",		'b' ,1 ,offsetof(Profile, cam[1].hide_car)},
 	{"camera2:collision_radius",	'f' ,1 ,offsetof(Profile, cam[1].radius)},
+	{"camera2:collision_angle",	'f' ,1 ,offsetof(Profile, cam[1].angle)},
 	{"camera2:linear_stiffness",	'f' ,1 ,offsetof(Profile, cam[1].linear_stiffness)},
 	{"camera2:angular_stiffness",	'f' ,1 ,offsetof(Profile, cam[1].angular_stiffness)},
 	{"camera2:damping",		'f' ,1 ,offsetof(Profile, cam[1].damping)},
@@ -184,6 +172,7 @@ const struct Conf_Index profile_index[] = {
 	{"camera3:anchor_distance",	'f' ,3 ,offsetof(Profile, cam[2].distance)},
 	{"camera3:hide_car",		'b' ,1 ,offsetof(Profile, cam[2].hide_car)},
 	{"camera3:collision_radius",	'f' ,1 ,offsetof(Profile, cam[2].radius)},
+	{"camera3:collision_angle",	'f' ,1 ,offsetof(Profile, cam[2].angle)},
 	{"camera3:linear_stiffness",	'f' ,1 ,offsetof(Profile, cam[2].linear_stiffness)},
 	{"camera3:angular_stiffness",	'f' ,1 ,offsetof(Profile, cam[2].angular_stiffness)},
 	{"camera3:damping",		'f' ,1 ,offsetof(Profile, cam[2].damping)},
@@ -200,6 +189,7 @@ const struct Conf_Index profile_index[] = {
 	{"camera4:anchor_distance",	'f' ,3 ,offsetof(Profile, cam[3].distance)},
 	{"camera4:hide_car",		'b' ,1 ,offsetof(Profile, cam[3].hide_car)},
 	{"camera4:collision_radius",	'f' ,1 ,offsetof(Profile, cam[3].radius)},
+	{"camera4:collision_angle",	'f' ,1 ,offsetof(Profile, cam[3].angle)},
 	{"camera4:linear_stiffness",	'f' ,1 ,offsetof(Profile, cam[3].linear_stiffness)},
 	{"camera4:angular_stiffness",	'f' ,1 ,offsetof(Profile, cam[3].angular_stiffness)},
 	{"camera4:damping",		'f' ,1 ,offsetof(Profile, cam[3].damping)},
@@ -222,13 +212,6 @@ const struct {
 	{"right",		offsetof(Profile, right)},
 	{"left",		offsetof(Profile, left)},
 	{"drift_break",		offsetof(Profile, drift_break)},
-
-	{"camera_x+",		offsetof(Profile, cam_x_pos)},
-	{"camera_x-",		offsetof(Profile, cam_x_neg)},
-	{"camera_y+",		offsetof(Profile, cam_y_pos)},
-	{"camera_y-",		offsetof(Profile, cam_y_neg)},
-	{"camera_z+",		offsetof(Profile, cam_z_pos)},
-	{"camera_z-",		offsetof(Profile, cam_z_neg)},
 
 	{"camera1",		offsetof(Profile, cam1)},
 	{"camera2",		offsetof(Profile, cam2)},

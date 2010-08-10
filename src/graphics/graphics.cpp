@@ -111,6 +111,13 @@ bool graphics_init(void)
 		return false;
 	}
 
+	//title:
+	char name[10+strlen(VERSION)+40+1];
+	strcpy (name,"RollCageX ");
+	strcat (name,VERSION);
+	strcat (name," (C) 2009-2010 Mats Wahlberg (\"Slinger\")"); 
+	SDL_WM_SetCaption (name, "RCX");
+
 	//first of all, make sure we got all needed extansions:
 	if (!Load_GL_Extensions())
 	{
@@ -129,15 +136,6 @@ bool graphics_init(void)
 	//set up window, as if resized
 	graphics_resize (screen->w, screen->h);
 
-	//title:
-	char *name = (char *)calloc(10+strlen(VERSION)+1, sizeof(char));
-	strcpy (name,"RollCageX ");
-	strcat (name,VERSION);
-
-	SDL_WM_SetCaption (name, "RCX");
-
-	free (name);
-
 	//everything ok
 	return true;
 }
@@ -148,7 +146,8 @@ int graphics_loop ()
 {
 	printlog(1, "Starting graphics loop");
 
-	while (runlevel == running)
+	//only stop render if done with race
+	while (runlevel != done)
 	{
 		//make sure only render frame after it's been simulated
 		//quckly lock mutex in order to listen to physics broadcasts
@@ -159,16 +158,15 @@ int graphics_loop ()
 			SDL_mutexV(sync_mutex);
 		}
 
-		//keep track of how many rendered frames
-		++graphics_count;
+
+		//in case event thread can't pump SDL events (limit of some OSes)
+		SDL_mutexP(sdl_mutex);
+		SDL_PumpEvents();
 
 		//see if we need to resize
 		if (graphics_event_resize)
 		{
-			//make sure sdl request doesn't collide with other thread
-			SDL_mutexP(sdl_mutex);
 			screen = SDL_SetVideoMode (graphics_event_resize_w, graphics_event_resize_h, 0, flags);
-			SDL_mutexV(sdl_mutex);
 
 			if (screen)
 			{
@@ -179,7 +177,12 @@ int graphics_loop ()
 				printlog(0, "Warning: resizing failed, will retry");
 		}
 
+		//done with sdl
+		SDL_mutexV(sdl_mutex);
+
 		//start rendering
+
+		//clear screen
 		glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	//	glLoadIdentity();
@@ -204,10 +207,8 @@ int graphics_loop ()
 
 		SDL_GL_SwapBuffers();
 
-		//in case event thread can't pump SDL events (limit of some OSes)
-		SDL_mutexP(sdl_mutex);
-		SDL_PumpEvents();
-		SDL_mutexV(sdl_mutex);
+		//keep track of how many rendered frames
+		++graphics_count;
 	}
 
 	//during rendering, memory might be allocated to use as buffers

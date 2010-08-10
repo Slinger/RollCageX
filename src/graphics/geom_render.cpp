@@ -11,6 +11,7 @@
 
 #include "geom_render.hpp"
 #include "gl_extensions.hpp"
+#include "../shared/threads.hpp"
 #include "../shared/geom.hpp"
 #include "../shared/racetime_data.hpp"
 #include "../shared/printlog.hpp"
@@ -34,9 +35,9 @@ struct geom_vertex {
 	float x;
 	float y;
 	float z;
-	unsigned char r;
-	unsigned char g;
-	unsigned char b;
+	float r;
+	float g;
+	float b;
 };
 geom_vertex *vertices; //when building
 geom_vertex *v; //pointer for easily looping through
@@ -176,16 +177,18 @@ void Geom_Render_Clear()
 
 
 //change colour:
-unsigned char colour[3];
+float colour[3];
 void Volume_Colour(float v)
 {
-	//change value (how sensitive to volume)
-	unsigned char change=(unsigned char) 42.0*v;
-
 	//pseudorandom colour:
-	colour[0]= (85*change);
-	colour[1]= (28*change);
-	colour[2]= (9*change);
+	colour[0]= (1.6*v);
+	colour[1]= (2.3*v);
+	colour[2]= (4.2*v);
+
+	//make range -1 to 1...
+	colour[0] -= floor(colour[0]);
+	colour[1] -= floor(colour[1]);
+	colour[2] -= floor(colour[2]);
 }
 
 
@@ -221,6 +224,9 @@ void Geom_Render()
 	int tloop, triangles;
 	float vseg = 2.0*M_PI/8.0;
 
+	//lock ode: make sure no geoms change while we build render
+	//(not likely, but just to be sure)
+	SDL_mutexP(ode_mutex);
 	for (geom=Geom::head; geom; geom=geom->next)
 	{
 		g = geom->geom_id;
@@ -433,6 +439,8 @@ void Geom_Render()
 		vertex_usage+=new_vertices;
 		index_usage+=new_indices;
 	}
+	//unlock ode access
+	SDL_mutexV(ode_mutex);
 
 	//send and configure data
 	//NOTE: using glBufferData to allocate vbo and send data to it in one step.
@@ -446,7 +454,7 @@ void Geom_Render()
 	glBufferData(GL_ARRAY_BUFFER, sizeof(geom_vertex)*vertex_usage, vertices, GL_STREAM_DRAW); //alloc+init
 
 	glVertexPointer(3, GL_FLOAT, sizeof(geom_vertex), BUFFER_OFFSET(0)); //strided
-	glColorPointer(3, GL_UNSIGNED_BYTE, sizeof(geom_vertex), BUFFER_OFFSET(12));
+	glColorPointer(3, GL_FLOAT, sizeof(geom_vertex), BUFFER_OFFSET(sizeof(float)*3));
 	
 	//indices:
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexVBO);

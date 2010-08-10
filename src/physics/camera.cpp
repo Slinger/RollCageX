@@ -169,12 +169,23 @@ void Camera::Collide(dReal step)
 
 		int i;
 		float V;
+		float A;
+		float Amax = cos(settings->angle*M_PI/180.0);
+
 		for (i=0; i<count; ++i)
 		{
 			//remove movement into colliding object
 			//velocity along collision axis
-			V = vel[0]*contact[i].normal[0] + vel[1]*contact[i].normal[1] + vel[2]*contact[i].normal[2];
-			if (V > 0) //right direction (not away from collision)?
+			V = vel[0]*contact[i].normal[0] +
+				vel[1]*contact[i].normal[1] +
+				vel[2]*contact[i].normal[2];
+
+			A = rotation[1]*contact[i].normal[0] +
+				rotation[4]*contact[i].normal[1] +
+				rotation[7]*contact[i].normal[2];
+
+			//right direction (not away from collision), in valid angle?
+			if (V > 0 && A < Amax)
 			{
 				//remove direction
 				vel[0]-=V*contact[i].normal[0];

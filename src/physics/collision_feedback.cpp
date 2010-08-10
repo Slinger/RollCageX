@@ -37,12 +37,25 @@ Collision_Feedback::Collision_Feedback(dJointID joint, Geom *g1, Geom *g2)
 void Collision_Feedback::Physics_Step(dReal step)
 {
 	Collision_Feedback *prev;
+	dReal force1, force2;
 
 	while (head)
 	{
-		//just pass force to appropriate geom
-		head->geom1->Damage_Buffer(dLENGTH(head->feedback.f1), step);
-		head->geom2->Damage_Buffer(dLENGTH(head->feedback.f2), step);
+		//calculate length (absolute value) of each force
+		force1 = dLENGTH(head->feedback.f1);
+		force2 = dLENGTH(head->feedback.f2);
+
+		//pass biggest force to both geoms
+		if (force1 > force2)
+		{
+			head->geom1->Damage_Buffer(force1, step);
+			head->geom2->Damage_Buffer(force1, step);
+		}
+		else //f2>f1
+		{
+			head->geom1->Damage_Buffer(force2, step);
+			head->geom2->Damage_Buffer(force2, step);
+		}
 
 		//remove
 		prev = head;

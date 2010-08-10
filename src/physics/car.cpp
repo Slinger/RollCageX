@@ -77,13 +77,14 @@ void Car::Physics_Step(dReal step)
 			//collect wheel torques wanted:
 			dReal torque[4];
 			dReal rotation, gear_torque;
+			dReal absrotation; //always positive
+
 			int i;
 			for (i=0; i<4; ++i)
 			{
 				//wheel rotation
 				rotation = dJointGetHinge2Angle2Rate (carp->joint[i]);
 
-				dReal absrotation; //always positive
 				if (rotation < 0.0)
 					absrotation=-rotation;
 				else
@@ -92,13 +93,12 @@ void Car::Physics_Step(dReal step)
 				//how much torque motor could add at this rotation
 				gear_torque=carp->max_torque/(1+absrotation*carp->gear_tweak);
 
-
 				//check if accelerating or decelerating wheel...
-				
+
 				//if throttle and and current direction is the same, accelerate. or if rotation is
 				//wrong way, but so slow that the motor is better than breaks, also use accelerate
-				if (	(rotation > 0.0 && carp->throttle > 0.0) ||
-					(rotation < 0.0 && carp->throttle < 0.0) ||
+				if (	(rotation > 0.0 && (carp->throttle*carp->dir) > 0.0) ||
+					(rotation < 0.0 && (carp->throttle*carp->dir) < 0.0) ||
 					(gear_torque > carp->max_break) )
 				{
 					//if front wheel, front motor, if rear, rear motor

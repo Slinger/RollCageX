@@ -31,21 +31,6 @@ void Profile_Events_Step(Uint32 step)
 		else if (keys[prof->cam4])
 			camera.Set_Settings (&prof->cam[3]);
 
-		//move camera
-		if (keys[prof->cam_x_pos]) //x
-			camera.Move(+(step*0.03), 0, 0);
-		if (keys[prof->cam_x_neg])
-			camera.Move(-(step*0.03), 0, 0);
-
-		if (keys[prof->cam_y_pos]) //y
-			camera.Move(0, +(step*0.03), 0);
-		if (keys[prof->cam_y_neg])
-			camera.Move(0, -(step*0.03), 0);
-
-		if (keys[prof->cam_z_pos]) //z
-			camera.Move(0, 0, +(step*0.03));
-		if (keys[prof->cam_z_neg])
-			camera.Move(0, 0, -(step*0.03));
 
 		//if selected car, read input
 		if (prof->car)
@@ -82,8 +67,8 @@ void Profile_Events_Step(Uint32 step)
 				    carp->throttle += t_speed;
 			}
 
-			t_speed = prof->steer_speed*step;
-			dReal max = prof->steer_max;
+			t_speed = prof->steer_speed*(M_PI/180.0)*step;
+			dReal max = prof->steer_max*(M_PI/180.0);
 			if (keys[prof->left]&&!keys[prof->right])
 			{
 				carp->steering -= t_speed;
