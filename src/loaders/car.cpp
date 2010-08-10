@@ -175,8 +175,8 @@ Car_Template *Car_Template::Load (const char *path)
 
 	//helper datas:
 
-	//wheel simulation class (mf5.2 + some custom stuff):
-	//TODO: wheel->mf5.2 = conf.mf5.2;
+	//wheel simulation class (friction + some custom stuff):
+	//TODO: wheel->friction = conf.tyre_friction;
 	target->wheel.rim_angle = target->conf.rim_angle;
 	target->wheel.spring = target->conf.tyre_spring;
 	target->wheel.damping = target->conf.tyre_damping;

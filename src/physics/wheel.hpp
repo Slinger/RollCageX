@@ -29,7 +29,7 @@ class Wheel
 		//not allowing creation and modifying of class unless by friend
 		Wheel();
 
-		//mf5.2 data:
+		//friction data:
 		//TODO!
 
 		//extra data:

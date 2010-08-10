@@ -12,9 +12,14 @@
 #include "wheel.hpp"
 #include "../shared/internal.hpp" 
 
-//this code tries to implement the "magic formula" 5.2 for tyre friction calculation.
+//This code tries to implement a reasonably simple and realistic tyre friction model.
+//(it's mostly inspired by different equations based on Pacejka's "magic formula")
+//It also determines if the tyre or rim of the wheel is colliding.
 //I'm probably not using all correct variable names, and I might have made some typo
-//somewhere. There are also a lot of features that could be implemented:
+//somewhere. There are also a lot of features that could/should be implemented:
+//
+//	* antispin - will be necessary (to make the cars even able to move)
+//			we calculate the wheel slip here, then send to physics/car.cpp?
 //
 //	* force feedback - can be calculated here, but sdl lack force feedback right now
 //				(supports gamepads, but not ff specific)
@@ -22,6 +27,9 @@
 //	* rolling resistance - would help with realism and makes sence to implement here
 //
 //	* surface friction - different surfaces should give different mu and mu2
+//
+//	* the improved wheel friction might make it necessary to improve the suspension
+//		(toe, caster, camber, (computerized) differential, improved steering, etc...)
 //
 //	* todo...............
 //
@@ -55,7 +63,7 @@
 Wheel::Wheel()
 {}
 
-//simulation of wheel (mf5.2)
+//simulation of wheel
 void Wheel::Set_Contacts(dBodyID wbody, dBodyID obody, dReal ospring, dReal odamping,
 		dContact *contact, int count)
 {
@@ -173,7 +181,7 @@ void Wheel::Set_Contacts(dBodyID wbody, dBodyID obody, dReal ospring, dReal odam
 		velY = VDot(Y, vel);
 		velZ = VDot(Z, vel);
 
-		//TODO: perhaps the slip should be the ratio between v1 and v2 (v1/v2-1)...
+		//TODO: the slip should be the ratio between v1 and v2 (v1/v2-1)...
 		slip_ratio = velX; //slip is along x
 
 		//slip_angle: angle (in degrees) between X and direction of slip. the velocity up/down

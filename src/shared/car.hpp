@@ -85,7 +85,7 @@ const struct Conf_Index car_conf_index[] = {
 	{"rim_angle",		'R',1, offsetof(struct Car_Conf, rim_angle)},
 	{"rim_mu",		'R',1, offsetof(struct Car_Conf, rim_mu)},
 
-	//TODO: mf5.2
+	//TODO: tyre friction
 	{"tyre_spring",		'R',1, offsetof(struct Car_Conf, tyre_spring)},
 	{"tyre_damping",	'R',1, offsetof(struct Car_Conf, tyre_damping)},
 
