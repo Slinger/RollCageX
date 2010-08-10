@@ -31,8 +31,7 @@ struct Car_Conf
 	bool torque_compensator;
 	dReal body_mass, wheel_mass;
 	dReal suspension_spring, suspension_damping;
-	dReal wheel_mu, rim_mu, tyre_spring, tyre_damping;
-	dReal rim_angle;
+	dReal rim_mu, rim_angle, tyre_spring, tyre_damping;
 	dReal body_mu;
 
 	dReal body_linear_drag[3], body_angular_drag, wheel_linear_drag, wheel_angular_drag;
@@ -54,8 +53,7 @@ const struct Car_Conf car_conf_defaults = {
 	true,
 	6000, 500,
 	150000.0, 5000.0,
-	2.0, 0.1, 300000.0, 10000.0,
-	45.0,
+	0.1, 45.0, 300000.0, 10000.0,
 	0.1,
 	{10,5,15}, 1, 4, 0.5,
 	{3.5,8.2,1},

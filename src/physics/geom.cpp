@@ -118,24 +118,29 @@ void Geom::Collision_Callback (void *data, dGeomID o1, dGeomID o2)
 		//
 		//determine if _one_of the geoms is a wheel
 		Wheel *wheel = NULL; //wheel struct
-		dGeomID wg=NULL, og=NULL; //wheel geom and other geom
 		dBodyID wb=NULL, ob=NULL; //wheel body and other body
+		dReal os=0.0, od=0.0; //other geom spring+damping
 		//note: set them to NULL just to suppress false compiler warning
 		if (geom1->wheel&&!geom2->wheel)
 		{
+			//wheel class
 			wheel = geom1->wheel;
-			wg = o1;
+
+			//bodies
 			wb = b1;
-			og = o2;
 			ob = b2;
+
+			//spring+damping
+			os = geom2->spring;
+			od = geom2->damping;
 		}
 		else if (!geom1->wheel&&geom2->wheel)
 		{
 			wheel = geom2->wheel;
-			wg = o2;
 			wb = b2;
-			og = o1;
 			ob = b1;
+			os = geom1->spring;
+			od = geom1->damping;
 		}
 
 		//just a reminder to myself
@@ -154,7 +159,7 @@ void Geom::Collision_Callback (void *data, dGeomID o1, dGeomID o2)
 
 		//calculate tyre (or rim) values for these contactpoints
 		if (wheel)
-			wheel->Set_Contacts(wg, wb, og, ob, contact, count);
+			wheel->Set_Contacts(wb, ob, os, od, contact, count);
 
 		//
 		//

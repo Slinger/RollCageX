@@ -10,6 +10,7 @@
  */
 
 #include "wheel.hpp"
+#include "../shared/internal.hpp" 
 
 //this code tries to implement the "magic formula" 5.2 for tyre friction calculation.
 //I'm probably not using all correct variable names, and I might have made some typo
@@ -55,7 +56,8 @@ Wheel::Wheel()
 {}
 
 //simulation of wheel (mf5.2)
-void Wheel::Set_Contacts(dGeomID wg, dBodyID wb, dGeomID og, dBodyID ob, dContact *contact, int count)
+void Wheel::Set_Contacts(dBodyID wbody, dBodyID obody, dReal ospring, dReal odamping,
+		dContact *contact, int count)
 {
 	//
 	//variables:
@@ -76,6 +78,17 @@ void Wheel::Set_Contacts(dGeomID wg, dBodyID wb, dGeomID og, dBodyID ob, dContac
 	dVector3 vel; //velocity (v1 relative v2)
 	dReal velX, velY, velZ; //velocity along directions
 
+	//
+	//use spring+damping for tyre collision forces:
+	dReal cspring = 1/( 1/(spring) + 1/(ospring) );
+	dReal cdamping = damping + odamping;
+
+	//calculate erp+cfm from stepsize, spring and damping values:
+	dReal stepsize = internal.stepsize;
+	dReal erp = (stepsize*cspring)/(stepsize*cspring +cdamping);
+	dReal cfm = 1.0/(stepsize*cspring +cdamping);
+	//
+
 	//all of these values are input values, Fx and Fy, but not Fz!, are the output (used as mu1 and mu2)
 	for (int i=0; i<count; ++i)
 	{
@@ -93,7 +106,7 @@ void Wheel::Set_Contacts(dGeomID wg, dBodyID wb, dGeomID og, dBodyID ob, dContac
 
 		//Y: simply wheel axis Z
 		//NOTE: this is actually incorrect, since this "Y" might not be tangental to ground.
-		const dReal *rot = dGeomGetRotation(wg);
+		const dReal *rot = dBodyGetRotation(wbody);
 		Y[0] = rot[2];
 		Y[1] = rot[6];
 		Y[2] = rot[10];
@@ -135,13 +148,13 @@ void Wheel::Set_Contacts(dGeomID wg, dBodyID wb, dGeomID og, dBodyID ob, dContac
 
 		//slip: get velocity of contact point (as a point on each body, take the difference)
 		//and slip is the size/length tangental to surface...
-		dBodyGetPointVel(wb, pos[0], pos[1], pos[2], v1);
+		dBodyGetPointVel(wbody, pos[0], pos[1], pos[2], v1);
 
 		//not sure the other geom got a body...
-		if (ob) //the surface got a body, so slip is relative to both
+		if (obody) //the surface got a body, so slip is relative to both
 		{
 			//get other vel
-			dBodyGetPointVel(ob, pos[0], pos[1], pos[2], v2);
+			dBodyGetPointVel(obody, pos[0], pos[1], pos[2], v2);
 			//relative vel
 			vel[0]=v1[0]-v2[0];
 			vel[1]=v1[1]-v2[1];
@@ -190,20 +203,28 @@ void Wheel::Set_Contacts(dGeomID wg, dBodyID wb, dGeomID og, dBodyID ob, dContac
 			//
 			//TODO!
 			//tmp values to make car driveable:
-			Fx = 2000.0;
-			Fy = 2000.0;
+			Fx = 5000.0;
+			Fy = 5000.0;
 
 			//
 			//3) set output values:
 			//
 			//enable: separate mu for dir 1&2, specify dir 1
 			//(note: dir2 is automatically calculated by ode)
-			contact[i].surface.mode |= dContactMu2 | dContactFDir1;
+			//also enable erp+cfm specifying (for spring+damping)
+			contact[i].surface.mode |= dContactMu2 | dContactFDir1 |
+				dContactSoftERP | dContactSoftCFM;
 
+			//fdir1
 			contact[i].fdir1[0] = X[0];
 			contact[i].fdir1[1] = X[1];
 			contact[i].fdir1[2] = X[2];
 
+			//erp+cfm (spring+damping)
+			contact[i].surface.soft_erp = erp;
+			contact[i].surface.soft_cfm = cfm;
+
+			//mu1 and mu2
 			contact[i].surface.mu = Fx;
 			contact[i].surface.mu2 = Fy;
 		}

@@ -20,8 +20,10 @@ class Wheel
 {
 	public:
 		//configures contact points with correct mu and similar
-		void Set_Contacts(dGeomID wg, dBodyID wb, dGeomID og, dBodyID ob, dContact *contact, int count);
-		//wheel geom and body, other geom and body, contact structs to configure, and how many contacts)
+		void Set_Contacts(dBodyID wb, dBodyID ob, dReal os, dReal od, dContact *contact, int count);
+		//arguments:
+		//wheel body, other body (or NULL if static), other geom spring, other geom damping,
+		//contact structs to configure, and how many contacts)
 
 	private:
 		//not allowing creation and modifying of class unless by friend
