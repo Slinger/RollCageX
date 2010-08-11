@@ -23,6 +23,7 @@
 #include "../shared/profile.hpp"
 #include "../shared/joint.hpp"
 #include "../shared/camera.hpp"
+#include "../shared/track.hpp"
 #include "timers.hpp"
 
 
@@ -128,16 +129,8 @@ int events_loop (void *d)
 							molecule->Spawn (0,0,10);
 						break;
 
-						//paus physics
-						case SDLK_F9:
-							if (runlevel == paused)
-								runlevel = running;
-							else
-								runlevel = paused;
-						break;
-
 						//switch car
-						case SDLK_F10:
+						case SDLK_F9:
 							//not null
 							if (car)
 							{
@@ -153,8 +146,22 @@ int events_loop (void *d)
 							}
 						break;
 
-						//switch what to render
+						//respawn car
+						case SDLK_F10:
+							if (car)
+								car->Respawn(track.start[0], track.start[1], track.start[2]);
+						break;
+
+						//paus physics
 						case SDLK_F11:
+							if (runlevel == paused)
+								runlevel = running;
+							else
+								runlevel = paused;
+						break;
+
+						//switch what to render
+						case SDLK_F12:
 							if (render_models && !render_geoms)
 							{
 								printlog(1, "rendering models and geoms");

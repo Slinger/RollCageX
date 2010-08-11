@@ -77,9 +77,10 @@ Spawning:
   Note that this function will also be removed in future versions
 
 Debugging:
-* F9 - simulation paus (camera can still be moved)
-* F10 - switch car (if more than one)
-* F11 - wireframe geom/collision rendering toggle (models, geoms, or both)
+* F9  - switch car (if more than one)
+* F10 - respawn car at track starting point
+* F11 - simulation paus (camera can still be moved)
+* F12 - wireframe geom/collision rendering toggle (models, geoms, or both)
 
 
 
