@@ -152,7 +152,11 @@ class Car_Template:public Racetime_Data
 class Car:public Object
 {
 	public:
+		//destructor (remove car)
 		~Car();
+
+		//change car position (and reset rotation and velocity)
+		void Respawn(dReal x, dReal y, dReal z);
 
 		static void Physics_Step(dReal step);
 
@@ -183,6 +187,8 @@ class Car:public Object
 		dReal dir; //direction, 1 or -1
 
 
+		//tmp: wheel position...
+		dReal wx, wy;
 
 
 		//appart from the object list, keep a list of all cars

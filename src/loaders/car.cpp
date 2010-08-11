@@ -433,6 +433,10 @@ Car *Car_Template::Spawn (dReal x, dReal y, dReal z,  Trimesh_3D *tyre, Trimesh_
 	dBodySetPosition (wheel_body[3], x-conf.wp[0], y+conf.wp[1], z);
 	dBodySetRotation (wheel_body[3], rot);
 
+	//tmp: might need these later on
+	car->wx = conf.wp[0];
+	car->wy = conf.wp[1];
+
 	//create joints (hinge2) for wheels
 	dReal stepsize = internal.stepsize/internal.multiplier;
 	dReal sERP = stepsize*conf.suspension_spring/(stepsize*conf.suspension_spring+conf.suspension_damping);
@@ -466,3 +470,43 @@ Car *Car_Template::Spawn (dReal x, dReal y, dReal z,  Trimesh_3D *tyre, Trimesh_
 	return car;
 }
 
+void Car::Respawn (dReal x, dReal y, dReal z)
+{
+	printlog(1, "respawning car at: %f %f %f", x,y,z);
+
+	//will use this to reset rotation
+	dMatrix3 r;
+
+	//body:
+	dRSetIdentity(r); //no rotation
+	dBodySetPosition(bodyid, x, y, z);
+	dBodySetRotation(bodyid, r);
+
+	//wheels:
+	//right side rotation
+	dRFromAxisAndAngle (r, 0, 1, 0, M_PI/2);
+	dBodySetPosition (wheel_body[0], x+wx, y+wy, z);
+	dBodySetRotation (wheel_body[0], r);
+	dBodySetPosition (wheel_body[1], x+wx, y-wy, z);
+	dBodySetRotation (wheel_body[1], r);
+
+	//left side
+	dRFromAxisAndAngle (r, 0, 1, 0, -M_PI/2);
+	dBodySetPosition (wheel_body[2], x-wx, y-wy, z);
+	dBodySetRotation (wheel_body[2], r);
+	dBodySetPosition (wheel_body[3], x-wx, y+wy, z);
+	dBodySetRotation (wheel_body[3], r);
+
+	//remove velocities
+	dBodySetLinearVel(bodyid, 0.0, 0.0, 0.0);
+	dBodySetAngularVel(bodyid, 0.0, 0.0, 0.0);
+
+	dBodySetLinearVel(wheel_body[0], 0.0, 0.0, 0.0);
+	dBodySetAngularVel(wheel_body[0], 0.0, 0.0, 0.0);
+	dBodySetLinearVel(wheel_body[1], 0.0, 0.0, 0.0);
+	dBodySetAngularVel(wheel_body[1], 0.0, 0.0, 0.0);
+	dBodySetLinearVel(wheel_body[2], 0.0, 0.0, 0.0);
+	dBodySetAngularVel(wheel_body[2], 0.0, 0.0, 0.0);
+	dBodySetLinearVel(wheel_body[3], 0.0, 0.0, 0.0);
+	dBodySetAngularVel(wheel_body[3], 0.0, 0.0, 0.0);
+}
