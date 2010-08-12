@@ -29,7 +29,7 @@
 //	* surface friction - different surfaces should give different mu and mu2
 //
 //	* the improved wheel friction might make it necessary to improve the suspension
-//		(toe, caster, camber, (computerized) differential, improved steering, etc...)
+//		(toe, caster, camber, (computerized) differential, etc...)
 //
 //	* todo...............
 //

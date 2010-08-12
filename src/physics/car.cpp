@@ -48,6 +48,20 @@ void Car::Physics_Step(dReal step)
 //			dBodyAddRelForce (carp->bodyid,0,0, carp->dir*100);
 		}
 
+		//calculate turning:
+		//length from turning axis to front and rear wheels
+		dReal L1 = (carp->wy*2.0)*carp->fsteer;
+		dReal L2 = (carp->wy*2.0)*(carp->fsteer-1.0);
+
+		//turning radius (done by _assuming_ turning only with front wheels - but works for all situations)
+		dReal R = (carp->wy*2.0)/tan(carp->steering*carp->dir);
+
+		//turning angle of each wheel:
+		dReal A0 = atan(L1/(R-carp->wx));
+		dReal A1 = atan(L2/(R-carp->wx));
+		dReal A2 = atan(L2/(R+carp->wx));
+		dReal A3 = atan(L1/(R+carp->wx));
+
 		//control
 		if (carp->drift_breaks) //breaks (lock rear wheels)
 		{
@@ -136,15 +150,14 @@ void Car::Physics_Step(dReal step)
 		}
 
 		//steering
-		dJointSetHinge2Param (carp->joint[0],dParamLoStop,carp->steering*carp->dir *carp->fsteer);
-		dJointSetHinge2Param (carp->joint[0],dParamHiStop,carp->steering*carp->dir *carp->fsteer);
-		dJointSetHinge2Param (carp->joint[3],dParamLoStop,carp->steering*carp->dir *carp->fsteer);
-		dJointSetHinge2Param (carp->joint[3],dParamHiStop,carp->steering*carp->dir *carp->fsteer);
-
-		dJointSetHinge2Param (carp->joint[1],dParamLoStop,carp->steering*carp->dir *carp->rsteer);
-		dJointSetHinge2Param (carp->joint[1],dParamHiStop,carp->steering*carp->dir *carp->rsteer);
-		dJointSetHinge2Param (carp->joint[2],dParamLoStop,carp->steering*carp->dir *carp->rsteer);
-		dJointSetHinge2Param (carp->joint[2],dParamHiStop,carp->steering*carp->dir *carp->rsteer);
+		dJointSetHinge2Param (carp->joint[0],dParamLoStop,A0);
+		dJointSetHinge2Param (carp->joint[0],dParamHiStop,A0);
+		dJointSetHinge2Param (carp->joint[1],dParamLoStop,A1);
+		dJointSetHinge2Param (carp->joint[1],dParamHiStop,A1);
+		dJointSetHinge2Param (carp->joint[2],dParamLoStop,A2);
+		dJointSetHinge2Param (carp->joint[2],dParamHiStop,A2);
+		dJointSetHinge2Param (carp->joint[3],dParamLoStop,A3);
+		dJointSetHinge2Param (carp->joint[3],dParamHiStop,A3);
 
 
 		//save car velocity
