@@ -191,14 +191,13 @@ Car_Template *Car_Template::Load (const char *path)
 	target->fsteer = (dReal) (target->conf.steer_ratio/100.0);
 	target->rsteer = (dReal) (target->fsteer-1.0);
 	
-	if (target->conf.motor_ratio>100 || target->conf.motor_ratio<0 )
+	//check if neither front or rear drive
+	if ( (!target->conf.drive[0]) && (!target->conf.drive[1]) )
 	{
-		printlog(0, "ERROR: front/rear motor ratio should be set between 0 and 100!");
-		target->conf.motor_ratio=0;
+		printlog(0, "ERROR: front and rear motor distribution not set, enabling 4WD...");
+		target->conf.drive[0] = true;
+		target->conf.drive[1] = true;
 	}
-
-	target->fmotor = (dReal) (target->conf.motor_ratio/100.0);
-	target->rmotor = (dReal) (1.0-target->fmotor);
 
 	if (target->conf.break_ratio>100 || target->conf.break_ratio<0 )
 	{
@@ -208,7 +207,6 @@ Car_Template *Car_Template::Load (const char *path)
 
 	target->fbreak = (dReal) (target->conf.break_ratio/100.0);
 	target->rbreak = (dReal) (1.0-target->fbreak);
-
 
 
 	//load model if specified
@@ -249,10 +247,10 @@ Car *Car_Template::Spawn (dReal x, dReal y, dReal z,  Trimesh_3D *tyre, Trimesh_
 	car->torque_compensator = conf.torque_compensator;
 	car->fsteer = fsteer;
 	car->rsteer = rsteer;
-	car->fmotor = fmotor;
-	car->rmotor = rmotor;
 	car->fbreak = fbreak;
 	car->rbreak = rbreak;
+	car->fwd = conf.drive[0];
+	car->rwd = conf.drive[1];
 
 	//start building
 	new Space(car);

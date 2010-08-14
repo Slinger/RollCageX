@@ -39,7 +39,8 @@ struct Car_Conf
 	dReal body[3];
 
 	//values for moving steering/breaking/turning between front/rear wheels
-	int steer_ratio, motor_ratio, break_ratio;
+	int steer_ratio, break_ratio;
+	bool drive[2];
 
 	Conf_String model; //filename+path for model
 	float resize, rotate[3], offset[3];
@@ -57,7 +58,8 @@ const struct Car_Conf car_conf_defaults = {
 	0.1,
 	{10,5,15}, 1, 4, 0.5,
 	{3.5,8.2,1},
-	100, 0, 50,
+	100, 50,
+	{false, true},
 	"",
 	1, {0,0,0}, {0,0,0},
 	{5.8,4.4,2,1.5}, {1.5,1.7}, {2.9,2.2}, 2.4};
@@ -71,8 +73,8 @@ const struct Conf_Index car_conf_index[] = {
 	{"wheel_mass",		'R',1, offsetof(struct Car_Conf, wheel_mass)},
 
 	{"front/rear_steer",	'i',1, offsetof(struct Car_Conf, steer_ratio)},
-	{"front/rear_motor",	'i',1, offsetof(struct Car_Conf, motor_ratio)},
 	{"front/rear_break",	'i',1, offsetof(struct Car_Conf, break_ratio)},
+	{"front-rear_drive",	'b',2, offsetof(struct Car_Conf, drive)},
 
 	{"model",		's',1, offsetof(struct Car_Conf, model)},
 	{"model:resize",	'f',1, offsetof(struct Car_Conf, resize)},
@@ -174,7 +176,8 @@ class Car:public Object
 		//configuration data (copied from Car_Template)
 		dReal max_torque, gear_tweak, max_break;
 		bool torque_compensator;
-		dReal fsteer, rsteer, fmotor, rmotor, fbreak, rbreak;
+		dReal fsteer, rsteer, fbreak, rbreak;
+		bool fwd, rwd;
 
 		//just for keeping track
 		dBodyID bodyid,wheel_body[4];
