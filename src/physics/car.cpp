@@ -51,8 +51,8 @@ void Car::Physics_Step(dReal step)
 
 		//calculate turning:
 		//length from turning axis to front and rear wheels
-		dReal L1 = (carp->wy*2.0)*carp->fsteer;
-		dReal L2 = (carp->wy*2.0)*(carp->fsteer-1.0);
+		dReal L1 = (carp->wy*2.0)*carp->dsteer;
+		dReal L2 = (carp->wy*2.0)*(carp->dsteer-1.0);
 
 		//turning radius (done by _assuming_ turning only with front wheels - but works for all situations)
 		dReal R = (carp->wy*2.0)/tan(carp->steering*carp->dir);
@@ -184,9 +184,9 @@ void Car::Physics_Step(dReal step)
 					w[i] = 0;
 					//
 					if ( i==0 || i==3 ) //front wheels
-						b[i] = 0.5*carp->fbreak*kbreak;
+						b[i] = 0.5*carp->dbreak*kbreak;
 					else
-						b[i] = 0.5*(1.0-carp->fbreak)*kbreak;
+						b[i] = 0.5*(1.0-carp->dbreak)*kbreak;
 				}
 				else //nope, acceleration (or not accelration or breals)
 				{

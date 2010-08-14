@@ -181,32 +181,28 @@ Car_Template *Car_Template::Load (const char *path)
 	target->wheel.spring = target->conf.tyre_spring;
 	target->wheel.damping = target->conf.tyre_damping;
 
-	//* set up values for front/rear driving ratios
-	if (target->conf.steer_ratio>100 || target->conf.steer_ratio<0 )
+	//make sure the values are correct
+	//steering distribution
+	if (target->conf.dsteer >1.0 || target->conf.dsteer <0.0 )
 	{
-		printlog(0, "ERROR: front/rear steering ratio should be set between 0 and 100!");
-		target->conf.steer_ratio=0;
+		printlog(0, "ERROR: front/rear steering distribution should be range 0 to 1! (enabling front)");
+		target->conf.dsteer = 1.0;
 	}
 
-	target->fsteer = (dReal) (target->conf.steer_ratio/100.0);
-	target->rsteer = (dReal) (target->fsteer-1.0);
-	
 	//check if neither front or rear drive
 	if ( (!target->conf.drive[0]) && (!target->conf.drive[1]) )
 	{
-		printlog(0, "ERROR: front and rear motor distribution not set, enabling 4WD...");
+		printlog(0, "ERROR: either front and rear motor distribution must be enabled! (enabling 4WD)");
 		target->conf.drive[0] = true;
 		target->conf.drive[1] = true;
 	}
 
-	if (target->conf.break_ratio>100 || target->conf.break_ratio<0 )
+	//breaking distribution
+	if (target->conf.dbreak>1.0 || target->conf.dbreak<0.0 )
 	{
-		printlog(0, "ERROR: front/rear breaking ratio should be set between 0 and 100!");
-		target->conf.break_ratio=0;
+		printlog(0, "ERROR: front/rear breaking distribution should be range 0 to 1! (enabling rear)");
+		target->conf.dbreak = 0.0;
 	}
-
-	target->fbreak = (dReal) (target->conf.break_ratio/100.0);
-	target->rbreak = (dReal) (1.0-target->fbreak);
 
 
 	//load model if specified
@@ -245,10 +241,8 @@ Car *Car_Template::Spawn (dReal x, dReal y, dReal z,  Trimesh_3D *tyre, Trimesh_
 	car->gear_tweak = conf.gear_tweak;
 	car->max_break = conf.max_break;
 	car->torque_compensator = conf.torque_compensator;
-	car->fsteer = fsteer;
-	car->rsteer = rsteer;
-	car->fbreak = fbreak;
-	car->rbreak = rbreak;
+	car->dsteer = conf.dsteer;
+	car->dbreak = conf.dbreak;
 	car->fwd = conf.drive[0];
 	car->rwd = conf.drive[1];
 
