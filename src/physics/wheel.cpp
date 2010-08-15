@@ -82,9 +82,10 @@ void Wheel::Set_Contacts(dBodyID wbody, dBodyID obody, dReal ospring, dReal odam
 	//tmp variables:
 	//for slip:
 	dVector3 pos; //contact point position
+	const dReal *bvel; //velocity of wheel body
 	dVector3 v1, v2; //velocity (on wheel body and other body)
-	dVector3 vel; //velocity (v1 relative v2)
-	dReal velX, velY, velZ; //velocity along directions
+	dReal v1x, v1y, v1z; //wheel point velocity along wheel dirs
+	dReal v2x, v2y, v2z; //road point velocity along wheel dirs
 
 	//
 	//use spring+damping for tyre collision forces:
@@ -148,14 +149,13 @@ void Wheel::Set_Contacts(dBodyID wbody, dBodyID obody, dReal ospring, dReal odam
 
 		//slip+slip_angle:
 
+		//first, we need to calculate some values here:
 		//(copy the position (damn, c++ doesn't allow vector assignment, right now...)
 		pos[0] = contact[i].geom.pos[0];
 		pos[1] = contact[i].geom.pos[1];
 		pos[2] = contact[i].geom.pos[2];
-		//)
 
-		//slip: get velocity of contact point (as a point on each body, take the difference)
-		//and slip is the size/length tangental to surface...
+		//we need the velocity of this contact point as if it was a point at the wheel and road:
 		dBodyGetPointVel(wbody, pos[0], pos[1], pos[2], v1);
 
 		//not sure the other geom got a body...
@@ -163,31 +163,48 @@ void Wheel::Set_Contacts(dBodyID wbody, dBodyID obody, dReal ospring, dReal odam
 		{
 			//get other vel
 			dBodyGetPointVel(obody, pos[0], pos[1], pos[2], v2);
-			//relative vel
-			vel[0]=v1[0]-v2[0];
-			vel[1]=v1[1]-v2[1];
-			vel[2]=v1[2]-v2[2];
 		}
 		else //not body...
 		{
-			//vel=v1
-			vel[0]=v1[0];
-			vel[1]=v1[1];
-			vel[2]=v1[2];
+			//vel=0
+			v2[0]=0.0;
+			v2[1]=0.0;
+			v2[2]=0.0;
 		}
 
-		//get velocity along the simulation X, Y and Z:
-		velX = VDot(X, vel);
-		velY = VDot(Y, vel);
-		velZ = VDot(Z, vel);
+		//ok, the current velocities are relative to world, but we need them relative to the wheel:
+		bvel = dBodyGetLinearVel (wbody);
 
-		//TODO: the slip should be the ratio between v1 and v2 (v1/v2-1)...
-		slip_ratio = velX; //slip is along x
+		//wheel point:
+		v1[0]-=bvel[0];
+		v1[1]-=bvel[1];
+		v1[2]-=bvel[2];
+		//road point:
+		v2[0]-=bvel[0];
+		v2[1]-=bvel[1];
+		v2[2]-=bvel[2];
+
+		//put these velocities along the X, Y and Z axes defined before:
+		v1x = VDot(X, v1);
+		v1y = VDot(Y, v1);
+		v1z = VDot(Z, v1);
+
+		v2x = VDot(X, v2);
+		v2y = VDot(Y, v2);
+		v2z = VDot(Z, v2);
+		//end of the needed values
+
+
+
+		//slip_rate: defined as: (wheel velocity/ground velocity)-1
+		//this is velocity along the X axis...
+		slip_ratio = v1x/v2x-1;
 
 		//slip_angle: angle (in degrees) between X and direction of slip. the velocity up/down
 		//(velZ) is not part of this, since only the tangental movement along the surface has to
 		//do with the actual wheel vs surface friction stuff:
-		slip_angle = (180.0/M_PI)*atan(velY/velX);
+		//TODO: probably incorrect!
+		//slip_angle = (180.0/M_PI)*atan(velY/velX);
 
 
 		//TODO:normal force (load). don't know how to solve this, but I suspect it could
