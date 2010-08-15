@@ -51,7 +51,9 @@ src is only needed for compilation.
 
 Src is not needed for rcx to run - it contains the sourcecode for compilation
 and modification of rcx. The data directory contains the default configuration
-and all 3d models. With lack of data directory rcx will not render any models.
+and all 3D models. Without the 3D files in the data directory, rcx will not
+have anything to render, which is why rcx will refuse to start if these files
+are missing.
 
 
 
