@@ -140,7 +140,7 @@ void Car::Physics_Step(dReal step)
 			dReal b[4] = {0,0,0,0}; //wheel breaks
 
 			//I'm not confident letting the following calculations process infinite turning radius (no turning)...
-			if (R == dInfinity)
+			if (R == dInfinity || R == -dInfinity)
 			{
 				//no turning, set all radius equal. 1 would be a good choice...
 				if (carp->fwd)
