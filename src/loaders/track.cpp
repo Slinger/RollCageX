@@ -146,8 +146,11 @@ bool load_track (const char *path)
 					Trimesh *mesh = FindOrLoadMesh(path, file.words[2]);
 
 					if (!mesh)
-						continue; //failure to load, skip this line...
-
+					{
+						RemoveMeshes();
+						delete track.object;
+						return false;
+					}
 
 					//now process the rest for extra options
 					int pos = 3;
@@ -225,17 +228,30 @@ bool load_track (const char *path)
 				float x,y,z;
 
 				//no alternative render model
-				if ( (file.word_count == 7) &&
-						(mesh1 = FindOrLoadMesh(path, file.words[6])) &&
-						(geom = mesh1->Create_Geom()) &&
-						(model = mesh1->Create_3D()) );
-
+				if ( file.word_count == 7)
+				{
+					if (	!(mesh1 = FindOrLoadMesh(path, file.words[6])) ||
+						!(geom = mesh1->Create_Geom()) ||
+						!(model = mesh1->Create_3D()) )
+					{
+						RemoveMeshes();
+						delete track.object;
+						return false;
+					}
+				}
 				//one collision and one render model
-				else if ( (file.word_count == 8) &&
-						(mesh1 = FindOrLoadMesh(path, file.words[6])) &&
-						(mesh2 = FindOrLoadMesh(path, file.words[7])) &&
-						(geom = mesh1->Create_Geom()) &&
-						(model = mesh2->Create_3D()) );
+				else if (file.word_count == 8)
+				{
+					if (	!(mesh1 = FindOrLoadMesh(path, file.words[6])) ||
+						!(mesh2 = FindOrLoadMesh(path, file.words[7])) ||
+						!(geom = mesh1->Create_Geom()) ||
+						!(model = mesh2->Create_3D()) )
+					{
+						RemoveMeshes();
+						delete track.object;
+						return false;
+					}
+				}
 				//in case failure to load
 				else
 				{
@@ -276,7 +292,10 @@ bool load_track (const char *path)
 	}
 	else
 	{
-		printlog(0, "SERIOUS WARNING: no geom list for track! can not create any terrain...");
+		printlog(0, "ERROR: no geom list for track! can not create any terrain...");
+		RemoveMeshes();
+		delete track.object;
+		return false;
 	}
 
 	RemoveMeshes();
@@ -306,7 +325,12 @@ bool load_track (const char *path)
 				strcpy (obj_name, "data/objects/");
 				strcat (obj_name, file.words[1]);
 
-				obj = Object_Template::Load(obj_name); //NULL if failure
+				if (!(obj = Object_Template::Load(obj_name))) //NULL if failure
+				{
+					printlog(0, "ERROR: could not load object \"%s\"", obj_name);
+					delete track.object;
+					return false;
+				}
 			}
 			//three words (x, y and z coord for spawning): spawning
 			else if (file.word_count == 3)

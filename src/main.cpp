@@ -128,6 +128,7 @@ bool tmp_menus()
 	else
 		strack+="Box";
 
+	//TODO: probably Racetime_Data::Destroy_All() here
 	if (!load_track(strack.c_str()))
 		return false; //GOTO: track selection menu
 
@@ -246,7 +247,7 @@ bool tmp_menus()
 				srim += file.words[1];
 
 				//don't car if fails...
-				tyre = Trimesh_3D::Quick_Load_Conf(srim.c_str(), "rim.conf");
+				rim = Trimesh_3D::Quick_Load_Conf(srim.c_str(), "rim.conf");
 			}
 		}
 		//manual position required for spawning

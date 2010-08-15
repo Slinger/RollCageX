@@ -36,7 +36,8 @@ Car_Template *Car_Template::Load (const char *path)
 	strcpy (conf,path);
 	strcat (conf,"/car.conf");
 
-	load_conf(conf, (char *)&target->conf, car_conf_index); //try to load conf
+	if (!load_conf(conf, (char *)&target->conf, car_conf_index)) //try to load conf
+		return NULL;
 
 	//geoms.lst
 	char lst[strlen(path)+9+1];
@@ -218,8 +219,9 @@ Car_Template *Car_Template::Load (const char *path)
 		strcat(file, "/");
 		strcat(file, target->conf.model);
 
-		target->model = Trimesh_3D::Quick_Load(file,
-				target->conf.resize, target->conf.rotate, target->conf.offset);
+		if ( !(target->model = Trimesh_3D::Quick_Load(file,
+				target->conf.resize, target->conf.rotate, target->conf.offset)) )
+			return NULL;
 	}
 
 	return target;

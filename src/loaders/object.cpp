@@ -32,8 +32,8 @@ Object_Template *Object_Template::Load(const char *path)
 		return tmp;
 	}
 
-	//new object
-	Object_Template *tmplt;
+	//tmp pointers
+	Object_Template *obj;
 	
 	//currently no scripting, only hard-coded solutions
 	if (!strcmp(path,"data/objects/misc/box"))
@@ -41,11 +41,12 @@ Object_Template *Object_Template::Load(const char *path)
 		//"load" 3d box
 		printlog(2, "(hard-coded box)");
 
-		tmplt = new Object_Template(path);
+		obj = new Object_Template(path);
+		obj->box = true;
 
 		//the debug box will only spawn one component - one "3D file"
-		tmplt->model[0] = Trimesh_3D::Quick_Load("data/objects/misc/box/box.obj");
-		tmplt->box = true;
+		if (!(obj->model[0] = Trimesh_3D::Quick_Load("data/objects/misc/box/box.obj")))
+			return NULL;
 
 	//end of test
 	}
@@ -53,79 +54,84 @@ Object_Template *Object_Template::Load(const char *path)
 	{
 		printlog(2, "(Mac's hard-coded funbox");
 
-		tmplt = new Object_Template(path);
+		obj = new Object_Template(path);
+		obj->funbox = true; //id
 
 		//graphics
-		tmplt->model[0] = Trimesh_3D::Quick_Load("data/objects/misc/funbox/box.obj");
+		if (!(obj->model[0] = Trimesh_3D::Quick_Load("data/objects/misc/funbox/box.obj")))
+			return NULL;
 
-		tmplt->funbox = true; //id
 	}
 	else if (!strcmp(path, "data/objects/misc/flipper"))
 	{
 		printlog(2, "(hard-coded flipper)");
 
-		tmplt = new Object_Template(path);
+		obj = new Object_Template(path);
+		obj->flipper = true; //id
 
 		//graphics
-		tmplt->model[0] = Trimesh_3D::Quick_Load("data/objects/misc/flipper/Flipper.obj");
+		if (!(obj->model[0] = Trimesh_3D::Quick_Load("data/objects/misc/flipper/Flipper.obj")))
+			return NULL;
 
-		tmplt->flipper = true; //id
 	}
 	else if (!strcmp(path, "data/objects/misc/NH4"))
 	{
 		printlog(2, "(hard-coded \"molecule\")");
 
-		tmplt = new Object_Template(path);
+		obj = new Object_Template(path);
+		obj->NH4 = true;
 
 		//graphics
-		tmplt->model[0] = Trimesh_3D::Quick_Load("data/objects/misc/NH4/Atom1.obj");
-		tmplt->model[1] = Trimesh_3D::Quick_Load("data/objects/misc/NH4/Atom2.obj");
+		if (	!(obj->model[0] = Trimesh_3D::Quick_Load("data/objects/misc/NH4/Atom1.obj")) ||
+			!(obj->model[1] = Trimesh_3D::Quick_Load("data/objects/misc/NH4/Atom2.obj"))	)
+			return NULL;
 
-		tmplt->NH4 = true;
 	}
 	else if (!strcmp(path, "data/objects/misc/beachball"))
 	{
 		printlog(2, "(hard-coded beachball)");
 
-		tmplt = new Object_Template(path);
-		tmplt->model[0] = Trimesh_3D::Quick_Load("data/objects/misc/beachball/sphere.obj");
-		tmplt->sphere = true;
-}
+		obj = new Object_Template(path);
+		obj->sphere = true;
+		if (!(obj->model[0] = Trimesh_3D::Quick_Load("data/objects/misc/beachball/sphere.obj")))
+			return NULL;
+	}
 	else if (!strcmp(path, "data/objects/misc/building"))
 	{
 		printlog(2, "(hard-coded building)");
 
-		tmplt = new Object_Template(path);
+		obj = new Object_Template(path);
+		obj->building = true;
 
 		//graphics
-		tmplt->model[0] = Trimesh_3D::Quick_Load("data/objects/misc/building/pillar.obj");
-		tmplt->model[1] = Trimesh_3D::Quick_Load("data/objects/misc/building/roof.obj");
-		tmplt->model[2] = Trimesh_3D::Quick_Load("data/objects/misc/building/wall.obj");
+		if (	!(obj->model[0] = Trimesh_3D::Quick_Load("data/objects/misc/building/pillar.obj")) ||
+			!(obj->model[1] = Trimesh_3D::Quick_Load("data/objects/misc/building/roof.obj")) ||
+			!(obj->model[2] = Trimesh_3D::Quick_Load("data/objects/misc/building/wall.obj"))	)
+			return NULL;
 
-		tmplt->building = true;
 	}
 	else if (!strcmp(path,"data/objects/misc/pillar"))
 	{
 		//"load" 3d box
 		printlog(2, "(hard-coded pillar)");
 
-		tmplt = new Object_Template(path);
+		obj = new Object_Template(path);
+		obj->pillar = true;
 
 		//graphics
-		tmplt->model[0] = Trimesh_3D::Quick_Load("data/objects/misc/pillar/Pillar.obj");
-		tmplt->model[1] = Trimesh_3D::Quick_Load("data/objects/misc/pillar/Broken.obj");
+		if (	!(obj->model[0] = Trimesh_3D::Quick_Load("data/objects/misc/pillar/Pillar.obj")) ||
+			!(obj->model[1] = Trimesh_3D::Quick_Load("data/objects/misc/pillar/Broken.obj"))	)
+			return NULL;
 
-		tmplt->pillar = true;
 	}
-
-
 	else
 	{
 		printlog(0, "ERROR: path didn't match any hard-coded object");
-		tmplt = NULL;
+		return NULL;
 	}
 
-	return tmplt;
+	//if we got here, loading ok
+	return obj;
 }
 
 //bind two bodies together using fixed joint (simplify connection of many bodies)
