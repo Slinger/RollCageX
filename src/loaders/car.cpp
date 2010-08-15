@@ -361,6 +361,15 @@ Car *Car_Template::Spawn (dReal x, dReal y, dReal z,  Trimesh_3D *tyre, Trimesh_
 	Geom *wheel_data[4];
 	dGeomID wheel_geom;
 	dBodyID wheel_body[4];
+
+	//3=z axis of cylinder
+	dMassSetCylinder (&m, 1, 3, conf.w[0], conf.w[1]);
+	dMassAdjust (&m, conf.wheel_mass);
+
+	//will need the inertia tensor for rotation around Z
+	//(needed for properly simulating breaks)
+	car->wheel_inertia = m.I[10];
+
 	for (i=0;i<4;++i)
 	{
 		//create cylinder
@@ -369,14 +378,14 @@ Car *Car_Template::Spawn (dReal x, dReal y, dReal z,  Trimesh_3D *tyre, Trimesh_
 
 		//(body)
 		wheel_body[i] = dBodyCreate (world);
+
 		//never disable wheel body
 		dBodySetAutoDisableFlag (wheel_body[i], 0);
 
-		//3=z axis of cylinder
-		dMassSetCylinder (&m, 1, 3, conf.w[0], conf.w[1]);
-		dMassAdjust (&m, conf.wheel_mass);
+		//set mass
 		dBodySetMass (wheel_body[i], &m);
 
+		//and connect to body
 		dGeomSetBody (wheel_geom, wheel_body[i]);
 
 		//allocate (geom) data

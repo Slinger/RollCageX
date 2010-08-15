@@ -193,6 +193,8 @@ class Car:public Object
 
 		//tmp: wheel position...
 		dReal wx, wy;
+		//and moment of inertia tensor for Z
+		dReal wheel_inertia;
 
 
 		//appart from the object list, keep a list of all cars

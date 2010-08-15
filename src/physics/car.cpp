@@ -101,13 +101,18 @@ void Car::Physics_Step(dReal step)
 			if (!carp->torque_compensator)
 			{
 				dJointSetHinge2Param (carp->joint[1],dParamFMax2,0);
-					dJointSetHinge2Param (carp->joint[2],dParamFMax2,0);
+				dJointSetHinge2Param (carp->joint[2],dParamFMax2,0);
 			}
 
 			//will be needed:
 			dReal ktorque = carp->dir*carp->max_torque*carp->throttle;
-			dReal kbreak = carp->dir*carp->max_break*carp->throttle;
+			//(rear and front break: "half of ratio of max by throttle")
+			dReal kfbreak = carp->max_break*0.5*carp->dbreak*carp->throttle;
+			dReal krbreak = carp->max_break*0.5*(1.0-carp->dbreak)*carp->throttle;
+			//front wheels use front breaks, rear wheels use rear breaks
+			dReal kbreak[4] = {kfbreak, krbreak, krbreak, kfbreak};
 			dReal gt = carp->gear_tweak;
+			dReal wt = carp->wheel_inertia;
 
 			//ok, "computerized/intelligent differential"...
 			//right now, there's no ESP here. So just assume that all wheels are
@@ -175,28 +180,35 @@ void Car::Physics_Step(dReal step)
 			{
 				dReal rotation = dJointGetHinge2Angle2Rate (carp->joint[i]);
 
-				//if rotating in the oposite way of wanted, use breaks
-				if (	(rotation > 0.0 && ktorque < 0.0)	||
-					(rotation < 0.0 && ktorque > 0.0)	)
-				{
-					//0 -> disabled motor on this one
-					r[i] = 0;
-					w[i] = 0;
-					//
-					if ( i==0 || i==3 ) //front wheels
-						b[i] = 0.5*carp->dbreak*kbreak;
-					else
-						b[i] = 0.5*(1.0-carp->dbreak)*kbreak;
-				}
-				else //nope, acceleration (or not accelration or breals)
-				{
-					//set rotation to absolute
-					if (rotation < 0.0)
-						w[i] = -rotation;
-					else
-						w[i] = rotation;
-				}
+				//set rotation to absolute
+				if (rotation < 0.0)
+					w[i] = -rotation;
+				else
+					w[i] = rotation;
 
+				//if rotating in the oposite way of wanted, use breaks
+				if (rotation*ktorque < 0.0) //(different signs makes negative)
+				{
+					//this much force is needed to break wheel
+					dReal force = -rotation*wt/step;
+
+					//ok, lets see if we got enough break power to come to halt:
+					if ( force/kbreak[i] < 1.0) //force is smaller than breaking force
+					{
+						//break as much as needed...
+						b[i] = force;
+						//...and apply torque (if got motor)
+					}
+					else
+					{
+						//0 -> disabled motor on this one
+						r[i] = 0;
+						w[i] = 0;
+
+						//and break as much as possible
+						b[i] = kbreak[i];
+					}
+				}
 			}
 
 			//any of the wheels must have a turning radius?
