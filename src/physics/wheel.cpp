@@ -137,8 +137,7 @@ void Wheel::Set_Contacts(dBodyID wbody, dBodyID obody, dReal ospring, dReal odam
 		//we want between wheel up and normal...
 		camber -= 90.0;
 		//this gives -90-90 but we want 0-90...
-		if (camber < 0.0)
-			camber = -camber;
+		camber = fabs(camber);
 
 		//
 		//ok, we can now calculate the correct Y!
@@ -186,7 +185,7 @@ void Wheel::Set_Contacts(dBodyID wbody, dBodyID obody, dReal ospring, dReal odam
 
 		//put these velocities along the X, Y and Z axes defined before:
 		v1x = VDot(X, v1);
-		v1y = VDot(Y, v1);
+		//v1y = VDot(Y, v1); not needed?
 		v1z = VDot(Z, v1);
 
 		v2x = VDot(X, v2);
@@ -199,17 +198,23 @@ void Wheel::Set_Contacts(dBodyID wbody, dBodyID obody, dReal ospring, dReal odam
 		//slip_rate: defined as: (wheel velocity/ground velocity)-1
 		//this is velocity along the X axis...
 		slip_ratio = v1x/v2x-1;
+		//NOTE: is v2x get low (wheel standing still) this gets quite high
 
-		//slip_angle: angle (in degrees) between X and direction of slip. the velocity up/down
-		//(velZ) is not part of this, since only the tangental movement along the surface has to
-		//do with the actual wheel vs surface friction stuff:
-		//TODO: probably incorrect!
-		//slip_angle = (180.0/M_PI)*atan(velY/velX);
+		//slip_angle: angle (in degrees) between X and actual direction of movement.
+		//velocity up/down (velZ) is not part of this, since only the tangental
+		//movement along the surface has to do with the actual wheel vs surface
+		//friction stuff:
+		//use the relative velocity of ground vs wheel along x and y to calculate this:
+		slip_angle = fabs((180.0/M_PI)*atan( v2y/v2x ));
+		//NOTE: if v2x gets really low (wheel standing still) the reliability is lost...
 
+		//nej: använd absoluta värden istället...
+		//printf("%f %f -> %f\n", v2x, v2y, (180.0/M_PI)*atan( v2y/v2x ));
+		//printf("%f\n", (180.0/M_PI)*atan( VDot(Y, bvel)/VDot(X, bvel)));
 
-		//TODO:normal force (load). don't know how to solve this, but I suspect it could
-		//be calculated from stepsize, erp, cfm and mass... somehow...
-		//Fz = contact[i].geom.depth*what? +/* (-)velZ*what?;
+		//TODO:normal force (load)
+		//Fz = contact[i].geom.depth*spring - (v1z-v2z)*damping; - I think...;
+		//Fz /= 1000.0; //change from N to kN
 
 
 		//rim (outside range for tyre)
@@ -227,6 +232,7 @@ void Wheel::Set_Contacts(dBodyID wbody, dBodyID obody, dReal ospring, dReal odam
 			//2) compute output values:
 			//
 			//TODO!
+			//hmmm.... perhaps the angles should be in radians? or degrees as specified?
 			//tmp values to make car driveable:
 			Fx = 5000.0;
 			Fy = 5000.0;
