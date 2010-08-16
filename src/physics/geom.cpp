@@ -21,6 +21,11 @@
 
 #include <ode/ode.h>
 
+dJointFeedback cfeedback;
+bool is_now=false;
+bool first=true;
+int is_it;
+
 //when two geoms might intersect
 void Geom::Collision_Callback (void *data, dGeomID o1, dGeomID o2)
 {
@@ -174,6 +179,12 @@ void Geom::Collision_Callback (void *data, dGeomID o1, dGeomID o2)
 
 			if (feedback)
 				new Collision_Feedback(c, geom1, geom2);
+
+			if (is_now && i==is_it)
+			{
+				dJointSetFeedback(c, &cfeedback);
+				is_now = false;
+			}
 		}
 	}
 	
@@ -275,6 +286,21 @@ void Geom::Set_Sensor_Event(Script *s1, Script *s2)
 //physics step
 void Geom::Physics_Step()
 {
+	if (!first)
+	{
+		printf("%f %f %f\n", cfeedback.f1[0], cfeedback.f1[1], cfeedback.f1[2]);
+		printf("%f %f %f\n", cfeedback.f2[0], cfeedback.f2[1], cfeedback.f2[2]);
+		is_now = false;
+		first = true;
+
+		cfeedback.f1[0]=0.0;
+		cfeedback.f1[1]=0.0;
+		cfeedback.f1[2]=0.0;
+		cfeedback.f2[0]=0.0;
+		cfeedback.f2[1]=0.0;
+		cfeedback.f2[2]=0.0;
+	}
+
 	Geom *geom;
 	for (geom=head; geom; geom=geom->next)
 	{

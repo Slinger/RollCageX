@@ -9,6 +9,10 @@
  * See license.txt and README for more info
  */
 
+extern bool is_now;
+extern bool first;
+extern int is_it;
+
 #include "wheel.hpp"
 #include "../shared/internal.hpp" 
 
@@ -208,14 +212,26 @@ void Wheel::Set_Contacts(dBodyID wbody, dBodyID obody, dReal ospring, dReal odam
 		slip_angle = fabs((180.0/M_PI)*atan( v2y/v2x ));
 		//NOTE: if v2x gets really low (wheel standing still) the reliability is lost...
 
-		//nej: använd absoluta värden istället...
-		//printf("%f %f -> %f\n", v2x, v2y, (180.0/M_PI)*atan( v2y/v2x ));
-		//printf("%f\n", (180.0/M_PI)*atan( VDot(Y, bvel)/VDot(X, bvel)));
+		//normal force: how many kN of force caused by tyre compression.
+		//since using a linear spring+damping solution to calculations, this is easy:
+		//(note: primitive solution... and ignores features like bouncy collisions)
+		Fz = contact[i].geom.depth*cspring + ((v1z-v2z)*cdamping);
 
-		//TODO:normal force (load)
-		//Fz = contact[i].geom.depth*spring - (v1z-v2z)*damping; - I think...;
-		//Fz /= 1000.0; //change from N to kN
+		if (first)
+		{
+			first = false;
+			printf("guess: %f (%f)\n", Fz, v1z-v2z);
+			is_now = true;
+			is_it = i;
+		}
 
+		Fz /= 1000.0; //change from N to kN
+		//contact joints only generates forces pulling the colliding bodies _appart_
+		//so negative (traction) forces are not added (complying with reality btw)
+		//(in this case it's the damping force getting higher than spring force when
+		//the two bodies are moving appart from each others)
+		if (Fz < 0.0) //not going to be any friction of this contact
+			continue;
 
 		//rim (outside range for tyre)
 		if (camber > rim_angle)
