@@ -27,7 +27,7 @@ void Geom::Collision_Callback (void *data, dGeomID o1, dGeomID o2)
 	//check if one (or both) geom is space
 	if (dGeomIsSpace(o1) || dGeomIsSpace(o2))
 	{
-		dSpaceCollide2 (o1,o2,data, &Collision_Callback);
+		dSpaceCollide2 (o1,o2, data, &Collision_Callback);
 		return;
 	}
 
@@ -40,6 +40,9 @@ void Geom::Collision_Callback (void *data, dGeomID o1, dGeomID o2)
 	dBodyID b1, b2;
 	b1 = dGeomGetBody(o1);
 	b2 = dGeomGetBody(o2);
+
+	//the stepsize (supplied as the "collision data")
+	dReal stepsize = *((dReal*)data);
 
 	//none connected to bodies
 	if (!b1 && !b2)
@@ -101,7 +104,6 @@ void Geom::Collision_Callback (void *data, dGeomID o1, dGeomID o2)
 			dReal damping = geom1->damping + geom2->damping;
 
 			//calculate erp+cfm from stepsize, spring and damping values:
-			dReal stepsize = internal.stepsize;
 			erp = (stepsize*spring)/(stepsize*spring +damping);
 			cfm = 1.0/(stepsize*spring +damping);
 		}
