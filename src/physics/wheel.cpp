@@ -69,7 +69,7 @@ Wheel::Wheel()
 
 //simulation of wheel
 void Wheel::Set_Contacts(dBodyID wbody, dBodyID obody, dReal ospring, dReal odamping,
-		dContact *contact, int count)
+		dContact *contact, int count, dReal stepsize)
 {
 	//
 	//variables:
@@ -97,7 +97,6 @@ void Wheel::Set_Contacts(dBodyID wbody, dBodyID obody, dReal ospring, dReal odam
 	dReal cdamping = damping + odamping;
 
 	//calculate erp+cfm from stepsize, spring and damping values:
-	dReal stepsize = internal.stepsize;
 	dReal erp = (stepsize*cspring)/(stepsize*cspring +cdamping);
 	dReal cfm = 1.0/(stepsize*cspring +cdamping);
 	//

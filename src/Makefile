@@ -44,11 +44,8 @@ distclean: clean
 	@-rm -f ../rcx
 
 
-#for 'doze ("make w32" is easier to type than "make ../rcx.exe")
-w32: ../rcx.exe
-
-#static compilation (reuses this makefiles with rewritten variables)
-../rcx.exe: $(OBJS)
+#static windows 32b compilation (reuses this makefiles with rewritten variables)
+w32:
 	@echo "Compiling static windows binary..."
 	@make \
 		LIBS='`sdl-config --static-libs --libs` `ode-config --libs` -lopengl32 -static -lstdc++ -lwinmm -lgdi32' \

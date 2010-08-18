@@ -445,7 +445,7 @@ void Camera::Rotate(dReal step)
 		Vmax=M_PI; //180°
 
 	//and how much to rotate!
-	float Vspeed = internal.stepsize*settings->rotation_speed*Vmax;
+	float Vspeed = step*settings->rotation_speed*Vmax;
 
 	//check if we can reach target in this step, if so just jump
 	if (Vspeed > Vmax)
