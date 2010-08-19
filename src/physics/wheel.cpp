@@ -9,9 +9,6 @@
  * See license.txt and README for more info
  */
 
-extern bool is_now;
-extern bool first;
-extern int is_it;
 
 #include "wheel.hpp"
 #include "../shared/internal.hpp" 
@@ -82,6 +79,11 @@ void Wheel::Set_Contacts(dBodyID wbody, dBodyID obody, dReal ospring, dReal odam
 	dReal slip_ratio, slip_angle;
 	//other things that affects simulation:
 	dReal camber;
+
+	//calculation koefficients for (mf) tyre friction calculation
+	dReal shape, peak, stiffness;
+	dReal hshift, vshift;
+	dReal composite, curvature;
 
 	//tmp variables:
 	//for slip:
@@ -198,7 +200,7 @@ void Wheel::Set_Contacts(dBodyID wbody, dBodyID obody, dReal ospring, dReal odam
 
 
 
-		//slip_rate: defined as: (wheel velocity/ground velocity)-1
+		//slip_ratio: defined as: (wheel velocity/ground velocity)-1
 		//this is velocity along the X axis...
 		slip_ratio = v1x/v2x-1;
 		//NOTE: is v2x get low (wheel standing still) this gets quite high
@@ -215,16 +217,8 @@ void Wheel::Set_Contacts(dBodyID wbody, dBodyID obody, dReal ospring, dReal odam
 		//since using a linear spring+damping solution to calculations, this is easy:
 		//(note: primitive solution... and ignores features like bouncy collisions)
 		Fz = contact[i].geom.depth*cspring + ((v1z-v2z)*cdamping);
-
-		if (first)
-		{
-			first = false;
-			printf("guess: %f (%f)\n", Fz, v1z-v2z);
-			is_now = true;
-			is_it = i;
-		}
-
 		Fz /= 1000.0; //change from N to kN
+
 		//contact joints only generates forces pulling the colliding bodies _appart_
 		//so negative (traction) forces are not added (complying with reality btw)
 		//(in this case it's the damping force getting higher than spring force when
@@ -249,11 +243,49 @@ void Wheel::Set_Contacts(dBodyID wbody, dBodyID obody, dReal ospring, dReal odam
 			//TODO!
 			//hmmm.... perhaps the angles should be in radians? or degrees as specified?
 			//tmp values to make car driveable:
-			Fx = 5000.0;
-			Fy = 5000.0;
+
+			//longitudinal force (Fx)...
+			//TODO/WARNING/NOTE: calculation of coefficients is not a proper solution: just tmp for now...
+			shape = 2.2;
+			peak = 1400.0*Fz;
+			stiffness = 0.2*sqrt(Fz);
+
+			hshift = 0.0; //no shifting
+			vshift = 0.0;
+
+			composite = slip_ratio+hshift;
+			curvature = -0.06*Fz+1.2;
+
+			//but this is the equation all "magic formulas" use for everything!
+			Fx = peak*sin(shape*atan(stiffness*composite-curvature*(stiffness*composite-atan(stiffness*composite))));
+			//(could place stiffness*cpomposite in temporary variable to reduce size of this line...)
+
+			//ok, something similar for lateral force (Fy) for now:
+			shape = 1.6;
+			peak = 1300.0*Fz;
+			stiffness = (1.0-camber*0.001)*0.2*Fz;
+
+			hshift = Fz*0.013+0.0022*camber;
+			vshift = Fz*19.2+6.2*camber;
+
+			composite = slip_angle+hshift;
+			curvature = -0.021*Fz+0.77;
+
+
+			Fy = peak*sin(shape*atan(stiffness*composite-curvature*(stiffness*composite-atan(stiffness*composite))));
+
+			//the returned Fy and Fz can get negative (and Fx seems to almost always go negative - bug?)
+			//but ode keeps track of force directions, so make sure positive:
+			Fx = fabs(Fx);
+			Fy = fabs(Fy);
 
 			//
-			//3) set output values:
+			//3) combined slip (scale Fx and Fy to combine)
+			//
+			//TODO!
+
+			//
+			//4) set output values:
 			//
 			//enable: separate mu for dir 1&2, specify dir 1
 			//(note: dir2 is automatically calculated by ode)
