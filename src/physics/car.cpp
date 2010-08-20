@@ -107,8 +107,8 @@ void Car::Physics_Step(dReal step)
 			//will be needed:
 			dReal ktorque = carp->dir*carp->max_torque*carp->throttle;
 			//(rear and front break: "half of ratio of max by throttle")
-			dReal kfbreak = carp->max_break*0.5*carp->dbreak*carp->throttle;
-			dReal krbreak = carp->max_break*0.5*(1.0-carp->dbreak)*carp->throttle;
+			dReal kfbreak = carp->dir*carp->max_break*0.5*carp->dbreak*carp->throttle;
+			dReal krbreak = carp->dir*carp->max_break*0.5*(1.0-carp->dbreak)*carp->throttle;
 			//front wheels use front breaks, rear wheels use rear breaks
 			dReal kbreak[4] = {kfbreak, krbreak, krbreak, kfbreak};
 			dReal gt = carp->gear_tweak;
@@ -181,15 +181,12 @@ void Car::Physics_Step(dReal step)
 				dReal rotation = dJointGetHinge2Angle2Rate (carp->joint[i]);
 
 				//set rotation to absolute
-				if (rotation < 0.0)
-					w[i] = -rotation;
-				else
-					w[i] = rotation;
+				w[i] = fabs(rotation);
 
 				//if rotating in the oposite way of wanted, use breaks
 				if (rotation*ktorque < 0.0) //(different signs makes negative)
 				{
-					//this much force is needed to break wheel
+					//this much force (in this direction) is needed to break wheel
 					dReal force = -rotation*wt/step;
 
 					//ok, lets see if we got enough break power to come to halt:
