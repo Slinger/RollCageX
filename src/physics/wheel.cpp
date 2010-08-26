@@ -59,7 +59,6 @@
 	(A)[1]=(B)[1]-(C)[1]; \
 	(A)[2]=(B)[2]-(C)[2];}
 
-
 //nothing here yet...
 Wheel::Wheel()
 {}
@@ -90,8 +89,9 @@ void Wheel::Set_Contacts(dBodyID wbody, dBodyID obody, dReal ospring, dReal odam
 	dVector3 pos; //contact point position
 	const dReal *bvel; //velocity of wheel body
 	dVector3 v1, v2; //velocity (on wheel body and other body)
-	dReal v1x, v1y, v1z; //wheel point velocity along wheel dirs
-	dReal v2x, v2y, v2z; //road point velocity along wheel dirs
+	dReal Vx, Vz;
+	dReal Vsx, Vsy;
+	dReal Vr;
 
 	//
 	//use spring+damping for tyre collision forces:
@@ -141,8 +141,6 @@ void Wheel::Set_Contacts(dBodyID wbody, dBodyID obody, dReal ospring, dReal odam
 		//camber is 0-180 between axis and normal...
 		//we want between wheel up and normal...
 		camber -= 90.0;
-		//this gives -90-90 but we want 0-90...
-		camber = fabs(camber);
 
 		//
 		//ok, we can now calculate the correct Y!
@@ -151,19 +149,24 @@ void Wheel::Set_Contacts(dBodyID wbody, dBodyID obody, dReal ospring, dReal odam
 		//
 
 
-		//slip+slip_angle:
+		//slip ratio and slip angle:
 
-		//first, we need to calculate some values here:
 		//(copy the position (damn, c++ doesn't allow vector assignment, right now...)
 		pos[0] = contact[i].geom.pos[0];
 		pos[1] = contact[i].geom.pos[1];
 		pos[2] = contact[i].geom.pos[2];
 
-		//we need the velocity of this contact point as if it was a point at the wheel and road:
+		//first, get interesting velocities:
+
+		//velocity of wheel
+		bvel = dBodyGetLinearVel (wbody);
+
+		//velocity of point on wheel
 		dBodyGetPointVel(wbody, pos[0], pos[1], pos[2], v1);
 
-		//not sure the other geom got a body...
-		if (obody) //the surface got a body, so slip is relative to both
+		//velocity of this point on surface
+		//(I don't assume the surface is standing still, so check:)
+		if (obody) //the surface got a body (can move)
 		{
 			//get other vel
 			dBodyGetPointVel(obody, pos[0], pos[1], pos[2], v2);
@@ -176,47 +179,42 @@ void Wheel::Set_Contacts(dBodyID wbody, dBodyID obody, dReal ospring, dReal odam
 			v2[2]=0.0;
 		}
 
-		//ok, the current velocities are relative to world, but we need them relative to the wheel:
-		bvel = dBodyGetLinearVel (wbody);
+		//all velocities should be relative to wheel:
+		VSubtract(v1, v1, bvel);
+		VSubtract(v2, v2, bvel);
 
-		//wheel point:
-		v1[0]-=bvel[0];
-		v1[1]-=bvel[1];
-		v1[2]-=bvel[2];
-		//road point:
-		v2[0]-=bvel[0];
-		v2[1]-=bvel[1];
-		v2[2]-=bvel[2];
+		//now, lets start calculate needed velocities from these values:
+		Vr = VDot(X, v1); //velocity from wheel rotation
 
-		//put these velocities along the X, Y and Z axes defined before:
-		v1x = VDot(X, v1);
-		//v1y = VDot(Y, v1); not needed?
-		v1z = VDot(Z, v1);
+		Vx = VDot(X, bvel); //velocity of wheel along heading
+		Vsy = VDot(Y, bvel); //velocity of wheel sideways
 
-		v2x = VDot(X, v2);
-		v2y = VDot(Y, v2);
-		v2z = VDot(Z, v2);
-		//end of the needed values
+		//Vsy and Vsx (slip velocity along x and y)
+		Vsx = Vx + Vr;
+		//Vsy = Vy, already calculated
 
 
 
 		//slip_ratio: defined as: (wheel velocity/ground velocity)-1
 		//this is velocity along the X axis...
-		slip_ratio = v1x/v2x-1;
-		//NOTE: is v2x get low (wheel standing still) this gets quite high
+		slip_ratio = fabs(Vsx/Vx); //we don't need negative values...
+		//NOTE: if v2x get low (wheel standing still) this gets quite high
 
 		//slip_angle: angle (in degrees) between X and actual direction of movement.
 		//velocity up/down (velZ) is not part of this, since only the tangental
 		//movement along the surface has to do with the actual wheel vs surface
 		//friction stuff:
 		//use the relative velocity of ground vs wheel along x and y to calculate this:
-		slip_angle = fabs((180.0/M_PI)*atan( v2y/v2x ));
+		slip_angle = (180.0/M_PI)* atan( Vsy/fabs(Vx) );
 		//NOTE: if v2x gets really low (wheel standing still) the reliability is lost...
 
 		//normal force: how many kN of force caused by tyre compression.
 		//since using a linear spring+damping solution to calculations, this is easy:
 		//(note: primitive solution... and ignores features like bouncy collisions)
-		Fz = contact[i].geom.depth*cspring + ((v1z-v2z)*cdamping);
+		Vz = VDot(Z, v1)-VDot(Z, v2);
+		Fz = contact[i].geom.depth*cspring + //collision depth * spring value
+			(Vz *cdamping); //velocity along z * damping value
+
 		Fz /= 1000.0; //change from N to kN
 
 		//contact joints only generates forces pulling the colliding bodies _appart_
@@ -227,7 +225,7 @@ void Wheel::Set_Contacts(dBodyID wbody, dBodyID obody, dReal ospring, dReal odam
 			continue;
 
 		//rim (outside range for tyre)
-		if (camber > rim_angle)
+		if (fabs(camber) > rim_angle)
 		{
 			//enable the usual contact friction approximation
 			contact[i].surface.mode |= dContactApprox1;
