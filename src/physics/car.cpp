@@ -229,6 +229,50 @@ void Car::Physics_Step(dReal step)
 			}
 			else //dumb motors
 			{
+				//(a simplified version of above)
+
+				//all wheels
+				dReal torque[4] = {0,0,0,0};
+				if (carp->fwd && carp->rwd)
+				{
+					torque[0] = ktorque/4.0;
+					torque[1] = ktorque/4.0;
+					torque[2] = ktorque/4.0;
+					torque[3] = ktorque/4.0;
+				}
+				else if (carp->fwd)
+				{
+					torque[0] = ktorque/2.0;
+					torque[3] = ktorque/2.0;
+				}
+				else
+				{
+					torque[1] = ktorque/2.0;
+					torque[2] = ktorque/2.0;
+				}
+
+				//wheel rotation speed
+				for (i=0; i<4; ++i)
+				{
+					dReal rotation = dJointGetHinge2Angle2Rate (carp->joint[i]);
+
+					if (rotation*ktorque < 0.0)
+					{
+						dReal force = -rotation*wt/step;
+
+						//comes to halt, can accelerate
+						if (force/kbreak[i] < 1.0)
+						{
+							b[i] = force;
+							t[i] = torque[i]/(gt+fabs(rotation));;
+						}
+						else
+							b[i] = kbreak[i];
+					}
+					else
+						t[i] = torque[i]/(gt+fabs(rotation));
+				}
+
 			}
 
 			//apply torques:
