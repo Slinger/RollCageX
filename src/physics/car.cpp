@@ -78,31 +78,19 @@ void Car::Physics_Step(dReal step)
 		//breaking/accelerating:
 		if (carp->drift_breaks) //breaks (lock rear wheels)
 		{
-			if (carp->torque_compensator)
-			{
-				const dReal *r = dBodyGetAngularVel(carp->bodyid);
-				dBodySetAngularVel(carp->wheel_body[1], r[0], r[1], r[2]);
-				dBodySetAngularVel(carp->wheel_body[2], r[0], r[1], r[2]);
-			}
-			else
-			{
-				dJointSetHinge2Param (carp->joint[1],dParamVel2,0);
-				dJointSetHinge2Param (carp->joint[1],dParamFMax2,dInfinity);
-				dJointSetHinge2Param (carp->joint[2],dParamVel2,0);
-				dJointSetHinge2Param (carp->joint[2],dParamFMax2,dInfinity);
-			}
+			dJointSetHinge2Param (carp->joint[1],dParamVel2,0);
+			dJointSetHinge2Param (carp->joint[1],dParamFMax2,dInfinity);
+			dJointSetHinge2Param (carp->joint[2],dParamVel2,0);
+			dJointSetHinge2Param (carp->joint[2],dParamFMax2,dInfinity);
 		}
 		else //acceleration or soft (non-locking) breaks
 		{
-			//TODO: these breaks and "motors" should be equipped with ESP.
+			//TODO: these breaks and "motors" should probably be equipped with antispin.
 			//(perhaps something that can be disabled by the driver by holding down a button?)
 
 			//make sure drift break is not locked...
-			if (!carp->torque_compensator)
-			{
-				dJointSetHinge2Param (carp->joint[1],dParamFMax2,0);
-				dJointSetHinge2Param (carp->joint[2],dParamFMax2,0);
-			}
+			dJointSetHinge2Param (carp->joint[1],dParamFMax2,0);
+			dJointSetHinge2Param (carp->joint[2],dParamFMax2,0);
 
 			//will be needed:
 			dReal ktorque = carp->dir*carp->max_torque*carp->throttle;
@@ -224,20 +212,10 @@ void Car::Physics_Step(dReal step)
 
 			//apply torques:
 			//(sum torque and break variables - one of them is always zero)
-			if (carp->torque_compensator) //only on wheels
-			{
-				dBodyAddRelTorque(carp->wheel_body[0], 0, 0, -(t[0] + b[0]));
-				dBodyAddRelTorque(carp->wheel_body[1], 0, 0, -(t[1] + b[1]));
-				dBodyAddRelTorque(carp->wheel_body[2], 0, 0, (t[2] + b[2]));
-				dBodyAddRelTorque(carp->wheel_body[3], 0, 0, (t[3] + b[3]));
-			}
-			else //between wheels and body
-			{
-				dJointAddHinge2Torques (carp->joint[0],0, (t[0] + b[0]));
-				dJointAddHinge2Torques (carp->joint[1],0, (t[1] + b[1]));
-				dJointAddHinge2Torques (carp->joint[2],0, (t[2] + b[2]));
-				dJointAddHinge2Torques (carp->joint[3],0, (t[3] + b[3]));
-			}
+			dJointAddHinge2Torques (carp->joint[0],0, (t[0] + b[0]));
+			dJointAddHinge2Torques (carp->joint[1],0, (t[1] + b[1]));
+			dJointAddHinge2Torques (carp->joint[2],0, (t[2] + b[2]));
+			dJointAddHinge2Torques (carp->joint[3],0, (t[3] + b[3]));
 		}
 		//
 

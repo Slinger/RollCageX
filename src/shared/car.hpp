@@ -28,7 +28,6 @@
 struct Car_Conf
 {
 	dReal max_torque, gear_tweak, max_break;
-	bool torque_compensator;
 	dReal body_mass, wheel_mass;
 	dReal suspension_spring, suspension_damping;
 	dReal rim_mu, rim_angle, tyre_spring, tyre_damping;
@@ -51,7 +50,6 @@ struct Car_Conf
 
 const struct Car_Conf car_conf_defaults = {
 	800000, 1.0, 60000,
-	true,
 	6000, 500,
 	150000.0, 5000.0,
 	0.1, 45.0, 300000.0, 10000.0,
@@ -68,7 +66,6 @@ const struct Conf_Index car_conf_index[] = {
 	{"max_torque",		'R',1, offsetof(struct Car_Conf, max_torque)},
 	{"gear_tweak",		'R',1, offsetof(struct Car_Conf, gear_tweak)},
 	{"max_break",		'R',1, offsetof(struct Car_Conf, max_break)},
-	{"torque_compensator",	'b',1, offsetof(struct Car_Conf, torque_compensator)},
 	{"body_mass",		'R',1, offsetof(struct Car_Conf, body_mass)},
 	{"wheel_mass",		'R',1, offsetof(struct Car_Conf, wheel_mass)},
 
@@ -175,7 +172,6 @@ class Car:public Object
 
 		//configuration data (copied from Car_Template)
 		dReal max_torque, gear_tweak, max_break;
-		bool torque_compensator;
 
 		dReal dsteer, dbreak;
 		bool fwd, rwd;
