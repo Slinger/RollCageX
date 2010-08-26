@@ -40,6 +40,7 @@ struct Car_Conf
 	//values for moving steering/breaking/turning between front/rear wheels
 	float dsteer, dbreak;
 	bool drive[2];
+	bool smartsteer, smartdrive;
 
 	Conf_String model; //filename+path for model
 	float resize, rotate[3], offset[3];
@@ -58,6 +59,7 @@ const struct Car_Conf car_conf_defaults = {
 	{3.5,8.2,1},
 	1.0, 0.5,
 	{false, true},
+	true, true,
 	"",
 	1, {0,0,0}, {0,0,0},
 	{5.8,4.4,2,1.5}, {1.5,1.7}, {2.9,2.2}, 2.4};
@@ -72,6 +74,8 @@ const struct Conf_Index car_conf_index[] = {
 	{"steer_distribution",	'f',1, offsetof(struct Car_Conf, dsteer)},
 	{"break_distribution",	'f',1, offsetof(struct Car_Conf, dbreak)},
 	{"front-rear_drive",	'b',2, offsetof(struct Car_Conf, drive)},
+	{"smart_steering",	'b',1, offsetof(struct Car_Conf, smartsteer)},
+	{"smart_driving",	'b',1, offsetof(struct Car_Conf, smartdrive)},
 
 	{"model",		's',1, offsetof(struct Car_Conf, model)},
 	{"model:resize",	'f',1, offsetof(struct Car_Conf, resize)},
@@ -175,6 +179,7 @@ class Car:public Object
 
 		dReal dsteer, dbreak;
 		bool fwd, rwd;
+		bool smart_steer, smart_drive;
 
 		//just for keeping track
 		dBodyID bodyid,wheel_body[4];

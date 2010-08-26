@@ -246,6 +246,8 @@ Car *Car_Template::Spawn (dReal x, dReal y, dReal z,  Trimesh_3D *tyre, Trimesh_
 	car->dbreak = conf.dbreak;
 	car->fwd = conf.drive[0];
 	car->rwd = conf.drive[1];
+	car->smart_steer = conf.smartsteer;
+	car->smart_drive = conf.smartdrive;
 
 	//start building
 	new Space(car);
