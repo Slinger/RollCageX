@@ -87,8 +87,10 @@ void Wheel::Set_Contacts(dBodyID wbody, dBodyID obody, dReal ospring, dReal odam
 	//tmp variables:
 	//for slip:
 	dVector3 pos; //contact point position
-	const dReal *bvel; //velocity of wheel body
-	dVector3 v1, v2; //velocity (on wheel body and other body)
+
+	//velocity of wheel, point on wheel, relative point on wheel (and of point on ground)
+	dVector3 Vwheel, Vpoint, Vrpoint, Vground;
+
 	dReal Vx, Vz;
 	dReal Vsx, Vsy;
 	dReal Vr;
@@ -159,40 +161,45 @@ void Wheel::Set_Contacts(dBodyID wbody, dBodyID obody, dReal ospring, dReal odam
 		//first, get interesting velocities:
 
 		//velocity of wheel
-		bvel = dBodyGetLinearVel (wbody);
+		const dReal *Vtmp = dBodyGetLinearVel (wbody);
+		//copy values to out own variables
+		Vwheel[0] = Vtmp[0];
+		Vwheel[1] = Vtmp[1];
+		Vwheel[2] = Vtmp[2];
 
 		//velocity of point on wheel
-		dBodyGetPointVel(wbody, pos[0], pos[1], pos[2], v1);
+		dBodyGetPointVel(wbody, pos[0], pos[1], pos[2], Vpoint);
 
-		//velocity of this point on surface
-		//(I don't assume the surface is standing still, so check:)
+		//not assuming we're on a static surface, so check:
 		if (obody) //the surface got a body (can move)
 		{
-			//get other vel
-			dBodyGetPointVel(obody, pos[0], pos[1], pos[2], v2);
-		}
-		else //not body...
-		{
-			//vel=0
-			v2[0]=0.0;
-			v2[1]=0.0;
-			v2[2]=0.0;
+			//get groun vel
+			dBodyGetPointVel(obody, pos[0], pos[1], pos[2], Vground);
+
+			//remove ground velocity from others
+			//(this makes velocities relative to ground)
+			VSubtract(Vpoint, Vpoint, Vground);
+			VSubtract(Vwheel, Vwheel, Vground);
 		}
 
-		//all velocities should be relative to wheel:
-		VSubtract(v1, v1, bvel);
-		VSubtract(v2, v2, bvel);
+		//the velocity of point relative to velocity of wheel:
+		VSubtract(Vrpoint, Vpoint, Vwheel);
+
 
 		//now, lets start calculate needed velocities from these values:
-		Vr = VDot(X, v1); //velocity from wheel rotation
 
-		Vx = VDot(X, bvel); //velocity of wheel along heading
-		Vsy = VDot(Y, bvel); //velocity of wheel sideways
+		Vr = VDot(X, Vrpoint); //velocity from wheel rotation
+		Vx = VDot(X, Vwheel); //velocity of wheel along heading
+		//(Vy - see Vsy)
+		Vz = VDot(Z, Vpoint);
+		//NOTE: calculation of Vz assumes the contact dir is pointing from wheel
+		//and towards the colliding geom. if other way, Vz will be wrong direction.
+		//(will just leave this as it is, and hope no one notice this.........) 
 
-		//Vsy and Vsx (slip velocity along x and y)
-		Vsx = Vx + Vr;
-		//Vsy = Vy, already calculated
-
+		//Vsx and Vsy (slip velocity along x and y):
+		Vsx = Vx + Vr; //Vr should be opposite sign of Vx, so this is the difference
+		//Vsy = Vy = VDot (Y, Vwheel); but lets go overkill!
+		Vsy = VDot(Y, Vpoint); //velocity of point of wheel sideways instead
 
 
 		//slip_ratio: defined as: (wheel velocity/ground velocity)-1
@@ -211,7 +218,6 @@ void Wheel::Set_Contacts(dBodyID wbody, dBodyID obody, dReal ospring, dReal odam
 		//normal force: how many kN of force caused by tyre compression.
 		//since using a linear spring+damping solution to calculations, this is easy:
 		//(note: primitive solution... and ignores features like bouncy collisions)
-		Vz = VDot(Z, v1)-VDot(Z, v2);
 		Fz = contact[i].geom.depth*cspring + //collision depth * spring value
 			(Vz *cdamping); //velocity along z * damping value
 
