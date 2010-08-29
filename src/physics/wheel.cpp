@@ -247,7 +247,7 @@ void Wheel::Set_Contacts(dBodyID wbody, dBodyID obody, dReal ospring, dReal odam
 			//longitudinal force (Fx)...
 			//TODO/WARNING/NOTE: calculation of coefficients is not a proper solution: just tmp for now...
 			shape = 2.2;
-			peak = 1400.0*Fz;
+			peak = 200.0*Fz;
 			stiffness = 0.2*sqrt(Fz);
 
 			hshift = 0.0; //no shifting
@@ -262,7 +262,7 @@ void Wheel::Set_Contacts(dBodyID wbody, dBodyID obody, dReal ospring, dReal odam
 
 			//ok, something similar for lateral force (Fy) for now:
 			shape = 1.6;
-			peak = 1300.0;
+			peak = 700.0;
 			stiffness = (1.0-inclination*0.001)*0.2*Fz;
 
 			hshift = Fz*0.013+0.0022*inclination;
@@ -277,9 +277,10 @@ void Wheel::Set_Contacts(dBodyID wbody, dBodyID obody, dReal ospring, dReal odam
 			//TODO: check if Fy friction is negative, and if so set to 0
 
 			//the returned Fy and Fz can get negative
-			//but ode keeps track of force directions, so make sure positive:
-			Fx = fabs(Fx);
-			Fy = fabs(Fy);
+			//but ode keeps track of force directions, so make sure positive
+			//and these values should be by kN, not N, so divide by k
+			Fx = fabs(Fx)/1000.0;
+			Fy = fabs(Fy)/1000.0;
 
 			//
 			//3) combined slip (scale Fx and Fy to combine)
