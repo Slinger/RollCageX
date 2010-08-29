@@ -30,7 +30,7 @@
 //	* surface friction - different surfaces should give different mu and mu2
 //
 //	* the improved wheel friction might make it necessary to improve the suspension
-//		(toe, caster, camber, (computerized) differential, etc...)
+//		(toe, caster, camber, etc...)
 //
 //	* todo...............
 //
@@ -77,7 +77,7 @@ void Wheel::Set_Contacts(dBodyID wbody, dBodyID obody, dReal ospring, dReal odam
 	//slip:
 	dReal slip_ratio, slip_angle;
 	//other things that affects simulation:
-	dReal camber;
+	dReal inclination;
 
 	//calculation koefficients for (mf) tyre friction calculation
 	dReal shape, peak, stiffness;
@@ -135,14 +135,20 @@ void Wheel::Set_Contacts(dBodyID wbody, dBodyID obody, dReal ospring, dReal odam
 		//Y is not correct (not tangental to ground), but X is, and Z is also ok.
 		//Y can be recalculated from X and Z, but first, this Y use useful:
 
-		//camber:
+		//inclination:
 
 		//first get angle between current Y and Z
 		dReal tmp = VDot (Z, Y);
-		camber = (180.0/M_PI)*acos(tmp);
-		//camber is 0-180 between axis and normal...
-		//we want between wheel up and normal...
-		camber -= 90.0;
+		inclination = (180.0/M_PI)*acos(tmp);
+		//inclination is 0-180 between axis and normal...
+		//we want -90-90 between wheel up and normal...
+		inclination -= 90.0;
+
+		//rim (outside range for tyre)
+		//(rim mu calculated as the already defaults, btw)
+		if (fabs(inclination) > rim_angle)
+			continue; //don't modify default values, skip this
+
 
 		//
 		//ok, we can now calculate the correct Y!
@@ -196,6 +202,22 @@ void Wheel::Set_Contacts(dBodyID wbody, dBodyID obody, dReal ospring, dReal odam
 		//and towards the colliding geom. if other way, Vz will be wrong direction.
 		//(will just leave this as it is, and hope no one notice this.........) 
 
+		//normal force: how many kN of force caused by tyre compression.
+		//since using a linear spring+damping solution to calculations, this is easy:
+		//(note: primitive solution... and ignores features like bouncy collisions)
+		Fz = contact[i].geom.depth*cspring + //collision depth * spring value
+			(Vz *cdamping); //velocity along z * damping value
+
+		Fz /= 1000.0; //change from N to kN
+
+		//contact joints only generates forces pulling the colliding bodies _appart_
+		//so negative (traction) forces are not added (complying with reality btw)
+		//(in this case it's the damping force getting higher than spring force when
+		//the two bodies are moving appart from each others)
+		if (Fz < 0.0) //not going to be any friction of this contact
+			continue; //let ode just use defaults
+
+
 		//Vsx and Vsy (slip velocity along x and y):
 		Vsx = Vx + Vr; //Vr should be opposite sign of Vx, so this is the difference
 		//Vsy = Vy = VDot (Y, Vwheel); but lets go overkill!
@@ -215,32 +237,6 @@ void Wheel::Set_Contacts(dBodyID wbody, dBodyID obody, dReal ospring, dReal odam
 		slip_angle = (180.0/M_PI)* atan( Vsy/fabs(Vx) );
 		//NOTE: if v2x gets really low (wheel standing still) the reliability is lost...
 
-		//normal force: how many kN of force caused by tyre compression.
-		//since using a linear spring+damping solution to calculations, this is easy:
-		//(note: primitive solution... and ignores features like bouncy collisions)
-		Fz = contact[i].geom.depth*cspring + //collision depth * spring value
-			(Vz *cdamping); //velocity along z * damping value
-
-		Fz /= 1000.0; //change from N to kN
-
-		//contact joints only generates forces pulling the colliding bodies _appart_
-		//so negative (traction) forces are not added (complying with reality btw)
-		//(in this case it's the damping force getting higher than spring force when
-		//the two bodies are moving appart from each others)
-		if (Fz < 0.0) //not going to be any friction of this contact
-			continue;
-
-		//rim (outside range for tyre)
-		if (fabs(camber) > rim_angle)
-		{
-			//enable the usual contact friction approximation
-			contact[i].surface.mode |= dContactApprox1;
-
-			//note: since rim_mu is used as the mu of the wheel, we already
-			//got the wanted mu calculated
-		}
-		else //tyre
-		{
 			//
 			//2) compute output values:
 			//
@@ -261,24 +257,26 @@ void Wheel::Set_Contacts(dBodyID wbody, dBodyID obody, dReal ospring, dReal odam
 			curvature = -0.06*Fz+1.2;
 
 			//but this is the equation all "magic formulas" use for everything!
-			Fx = peak*sin(shape*atan(stiffness*composite-curvature*(stiffness*composite-atan(stiffness*composite))));
+			Fx = peak*sin(shape*atan(stiffness*composite-curvature*(stiffness*composite-atan(stiffness*composite))))+vshift;
 			//(could place stiffness*cpomposite in temporary variable to reduce size of this line...)
 
 			//ok, something similar for lateral force (Fy) for now:
 			shape = 1.6;
-			peak = 1300.0*Fz;
-			stiffness = (1.0-camber*0.001)*0.2*Fz;
+			peak = 1300.0;
+			stiffness = (1.0-inclination*0.001)*0.2*Fz;
 
-			hshift = Fz*0.013+0.0022*camber;
-			vshift = Fz*19.2+6.2*camber;
+			hshift = Fz*0.013+0.0022*inclination;
+			vshift = 19.2+6.2*inclination;
 
 			composite = slip_angle+hshift;
 			curvature = -0.021*Fz+0.77;
 
 
-			Fy = peak*sin(shape*atan(stiffness*composite-curvature*(stiffness*composite-atan(stiffness*composite))));
+			Fy = peak*sin(shape*atan(stiffness*composite-curvature*(stiffness*composite-atan(stiffness*composite))))+vshift;
 
-			//the returned Fy and Fz can get negative (and Fx seems to almost always go negative - bug?)
+			//TODO: check if Fy friction is negative, and if so set to 0
+
+			//the returned Fy and Fz can get negative
 			//but ode keeps track of force directions, so make sure positive:
 			Fx = fabs(Fx);
 			Fy = fabs(Fy);
@@ -309,7 +307,6 @@ void Wheel::Set_Contacts(dBodyID wbody, dBodyID obody, dReal ospring, dReal odam
 			//mu1 and mu2
 			contact[i].surface.mu = Fx;
 			contact[i].surface.mu2 = Fy;
-		}
 	}
 }
 

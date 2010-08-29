@@ -64,13 +64,9 @@ void Geom::Collision_Callback (void *data, dGeomID o1, dGeomID o2)
 	//does both components want to collide for real? (not "ghosts"/"sensors")
 	if (geom1->collide&&geom2->collide)
 	{
-		//NOTE: normal friction: "pyramid approximation" - friction affected by normal force
-		//(called dContactApprox1). this is used most of the time, but not for the tyre of
-		//wheels (since those calculations solves it without use of ode).
-
 		//default+optional data:
 		dSurfaceParameters surface_base;
-		surface_base.mode = 0; //nothing extra enabled yet
+		surface_base.mode = dContactApprox1; //only nice friction enabled yet
 		surface_base.mu = (geom1->mu)*(geom2->mu); //friction
 
 		//all other parameters are optional... (here set to 0 to prevent compile warnings)
@@ -114,6 +110,10 @@ void Geom::Collision_Callback (void *data, dGeomID o1, dGeomID o2)
 		}
 		//end of optional features
 
+		//set all contacts to these settings:
+		for (int i=0; i<count; ++i)
+			contact[i].surface = surface_base;
+
 
 		//
 		//simulation of wheel or normal?
@@ -148,16 +148,6 @@ void Geom::Collision_Callback (void *data, dGeomID o1, dGeomID o2)
 		//just a reminder to myself
 		if (geom1->wheel&&geom2->wheel)
 			printlog(1, "TODO: haven't looked at wheel*wheel collision simulation! (will only be rim_mu*rim_mu and no tyre right now)");
-
-		//normal collision, enable contact approximation 1 (pyramid/force-dependent)
-		if (!wheel)
-			surface_base.mode |= dContactApprox1;
-		//else, we still use all defaults, except not enabling friction approximation
-		//(left to Set_Contacts to solve)
-
-		//set all contacts to these new "defaults":
-		for (int i=0; i<count; ++i)
-			contact[i].surface = surface_base;
 
 		//calculate tyre (or rim) values for these contactpoints
 		if (wheel)
