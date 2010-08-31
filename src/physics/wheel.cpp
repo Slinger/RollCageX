@@ -73,7 +73,8 @@ void Wheel::Set_Contacts(dBodyID wbody, dBodyID obody, dReal ospring, dReal odam
 	//directions (X:longitudinal/wheel travel, Y:lateral/sideway, Z:normal/"up"):
 	dReal X[3], Y[3], Z[3];
 	//forces:
-	dReal Fx, Fy, Fz;
+	dReal Fz;
+	dReal MUx, MUy; //mu for x and y
 	//slip:
 	dReal slip_ratio, slip_angle;
 	//other things that affects simulation:
@@ -257,7 +258,7 @@ void Wheel::Set_Contacts(dBodyID wbody, dBodyID obody, dReal ospring, dReal odam
 			curvature = -0.06*Fz+1.2;
 
 			//but this is the equation all "magic formulas" use for everything!
-			Fx = peak*sin(shape*atan(stiffness*composite-curvature*(stiffness*composite-atan(stiffness*composite))))+vshift;
+			MUx = peak*sin(shape*atan(stiffness*composite-curvature*(stiffness*composite-atan(stiffness*composite))))+vshift;
 			//(could place stiffness*cpomposite in temporary variable to reduce size of this line...)
 
 			//ok, something similar for lateral force (Fy) for now:
@@ -272,15 +273,14 @@ void Wheel::Set_Contacts(dBodyID wbody, dBodyID obody, dReal ospring, dReal odam
 			curvature = -0.021*Fz+0.77;
 
 
-			Fy = peak*sin(shape*atan(stiffness*composite-curvature*(stiffness*composite-atan(stiffness*composite))))+vshift;
+			MUy = peak*sin(shape*atan(stiffness*composite-curvature*(stiffness*composite-atan(stiffness*composite))))+vshift;
 
 			//TODO: check if Fy friction is negative, and if so set to 0
 
 			//the returned Fy and Fz can get negative
 			//but ode keeps track of force directions, so make sure positive
-			//and these values should be by kN, not N, so divide by k
-			Fx = fabs(Fx)/1000.0;
-			Fy = fabs(Fy)/1000.0;
+			MUx = fabs(MUx);
+			MUy = fabs(MUy);
 
 			//
 			//3) combined slip (scale Fx and Fy to combine)
@@ -306,8 +306,20 @@ void Wheel::Set_Contacts(dBodyID wbody, dBodyID obody, dReal ospring, dReal odam
 			contact[i].surface.soft_cfm = cfm;
 
 			//mu1 and mu2
-			contact[i].surface.mu = Fx;
-			contact[i].surface.mu2 = Fy;
+
+			//two different versions:
+			//(1=first alternative, 0=second alternative:)
+#if 1
+			//let ode calculate friction from internal Fz
+			//(these mu values use kN, not N, so divide by k)
+			contact[i].surface.mu = MUx/1000.0;
+			contact[i].surface.mu2 = MUy/1000.0;
+#else
+			//calculate force using our Fz
+			contact[i].surface.mode &= ~dContactApprox1; //remove Approx1
+			contact[i].surface.mu = MUx*Fz;
+			contact[i].surface.mu2 = MUy*Fz;
+#endif
 	}
 }
 
