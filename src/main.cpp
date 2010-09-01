@@ -165,9 +165,9 @@ bool tmp_menus()
 
 				//try to load tyre and rim (if possible)
 				if (!tyre)
-					tyre = Trimesh_3D::Quick_Load_Conf("data/worlds/Sandbox/tyres/2/Slick", "tyre.conf");
+					tyre = Trimesh_3D::Quick_Load_Conf("data/worlds/Sandbox/tyres/diameter/2/Slick", "tyre.conf");
 				if (!rim)
-					rim = Trimesh_3D::Quick_Load_Conf("data/teams/Nemesis/rims/2/Split", "rim.conf");
+					rim = Trimesh_3D::Quick_Load_Conf("data/teams/Nemesis/rims/diameter/2/Split", "rim.conf");
 				//good, spawn
 				car = car_template->Spawn(
 					track.start[0], //x
@@ -207,7 +207,7 @@ bool tmp_menus()
 		{
 			//try loading from world tyres
 			styre = sworld;
-			styre += "/tyres/";
+			styre += "/tyres/diameter/";
 			styre += sdiameter;
 			styre += "/";
 			styre += file.words[1];
@@ -217,7 +217,7 @@ bool tmp_menus()
 			{
 				//try seing if its track specific tyre
 				styre = strack;
-				styre += "/tyres/";
+				styre += "/tyres/diameter/";
 				styre += sdiameter;
 				styre += "/";
 				styre += file.words[1];
@@ -230,7 +230,7 @@ bool tmp_menus()
 		{
 			//try loading from team rims
 			srim = steam;
-			srim += "/rims/";
+			srim += "/rims/diameter/";
 			srim += sdiameter;
 			srim += "/";
 			srim += file.words[1];
@@ -241,12 +241,12 @@ bool tmp_menus()
 				//try seing if car specific
 
 				srim = scar;
-				srim += "/rims/";
+				srim += "/rims/diameter/";
 				srim += sdiameter;
 				srim += "/";
 				srim += file.words[1];
 
-				//don't car if fails...
+				//don't care if fails...
 				rim = Trimesh_3D::Quick_Load_Conf(srim.c_str(), "rim.conf");
 			}
 		}

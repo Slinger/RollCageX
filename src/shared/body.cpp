@@ -39,10 +39,11 @@ Body::Body (dBodyID body, Object *obj): Component(obj)
 	body_id = body;
 
 	//default values
-	model = NULL;
-	Set_Linear_Drag(internal.linear_drag);
-	Set_Angular_Drag(internal.angular_drag);
-	buffer_event=false;
+	model = NULL; //don't render
+	Update_Mass(); //get current mass...
+	Set_Linear_Drag(internal.linear_drag); //...and set up drag
+	Set_Angular_Drag(internal.angular_drag);//...
+	buffer_event=false; //no events yet
 }
 
 //destroys a body, and removes it from the list
