@@ -5,8 +5,10 @@
 
 #optional: use "> surface" to change default surface
 #parameters (will affect all geoms after).
-#example:
-#> surface mu 0.5 bounce 10 spring inf damping 0
+#example/default:
+#> surface mu 1.0 bounce 0 spring inf damping 0
+#defaults for tyre property scaling:
+#> surface peak 1.0 position 1.0 sharpness 1.0
 
 #position  rotation  geom model  optional render model
 0 0 0      0 0 0     "Box.obj"   #"Box.obj"

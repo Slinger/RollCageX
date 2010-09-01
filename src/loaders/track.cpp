@@ -131,6 +131,9 @@ bool load_track (const char *path)
 		dReal bounce = 0.0;
 		dReal spring = dInfinity;
 		dReal damping = 0.0;
+		dReal peak = 1.0;
+		dReal position = 1.0;
+		dReal sharpness = 1.0;
 		//(they can be float or double - atof returns double which works for both)
 		
 		while (file.Read_Line())
@@ -204,6 +207,12 @@ bool load_track (const char *path)
 							spring = atof(file.words[++pos]);
 						else if (!strcmp(file.words[pos], "damping"))
 							damping = atof(file.words[++pos]);
+						else if (!strcmp(file.words[pos], "peak"))
+							peak = atof(file.words[++pos]);
+						else if (!strcmp(file.words[pos], "position"))
+							position = atof(file.words[++pos]);
+						else if (!strcmp(file.words[pos], "sharpness"))
+							sharpness = atof(file.words[++pos]);
 						else
 						{
 							printlog(0, "WARNING: trimesh surface option \"%s\" unknown", file.words[pos]);
@@ -267,6 +276,9 @@ bool load_track (const char *path)
 				data->bounce = bounce;
 				data->spring = spring;
 				data->damping = damping;
+				data->tyre_peak_scale = peak;
+				data->tyre_pos_scale = position;
+				data->tyre_sharp_scale = sharpness;
 
 				//position
 				x = atof(file.words[0]);

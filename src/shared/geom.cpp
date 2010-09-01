@@ -64,10 +64,15 @@ Geom::Geom (dGeomID geom, Object *obj): Component(obj) //pass object argument to
 	damping = 0.0; //no collision damping (only with spring)
 	bounce = 0.0; //no bouncyness
 
-	//defaults from internal.conf
-	mu = internal.mu;
-	wheel = NULL; //not a wheel
+	//normal friction scaling for tyre
+	tyre_peak_scale = 1.0;
+	tyre_pos_scale = 1.0;
+	tyre_sharp_scale = 1.0;
 
+	//default from internal.conf
+	mu = internal.mu;
+
+	wheel = NULL; //not a wheel
 	collide = true; //on collision, create opposing forces
 
 	//events:

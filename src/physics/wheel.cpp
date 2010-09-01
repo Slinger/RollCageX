@@ -251,15 +251,15 @@ void Wheel::Set_Contacts(dBodyID wbody, dBodyID obody, Geom *ogeom, bool wheel_f
 		//
 
 		//max mu value
-		peak = xpeak; //*material_peak_scale
+		peak = xpeak *ogeom->tyre_peak_scale;
 		//shape
 		shape = xshape;
 		//needed to get peak at right position, and used by peak_sharpness
 		K = tan( (M_PI/2)/shape );
 		//where should peak be reached
-		peak_at = xpos*pow(Fz, xposch); //*material_peak_at_scale
+		peak_at = xpos*pow(Fz, xposch) *ogeom->tyre_pos_scale;
 		//how sharp peak should be
-		peak_sharpness = (peak_at/K)*xsharp*pow(Fz, xsharpch); //*material_sharpness_scale
+		peak_sharpness = (peak_at/K)*xsharp*pow(Fz, xsharpch) *ogeom->tyre_sharp_scale;
 
 		//calculate!
 		MUx = peak*sin(shape*atan(K*pow((fabs(slip_ratio)/peak_at), peak_sharpness)));
@@ -278,8 +278,12 @@ void Wheel::Set_Contacts(dBodyID wbody, dBodyID obody, Geom *ogeom, bool wheel_f
 
 		MUy = peak*sin(shape*atan(K*pow((fabs(slip_angle)/peak_at), peak_sharpness))) + shift;
 
-		//MUy might get negative if the shift (due to bad inclination) gets negative
-		//if so, no sideway force should be generated:
+		//MUx and MUy might get negative in the calculations, which means no friction so
+		//set to 0
+		if (MUx < 0.0)
+			MUx = 0.0;
+
+		//MUy might also get negative if the shift (due to bad inclination) gets negative
 		if (MUy < 0.0)
 			MUy = 0.0;
 

@@ -48,6 +48,8 @@ class Geom: public Component
 		dReal spring, damping; //to make surfaces properly soft
 		dReal mu, bounce;
 		//note: spring+dmaping should give bouncyness, so no need to use both
+		//scaling values for tyres:
+		dReal tyre_peak_scale, tyre_pos_scale, tyre_sharp_scale;
 
 		//points at a wheel simulation class, or NULL if not a wheel
 		Wheel *wheel;
