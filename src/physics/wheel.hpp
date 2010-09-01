@@ -20,9 +20,9 @@ class Wheel
 {
 	public:
 		//configures contact points with correct mu and similar
-		void Set_Contacts(dBodyID wb, dBodyID ob, dReal os, dReal od, dContact *contact, int count, dReal stepsize);
+		void Set_Contacts(dBodyID wb, dBodyID ob, class Geom *og, bool wf, dContact *contact, int count, dReal stepsize);
 		//arguments:
-		//wheel body, other body (or NULL if static), other geom spring, other geom damping,
+		//wheel body, other body (or NULL if static), other geom, wheel is first geom?,
 		//contact structs to configure, and how many contacts, and stepsize time)
 
 	private:

@@ -119,39 +119,14 @@ void Geom::Collision_Callback (void *data, dGeomID o1, dGeomID o2)
 		//simulation of wheel or normal?
 		//
 		//determine if _one_of the geoms is a wheel
-		Wheel *wheel = NULL; //wheel struct
-		dBodyID wb=NULL, ob=NULL; //wheel body and other body
-		dReal os=0.0, od=0.0; //other geom spring+damping
-		//note: set them to NULL just to suppress false compiler warning
 		if (geom1->wheel&&!geom2->wheel)
-		{
-			//wheel class
-			wheel = geom1->wheel;
-
-			//bodies
-			wb = b1;
-			ob = b2;
-
-			//spring+damping
-			os = geom2->spring;
-			od = geom2->damping;
-		}
+			geom1->wheel->Set_Contacts(b1, b2, geom2, true, contact, count, stepsize);
 		else if (!geom1->wheel&&geom2->wheel)
-		{
-			wheel = geom2->wheel;
-			wb = b2;
-			ob = b1;
-			os = geom1->spring;
-			od = geom1->damping;
-		}
+			geom2->wheel->Set_Contacts(b2, b1, geom1, false, contact, count, stepsize);
 
 		//just a reminder to myself
 		if (geom1->wheel&&geom2->wheel)
 			printlog(1, "TODO: haven't looked at wheel*wheel collision simulation! (will only be rim_mu*rim_mu and no tyre right now)");
-
-		//calculate tyre (or rim) values for these contactpoints
-		if (wheel)
-			wheel->Set_Contacts(wb, ob, os, od, contact, count, stepsize);
 
 		//
 		//

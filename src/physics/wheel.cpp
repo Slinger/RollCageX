@@ -11,6 +11,7 @@
 
 
 #include "wheel.hpp"
+#include "../shared/geom.hpp"
 #include "../shared/internal.hpp" 
 
 //This code tries to implement a reasonably simple and realistic tyre friction model.
@@ -64,7 +65,7 @@ Wheel::Wheel()
 {}
 
 //simulation of wheel
-void Wheel::Set_Contacts(dBodyID wbody, dBodyID obody, dReal ospring, dReal odamping,
+void Wheel::Set_Contacts(dBodyID wbody, dBodyID obody, Geom *ogeom, bool wheel_first,
 		dContact *contact, int count, dReal stepsize)
 {
 	//
@@ -99,8 +100,8 @@ void Wheel::Set_Contacts(dBodyID wbody, dBodyID obody, dReal ospring, dReal odam
 
 	//
 	//use spring+damping for tyre collision forces:
-	dReal cspring = 1/( 1/(spring) + 1/(ospring) );
-	dReal cdamping = damping + odamping;
+	dReal cspring = 1/( 1/(spring) + 1/(ogeom->spring) );
+	dReal cdamping = damping + ogeom->damping;
 
 	//calculate erp+cfm from stepsize, spring and damping values:
 	dReal erp = (stepsize*cspring)/(stepsize*cspring +cdamping);
@@ -120,9 +121,19 @@ void Wheel::Set_Contacts(dBodyID wbody, dBodyID obody, dReal ospring, dReal odam
 		//directions:
 
 		//Z: vertical to ground/normal direction
-		Z[0] = contact[i].geom.normal[0];
-		Z[1] = contact[i].geom.normal[1];
-		Z[2] = contact[i].geom.normal[2];
+		//(make sure always same direction to/from wheel)
+		if (wheel_first)
+		{
+			Z[0] = contact[i].geom.normal[0];
+			Z[1] = contact[i].geom.normal[1];
+			Z[2] = contact[i].geom.normal[2];
+		}
+		else
+		{
+			Z[0] = -contact[i].geom.normal[0];
+			Z[1] = -contact[i].geom.normal[1];
+			Z[2] = -contact[i].geom.normal[2];
+		}
 
 		//Y: simply wheel axis Z
 		//NOTE: this is actually incorrect, since this "Y" might not be tangental to ground.
@@ -202,15 +213,12 @@ void Wheel::Set_Contacts(dBodyID wbody, dBodyID obody, dReal ospring, dReal odam
 		Vx = VDot(X, Vwheel); //velocity of wheel along heading
 		//(Vy - see Vsy)
 		Vz = VDot(Z, Vpoint);
-		//NOTE: calculation of Vz assumes the contact dir is pointing from wheel
-		//and towards the colliding geom. if other way, Vz will be wrong direction.
-		//(will just leave this as it is, and hope no one notice this.........) 
 
 		//normal force: how many kN of force caused by tyre compression.
 		//since using a linear spring+damping solution to calculations, this is easy:
 		//(note: primitive solution... and ignores features like bouncy collisions)
-		Fz = contact[i].geom.depth*cspring + //collision depth * spring value
-			(Vz *cdamping); //velocity along z * damping value
+		Fz = contact[i].geom.depth*cspring //collision depth * spring value
+			- (Vz *cdamping); //velocity along z * damping value
 
 		Fz /= 1000.0; //change from N to kN
 
@@ -270,7 +278,7 @@ void Wheel::Set_Contacts(dBodyID wbody, dBodyID obody, dReal ospring, dReal odam
 		conf[3] = -0.2;
 		conf[4] = 0.05;
 		conf[5] = 0.6;
-		conf[6] = 0.01;
+		conf[6] = 0.02;
 		//!tmp
 
 		peak = conf[0]; //*material_peak_scale
@@ -281,7 +289,7 @@ void Wheel::Set_Contacts(dBodyID wbody, dBodyID obody, dReal ospring, dReal odam
 		shift = conf[6]*inclination;
 
 		//based on the turning angle (positive or negative), the shift might change sign
-		if (slip_angle < 0.0)
+		if (slip_angle > 0.0)
 			shift = -shift;
 
 		MUy = peak*sin(shape*atan(K*pow((fabs(slip_angle)/peak_at), peak_sharpness))) + shift;
