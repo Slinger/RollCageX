@@ -261,7 +261,7 @@ void Wheel::Set_Contacts(dBodyID wbody, dBodyID obody, dReal ospring, dReal odam
 		peak_at = conf[2]*pow(Fz, conf[3]); //*material_peak_at_scale
 		peak_sharpness = (peak_at/K)*conf[4]*pow(Fz, conf[5]); //*material_sharpness_scale
 
-		MUx = peak*sin(shape*atan(K*pow((abs(slip_ratio)/peak_at), peak_sharpness)));
+		MUx = peak*sin(shape*atan(K*pow((fabs(slip_ratio)/peak_at), peak_sharpness)));
 
 		//tmp!
 		conf[0] = 1500;
@@ -270,7 +270,7 @@ void Wheel::Set_Contacts(dBodyID wbody, dBodyID obody, dReal ospring, dReal odam
 		conf[3] = -0.2;
 		conf[4] = 0.05;
 		conf[5] = 0.6;
-		conf[6] = 0.5;
+		conf[6] = 0.01;
 		//!tmp
 
 		peak = conf[0]; //*material_peak_scale
@@ -284,78 +284,51 @@ void Wheel::Set_Contacts(dBodyID wbody, dBodyID obody, dReal ospring, dReal odam
 		if (slip_angle < 0.0)
 			shift = -shift;
 
-		MUy = peak*sin(shape*atan(K*pow((abs(slip_angle)/peak_at), peak_sharpness))) + shift;
+		MUy = peak*sin(shape*atan(K*pow((fabs(slip_angle)/peak_at), peak_sharpness))) + shift;
 
-		/*
-			//longitudinal force (Fx):
-			shape = 2.2;
-			peak = 500.0;
-			stiffness = 0.2*sqrt(Fz);
+		//MUy might get negative if the shift (due to bad inclination) gets negative
+		//if so, no sideway force should be generated:
+		if (MUy < 0.0)
+			MUy = 0.0;
 
-			hshift = 0.0; //no shifting
-			vshift = 0.0;
+		//
+		//3) combined slip (scale Fx and Fy to combine)
+		//
+		//TODO!
 
-			composite = slip_ratio+hshift;
-			curvature = -0.06*Fz+1.2;
+		//
+		//4) set output values:
+		//
+		//enable: separate mu for dir 1&2, specify dir 1
+		//(note: dir2 is automatically calculated by ode)
+		//also enable erp+cfm specifying (for spring+damping)
+		contact[i].surface.mode |= dContactMu2 | dContactFDir1 |
+			dContactSoftERP | dContactSoftCFM;
 
-			//but this is the equation all "magic formulas" use for everything!
-			MUx = peak*sin(shape*atan(stiffness*composite-curvature*(stiffness*composite-atan(stiffness*composite))))+vshift;
-			//(could place stiffness*cpomposite in temporary variable to reduce size of this line...)
+		//fdir1
+		contact[i].fdir1[0] = X[0];
+		contact[i].fdir1[1] = X[1];
+		contact[i].fdir1[2] = X[2];
 
-			//lateral force (Fy):
-			shape = 1.6;
-			peak = 700.0;
-			stiffness = (1.0-inclination*0.001)*0.2*Fz;
+		//erp+cfm (spring+damping)
+		contact[i].surface.soft_erp = erp;
+		contact[i].surface.soft_cfm = cfm;
 
-			hshift = Fz*0.013+0.0022*inclination;
-			vshift = 19.2+6.2*inclination;
+		//mu1 and mu2
 
-			composite = slip_angle+hshift;
-			curvature = -0.021*Fz+0.77;
-
-
-			MUy = peak*sin(shape*atan(stiffness*composite-curvature*(stiffness*composite-atan(stiffness*composite))))+vshift;
-			*/
-
-			//TODO: check if Fy friction is negative, and if so set to 0
-
-			//
-			//3) combined slip (scale Fx and Fy to combine)
-			//
-			//TODO!
-
-			//
-			//4) set output values:
-			//
-			//enable: separate mu for dir 1&2, specify dir 1
-			//(note: dir2 is automatically calculated by ode)
-			//also enable erp+cfm specifying (for spring+damping)
-			contact[i].surface.mode |= dContactMu2 | dContactFDir1 |
-				dContactSoftERP | dContactSoftCFM;
-
-			//fdir1
-			contact[i].fdir1[0] = X[0];
-			contact[i].fdir1[1] = X[1];
-			contact[i].fdir1[2] = X[2];
-
-			//erp+cfm (spring+damping)
-			contact[i].surface.soft_erp = erp;
-			contact[i].surface.soft_cfm = cfm;
-
-			//mu1 and mu2
-
-			//two different versions:
-			//(1=first alternative, 0=second alternative:)
+		//two different versions:
+		//(1=first alternative, 0=second alternative:)
 #if 1
-			//let ode calculate friction from internal Fz
-			//(these mu values use kN, not N, so divide by k)
-			contact[i].surface.mu = MUx/1000.0;
-			contact[i].surface.mu2 = MUy/1000.0;
+		//let ode calculate friction from internal Fz
+		//(these mu values use kN, not N, so divide by k)
+		//printf("%f %f\n", MUx, MUy);
+		contact[i].surface.mu = MUx/1000.0;
+		contact[i].surface.mu2 = MUy/1000.0;
 #else
-			//calculate force using our Fz
-			contact[i].surface.mode &= ~dContactApprox1; //remove Approx1
-			contact[i].surface.mu = MUx*Fz;
-			contact[i].surface.mu2 = MUy*Fz;
+		//calculate force using our Fz
+		contact[i].surface.mode &= ~dContactApprox1; //remove Approx1
+		contact[i].surface.mu = MUx*Fz;
+		contact[i].surface.mu2 = MUy*Fz;
 #endif
 	}
 }
