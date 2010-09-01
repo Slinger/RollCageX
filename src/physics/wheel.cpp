@@ -80,12 +80,13 @@ void Wheel::Set_Contacts(dBodyID wbody, dBodyID obody, dReal ospring, dReal odam
 	//other things that affects simulation:
 	dReal inclination;
 
-	//calculation koefficients for (mf) tyre friction calculation
-	dReal shape, peak, stiffness;
-	dReal hshift, vshift;
-	dReal composite, curvature;
+	//calculation koefficients for tyre friction calculation
+	dReal peak, shape, K, peak_at, peak_sharpness, shift;
 
-	//tmp variables:
+	//todo: conf
+	dReal conf[7];
+
+	//variables for processing:
 	//for slip:
 	dVector3 pos; //contact point position
 
@@ -109,6 +110,8 @@ void Wheel::Set_Contacts(dBodyID wbody, dBodyID obody, dReal ospring, dReal odam
 	//all of these values are input values, Fx and Fy, but not Fz!, are the output (used as mu1 and mu2)
 	for (int i=0; i<count; ++i)
 	{
+		//"Slinger's not-so-magic formula":
+
 		//
 		//1) input values:
 		//
@@ -238,17 +241,55 @@ void Wheel::Set_Contacts(dBodyID wbody, dBodyID obody, dReal ospring, dReal odam
 		slip_angle = (180.0/M_PI)* atan( Vsy/fabs(Vx) );
 		//NOTE: if v2x gets really low (wheel standing still) the reliability is lost...
 
-			//
-			//2) compute output values:
-			//
-			//TODO!
-			//hmmm.... perhaps the angles should be in radians? or degrees as specified?
-			//tmp values to make car driveable:
+		//
+		//2) compute output values:
+		//
 
-			//longitudinal force (Fx)...
-			//TODO/WARNING/NOTE: calculation of coefficients is not a proper solution: just tmp for now...
+		//tmp!
+		conf[0] = 2000;
+		conf[1] = 1.5;
+		conf[2] = 0.1;
+		conf[3] = 0;
+		conf[4] = 20;
+		conf[5] = -0.4;
+		conf[6] = 0.0; //not used
+		//!tmp
+
+		peak = conf[0]; //*material_peak_scale
+		shape = conf[1];
+		K = tan( (M_PI/2)/shape );
+		peak_at = conf[2]*pow(Fz, conf[3]); //*material_peak_at_scale
+		peak_sharpness = (peak_at/K)*conf[4]*pow(Fz, conf[5]); //*material_sharpness_scale
+
+		MUx = peak*sin(shape*atan(K*pow((abs(slip_ratio)/peak_at), peak_sharpness)));
+
+		//tmp!
+		conf[0] = 1500;
+		conf[1] = 1.5;
+		conf[2] = 13;
+		conf[3] = -0.2;
+		conf[4] = 0.05;
+		conf[5] = 0.6;
+		conf[6] = 0.5;
+		//!tmp
+
+		peak = conf[0]; //*material_peak_scale
+		shape = conf[1];
+		K = tan( (M_PI/2)/shape );
+		peak_at = conf[2]*pow(Fz, conf[3]); //*material_peak_at_scale
+		peak_sharpness = (peak_at/K)*conf[4]*pow(Fz, conf[5]); //*material_sharpness_scale
+		shift = conf[6]*inclination;
+
+		//based on the turning angle (positive or negative), the shift might change sign
+		if (slip_angle < 0.0)
+			shift = -shift;
+
+		MUy = peak*sin(shape*atan(K*pow((abs(slip_angle)/peak_at), peak_sharpness))) + shift;
+
+		/*
+			//longitudinal force (Fx):
 			shape = 2.2;
-			peak = 200.0*Fz;
+			peak = 500.0;
 			stiffness = 0.2*sqrt(Fz);
 
 			hshift = 0.0; //no shifting
@@ -261,7 +302,7 @@ void Wheel::Set_Contacts(dBodyID wbody, dBodyID obody, dReal ospring, dReal odam
 			MUx = peak*sin(shape*atan(stiffness*composite-curvature*(stiffness*composite-atan(stiffness*composite))))+vshift;
 			//(could place stiffness*cpomposite in temporary variable to reduce size of this line...)
 
-			//ok, something similar for lateral force (Fy) for now:
+			//lateral force (Fy):
 			shape = 1.6;
 			peak = 700.0;
 			stiffness = (1.0-inclination*0.001)*0.2*Fz;
@@ -274,13 +315,9 @@ void Wheel::Set_Contacts(dBodyID wbody, dBodyID obody, dReal ospring, dReal odam
 
 
 			MUy = peak*sin(shape*atan(stiffness*composite-curvature*(stiffness*composite-atan(stiffness*composite))))+vshift;
+			*/
 
 			//TODO: check if Fy friction is negative, and if so set to 0
-
-			//the returned Fy and Fz can get negative
-			//but ode keeps track of force directions, so make sure positive
-			MUx = fabs(MUx);
-			MUy = fabs(MUy);
 
 			//
 			//3) combined slip (scale Fx and Fy to combine)
