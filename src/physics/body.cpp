@@ -18,43 +18,43 @@
 #define v_length(x, y, z) (sqrt( (x)*(x) + (y)*(y) + (z)*(z) ))
 //functions for body drag
 
+void Body::Update_Mass()
+{
+	printlog(2, "storing body mass for drag calculations");
+
+	dMass dmass;
+
+	//TODO: use the body's inertia tensor instead...?
+	dBodyGetMass (body_id, &dmass);
+
+	mass = dmass.mass;
+}
+
 //NOTE: modifying specified drag to the current mass (rice-burning optimization, or actually good idea?)
 //(this way the body mass doesn't need to be requested and used in every calculation)
 void Body::Set_Linear_Drag (dReal drag)
 {
 	printlog(2, "setting body linear drag");
-	dMass mass;
-	dBodyGetMass (body_id, &mass);
 
-	linear_drag = drag/(mass.mass);
-	use_linear_drag = true;
+	linear_drag = drag;
 	use_advanced_linear_drag = false;
 }
 
 void Body::Set_Advanced_Linear_Drag (dReal drag_x, dReal drag_y, dReal drag_z)
 {
 	printlog(2, "setting body advanced linear drag");
-	dMass mass;
-	dBodyGetMass (body_id, &mass);
 
-	advanced_linear_drag[0] = drag_x/(mass.mass);
-	advanced_linear_drag[1] = drag_y/(mass.mass);
-	advanced_linear_drag[2] = drag_z/(mass.mass);
+	advanced_linear_drag[0] = drag_x;
+	advanced_linear_drag[1] = drag_y;
+	advanced_linear_drag[2] = drag_z;
 
 	use_advanced_linear_drag = true;
-	use_linear_drag = false;
 }
 
 void Body::Set_Angular_Drag (dReal drag)
 {
 	printlog(2, "setting body angular drag");
-	dMass mass;
-
-	//TODO: use the body's inertia tensor instead...?
-	dBodyGetMass (body_id, &mass);
-
-	angular_drag = drag/(mass.mass);
-	use_angular_drag = true;
+	angular_drag = drag;
 }
 
 
@@ -69,7 +69,7 @@ void Body::Linear_Drag (dReal step)
 	dReal total_vel = v_length(vel[0], vel[1], vel[2]);
 
 	//how much of original velocity is left after breaking by air/liquid drag
-	dReal remain = 1-(total_vel*(track.density)*(linear_drag)*(step));
+	dReal remain = 1-(total_vel*(track.density)*(linear_drag/mass)*(step));
 
 	if (remain < 0) //in case breaking is so extreme it will reverse movement, just change velocity to 0
 		remain = 0;
@@ -106,7 +106,7 @@ void Body::Advanced_Linear_Drag (dReal step)
 	for (i=0; i<3; ++i)
 	{
 		//how much of original velocity remains after drag?
-		remain = 1-(total_vel*(track.density)*(advanced_linear_drag[i])*(step));
+		remain = 1-(total_vel*(track.density)*(advanced_linear_drag[i]/mass)*(step));
 
 		//check so not going negative
 		if (remain < 0)
@@ -136,7 +136,7 @@ void Body::Angular_Drag (dReal step)
 	dReal total_vel = v_length(vel[0], vel[1], vel[2]);
 
 	//how much of original velocity is left after breaking by air/liquid drag
-	dReal remain = 1-(total_vel*(track.density)*(angular_drag)*(step));
+	dReal remain = 1-(total_vel*(track.density)*(angular_drag/mass)*(step));
 
 	if (remain < 0) //in case breaking is so extreme it will reverse movement, just change velocity to 0
 		remain = 0;
@@ -202,10 +202,11 @@ void Body::Physics_Step (dReal step)
 		//drag
 		if (d->use_advanced_linear_drag)
 			d->Advanced_Linear_Drag(step);
-		else if (d->use_linear_drag) //might have simple drag instead
+		else //simple drag instead
 			d->Linear_Drag(step);
-		if (d->use_angular_drag)
-			d->Angular_Drag(step);
+
+		//angular
+		d->Angular_Drag(step);
 
 		d = d->next;
 	}

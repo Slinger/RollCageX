@@ -31,6 +31,7 @@ class Body: public Component
 		~Body();
 
 		void Set_Event(dReal thresh, dReal buff, Script *scr);
+		void Update_Mass(); //must be called if change of mass
 		void Set_Linear_Drag(dReal drag);
 		void Set_Angular_Drag(dReal drag);
 		void Set_Advanced_Linear_Drag(dReal x, dReal y, dReal z);
@@ -58,10 +59,11 @@ class Body: public Component
 		friend void Graphic_List_Update(); //to allow loop through bodies
 
 		//data for drag (air+water friction)
-		//values for enabled/disabled drag
-		bool use_linear_drag, use_advanced_linear_drag;
-		bool use_angular_drag;
+		//instead of the simple spherical drag model, use a
+		//"squeezed/stretched" sphere?
+		bool use_advanced_linear_drag;
 		//drag values (must be adjusted to the body mass)
+		dReal mass; //used for drag
 		dReal linear_drag, advanced_linear_drag[3];
 		dReal angular_drag;
 
