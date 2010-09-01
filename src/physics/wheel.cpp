@@ -84,9 +84,6 @@ void Wheel::Set_Contacts(dBodyID wbody, dBodyID obody, Geom *ogeom, bool wheel_f
 	//calculation koefficients for tyre friction calculation
 	dReal peak, shape, K, peak_at, peak_sharpness, shift;
 
-	//todo: conf
-	dReal conf[7];
-
 	//variables for processing:
 	//for slip:
 	dVector3 pos; //contact point position
@@ -253,42 +250,29 @@ void Wheel::Set_Contacts(dBodyID wbody, dBodyID obody, Geom *ogeom, bool wheel_f
 		//2) compute output values:
 		//
 
-		//tmp!
-		conf[0] = 2000;
-		conf[1] = 1.5;
-		conf[2] = 0.1;
-		conf[3] = 0;
-		conf[4] = 20;
-		conf[5] = -0.4;
-		conf[6] = 0.0; //not used
-		//!tmp
-
-		peak = conf[0]; //*material_peak_scale
-		shape = conf[1];
+		//max mu value
+		peak = xpeak; //*material_peak_scale
+		//shape
+		shape = xshape;
+		//needed to get peak at right position, and used by peak_sharpness
 		K = tan( (M_PI/2)/shape );
-		peak_at = conf[2]*pow(Fz, conf[3]); //*material_peak_at_scale
-		peak_sharpness = (peak_at/K)*conf[4]*pow(Fz, conf[5]); //*material_sharpness_scale
+		//where should peak be reached
+		peak_at = xpos*pow(Fz, xposch); //*material_peak_at_scale
+		//how sharp peak should be
+		peak_sharpness = (peak_at/K)*xsharp*pow(Fz, xsharpch); //*material_sharpness_scale
 
+		//calculate!
 		MUx = peak*sin(shape*atan(K*pow((fabs(slip_ratio)/peak_at), peak_sharpness)));
 
-		//tmp!
-		conf[0] = 1500;
-		conf[1] = 1.5;
-		conf[2] = 13;
-		conf[3] = -0.2;
-		conf[4] = 0.05;
-		conf[5] = 0.6;
-		conf[6] = 0.02;
-		//!tmp
-
-		peak = conf[0]; //*material_peak_scale
-		shape = conf[1];
+		peak = ypeak; //*material_peak_scale
+		shape = yshape;
 		K = tan( (M_PI/2)/shape );
-		peak_at = conf[2]*pow(Fz, conf[3]); //*material_peak_at_scale
-		peak_sharpness = (peak_at/K)*conf[4]*pow(Fz, conf[5]); //*material_sharpness_scale
-		shift = conf[6]*inclination;
+		peak_at = ypos*pow(Fz, yposch); //*material_peak_at_scale
+		peak_sharpness = (peak_at/K)*ysharp*pow(Fz, ysharpch); //*material_sharpness_scale
+		shift = yshift*inclination;
 
-		//based on the turning angle (positive or negative), the shift might change sign
+		//based on the turning angle (positive or negative), the shift might change
+		//(wheel leaning inwards in curve gets better grip)
 		if (slip_angle > 0.0)
 			shift = -shift;
 

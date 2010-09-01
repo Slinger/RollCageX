@@ -31,6 +31,10 @@ struct Car_Conf
 	dReal body_mass, wheel_mass;
 	dReal suspension_spring, suspension_damping;
 	dReal rim_mu, rim_angle, tyre_spring, tyre_damping;
+
+	dReal xpeak, xshape, xpos[2], xsharp[2];
+	dReal ypeak, yshape, ypos[2], ysharp[2], yshift;
+
 	dReal body_mu;
 
 	dReal body_linear_drag[3], body_angular_drag, wheel_linear_drag, wheel_angular_drag;
@@ -54,6 +58,8 @@ const struct Car_Conf car_conf_defaults = {
 	6000, 500,
 	150000.0, 5000.0,
 	0.1, 45.0, 300000.0, 10000.0,
+	2000.0, 1.5, {0.1, 0.0}, {20.0, -0.4},
+	1500.0, 1.5, {13.0, -0.2}, {0.05, 0.6}, 0.02,
 	0.1,
 	{10,5,15}, 1, 4, 0.5,
 	{3.5,8.2,1},
@@ -88,9 +94,19 @@ const struct Conf_Index car_conf_index[] = {
 	{"rim_angle",		'R',1, offsetof(struct Car_Conf, rim_angle)},
 	{"rim_mu",		'R',1, offsetof(struct Car_Conf, rim_mu)},
 
-	//TODO: tyre friction
 	{"tyre_spring",		'R',1, offsetof(struct Car_Conf, tyre_spring)},
 	{"tyre_damping",	'R',1, offsetof(struct Car_Conf, tyre_damping)},
+
+	{"tyre.x:peak",		'R',1, offsetof(struct Car_Conf, xpeak)},
+	{"tyre.x:shape",	'R',1, offsetof(struct Car_Conf, xshape)},
+	{"tyre.x:position",	'R',2, offsetof(struct Car_Conf, xpos)},
+	{"tyre.x:sharpness",	'R',2, offsetof(struct Car_Conf, xsharp)},
+
+	{"tyre.y:peak",		'R',1, offsetof(struct Car_Conf, ypeak)},
+	{"tyre.y:shape",	'R',1, offsetof(struct Car_Conf, yshape)},
+	{"tyre.y:position",	'R',2, offsetof(struct Car_Conf, ypos)},
+	{"tyre.y:sharpness",	'R',2, offsetof(struct Car_Conf, ysharp)},
+	{"tyre.y:shift",	'R',1, offsetof(struct Car_Conf, yshift)},
 
 	{"body",		'R',3, offsetof(struct Car_Conf, body)},
 	{"body_mu",		'R',1, offsetof(struct Car_Conf, body_mu)},

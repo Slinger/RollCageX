@@ -30,7 +30,20 @@ class Wheel
 		Wheel();
 
 		//friction data:
-		//TODO!
+		dReal xpeak;
+		dReal xshape;
+		dReal xpos;
+		dReal xposch;
+		dReal xsharp;
+		dReal xsharpch;
+
+		dReal ypeak;
+		dReal yshape;
+		dReal ypos;
+		dReal yposch;
+		dReal ysharp;
+		dReal ysharpch;
+		dReal yshift;
 
 		//extra data:
 		dReal rim_angle;
