@@ -68,7 +68,7 @@ class Body: public Component
 		dReal angular_drag;
 
 		//event processing
-		bool buffer_event; //indicates body is correctly configured for buffer events
+		bool buffer_event; //buffer has just been depleted
 		dReal threshold; //if allocated forces exceeds, eat buffer
 		dReal buffer; //if buffer reaches zero, trigger event
 		Script *buffer_script; //execute on event
