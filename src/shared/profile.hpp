@@ -26,7 +26,6 @@ struct Profile {
 
 	//settings (loaded from conf)
 	dReal steer_speed;
-	dReal steer_max;
 	dReal throttle_speed;
 
 	//keys (loaded from keys.lst)
@@ -51,10 +50,9 @@ extern Profile *profile_head;
 
 const Profile profile_defaults = {
 	NULL, //car
-	//steering
-	0.2,
-	30.0,
-	1.0,
+	//steering throttling speed
+	0.01,
+	0.01,
 	//control
 	SDLK_UP,
 	SDLK_DOWN,
@@ -128,7 +126,6 @@ const Profile profile_defaults = {
 
 const struct Conf_Index profile_index[] = {
 	{"steer_speed",			'R' ,1 ,offsetof(Profile, steer_speed)},
-	{"steer_max",			'R' ,1 ,offsetof(Profile, steer_max)},
 	{"throttle_speed",		'R' ,1 ,offsetof(Profile, throttle_speed)},
 
 	{"camera_default",   	   	'i' ,1 ,offsetof(Profile, camera)},

@@ -67,24 +67,23 @@ void Profile_Events_Step(Uint32 step)
 				    carp->throttle += t_speed;
 			}
 
-			t_speed = prof->steer_speed*(M_PI/180.0)*step;
-			dReal max = prof->steer_max*(M_PI/180.0);
+			t_speed = prof->steer_speed*step;
 			if (keys[prof->left]&&!keys[prof->right])
 			{
 				carp->steering -= t_speed;
-				if (carp->steering < -max)
-					carp->steering = -max;
+				if (carp->steering < -1.0)
+					carp->steering = -1.0;
 			}
 			else if (!keys[prof->left]&&keys[prof->right])
 			{
 				carp->steering += t_speed;
-				if (carp->steering > max)
-					carp->steering = max;
+				if (carp->steering > 1.0)
+					carp->steering = 1.0;
 			}
 			else //center
 			{
-				if (carp->steering <= t_speed &&
-				    carp->steering >= -(t_speed))
+				//can center in this step
+				if (fabs(carp->steering) <= fabs(t_speed))
 					carp->steering = 0.0;
 
 				else if (carp->steering > 0.0)

@@ -58,7 +58,8 @@ void Car::Physics_Step(dReal step)
 		dReal L2 = (carp->wy*2.0)*(carp->dsteer-1.0);
 
 		//turning radius (done by _assuming_ turning only with front wheels - but works for all situations)
-		dReal R = (carp->wy*2.0)/tan(carp->steering*carp->dir);
+		dReal maxsteer = carp->max_steer*(M_PI/180.0);
+		dReal R = (carp->wy*2.0)/tan(maxsteer*carp->steering*carp->dir);
 
 		if (carp->smart_steer)
 		{
