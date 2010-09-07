@@ -278,6 +278,12 @@ void Wheel::Set_Contacts(dBodyID wbody, dBodyID obody, Geom *ogeom, bool wheel_f
 
 		MUy = peak*sin(shape*atan(K*pow((fabs(slip_angle)/peak_at), peak_sharpness))) + shift;
 
+		//just checking until sure not crashes occurs (might help debugging)
+		if (isnan(MUx))
+			printf("MUx is not a number!\n");
+		if (isnan(MUy))
+			printf("MUy is not a number!\n");
+
 		//MUx and MUy might get negative in the calculations, which means no friction so
 		//set to 0
 		if (MUx < 0.0)
