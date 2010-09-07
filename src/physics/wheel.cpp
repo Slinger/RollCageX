@@ -20,15 +20,10 @@
 //I'm probably not using all correct variable names, and I might have made some typo
 //somewhere. There are also a lot of features that could/should be implemented:
 //
-//	* antispin - will be necessary (to make the cars even able to move)
-//			we calculate the wheel slip here, then send to physics/car.cpp?
-//
 //	* force feedback - can be calculated here, but sdl lack force feedback right now
 //				(supports gamepads, but not ff specific)
 //
 //	* rolling resistance - would help with realism and makes sence to implement here
-//
-//	* surface friction - different surfaces should give different mu and mu2
 //
 //	* the improved wheel friction might make it necessary to improve the suspension
 //		(toe, caster, camber, etc...)
@@ -323,7 +318,6 @@ void Wheel::Set_Contacts(dBodyID wbody, dBodyID obody, Geom *ogeom, bool wheel_f
 #if 1
 		//let ode calculate friction from internal Fz
 		//(these mu values use kN, not N, so divide by k)
-		//printf("%f %f\n", MUx, MUy);
 		contact[i].surface.mu = MUx/1000.0;
 		contact[i].surface.mu2 = MUy/1000.0;
 #else
