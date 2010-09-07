@@ -180,6 +180,9 @@ Car_Template *Car_Template::Load (const char *path)
 	target->wheel.rim_angle = target->conf.rim_angle;
 	target->wheel.spring = target->conf.tyre_spring;
 	target->wheel.damping = target->conf.tyre_damping;
+	//cylinder moment of inertia tensor for Z = (mass*r²)/2
+	target->wheel.inertia = target->conf.wheel_mass*target->conf.w[0]*target->conf.w[0]/2.0; 
+	target->wheel.resistance = target->conf.rollres;
 
 	//(just copy data from conf to class)
 	target->wheel.xpeak = target->conf.xpeak;
@@ -253,6 +256,9 @@ Car *Car_Template::Spawn (dReal x, dReal y, dReal z,  Trimesh_3D *tyre, Trimesh_
 
 	//begin copying of needed configuration data
 	Car *car = new Car();
+
+	car->wheel = &wheel;
+
 	car->max_torque = conf.max_torque;
 	car->gear_tweak = conf.gear_tweak;
 	car->max_break = conf.max_break;
@@ -383,10 +389,6 @@ Car *Car_Template::Spawn (dReal x, dReal y, dReal z,  Trimesh_3D *tyre, Trimesh_
 	//3=z axis of cylinder
 	dMassSetCylinder (&m, 1, 3, conf.w[0], conf.w[1]);
 	dMassAdjust (&m, conf.wheel_mass);
-
-	//will need the inertia tensor for rotation around Z
-	//(needed for properly simulating breaks)
-	car->wheel_inertia = m.I[10];
 
 	for (i=0;i<4;++i)
 	{

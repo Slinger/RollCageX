@@ -30,7 +30,7 @@ struct Car_Conf
 	dReal max_torque, gear_tweak, max_break;
 	dReal body_mass, wheel_mass;
 	dReal suspension_spring, suspension_damping;
-	dReal rim_mu, rim_angle, tyre_spring, tyre_damping;
+	dReal rim_mu, rim_angle, rollres, tyre_spring, tyre_damping;
 
 	dReal xpeak, xshape, xpos[2], xsharp[2];
 	dReal ypeak, yshape, ypos[2], ysharp[2], yshift;
@@ -58,7 +58,7 @@ const struct Car_Conf car_conf_defaults = {
 	800000, 1.0, 60000,
 	6000, 500,
 	150000.0, 5000.0,
-	0.1, 45.0, 300000.0, 10000.0,
+	0.1, 45.0, 20, 300000.0, 10000.0,
 	2000.0, 1.5, {0.1, 0.0}, {20.0, -0.4},
 	1500.0, 1.5, {13.0, -0.2}, {0.05, 0.6}, 0.02,
 	0.1,
@@ -96,6 +96,8 @@ const struct Conf_Index car_conf_index[] = {
 
 	{"rim_angle",		'R',1, offsetof(struct Car_Conf, rim_angle)},
 	{"rim_mu",		'R',1, offsetof(struct Car_Conf, rim_mu)},
+
+	{"rolling_resistance",	'R',1, offsetof(struct Car_Conf, rollres)},
 
 	{"tyre_spring",		'R',1, offsetof(struct Car_Conf, tyre_spring)},
 	{"tyre_damping",	'R',1, offsetof(struct Car_Conf, tyre_damping)},
@@ -205,6 +207,7 @@ class Car:public Object
 		dJointID joint[4];
 
 		Geom *wheel_geom_data[4];
+		Wheel *wheel; //wheel data
 
 		//flipover sensors
 		Geom *sensor1, *sensor2;
@@ -213,9 +216,6 @@ class Car:public Object
 
 		//tmp: wheel position...
 		dReal wx, wy;
-		//and moment of inertia tensor for Z
-		dReal wheel_inertia;
-
 
 		//appart from the object list, keep a list of all cars
 		static Car *head;

@@ -23,8 +23,6 @@
 //	* force feedback - can be calculated here, but sdl lack force feedback right now
 //				(supports gamepads, but not ff specific)
 //
-//	* rolling resistance - would help with realism and makes sence to implement here
-//
 //	* the improved wheel friction might make it necessary to improve the suspension
 //		(toe, caster, camber, etc...)
 //
@@ -98,6 +96,13 @@ void Wheel::Set_Contacts(dBodyID wbody, dBodyID obody, Geom *ogeom, bool wheel_f
 	//calculate erp+cfm from stepsize, spring and damping values:
 	dReal erp = (stepsize*cspring)/(stepsize*cspring +cdamping);
 	dReal cfm = 1.0/(stepsize*cspring +cdamping);
+	//
+
+	//rolling resistance:
+	dReal torque;
+	const dReal *wrot, *orot;
+	dReal rotation;
+	dReal needed;
 	//
 
 	//all of these values are input values, Fx and Fy, but not Fz!, are the output (used as mu1 and mu2)
@@ -326,6 +331,44 @@ void Wheel::Set_Contacts(dBodyID wbody, dBodyID obody, Geom *ogeom, bool wheel_f
 		contact[i].surface.mu = MUx*Fz;
 		contact[i].surface.mu2 = MUy*Fz;
 #endif
+
+		//rolling resistance (breaking torque based on normal force)
+		//some simplifications:
+		//*rolling speed is ignored (doesn't make much difference)
+		//*compression of tyre is also ignored (assumed to be small enough)
+		torque = Fz*resistance; //breaking torque
+
+		//rotation inertia (relative to ground if got body)
+		if (obody)
+		{
+			orot = dBodyGetAngularVel(obody);
+			wrot = dBodyGetAngularVel(wbody);
+			rotation = rot[2]*(wrot[0]-orot[0])+
+				rot[6]*(wrot[1]-orot[1])+
+				rot[10]*(wrot[2]-orot[2]);
+		}
+		else //just rotation of wheel
+		{
+			wrot = dBodyGetAngularVel(wbody);
+			rotation = rot[2]*wrot[0]+
+				rot[6]*wrot[1]+
+				rot[10]*wrot[2];
+		}
+		needed = -rotation*inertia/stepsize;
+
+		//same (negative/positive?) direction for torque
+		if (needed < 0.0)
+			torque = -torque;
+
+		//can break in this step
+		if (torque/needed > 1.0) //torque bigger than needed
+			torque = needed; //decrease torque to needed
+
+		dBodyAddRelTorque(wbody, 0.0, 0.0, torque);
+
+		//TODO: if the ground has a body, add this force on it too:
+		//if (obody)
+			//dBodyAdd
 	}
 }
 

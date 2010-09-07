@@ -113,7 +113,7 @@ void Car::Physics_Step(dReal step)
 			//front wheels use front breaks, rear wheels use rear breaks
 			dReal kbreak[4] = {kfbreak, krbreak, krbreak, kfbreak};
 			dReal gt = carp->gear_tweak;
-			dReal wt = carp->wheel_inertia;
+			dReal wt = carp->wheel->inertia;
 
 			//values to calculate:
 			dReal r[4] = {0,0,0,0}; //turning radius of each wheel

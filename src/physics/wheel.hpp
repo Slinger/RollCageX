@@ -48,8 +48,11 @@ class Wheel
 		//extra data:
 		dReal rim_angle;
 		dReal spring, damping;
+		dReal inertia;
+		dReal resistance;
 
-		//only car template (wheen loading) is allowed
+		//only car and car template (wheen loading) is allowed
+		friend class Car;
 		friend class Car_Template;
 };
 
