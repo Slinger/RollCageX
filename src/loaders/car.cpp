@@ -183,6 +183,7 @@ Car_Template *Car_Template::Load (const char *path)
 	//cylinder moment of inertia tensor for Z = (mass*r²)/2
 	target->wheel.inertia = target->conf.wheel_mass*target->conf.w[0]*target->conf.w[0]/2.0; 
 	target->wheel.resistance = target->conf.rollres;
+	target->wheel.radius = target->conf.w[0];
 
 	//(just copy data from conf to class)
 	target->wheel.xpeak = target->conf.xpeak;

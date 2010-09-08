@@ -91,6 +91,11 @@ void Car::Physics_Step(dReal step)
 		dJointSetHinge2Param (carp->joint[3],dParamHiStop,A[3]);
 		//
 
+		//rotation speed of wheels (might be used later on)
+		dReal rotv[4];
+		for (i=0; i<4; ++i)
+			rotv[i] = dJointGetHinge2Angle2Rate (carp->joint[i]);
+
 		//breaking/accelerating:
 		if (carp->drift_breaks) //breaks (lock rear wheels)
 		{
@@ -184,16 +189,14 @@ void Car::Physics_Step(dReal step)
 				//wheel rotation speed
 				for (i=0; i<4; ++i)
 				{
-					dReal rotation = dJointGetHinge2Angle2Rate (carp->joint[i]);
-
 					//set rotation to absolute
-					w[i] = fabs(rotation);
+					w[i] = fabs(rotv[i]);
 
 					//if rotating in the oposite way of wanted, use breaks
-					if (rotation*ktorque < 0.0) //(different signs makes negative)
+					if (rotv[i]*ktorque < 0.0) //(different signs makes negative)
 					{
 						//this much force (in this direction) is needed to break wheel
-						dReal force = -rotation*wt/step;
+						dReal force = -rotv[i]*wt/step;
 
 						//ok, lets see if we got enough break power to come to halt:
 						if ( force/kbreak[i] < 1.0) //force is smaller than breaking force
@@ -255,23 +258,21 @@ void Car::Physics_Step(dReal step)
 				//wheel rotation speed
 				for (i=0; i<4; ++i)
 				{
-					dReal rotation = dJointGetHinge2Angle2Rate (carp->joint[i]);
-
-					if (rotation*ktorque < 0.0)
+					if (rotv[i]*ktorque < 0.0)
 					{
-						dReal force = -rotation*wt/step;
+						dReal force = -rotv[i]*wt/step;
 
 						//comes to halt, can accelerate
 						if (force/kbreak[i] < 1.0)
 						{
 							b[i] = force;
-							t[i] = torque[i]/(gt+fabs(rotation));;
+							t[i] = torque[i]/(gt+fabs(rotv[i]));;
 						}
 						else
 							b[i] = kbreak[i];
 					}
 					else
-						t[i] = torque[i]/(gt+fabs(rotation));
+						t[i] = torque[i]/(gt+fabs(rotv[i]));
 				}
 
 			}
@@ -286,9 +287,8 @@ void Car::Physics_Step(dReal step)
 		//
 
 		//save car velocity
-		const dReal *vel = dBodyGetLinearVel (carp->bodyid);
-		const dReal *rot = dBodyGetRotation  (carp->bodyid);
-		carp->velocity = (rot[1]*vel[0] + rot[5]*vel[1] + rot[9]*vel[2]);
+		//(calculated from the avarage wheel rotation)
+		carp->velocity = carp->dir*carp->wheel->radius*(rotv[0]+rotv[1]+rotv[2]+rotv[3])/4;
 
 		//done, next car...
 		carp=carp->next;

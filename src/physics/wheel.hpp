@@ -50,6 +50,7 @@ class Wheel
 		dReal spring, damping;
 		dReal inertia;
 		dReal resistance;
+		dReal radius;
 
 		//only car and car template (wheen loading) is allowed
 		friend class Car;
