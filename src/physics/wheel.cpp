@@ -365,10 +365,8 @@ void Wheel::Set_Contacts(dBodyID wbody, dBodyID obody, Geom *ogeom, bool wheel_f
 			torque = needed; //decrease torque to needed
 
 		dBodyAddRelTorque(wbody, 0.0, 0.0, torque);
-
-		//TODO: if the ground has a body, add this force on it too:
-		//if (obody)
-			//dBodyAdd
+		//TODO: if the ground has a body, perhaps the torque should affect it too?
+		//(seems not to be the case, but I might be wrong)
 	}
 }
 
