@@ -198,6 +198,7 @@ Car_Template *Car_Template::Load (const char *path)
 	target->wheel.yposch= target->conf.ypos[1];
 	target->wheel.ysharp = target->conf.ysharp[0];
 	target->wheel.ysharpch = target->conf.ysharp[1];
+	target->wheel.yshift = target->conf.yshift;
 
 	//make sure the values are correct
 	//steering distribution

@@ -151,14 +151,12 @@ void Wheel::Set_Contacts(dBodyID wbody, dBodyID obody, Geom *ogeom, bool wheel_f
 
 		//first get angle between current Y and Z
 		dReal tmp = VDot (Z, Y);
-		inclination = (180.0/M_PI)*acos(tmp);
-		//inclination is 0-180 between axis and normal...
-		//we want -90-90 between wheel up and normal...
-		inclination -= 90.0;
+		inclination = (180.0/M_PI)*asin(tmp);
 
 		//rim (outside range for tyre)
 		//(rim mu calculated as the already defaults, btw)
-		if (fabs(inclination) > rim_angle)
+		//if tmp is just a little bit too big (>1.0 or <-1.0), it'll also be rim
+		if (isnan(inclination) || fabs(inclination) > rim_angle)
 			continue; //don't modify default values, skip this
 
 
@@ -264,6 +262,10 @@ void Wheel::Set_Contacts(dBodyID wbody, dBodyID obody, Geom *ogeom, bool wheel_f
 		//calculate!
 		MUx = peak*sin(shape*atan(K*pow((fabs(slip_ratio)/peak_at), peak_sharpness)));
 
+		//tmp
+		if (isnan(MUx))
+			printf("x %f %f %f %f %f\n", peak, shape, K, peak_at, peak_sharpness);
+
 		peak = ypeak; //*material_peak_scale
 		shape = yshape;
 		K = tan( (M_PI/2)/shape );
@@ -273,16 +275,14 @@ void Wheel::Set_Contacts(dBodyID wbody, dBodyID obody, Geom *ogeom, bool wheel_f
 
 		//based on the turning angle (positive or negative), the shift might change
 		//(wheel leaning inwards in curve gets better grip)
-		if (slip_angle > 0.0)
+		if (slip_angle < 0.0)
 			shift = -shift;
 
 		MUy = peak*sin(shape*atan(K*pow((fabs(slip_angle)/peak_at), peak_sharpness))) + shift;
 
-		//just checking until sure not crashes occurs (might help debugging)
-		if (isnan(MUx))
-			printf("MUx is not a number!\n");
+		//tmp
 		if (isnan(MUy))
-			printf("MUy is not a number!\n");
+			printf("y %f %f %f %f %f %f\n", peak, shape, K, peak_at, peak_sharpness, shift);
 
 		//MUx and MUy might get negative in the calculations, which means no friction so
 		//set to 0
