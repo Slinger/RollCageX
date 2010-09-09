@@ -42,9 +42,10 @@ struct Car_Conf
 	dReal body[3];
 
 	//values for moving steering/breaking/turning between front/rear wheels
-	float dsteer, dbreak;
+	dReal dsteer, dbreak;
 	bool drive[2];
-	float max_steer;
+	dReal max_steer;
+	dReal steer_decrease;
 	bool smartsteer, smartdrive;
 
 	Conf_String model; //filename+path for model
@@ -67,6 +68,7 @@ const struct Car_Conf car_conf_defaults = {
 	1.0, 0.5,
 	{false, true},
 	40.0,
+	0.01,
 	true, true,
 	"",
 	1, {0,0,0}, {0,0,0},
@@ -79,10 +81,11 @@ const struct Conf_Index car_conf_index[] = {
 	{"body_mass",		'R',1, offsetof(struct Car_Conf, body_mass)},
 	{"wheel_mass",		'R',1, offsetof(struct Car_Conf, wheel_mass)},
 
-	{"steer_distribution",	'f',1, offsetof(struct Car_Conf, dsteer)},
-	{"break_distribution",	'f',1, offsetof(struct Car_Conf, dbreak)},
+	{"steer_distribution",	'R',1, offsetof(struct Car_Conf, dsteer)},
+	{"break_distribution",	'R',1, offsetof(struct Car_Conf, dbreak)},
 	{"front-rear_drive",	'b',2, offsetof(struct Car_Conf, drive)},
-	{"max_steer",		'f',1, offsetof(struct Car_Conf, max_steer)},
+	{"max_steer",		'R',1, offsetof(struct Car_Conf, max_steer)},
+	{"steer_decrease",	'R',1, offsetof(struct Car_Conf, steer_decrease)},
 	{"smart_steering",	'b',1, offsetof(struct Car_Conf, smartsteer)},
 	{"smart_driving",	'b',1, offsetof(struct Car_Conf, smartdrive)},
 
@@ -198,6 +201,7 @@ class Car:public Object
 		//configuration data (copied from Car_Template)
 		dReal max_torque, gear_tweak, max_break, max_steer;
 
+		dReal steerdecr;
 		dReal dsteer, dbreak;
 		bool fwd, rwd;
 		bool smart_steer, smart_drive;
