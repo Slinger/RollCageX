@@ -223,8 +223,8 @@ void Car::Physics_Step(dReal step)
 					}
 				}
 
-				//any of the wheels must have a turning radius?
-				if (r[0] != 0 || r[1] != 0 || r[2] != 0 || r[3] != 0)
+				//must be accelerating and any of the wheels must have a turning radius
+				if (ktorque != 0 && (r[0] != 0 || r[1] != 0 || r[2] != 0 || r[3] != 0) )
 				{
 					//this to calculate distribution of motor torque over wheels:
 					//"torque koefficient"
