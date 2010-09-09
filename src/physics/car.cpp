@@ -106,6 +106,7 @@ void Car::Physics_Step(dReal step)
 		for (i=0; i<4; ++i)
 			rotv[i] = dJointGetHinge2Angle2Rate (carp->joint[i]);
 
+
 		//breaking/accelerating:
 		if (carp->drift_breaks) //breaks (lock rear wheels)
 		{
@@ -121,7 +122,8 @@ void Car::Physics_Step(dReal step)
 			dJointSetHinge2Param (carp->joint[2],dParamFMax2,0);
 
 			//will be needed:
-			dReal ktorque = carp->dir*carp->max_torque*carp->throttle;
+			dReal ktorque = carp->dir*carp->motor_power*carp->throttle;
+
 			//(rear and front break: "half of ratio of max by throttle")
 			dReal kfbreak = carp->dir*carp->max_break*0.5*carp->dbreak*carp->throttle;
 			dReal krbreak = carp->dir*carp->max_break*0.5*(1.0-carp->dbreak)*carp->throttle;
@@ -132,9 +134,7 @@ void Car::Physics_Step(dReal step)
 
 			//values to calculate:
 			dReal r[4] = {0,0,0,0}; //turning radius of each wheel
-			dReal w[4] = {0,0,0,0}; //rotation of each wheel
 			dReal t[4] = {0,0,0,0}; //torque on each wheel
-			dReal b[4] = {0,0,0,0}; //wheel breaks
 
 			if (carp->smart_drive)
 			{
@@ -199,9 +199,6 @@ void Car::Physics_Step(dReal step)
 				//wheel rotation speed
 				for (i=0; i<4; ++i)
 				{
-					//set rotation to absolute
-					w[i] = fabs(rotv[i]);
-
 					//if rotating in the oposite way of wanted, use breaks
 					if (rotv[i]*ktorque < 0.0) //(different signs makes negative)
 					{
@@ -212,17 +209,16 @@ void Car::Physics_Step(dReal step)
 						if ( force/kbreak[i] < 1.0) //force is smaller than breaking force
 						{
 							//break as much as needed...
-							b[i] = force;
+							t[i] = force;
 							//...and apply torque (if got motor)
 						}
 						else
 						{
+							//and break as much as possible
+							t[i] = kbreak[i];
+
 							//0 -> disabled motor on this one
 							r[i] = 0;
-							w[i] = 0;
-
-							//and break as much as possible
-							b[i] = kbreak[i];
 						}
 					}
 				}
@@ -232,12 +228,15 @@ void Car::Physics_Step(dReal step)
 				{
 					//this to calculate distribution of motor torque over wheels:
 					//"torque koefficient"
-					dReal K = ktorque/(r[0]*(gt+w[0]) +r[1]*(gt+w[1]) +r[2]*(gt+w[2]) +r[3]*(gt+w[2]));
+					dReal K = ktorque/(	 r[0]*(pow(fabs(rotv[0]), -gt))
+								+r[1]*(pow(fabs(rotv[1]), -gt))
+								+r[2]*(pow(fabs(rotv[2]), -gt))
+								+r[3]*(pow(fabs(rotv[3]), -gt)) );
 
-					t[0] = r[0]*K;
-					t[1] = r[1]*K;
-					t[2] = r[2]*K;
-					t[3] = r[3]*K;
+					t[0] += r[0]*K;
+					t[1] += r[1]*K;
+					t[2] += r[2]*K;
+					t[3] += r[3]*K;
 				}
 				//(if not, it means all wheels are breaking or something, and we don't set any torque)
 			}
@@ -275,24 +274,27 @@ void Car::Physics_Step(dReal step)
 						//comes to halt, can accelerate
 						if (force/kbreak[i] < 1.0)
 						{
-							b[i] = force;
-							t[i] = torque[i]/(gt+fabs(rotv[i]));;
+							t[i] = force+torque[i]/(pow(fabs(rotv[i]), gt));;
 						}
 						else
-							b[i] = kbreak[i];
+							t[i] = kbreak[i];
 					}
 					else
-						t[i] = torque[i]/(gt+fabs(rotv[i]));
+						t[i] = torque[i]/(pow(fabs(rotv[i]), gt));
 				}
 
 			}
 
 			//apply torques:
+			for (i=0; i<4;++i)
+				if (t[i] > carp->max_torque)
+					t[i] = carp->max_torque;
+
 			//(sum torque and break variables - one of them is always zero)
-			dJointAddHinge2Torques (carp->joint[0],0, (t[0] + b[0]));
-			dJointAddHinge2Torques (carp->joint[1],0, (t[1] + b[1]));
-			dJointAddHinge2Torques (carp->joint[2],0, (t[2] + b[2]));
-			dJointAddHinge2Torques (carp->joint[3],0, (t[3] + b[3]));
+			dJointAddHinge2Torques (carp->joint[0],0, t[0]);
+			dJointAddHinge2Torques (carp->joint[1],0, t[1]);
+			dJointAddHinge2Torques (carp->joint[2],0, t[2]);
+			dJointAddHinge2Torques (carp->joint[3],0, t[3]);
 		}
 		//
 
