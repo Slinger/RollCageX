@@ -287,8 +287,13 @@ void Car::Physics_Step(dReal step)
 
 			//apply torques:
 			for (i=0; i<4;++i)
+			{
 				if (t[i] > carp->max_torque)
 					t[i] = carp->max_torque;
+				else if (t[i] < -carp->max_torque)
+					t[i] = -carp->max_torque;
+			}
+
 
 			//(sum torque and break variables - one of them is always zero)
 			dJointAddHinge2Torques (carp->joint[0],0, t[0]);
