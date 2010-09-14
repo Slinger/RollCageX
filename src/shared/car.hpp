@@ -70,7 +70,7 @@ const struct Car_Conf car_conf_defaults = {
 	1.0, 0.5,
 	{false, true},
 	40.0,
-	0.01,
+	0.4,
 	true, true,
 	"",
 	1, {0,0,0}, {0,0,0},

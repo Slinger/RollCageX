@@ -49,8 +49,17 @@ void Car::Physics_Step(dReal step)
 //			dBodyAddRelForce (carp->bodyid,0,0, carp->dir*100);
 		}
 
-		//calculate turning:
+		//rotation speed of wheels
+		dReal rotv[4];
+		for (i=0; i<4; ++i)
+			rotv[i] = dJointGetHinge2Angle2Rate (carp->joint[i]);
 
+		//save car velocity
+		//(calculated from the avarage wheel rotation)
+		carp->velocity = carp->dir*carp->wheel->radius*(rotv[0]+rotv[1]+rotv[2]+rotv[3])/4;
+
+
+		//calculate turning:
 		dReal A[4];
 
 		//length from turning axis to front and rear wheels
@@ -61,8 +70,7 @@ void Car::Physics_Step(dReal step)
 		dReal maxsteer = carp->max_steer*(M_PI/180.0); //can steer more than this
 
 		//should not steer more than this (-turning radius = v²*conf- and then calculated into turning angle)
-		dReal velocity = fabs(carp->velocity);
-		dReal limitsteer = atan( (carp->wy*2.0) /(velocity*velocity *carp->steerdecr) );
+		dReal limitsteer = atan( (carp->wy*2.0) /(carp->steerdecr * fabs(carp->velocity)) );
 
 		//if limit is within what the actual turning can handle, use the limited as the max:
 		if (limitsteer < maxsteer)
@@ -100,11 +108,6 @@ void Car::Physics_Step(dReal step)
 		dJointSetHinge2Param (carp->joint[3],dParamLoStop,A[3]);
 		dJointSetHinge2Param (carp->joint[3],dParamHiStop,A[3]);
 		//
-
-		//rotation speed of wheels (might be used later on)
-		dReal rotv[4];
-		for (i=0; i<4; ++i)
-			rotv[i] = dJointGetHinge2Angle2Rate (carp->joint[i]);
 
 
 		//breaking/accelerating:
@@ -302,10 +305,6 @@ void Car::Physics_Step(dReal step)
 			dJointAddHinge2Torques (carp->joint[3],0, t[3]);
 		}
 		//
-
-		//save car velocity
-		//(calculated from the avarage wheel rotation)
-		carp->velocity = carp->dir*carp->wheel->radius*(rotv[0]+rotv[1]+rotv[2]+rotv[3])/4;
 
 		//done, next car...
 		carp=carp->next;
