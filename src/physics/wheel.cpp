@@ -262,10 +262,6 @@ void Wheel::Set_Contacts(dBodyID wbody, dBodyID obody, Geom *ogeom, bool wheel_f
 		//calculate!
 		MUx = peak*sin(shape*atan(K*pow((fabs(slip_ratio)/peak_at), peak_sharpness)));
 
-		//tmp
-		if (isnan(MUx))
-			printf("x %f %f %f %f %f\n", peak, shape, K, peak_at, peak_sharpness);
-
 		peak = ypeak; //*material_peak_scale
 		shape = yshape;
 		K = tan( (M_PI/2)/shape );
@@ -279,10 +275,6 @@ void Wheel::Set_Contacts(dBodyID wbody, dBodyID obody, Geom *ogeom, bool wheel_f
 			shift = -shift;
 
 		MUy = peak*sin(shape*atan(K*pow((fabs(slip_angle)/peak_at), peak_sharpness))) + shift;
-
-		//tmp
-		if (isnan(MUy))
-			printf("y %f %f %f %f %f %f\n", peak, shape, K, peak_at, peak_sharpness, shift);
 
 		//MUx and MUy might get negative in the calculations, which means no friction so
 		//set to 0
@@ -316,21 +308,14 @@ void Wheel::Set_Contacts(dBodyID wbody, dBodyID obody, Geom *ogeom, bool wheel_f
 		contact[i].surface.soft_erp = erp;
 		contact[i].surface.soft_cfm = cfm;
 
-		//mu1 and mu2
+		//specify mu1 and mu2
 
-		//two different versions:
-		//(1=first alternative, 0=second alternative:)
-#if 1
 		//let ode calculate friction from internal Fz
 		//(these mu values use kN, not N, so divide by k)
 		contact[i].surface.mu = MUx/1000.0;
 		contact[i].surface.mu2 = MUy/1000.0;
-#else
-		//calculate force using our Fz
-		contact[i].surface.mode &= ~dContactApprox1; //remove Approx1
-		contact[i].surface.mu = MUx*Fz;
-		contact[i].surface.mu2 = MUy*Fz;
-#endif
+
+
 
 		//rolling resistance (breaking torque based on normal force)
 		//some simplifications:
