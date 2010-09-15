@@ -77,7 +77,7 @@ void Run_Race(void)
 #include "loaders/text_file.hpp"
 
 //instead of menus...
-//try to load "data/tmp menu selections" for menu simulation
+//try to load "tmp menu selections" for menu simulation
 //what we do is try to open this file, and then try to find menu selections in it
 //note: if selections are not found, will still fall back on safe defaults
 bool tmp_menus()
@@ -88,10 +88,10 @@ bool tmp_menus()
 
 	std::string sprofile, sworld, strack, steam, scar, sdiameter, styre, srim; //easy text manipulation...
 	Text_File file; //for parsing
-	file.Open("data/tmp menu selections"); //just assume it opens...
+	file.Open("tmp menu selections"); //just assume it opens...
 
 	//MENU: welcome to rcx, please select profile or create a new profile
-	sprofile = "data/profiles/";
+	sprofile = "profiles/";
 	if (file.Read_Line() && file.word_count == 2 && !strcmp(file.words[0], "profile"))
 		sprofile += file.words[1];
 	else
@@ -114,7 +114,7 @@ bool tmp_menus()
 	//MENU: select race type...
 
 	//MENU: select world
-	sworld = "data/worlds/";
+	sworld = "worlds/";
 	if (file.Read_Line() && file.word_count == 2 && !strcmp(file.words[0], "world"))
 		sworld+=file.words[1];
 	else
@@ -133,10 +133,10 @@ bool tmp_menus()
 		return false; //GOTO: track selection menu
 
 	//TMP: load some objects for online spawning
-	if (	!(box = Object_Template::Load("data/objects/misc/box"))		||
-		!(sphere = Object_Template::Load("data/objects/misc/beachball"))||
-		!(funbox = Object_Template::Load("data/objects/misc/funbox"))	||
-		!(molecule = Object_Template::Load("data/objects/misc/NH4"))	)
+	if (	!(box = Object_Template::Load("objects/misc/box"))		||
+		!(sphere = Object_Template::Load("objects/misc/beachball"))||
+		!(funbox = Object_Template::Load("objects/misc/funbox"))	||
+		!(molecule = Object_Template::Load("objects/misc/NH4"))	)
 		return false;
 	//
 
@@ -157,7 +157,7 @@ bool tmp_menus()
 			{
 				//no, load some defaults...
 				if (!car_template)
-					car_template = Car_Template::Load("data/teams/Nemesis/cars/Venom");
+					car_template = Car_Template::Load("teams/Nemesis/cars/Venom");
 
 				//if above failed
 				if (!car_template)
@@ -165,9 +165,9 @@ bool tmp_menus()
 
 				//try to load tyre and rim (if possible)
 				if (!tyre)
-					tyre = Trimesh_3D::Quick_Load_Conf("data/worlds/Sandbox/tyres/diameter/2/Slick", "tyre.conf");
+					tyre = Trimesh_3D::Quick_Load_Conf("worlds/Sandbox/tyres/diameter/2/Slick", "tyre.conf");
 				if (!rim)
-					rim = Trimesh_3D::Quick_Load_Conf("data/teams/Nemesis/rims/diameter/2/Split", "rim.conf");
+					rim = Trimesh_3D::Quick_Load_Conf("teams/Nemesis/rims/diameter/2/Split", "rim.conf");
 				//good, spawn
 				car = car_template->Spawn(
 					track.start[0], //x
@@ -183,7 +183,7 @@ bool tmp_menus()
 		//team selected in menu
 		if (file.word_count == 2 && !strcmp(file.words[0], "team"))
 		{
-			steam = "data/teams/";
+			steam = "teams/";
 			steam += file.words[1];
 		}
 		//car selected in menu
@@ -307,21 +307,65 @@ int main (int argc, char *argv[])
 	printf("\n     -=[ Hello, and welcome to RollCageX version %s ]=-\n\n%s\n", VERSION, ISSUE);
 	//end
 
-	if (argc != 1)
-		printf("(Passing arguments - not supported)\n\n");
 
-	//check if program was called with another pwd (got '/' in "name")
-	if (char *s = strrchr(argv[0], '/'))
+	//path specified as first arg
+	//TODO: use getopt?
+	bool cd_ok=false;
+	if (argc != 1)
 	{
-		*s='\0'; //modify string to end at last slash
-		printf("(changing pwd: %s)\n", argv[0]);
-		chdir (argv[0]);
+		//stack memory instead of allocating
+		char datadir[sizeof(char)*strlen(argv[1])];
+		strcpy(datadir, argv[1]);
+
+		printf("Assuming first argument to be path to data dir (\"%s\")\n", datadir);
+
+		//works?
+		if (chdir(datadir))
+			printf("Failed to cd, will not use specified directory\n");
+		else
+			cd_ok=true;
 	}
+
+	//else (no args or failed to cd)
+	if (!cd_ok)
+	{
+		//don't know size yet
+		char *datadir;
+
+		//attempt to generate path
+		//check if program was called with another pwd (got '/' in "name")
+		if (char *s = strrchr(argv[0], '/'))
+		{
+			//"<path to self - minus self>/data"
+			s[1]='\0'; //modify string to end after last slash
+
+			datadir=(char*)malloc(sizeof(char)*(strlen(s)+5));
+
+			strcpy(datadir, argv[0]);
+			strcat(datadir, "data");
+		}
+		else
+		{
+			//just change into "data"
+			datadir=(char*)malloc(sizeof(char)*5);
+			strcpy(datadir, "data");
+		}
+
+		printf("Attempting to cd into data directory (\"%s\")\n", datadir);
+
+		//ok, try to get into the data directory
+		if (chdir (datadir))
+			printf("Failed to cd, will try to load from current directory instead...\n");
+
+		//not needed anymore
+		free (datadir);
+	}
+
 
 	printlog(0, "Loading...\n");
 	runlevel = loading;
 
-	load_conf ("data/internal.conf", (char *)&internal, internal_index);
+	load_conf ("internal.conf", (char *)&internal, internal_index);
 
 	//
 	//TODO: there should be menus here, but menu/osd system is not implemented yet... also:
