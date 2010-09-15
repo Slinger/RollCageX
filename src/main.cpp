@@ -319,6 +319,7 @@ int main (int argc, char *argv[])
 	}
 
 	printlog(0, "Loading...\n");
+	runlevel = loading;
 
 	load_conf ("data/internal.conf", (char *)&internal, internal_index);
 
