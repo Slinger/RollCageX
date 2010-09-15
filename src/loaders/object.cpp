@@ -36,7 +36,7 @@ Object_Template *Object_Template::Load(const char *path)
 	Object_Template *obj;
 	
 	//currently no scripting, only hard-coded solutions
-	if (!strcmp(path,"data/objects/misc/box"))
+	if (!strcmp(path,"objects/misc/box"))
 	{
 		//"load" 3d box
 		printlog(2, "(hard-coded box)");
@@ -45,12 +45,12 @@ Object_Template *Object_Template::Load(const char *path)
 		obj->box = true;
 
 		//the debug box will only spawn one component - one "3D file"
-		if (!(obj->model[0] = Trimesh_3D::Quick_Load("data/objects/misc/box/box.obj")))
+		if (!(obj->model[0] = Trimesh_3D::Quick_Load("objects/misc/box/box.obj")))
 			return NULL;
 
 	//end of test
 	}
-	else if (!strcmp(path, "data/objects/misc/funbox"))
+	else if (!strcmp(path, "objects/misc/funbox"))
 	{
 		printlog(2, "(Mac's hard-coded funbox");
 
@@ -58,11 +58,11 @@ Object_Template *Object_Template::Load(const char *path)
 		obj->funbox = true; //id
 
 		//graphics
-		if (!(obj->model[0] = Trimesh_3D::Quick_Load("data/objects/misc/funbox/box.obj")))
+		if (!(obj->model[0] = Trimesh_3D::Quick_Load("objects/misc/funbox/box.obj")))
 			return NULL;
 
 	}
-	else if (!strcmp(path, "data/objects/misc/flipper"))
+	else if (!strcmp(path, "objects/misc/flipper"))
 	{
 		printlog(2, "(hard-coded flipper)");
 
@@ -70,11 +70,11 @@ Object_Template *Object_Template::Load(const char *path)
 		obj->flipper = true; //id
 
 		//graphics
-		if (!(obj->model[0] = Trimesh_3D::Quick_Load("data/objects/misc/flipper/Flipper.obj")))
+		if (!(obj->model[0] = Trimesh_3D::Quick_Load("objects/misc/flipper/Flipper.obj")))
 			return NULL;
 
 	}
-	else if (!strcmp(path, "data/objects/misc/NH4"))
+	else if (!strcmp(path, "objects/misc/NH4"))
 	{
 		printlog(2, "(hard-coded \"molecule\")");
 
@@ -82,21 +82,21 @@ Object_Template *Object_Template::Load(const char *path)
 		obj->NH4 = true;
 
 		//graphics
-		if (	!(obj->model[0] = Trimesh_3D::Quick_Load("data/objects/misc/NH4/Atom1.obj")) ||
-			!(obj->model[1] = Trimesh_3D::Quick_Load("data/objects/misc/NH4/Atom2.obj"))	)
+		if (	!(obj->model[0] = Trimesh_3D::Quick_Load("objects/misc/NH4/Atom1.obj")) ||
+			!(obj->model[1] = Trimesh_3D::Quick_Load("objects/misc/NH4/Atom2.obj"))	)
 			return NULL;
 
 	}
-	else if (!strcmp(path, "data/objects/misc/beachball"))
+	else if (!strcmp(path, "objects/misc/beachball"))
 	{
 		printlog(2, "(hard-coded beachball)");
 
 		obj = new Object_Template(path);
 		obj->sphere = true;
-		if (!(obj->model[0] = Trimesh_3D::Quick_Load("data/objects/misc/beachball/sphere.obj")))
+		if (!(obj->model[0] = Trimesh_3D::Quick_Load("objects/misc/beachball/sphere.obj")))
 			return NULL;
 	}
-	else if (!strcmp(path, "data/objects/misc/building"))
+	else if (!strcmp(path, "objects/misc/building"))
 	{
 		printlog(2, "(hard-coded building)");
 
@@ -104,13 +104,13 @@ Object_Template *Object_Template::Load(const char *path)
 		obj->building = true;
 
 		//graphics
-		if (	!(obj->model[0] = Trimesh_3D::Quick_Load("data/objects/misc/building/pillar.obj")) ||
-			!(obj->model[1] = Trimesh_3D::Quick_Load("data/objects/misc/building/roof.obj")) ||
-			!(obj->model[2] = Trimesh_3D::Quick_Load("data/objects/misc/building/wall.obj"))	)
+		if (	!(obj->model[0] = Trimesh_3D::Quick_Load("objects/misc/building/pillar.obj")) ||
+			!(obj->model[1] = Trimesh_3D::Quick_Load("objects/misc/building/roof.obj")) ||
+			!(obj->model[2] = Trimesh_3D::Quick_Load("objects/misc/building/wall.obj"))	)
 			return NULL;
 
 	}
-	else if (!strcmp(path,"data/objects/misc/pillar"))
+	else if (!strcmp(path,"objects/misc/pillar"))
 	{
 		//"load" 3d box
 		printlog(2, "(hard-coded pillar)");
@@ -119,8 +119,8 @@ Object_Template *Object_Template::Load(const char *path)
 		obj->pillar = true;
 
 		//graphics
-		if (	!(obj->model[0] = Trimesh_3D::Quick_Load("data/objects/misc/pillar/Pillar.obj")) ||
-			!(obj->model[1] = Trimesh_3D::Quick_Load("data/objects/misc/pillar/Broken.obj"))	)
+		if (	!(obj->model[0] = Trimesh_3D::Quick_Load("objects/misc/pillar/Pillar.obj")) ||
+			!(obj->model[1] = Trimesh_3D::Quick_Load("objects/misc/pillar/Broken.obj"))	)
 			return NULL;
 
 	}

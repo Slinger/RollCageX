@@ -63,7 +63,6 @@ int events_loop (void *d)
 		//process events (if running)
 		if (runlevel == running)
 		{
-			//TODO: runlevel = locked;
 			Geom::TMP_Events_Step(delta);
 			Joint::TMP_Events_Step(delta);
 			Body::TMP_Events_Step(delta);
@@ -72,8 +71,6 @@ int events_loop (void *d)
 
 			//timers
 			Animation_Timer::Events_Step(delta);
-
-			//TODO: runlevel = normal
 		}
 
 		//current car
