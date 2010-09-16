@@ -197,14 +197,18 @@ bool load_track (const char *path)
 					//as long as there are two words left (option name and value)
 					while ( (file.word_count-pos) >= 2)
 					{
+						//note: mu and damping uses strtod instead of atof.
+						//as usuall, this it's because losedows not being standardized
+						//and failing to support infinity support for atof... :-p
+						//only added for spring and mu - the only ones supporting it
 						if (!strcmp(file.words[pos], "mu"))
-							mu = atof(file.words[++pos]);
+							mu = strtod(file.words[++pos], (char**)NULL);
 						else if (!strcmp(file.words[pos], "slip"))
 							slip = atof(file.words[++pos]);
 						else if (!strcmp(file.words[pos], "bounce"))
 							bounce = atof(file.words[++pos]);
 						else if (!strcmp(file.words[pos], "spring"))
-							spring = atof(file.words[++pos]);
+							spring = strtod(file.words[++pos], (char**)NULL);
 						else if (!strcmp(file.words[pos], "damping"))
 							damping = atof(file.words[++pos]);
 						else
