@@ -19,6 +19,8 @@
 
 #include <string>
 
+#include <ode/ode.h>
+
 //loads configuration file to memory (using index)
 bool load_conf (const char *name, char *memory, const struct Conf_Index index[])
 {
@@ -75,11 +77,8 @@ bool load_conf (const char *name, char *memory, const struct Conf_Index index[])
 				//dReal
 				case 'R':
 					//there are two alternatives here (depending on how ode is configured): float or double
-					#ifdef dSINGLE //single precision (float)
-						*( ((float*)(memory+index[i].offset))+argnr ) = strtof(file.words[argnr+1], &str_left);
-					#else //double precision (double float)
-						*( ((double*)(memory+index[i].offset))+argnr ) = strtod(file.words[argnr+1], &str_left);
-					#endif
+					//always read values as double, and then cast them to whatever "dReal" might be
+					*( ((dReal*)(memory+index[i].offset))+argnr ) = strtod(file.words[argnr+1], &str_left);
 				break;
 
 				//bool
