@@ -163,12 +163,6 @@ int events_loop (void *d)
 							//increase geom rendering level, and reset if at last
 							if (++geom_render_level >= 5)
 								geom_render_level = 0;
-
-							//at these levels models are disabled
-							if (geom_render_level >= 3)
-								render_models = false;
-							else
-								render_models = true;
 						break;
 
 						default:

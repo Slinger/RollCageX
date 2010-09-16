@@ -32,9 +32,6 @@ Uint32 flags = SDL_OPENGL | SDL_RESIZABLE;
 //count frames
 unsigned int graphics_count = 0;
 
-//controls what to render:
-bool render_models = true;
-
 //if multithreading, event thread will alert graphics thread about resizing events (to avoid stealing the context)
 bool graphics_event_resize = false;
 int graphics_event_resize_w, graphics_event_resize_h;
@@ -194,8 +191,8 @@ int graphics_loop ()
 			//place sun
 			glLightfv (GL_LIGHT0, GL_POSITION, track.position);
 
-			//render models (if not 0 level of geom rendering)
-			if (render_models)
+			//render models (if not 2 or more level of geom rendering)
+			if (geom_render_level < 3)
 				Graphic_List_Render();
 
 			//render geoms (if nonzero level)
