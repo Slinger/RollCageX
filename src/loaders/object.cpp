@@ -298,7 +298,7 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 	//flipper sensor
 	dGeomID geom2 = dCreateBox (0, 3,3,2);
 	data = new Geom(geom2, obj);
-	data->collide = false;
+	data->spring = 0.0; //0 spring constanct = no collision forces
 	dGeomSetPosition (geom2, x, y, z+0.76);
 
 	data->flipper_geom = geom; //tmp debug solution

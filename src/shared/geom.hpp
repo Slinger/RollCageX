@@ -58,9 +58,6 @@ class Geom: public Component
 		
 		Trimesh_3D *model; //points at model
 
-		//geom tweaks:
-		bool collide; //create physical collision when touching other components
-
 		//debug variables
 		dGeomID flipper_geom;
 

@@ -49,7 +49,7 @@ void Geom::Collision_Callback (void *data, dGeomID o1, dGeomID o2)
 		return;
 
 	//none wants to create collisions..
-	if (!geom1->collide&&!geom2->collide)
+	if (!geom1->spring&&!geom2->spring)
 	{
 		printlog(1, "not collideable, TODO: bitfield solution");
 		return;
@@ -62,7 +62,7 @@ void Geom::Collision_Callback (void *data, dGeomID o1, dGeomID o2)
 		return;
 
 	//does both components want to collide for real? (not "ghosts"/"sensors")
-	if (geom1->collide&&geom2->collide)
+	if (geom1->spring&&geom2->spring)
 	{
 		//what values/features used by default
 		int mode = dContactApprox1;
@@ -200,15 +200,11 @@ void Geom::Collision_Callback (void *data, dGeomID o1, dGeomID o2)
 	}
 	
 	//with physical contact or not, might respond to collision events
-	if (geom1->collide)
-	{
-		geom2->colliding = true;
-	}
+	if (geom1->spring) //geom1 would have generated collision
+		geom2->colliding = true; //thus geom2 is colliding
 
-	if (geom2->collide)
-	{
-		geom1->colliding = true;
-	}
+	if (geom2->spring) //geom2 would have generated collision
+		geom1->colliding = true; //thus geom2 is colliding
 }
 
 //
