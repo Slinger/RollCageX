@@ -240,6 +240,7 @@ void Car::Physics_Step(dReal step)
 					t[1] += r[1]*K;
 					t[2] += r[2]*K;
 					t[3] += r[3]*K;
+					printf("%f %f %f %f %f\n", K, r[0], r[1], r[2], r[3]);
 				}
 				//(if not, it means all wheels are breaking or something, and we don't set any torque)
 			}
@@ -288,6 +289,7 @@ void Car::Physics_Step(dReal step)
 
 			}
 
+			printf("%f %f %f %f\n", t[0], t[1], t[2], t[3]);
 			//apply torques:
 			for (i=0; i<4;++i)
 			{

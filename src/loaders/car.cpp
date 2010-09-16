@@ -185,21 +185,55 @@ Car_Template *Car_Template::Load (const char *path)
 	target->wheel.resistance = target->conf.rollres;
 	target->wheel.radius = target->conf.w[0];
 
-	//(just copy data from conf to class)
+	//check and copy data from conf to wheel class
+	//x
 	target->wheel.xpeak = target->conf.xpeak;
-	target->wheel.xshape = target->conf.xshape;
-	target->wheel.xpos = target->conf.xpos[0];
+
+	if (target->conf.xshape > 1.0)
+		target->wheel.xshape = target->conf.xshape;
+	else
+		printlog(0, "WARNING: xshape value should be bigger than 1!");
+
+	if (target->conf.xpos[0] > 0.0)
+		target->wheel.xpos = target->conf.xpos[0];
+	else
+		printlog(0, "WARNING: first xpos value should be bigger than 0!");
+
 	target->wheel.xposch= target->conf.xpos[1];
-	target->wheel.xsharp = target->conf.xsharp[0];
+
+	if (target->conf.xsharp[0] > 0.0)
+		target->wheel.xsharp = target->conf.xsharp[0];
+	else
+		printlog(0, "WARNING: first xsharp value should be bigger than 0!");
+
 	target->wheel.xsharpch = target->conf.xsharp[1];
 
+	//y
 	target->wheel.ypeak = target->conf.ypeak;
-	target->wheel.yshape = target->conf.yshape;
-	target->wheel.ypos = target->conf.ypos[0];
+
+	if (target->conf.yshape > 1.0)
+		target->wheel.yshape = target->conf.yshape;
+	else
+		printlog(0, "WARNING: yshape value should be bigger than 1!");
+
+	if (target->conf.ypos[0] > 0.0)
+		target->wheel.ypos = target->conf.ypos[0];
+	else
+		printlog(0, "WARNING: first ypos value should be bigger than 0!");
+
 	target->wheel.yposch= target->conf.ypos[1];
-	target->wheel.ysharp = target->conf.ysharp[0];
+
+	if (target->conf.ysharp[0] > 0.0)
+		target->wheel.ysharp = target->conf.ysharp[0];
+	else
+		printlog(0, "WARNING: first ysharp value should be bigger than 0!");
+
 	target->wheel.ysharpch = target->conf.ysharp[1];
 	target->wheel.yshift = target->conf.yshift;
+	//
+	//
+
+
 
 	//make sure the values are correct
 	//steering distribution
