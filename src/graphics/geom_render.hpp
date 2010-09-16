@@ -27,6 +27,9 @@
 #define VERTEX_BLOCK 2000 //min number of vertices per mem increase
 #define INDEX_BLOCK 3000 //min number of indices per mem increase
 
+//sets level of geom rendering
+extern int geom_render_level;
+
 void Geom_Render();
 void Geom_Render_Clear(); //for removing VBO+ram memory
 

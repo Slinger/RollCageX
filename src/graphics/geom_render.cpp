@@ -19,6 +19,7 @@
 #include <math.h>
 
 #define BUFFER_OFFSET(i) ((char *)NULL + (i))
+int geom_render_level = 0;
 
 //
 //two VBO+two tmp data for "stream drawing" of graphics:
@@ -405,28 +406,31 @@ void Geom_Render()
 				break;
 
 			case dTriMeshClass:
-
-				//how many triangles in trimesh
-				triangles = dGeomTriMeshGetTriangleCount(g);
-
-				//make sure got memory
-				Assure_Memory (triangles*3, triangles*3);
-
-				//colour based on triangle count
-				Volume_Colour((float)triangles);
-
-				for (tloop=0; tloop<triangles; ++tloop)
+				//check if ultimate geom rendering level
+				if (geom_render_level == 4)
 				{
-					//vertices (3 per tri):
-					dGeomTriMeshGetTriangle(g, tloop, &v0, &v1, &v2);
-					AAVertex(v0[0], v0[1], v0[2]);
-					AAVertex(v1[0], v1[1], v1[2]);
-					AAVertex(v2[0], v2[1], v2[2]);
+					//how many triangles in trimesh
+					triangles = dGeomTriMeshGetTriangleCount(g);
 
-					//indices (3 per tri):
-					Index(tloop*3+0, tloop*3+1);
-					Index(tloop*3+1, tloop*3+2);
-					Index(tloop*3+2, tloop*3+0);
+					//make sure got memory
+					Assure_Memory (triangles*3, triangles*3);
+
+					//colour based on triangle count
+					Volume_Colour((float)triangles);
+
+					for (tloop=0; tloop<triangles; ++tloop)
+					{
+						//vertices (3 per tri):
+						dGeomTriMeshGetTriangle(g, tloop, &v0, &v1, &v2);
+						AAVertex(v0[0], v0[1], v0[2]);
+						AAVertex(v1[0], v1[1], v1[2]);
+						AAVertex(v2[0], v2[1], v2[2]);
+
+						//indices (3 per tri):
+						Index(tloop*3+0, tloop*3+1);
+						Index(tloop*3+1, tloop*3+2);
+						Index(tloop*3+2, tloop*3+0);
+					}
 				}
 
 				break;
@@ -463,8 +467,11 @@ void Geom_Render()
 	//configure rendering options:
 	glDisable (GL_LIGHTING);
 	glShadeModel (GL_FLAT);
-	glDisable (GL_DEPTH_TEST);
 	glDisable (GL_CULL_FACE);
+
+	//disable depth testing at these levels
+	if (geom_render_level >= 2)
+		glDisable (GL_DEPTH_TEST);
 
 	//(I wounder if this is deprecated in latest ogl?)
 	glLineWidth(2.0); //wide lines
