@@ -212,7 +212,7 @@ bool load_track (const char *path)
 						else if (!strcmp(file.words[pos], "damping"))
 							damping = atof(file.words[++pos]);
 						else if (!strcmp(file.words[pos], "peak"))
-							peak = atof(file.words[++pos]);
+							peak = strtod(file.words[++pos], (char**)NULL);
 						else if (!strcmp(file.words[pos], "position"))
 							position = atof(file.words[++pos]);
 						else if (!strcmp(file.words[pos], "sharpness"))
