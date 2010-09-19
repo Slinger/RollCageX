@@ -47,6 +47,7 @@ struct Car_Conf
 	bool drive[2];
 	dReal max_steer;
 	dReal steer_decrease;
+	dReal diff_res;
 	bool smartsteer, smartdrive;
 
 	Conf_String model; //filename+path for model
@@ -71,6 +72,7 @@ const struct Car_Conf car_conf_defaults = {
 	{false, true},
 	40.0,
 	0.4,
+	100.0,
 	true, true,
 	"",
 	1, {0,0,0}, {0,0,0},
@@ -88,6 +90,7 @@ const struct Conf_Index car_conf_index[] = {
 	{"front-rear_drive",	'b',2, offsetof(struct Car_Conf, drive)},
 	{"max_steer",		'R',1, offsetof(struct Car_Conf, max_steer)},
 	{"steer_decrease",	'R',1, offsetof(struct Car_Conf, steer_decrease)},
+	{"diff_resistance",	'R',1, offsetof(struct Car_Conf, diff_res)},
 	{"smart_steering",	'b',1, offsetof(struct Car_Conf, smartsteer)},
 	{"smart_driving",	'b',1, offsetof(struct Car_Conf, smartdrive)},
 
@@ -202,6 +205,7 @@ class Car:public Object
 
 		//configuration data (copied from Car_Template)
 		dReal motor_power, gear_limit, max_break, max_steer;
+		dReal diffres;
 
 		dReal steerdecr;
 		dReal dsteer, dbreak;

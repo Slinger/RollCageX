@@ -133,11 +133,15 @@ void Car::Physics_Step(dReal step)
 
 			//front wheels use front breaks, rear wheels use rear breaks
 			dReal kbreak[4] = {kfbreak, krbreak, krbreak, kfbreak};
+
 			dReal kinertia = carp->wheel->inertia;
+			dReal kdiffres = carp->diffres;
 
 			//values to calculate:
 			dReal r[4] = {0,0,0,0}; //turning radius of each wheel
 			dReal t[4] = {0,0,0,0}; //torque on each wheel
+
+			dReal radius[4] = {0,0,0,0}; //turning radius (always correct for all wheels)
 
 			if (carp->smart_drive)
 			{
@@ -145,6 +149,10 @@ void Car::Physics_Step(dReal step)
 				if (R == dInfinity || R == -dInfinity)
 				{
 					//no turning, set all radius equal. 1 would be a good choice...
+					//all wheels:
+					radius[0]=1.0; radius[1]=1.0; radius[2]=1.0; radius[3]=1.0;
+
+					//only set these ones to 1 for needed
 					if (carp->fwd)
 					{
 						r[0] = 1.0;
@@ -163,17 +171,22 @@ void Car::Physics_Step(dReal step)
 					dReal R1 = R-(carp->wx);
 					dReal R2 = R+(carp->wx);
 
-					//calculate radius as needed
+					//calculate radius for all wheels
+					radius[0] =  sqrt(R1*R1+L1*L1); //right front
+					radius[1] =  sqrt(R1*R1+L2*L2); //right rear
+					radius[2] =  sqrt(R2*R2+L2*L2); //left rear
+					radius[3] =  sqrt(R2*R2+L1*L1); //left front
+
 					//(for those wheels not used the radius will be 0)
 					if (carp->fwd)
 					{
-						r[0] = sqrt(R1*R1+L1*L1); //right front
-						r[3] = sqrt(R2*R2+L1*L1); //left front
+						r[0] = radius[0];
+						r[3] = radius[3];
 					}
 					if (carp->rwd)
 					{
-						r[1] = sqrt(R1*R1+L2*L2); //right rear
-						r[2] = sqrt(R2*R2+L2*L2); //left rear
+						r[1] = radius[1];
+						r[2] = radius[2];
 					}
 				}
 
@@ -214,10 +227,10 @@ void Car::Physics_Step(dReal step)
 					dReal torque;
 					dReal avrg_rotv; //avarage rotation
 					if (carp->fwd && carp->rwd)
-						avrg_rotv = fabs(rotv[0]+rotv[1]+rotv[2]+rotv[3])/4;
+						avrg_rotv = fabs(rotv[0]+rotv[1]+rotv[2]+rotv[3])/4.0;
 					else if (carp->rwd)
 					{
-						avrg_rotv = fabs(rotv[1]+rotv[2])/2;
+						avrg_rotv = fabs(rotv[1]+rotv[2])/2.0;
 
 						//"disable" front wheels
 						r[0] = 0.0;
@@ -225,7 +238,7 @@ void Car::Physics_Step(dReal step)
 					}
 					else
 					{
-						avrg_rotv = fabs(rotv[0]+rotv[3])/2;
+						avrg_rotv = fabs(rotv[0]+rotv[3])/2.0;
 						r[1] = 0.0;
 						r[2] = 0.0;
 					}
@@ -244,6 +257,37 @@ void Car::Physics_Step(dReal step)
 					t[3] += torque*r[3]/r_tot;
 				}
 				//(if not, it means all wheels are breaking or something, and we don't set any torque)
+	
+
+
+				//currently, we only apply torque like a (slightly smarter) differential, which opens for the
+				//notorious situation where one wheel (like in air) starts rotating more than the others.
+				//In order to prevent this, redirect the torque to even out the rotations of wheels.
+				//lets make it more intelligent: different rotation allowed based on turning angle... :-)
+				if (carp->fwd && carp->rwd)
+				{
+					dReal tot = (rotv[0]/radius[0]+rotv[1]/radius[1]
+							+rotv[2]/radius[2]+rotv[3]/radius[3])/4.0;
+
+					t[0] -= (rotv[0]-radius[0]*tot)*kdiffres;
+					t[1] -= (rotv[1]-radius[1]*tot)*kdiffres;
+					t[2] -= (rotv[2]-radius[2]*tot)*kdiffres;
+					t[3] -= (rotv[3]-radius[3]*tot)*kdiffres;
+				}
+				else if (carp->rwd)
+				{
+					dReal tot = (rotv[1]/radius[1]+rotv[2]/radius[2])/2.0;
+					t[1] -= (rotv[1]-radius[1]*tot)*kdiffres;
+					t[2] -= (rotv[2]-radius[2]*tot)*kdiffres;
+				}
+				else
+				{
+					dReal tot = (rotv[0]/radius[0]+rotv[3]/radius[3])/2.0;
+					t[0] -= (rotv[0]-radius[0]*tot)*kdiffres;
+					t[3] -= (rotv[3]-radius[3]*tot)*kdiffres;
+				}
+
+
 			}
 			else //dumb motors (one motor+gearbox for each wheel)
 			{
@@ -297,9 +341,6 @@ void Car::Physics_Step(dReal step)
 			dJointAddHinge2Torques (carp->joint[1],0, t[1]);
 			dJointAddHinge2Torques (carp->joint[2],0, t[2]);
 			dJointAddHinge2Torques (carp->joint[3],0, t[3]);
-
-
-			//TODO: some kind of differential friction would be good here...
 		}
 		//
 
