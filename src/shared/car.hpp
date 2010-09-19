@@ -27,7 +27,7 @@
 //for loading car.conf
 struct Car_Conf
 {
-	dReal motor_power, gear_tweak, max_torque;
+	dReal motor_power, gear_limit;
 	dReal max_break;
 	dReal body_mass, wheel_mass;
 	dReal suspension_spring, suspension_damping;
@@ -57,7 +57,7 @@ struct Car_Conf
 };
 
 const struct Car_Conf car_conf_defaults = {
-	800000.0, -1.0, 5000000.0,
+	800000.0, 0.5,
 	60000.0,
 	6000.0, 500.0,
 	150000.0, 5000.0,
@@ -78,8 +78,7 @@ const struct Car_Conf car_conf_defaults = {
 
 const struct Conf_Index car_conf_index[] = {
 	{"motor_power",		'R',1, offsetof(struct Car_Conf, motor_power)},
-	{"gear_tweak",		'R',1, offsetof(struct Car_Conf, gear_tweak)},
-	{"max_torque",		'R',1, offsetof(struct Car_Conf, max_torque)},
+	{"gear_limit",		'R',1, offsetof(struct Car_Conf, gear_limit)},
 	{"max_break",		'R',1, offsetof(struct Car_Conf, max_break)},
 	{"body_mass",		'R',1, offsetof(struct Car_Conf, body_mass)},
 	{"wheel_mass",		'R',1, offsetof(struct Car_Conf, wheel_mass)},
@@ -202,7 +201,7 @@ class Car:public Object
 		friend class Camera; //needs access to car info
 
 		//configuration data (copied from Car_Template)
-		dReal motor_power, gear_tweak, max_torque, max_break, max_steer;
+		dReal motor_power, gear_limit, max_break, max_steer;
 
 		dReal steerdecr;
 		dReal dsteer, dbreak;

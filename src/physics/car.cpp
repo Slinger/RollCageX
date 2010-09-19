@@ -125,15 +125,15 @@ void Car::Physics_Step(dReal step)
 			dJointSetHinge2Param (carp->joint[2],dParamFMax2,0);
 
 			//will be needed:
-			dReal ktorque = carp->dir*carp->motor_power*carp->throttle;
+			dReal kpower = carp->dir*carp->motor_power*carp->throttle;
 
 			//(rear and front break: "half of ratio of max by throttle")
 			dReal kfbreak = carp->dir*carp->max_break*0.5*carp->dbreak*carp->throttle;
 			dReal krbreak = carp->dir*carp->max_break*0.5*(1.0-carp->dbreak)*carp->throttle;
+
 			//front wheels use front breaks, rear wheels use rear breaks
 			dReal kbreak[4] = {kfbreak, krbreak, krbreak, kfbreak};
-			dReal gt = carp->gear_tweak;
-			dReal wt = carp->wheel->inertia;
+			dReal kinertia = carp->wheel->inertia;
 
 			//values to calculate:
 			dReal r[4] = {0,0,0,0}; //turning radius of each wheel
@@ -141,28 +141,6 @@ void Car::Physics_Step(dReal step)
 
 			if (carp->smart_drive)
 			{
-				//TODO: these breaks and "motors" should probably be equipped with antispin.
-				//(perhaps something that can be disabled by the driver by holding down a button?)
-
-				//ok, "computerized/intelligent differential"...
-				//right now, there's no ESP here. So just assume that all wheels are
-				//rotating as we want (but in reality one or another wheel might be rotating
-				//too fast or be locked). So what this does is simply distribute the motor
-				//power over the wheels based on the turning radius of each wheel.
-
-				//based on the turning radius of each wheel:
-				// * torque (wanted/optimal) on each wheel relative to all wheels calculated
-				// * based on the current rotation each wheel gearbox will require different
-				//   ammount of torque to ive this - calculate how this differs
-				// * the motor torque available is distributed based on above
-
-				//(by combining the individual math calculations for these steps a much smaller
-				//equation was found (but less intuitive), which will be used)
-
-				//a note about the gearbox: each wheel got its own stepless gearbox, which takes
-				//an input torque (t) and based on the rotation of the wheel (r) adds t/(1+r)
-				//ammount of torque on the wheel. the "+1" is to prevent division by 0...
-
 				//I'm not confident letting the following calculations process infinite turning radius (no turning)...
 				if (R == dInfinity || R == -dInfinity)
 				{
@@ -199,14 +177,15 @@ void Car::Physics_Step(dReal step)
 					}
 				}
 
-				//wheel rotation speed
+
+				//wheel rotation speed (if to apply torque, breaks or both)
 				for (i=0; i<4; ++i)
 				{
 					//if rotating in the oposite way of wanted, use breaks
-					if (rotv[i]*ktorque < 0.0) //(different signs makes negative)
+					if (rotv[i]*kpower < 0.0) //(different signs makes negative)
 					{
 						//this much force (in this direction) is needed to break wheel
-						dReal force = -rotv[i]*wt/step;
+						dReal force = -rotv[i]*kinertia/step;
 
 						//ok, lets see if we got enough break power to come to halt:
 						if ( force/kbreak[i] < 1.0) //force is smaller than breaking force
@@ -226,85 +205,101 @@ void Car::Physics_Step(dReal step)
 					}
 				}
 
-				//must be accelerating and any of the wheels must have a turning radius
-				if (ktorque != 0 && (r[0] != 0 || r[1] != 0 || r[2] != 0 || r[3] != 0) )
-				{
-					//this to calculate distribution of motor torque over wheels:
-					//"torque koefficient"
-					dReal K = ktorque/(	 r[0]*(pow(fabs(rotv[0]), -gt))
-								+r[1]*(pow(fabs(rotv[1]), -gt))
-								+r[2]*(pow(fabs(rotv[2]), -gt))
-								+r[3]*(pow(fabs(rotv[3]), -gt)) );
+				//ok, can start working out how much torque to apply to wheels:
+				//engine+gearbox (given output rotation, how much torque can be generated)
 
-					t[0] += r[0]*K;
-					t[1] += r[1]*K;
-					t[2] += r[2]*K;
-					t[3] += r[3]*K;
-					printf("%f %f %f %f %f\n", K, r[0], r[1], r[2], r[3]);
+				//must be accelerating and any of the wheels must have a turning radius
+				if (kpower != 0 && (r[0] != 0 || r[1] != 0 || r[2] != 0 || r[3] != 0) )
+				{
+					dReal torque;
+					dReal avrg_rotv; //avarage rotation
+					if (carp->fwd && carp->rwd)
+						avrg_rotv = fabs(rotv[0]+rotv[1]+rotv[2]+rotv[3])/4;
+					else if (carp->rwd)
+					{
+						avrg_rotv = fabs(rotv[1]+rotv[2])/2;
+
+						//"disable" front wheels
+						r[0] = 0.0;
+						r[3] = 0.0;
+					}
+					else
+					{
+						avrg_rotv = fabs(rotv[0]+rotv[3])/2;
+						r[1] = 0.0;
+						r[2] = 0.0;
+					}
+
+					//is in working range for gearbox?
+					if (avrg_rotv < carp->gear_limit)
+						torque = kpower/carp->gear_limit;
+					else
+						torque = kpower/avrg_rotv;
+
+					//ok, now distribute torque over wheels (based on turning radius compared to totabl)
+					dReal r_tot = r[0]+r[1]+r[2]+r[3]; //sum of all radius
+					t[0] += torque*r[0]/r_tot;
+					t[1] += torque*r[1]/r_tot;
+					t[2] += torque*r[2]/r_tot;
+					t[3] += torque*r[3]/r_tot;
 				}
 				//(if not, it means all wheels are breaking or something, and we don't set any torque)
 			}
-			else //dumb motors
+			else //dumb motors (one motor+gearbox for each wheel)
 			{
-				//(a simplified version of above)
-
-				//all wheels
-				dReal torque[4] = {0,0,0,0};
+				//torque for wheels
+				dReal power[4] = {0,0,0,0};
 				if (carp->fwd && carp->rwd)
 				{
-					torque[0] = ktorque/4.0;
-					torque[1] = ktorque/4.0;
-					torque[2] = ktorque/4.0;
-					torque[3] = ktorque/4.0;
+					power[0] = kpower/4.0;
+					power[1] = kpower/4.0;
+					power[2] = kpower/4.0;
+					power[3] = kpower/4.0;
 				}
 				else if (carp->fwd)
 				{
-					torque[0] = ktorque/2.0;
-					torque[3] = ktorque/2.0;
+					power[0] = kpower/2.0;
+					power[3] = kpower/2.0;
 				}
 				else
 				{
-					torque[1] = ktorque/2.0;
-					torque[2] = ktorque/2.0;
+					power[1] = kpower/2.0;
+					power[2] = kpower/2.0;
 				}
 
 				//wheel rotation speed
 				for (i=0; i<4; ++i)
 				{
-					if (rotv[i]*ktorque < 0.0)
+					//break
+					if (rotv[i]*kpower < 0.0)
 					{
-						dReal force = -rotv[i]*wt/step;
+						dReal force = -rotv[i]*kinertia/step;
 
-						//comes to halt, can accelerate
-						if (force/kbreak[i] < 1.0)
+						//can only break
+						if (force/kbreak[i] > 1.0)
 						{
-							t[i] = force+torque[i]/(pow(fabs(rotv[i]), gt));;
-						}
-						else
 							t[i] = kbreak[i];
+							power[i] = 0.0;
+						}
 					}
+
+					rotv[i] = fabs(rotv[i]);
+
+					if (rotv[i] < carp->gear_limit)
+						t[i] += power[i]/carp->gear_limit;
 					else
-						t[i] = torque[i]/(pow(fabs(rotv[i]), gt));
+						t[i] += power[i]/rotv[i];
 				}
-
 			}
-
-			printf("%f %f %f %f\n", t[0], t[1], t[2], t[3]);
-			//apply torques:
-			for (i=0; i<4;++i)
-			{
-				if (t[i] > carp->max_torque)
-					t[i] = carp->max_torque;
-				else if (t[i] < -carp->max_torque)
-					t[i] = -carp->max_torque;
-			}
-
 
 			//(sum torque and break variables - one of them is always zero)
 			dJointAddHinge2Torques (carp->joint[0],0, t[0]);
 			dJointAddHinge2Torques (carp->joint[1],0, t[1]);
 			dJointAddHinge2Torques (carp->joint[2],0, t[2]);
 			dJointAddHinge2Torques (carp->joint[3],0, t[3]);
+
+
+			//TODO: some kind of differential friction would be good here...
 		}
 		//
 
