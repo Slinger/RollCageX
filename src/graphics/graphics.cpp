@@ -142,6 +142,9 @@ int graphics_loop ()
 {
 	printlog(1, "Starting graphics loop");
 
+	//just make sure not rendering geoms yet
+	geom_render_level = 0;
+
 	//only stop render if done with race
 	while (runlevel != done)
 	{

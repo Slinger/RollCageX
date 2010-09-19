@@ -407,7 +407,7 @@ void Geom_Render()
 
 			case dTriMeshClass:
 				//check if ultimate geom rendering level
-				if (geom_render_level == 4)
+				if (geom_render_level == 2 || geom_render_level == 3)
 				{
 					//how many triangles in trimesh
 					triangles = dGeomTriMeshGetTriangleCount(g);
@@ -470,7 +470,7 @@ void Geom_Render()
 	glDisable (GL_CULL_FACE);
 
 	//disable depth testing at these levels
-	if (geom_render_level >= 2)
+	if (geom_render_level == 1 || geom_render_level >= 3)
 		glDisable (GL_DEPTH_TEST);
 
 	//(I wounder if this is deprecated in latest ogl?)
