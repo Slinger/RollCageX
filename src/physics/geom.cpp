@@ -74,6 +74,13 @@ void Geom::Collision_Callback (void *data, dGeomID o1, dGeomID o2)
 		surface_base.soft_erp = 0.0;
 		surface_base.soft_cfm = 0.0;
 
+		//options not even/rarely used by rcx, again prevent compiler warnings:
+		surface_base.bounce_vel = 0.0; //not used by rcx right now, perhaps for future tweaking?
+		surface_base.mu2 = 0.0; //only for tyre
+		surface_base.motion1 = 0.0; //for conveyor belt?
+		surface_base.motion2 = 0.0; //for conveyor belt?
+		surface_base.slip1 = 0.0; //not used
+		surface_base.slip2 = 0.0; //not used
 
 		bool feedback = false;
 		//if any of the geoms responds to forces or got a body that responds to force, enable force feedback
