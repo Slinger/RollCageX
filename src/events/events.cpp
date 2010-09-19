@@ -24,6 +24,7 @@
 #include "../shared/joint.hpp"
 #include "../shared/camera.hpp"
 #include "../shared/track.hpp"
+#include "../graphics/geom_render.hpp"
 #include "timers.hpp"
 
 
@@ -159,22 +160,9 @@ int events_loop (void *d)
 
 						//switch what to render
 						case SDLK_F12:
-							if (render_models && !render_geoms)
-							{
-								printlog(1, "rendering models and geoms");
-								render_geoms = true;
-							}
-							else if (render_models && render_geoms)
-							{
-								printlog(1, "rendering only geoms");
-								render_models = false;
-							}
-							else //!models && geoms
-							{
-								printlog(1, "rendering only models");
-								render_models = true;
-								render_geoms = false;
-							}
+							//increase geom rendering level, and reset if at last
+							if (++geom_render_level >= 5)
+								geom_render_level = 0;
 						break;
 
 						default:

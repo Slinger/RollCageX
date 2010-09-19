@@ -32,10 +32,6 @@ Uint32 flags = SDL_OPENGL | SDL_RESIZABLE;
 //count frames
 unsigned int graphics_count = 0;
 
-//controls what to render:
-bool render_models = true;
-bool render_geoms = false;
-
 //if multithreading, event thread will alert graphics thread about resizing events (to avoid stealing the context)
 bool graphics_event_resize = false;
 int graphics_event_resize_w, graphics_event_resize_h;
@@ -146,6 +142,9 @@ int graphics_loop ()
 {
 	printlog(1, "Starting graphics loop");
 
+	//just make sure not rendering geoms yet
+	geom_render_level = 0;
+
 	//only stop render if done with race
 	while (runlevel != done)
 	{
@@ -195,12 +194,12 @@ int graphics_loop ()
 			//place sun
 			glLightfv (GL_LIGHT0, GL_POSITION, track.position);
 
-			//render models
-			if (render_models)
+			//render models (if not 2 or more level of geom rendering)
+			if (geom_render_level < 3)
 				Graphic_List_Render();
 
-			//render geoms
-			if (render_geoms)
+			//render geoms (if nonzero level)
+			if (geom_render_level)
 				Geom_Render();
 
 		glPopMatrix();

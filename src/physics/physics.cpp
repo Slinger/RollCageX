@@ -114,13 +114,20 @@ int physics_loop (void *d)
 
 		physics_time += stepsize_ms;
 
+		//sync physics with realtime
 		if (internal.sync_physics)
 		{
-			realtime = SDL_GetTicks();
-			if (physics_time > realtime)
-				SDL_Delay (physics_time - realtime);
-			else
-				++physics_lag;
+			//perform busy-waiting?
+			if (internal.physics_spinning)
+				while (physics_time > SDL_GetTicks());
+			else //use sleep calls?
+			{
+				realtime = SDL_GetTicks();
+				if (physics_time > realtime)
+					SDL_Delay (physics_time - realtime);
+				else
+					++physics_lag;
+			}
 		}
 
 		//count how many steps

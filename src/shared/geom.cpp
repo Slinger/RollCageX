@@ -73,7 +73,6 @@ Geom::Geom (dGeomID geom, Object *obj): Component(obj) //pass object argument to
 	mu = internal.mu;
 
 	wheel = NULL; //not a wheel
-	collide = true; //on collision, create opposing forces
 
 	//events:
 	//for force handling (disable)

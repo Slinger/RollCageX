@@ -409,13 +409,13 @@ Car *Car_Template::Spawn (dReal x, dReal y, dReal z,  Trimesh_3D *tyre, Trimesh_
 
 	geom = dCreateBox(0,s[0],s[1],s[2]);
 	car->sensor1 = new Geom (geom, car);
-	car->sensor1->collide = false; //untouchable "ghost" geom - sensor
+	car->sensor1->spring = 0.0; //untouchable "ghost" geom - sensor
 	dGeomSetBody (geom, car->bodyid);
 	dGeomSetOffsetPosition(geom,0,0,-s[3]);
 
 	geom = dCreateBox(0,s[0],s[1],s[2]);
 	car->sensor2 = new Geom (geom, car);
-	car->sensor2->collide = false; //sensor
+	car->sensor2->spring = 0.0; //sensor
 	dGeomSetBody (geom, car->bodyid);
 	dGeomSetOffsetPosition(geom,0,0,s[3]);
 

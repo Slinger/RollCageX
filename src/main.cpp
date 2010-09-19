@@ -339,7 +339,7 @@ int main (int argc, char *argv[])
 			//"<path to self - minus self>/data"
 			s[1]='\0'; //modify string to end after last slash
 
-			datadir=(char*)malloc(sizeof(char)*(strlen(s)+5));
+			datadir=(char*)malloc(sizeof(char)*(strlen(argv[0])+5));
 
 			strcpy(datadir, argv[0]);
 			strcat(datadir, "data");
