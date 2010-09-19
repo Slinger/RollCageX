@@ -56,8 +56,8 @@ bool physics_init(void)
 	dWorldSetAutoDisableTime (world, internal.dis_time);
 
 	//joint softness (collisions are specified in physics/geom.cpp)
-	dWorldSetERP (world, internal.erp);
-	dWorldSetCFM (world, internal.cfm);
+	dWorldSetERP (world, internal.joint_erp);
+	dWorldSetCFM (world, internal.joint_cfm);
 
 	return true;
 }

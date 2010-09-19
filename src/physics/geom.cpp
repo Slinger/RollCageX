@@ -66,15 +66,15 @@ void Geom::Collision_Callback (void *data, dGeomID o1, dGeomID o2)
 	{
 		//default+optional data:
 		dSurfaceParameters surface_base;
-		surface_base.mode = dContactApprox1; //only nice friction enabled yet
+
+		//enable mu overriding and good friction approximation
+		surface_base.mode = dContactApprox1 | dContactSoftERP | dContactSoftCFM;
 		surface_base.mu = (geom1->mu)*(geom2->mu); //friction
+		surface_base.soft_erp = internal.collision_erp; //erp
+		surface_base.soft_cfm = internal.collision_cfm; //cfm
 
-		//all other parameters are optional... (here set to 0 to prevent compile warnings)
+		//optional or not even/rarely used by rcx, set to 0 to prevent compiler warnings:
 		surface_base.bounce = 0.0;
-		surface_base.soft_erp = 0.0;
-		surface_base.soft_cfm = 0.0;
-
-		//options not even/rarely used by rcx, again prevent compiler warnings:
 		surface_base.bounce_vel = 0.0; //not used by rcx right now, perhaps for future tweaking?
 		surface_base.mu2 = 0.0; //only for tyre
 		surface_base.motion1 = 0.0; //for conveyor belt?
@@ -104,15 +104,12 @@ void Geom::Collision_Callback (void *data, dGeomID o1, dGeomID o2)
 		//optional spring+damping erp+cfm override
 		if (geom1->spring != dInfinity || geom2->spring != dInfinity)
 		{
-			//enable erp+cfm overriding
-			surface_base.mode |= dContactSoftERP | dContactSoftCFM;
-
 			//should be good
 			dReal spring = 1/( 1/(geom1->spring) + 1/(geom2->spring) );
 			//sum
 			dReal damping = geom1->damping + geom2->damping;
 
-			//calculate erp+cfm from stepsize, spring and damping values:
+			//recalculate erp+cfm from stepsize, spring and damping values:
 			surface_base.soft_erp = (stepsize*spring)/(stepsize*spring +damping);
 			surface_base.soft_cfm = 1.0/(stepsize*spring +damping);
 		}

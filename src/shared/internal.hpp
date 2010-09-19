@@ -28,7 +28,8 @@ extern struct internal_struct {
 	int iterations;
 	int multiplier;
 	int contact_points;
-	dReal erp,cfm;
+	dReal collision_erp,collision_cfm;
+	dReal joint_erp,joint_cfm;
 	dReal mu;
 	dReal linear_drag, angular_drag;
 
@@ -57,7 +58,8 @@ const struct internal_struct internal_defaults = {
 	5,
 	4,
 	20,
-	0.8, 0.01,
+	0.8, 0.00001,
+	0.8, 0.00001,
 	1.0,
 	5.0,5.0,
 	0.05,0.10,0.5,
@@ -86,8 +88,10 @@ const struct Conf_Index internal_index[] = {
 	{"iterations",		'i',1, offsetof(struct internal_struct, iterations)},
 	{"multiplier",		'i',1, offsetof(struct internal_struct, multiplier)},
 	{"contact_points",	'i',1, offsetof(struct internal_struct, contact_points)},
-	{"erp",			'R',1, offsetof(struct internal_struct, erp)},
-	{"cfm",			'R',1, offsetof(struct internal_struct, cfm)},
+	{"collision_erp",	'R',1, offsetof(struct internal_struct, collision_erp)},
+	{"collision_cfm",	'R',1, offsetof(struct internal_struct, collision_cfm)},
+	{"joint_erp",		'R',1, offsetof(struct internal_struct, joint_erp)},
+	{"joint_cfm",		'R',1, offsetof(struct internal_struct, joint_cfm)},
 	{"default_mu",		'R',1, offsetof(struct internal_struct, mu)},
 	{"default_linear_drag",	'R',1, offsetof(struct internal_struct, linear_drag)},
 	{"default_angular_drag",'R',1, offsetof(struct internal_struct, angular_drag)},
