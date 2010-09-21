@@ -47,9 +47,39 @@ Car_Template *Car_Template::Load (const char *path)
 	Text_File file;
 	if (file.Open(lst))
 	{
+		//default surface parameters
+		dReal mu = internal.mu;
+		dReal bounce = 0.0;
+		dReal spring = dInfinity;
+		dReal damping = 0.0;
+
 		while (file.Read_Line())
 		{
-			if (!strcmp(file.words[0], "box"))
+			if (file.words[0][0] == '>')
+			{
+				int pos = 1;
+				//as long as there are two words left (option name and value)
+				while ( (file.word_count-pos) >= 2)
+				{
+					//strtod for lack of intinity for atof on losedoze
+					if (!strcmp(file.words[pos], "mu"))
+						mu = strtod(file.words[++pos], (char**)NULL);
+					else if (!strcmp(file.words[pos], "bounce"))
+						bounce = atof(file.words[++pos]);
+					else if (!strcmp(file.words[pos], "spring"))
+						spring = strtod(file.words[++pos], (char**)NULL);
+					else if (!strcmp(file.words[pos], "damping"))
+						damping = atof(file.words[++pos]);
+					else
+					{
+						printlog(0, "WARNING: surface option \"%s\" unknown", file.words[pos]);
+					}
+
+					//one step forward
+					pos+=1;
+				}
+			}
+			else if (!strcmp(file.words[0], "box"))
 			{
 				struct box tmp_box;
 				if (file.word_count == 9) //not wanting rotation?
@@ -68,6 +98,12 @@ Car_Template *Car_Template::Load (const char *path)
 					tmp_box.rot[0]=0.0;
 					tmp_box.rot[1]=0.0;
 					tmp_box.rot[2]=0.0;
+
+					//surface properties
+					tmp_box.mu=mu;
+					tmp_box.bounce=bounce;
+					tmp_box.spring=spring;
+					tmp_box.damping=damping;
 				}
 				else if (file.word_count == 13) //also rotate?
 				{
@@ -85,6 +121,12 @@ Car_Template *Car_Template::Load (const char *path)
 					tmp_box.rot[0] = atof(file.words[10]);
 					tmp_box.rot[1] = atof(file.words[11]);
 					tmp_box.rot[2] = atof(file.words[12]);
+
+					//surface properties
+					tmp_box.mu=mu;
+					tmp_box.bounce=bounce;
+					tmp_box.spring=spring;
+					tmp_box.damping=damping;
 				}
 				else
 				{
@@ -94,11 +136,6 @@ Car_Template *Car_Template::Load (const char *path)
 
 				//store box
 				target->boxes.push_back(tmp_box);
-
-				//create graphics for box:
-				//file_3d *f3d = new file_3d();
-				//target->box_graphics.push_back(f3d);
-				//debug_draw_box(f3d->list, tmp_box.size[0],tmp_box.size[1],tmp_box.size[2], lgreen, gray, 70);
 			}
 			else if (!strcmp(file.words[0], "sphere"))
 			{
@@ -114,13 +151,13 @@ Car_Template *Car_Template::Load (const char *path)
 				tmp_sphere.pos[1] = atof(file.words[5]);
 				tmp_sphere.pos[2] = atof(file.words[6]);
 
+				tmp_sphere.mu=mu;
+				tmp_sphere.bounce=bounce;
+				tmp_sphere.spring=spring;
+				tmp_sphere.damping=damping;
+
 				//store
 				target->spheres.push_back(tmp_sphere);
-
-				//graphics
-				//file_3d *f3d = new file_3d();
-				//target->sphere_graphics.push_back(f3d);
-				//debug_draw_sphere(f3d->list, tmp_sphere.radius*2, lgreen, gray, 70);
 			}
 			else if (!strcmp(file.words[0], "capsule"))
 			{
@@ -138,6 +175,11 @@ Car_Template *Car_Template::Load (const char *path)
 					tmp_capsule.rot[0] = 0.0;
 					tmp_capsule.rot[1] = 0.0;
 					tmp_capsule.rot[2] = 0.0;
+					//surface
+					tmp_capsule.mu=mu;
+					tmp_capsule.bounce=bounce;
+					tmp_capsule.spring=spring;
+					tmp_capsule.damping=damping;
 				}
 				else if (file.word_count == 12) //also rotate?
 				{
@@ -152,6 +194,11 @@ Car_Template *Car_Template::Load (const char *path)
 					tmp_capsule.rot[0] = atof(file.words[9]);
 					tmp_capsule.rot[1] = atof(file.words[10]);
 					tmp_capsule.rot[2] = atof(file.words[11]);
+					//surface
+					tmp_capsule.mu=mu;
+					tmp_capsule.bounce=bounce;
+					tmp_capsule.spring=spring;
+					tmp_capsule.damping=damping;
 				}
 				else
 				{
@@ -161,11 +208,6 @@ Car_Template *Car_Template::Load (const char *path)
 
 				//store
 				target->capsules.push_back(tmp_capsule);
-
-				//graphics
-				//file_3d *f3d = new file_3d();
-				//target->capsule_graphics.push_back(f3d);
-				//debug_draw_capsule(f3d->list, tmp_capsule.size[0], tmp_capsule.size[1], lgreen, gray, 70);
 			}
 			else
 				printlog(0, "ERROR: geom \"%s\" in car geom list not recognized!", file.words[0]);
@@ -362,8 +404,11 @@ Car *Car_Template::Spawn (dReal x, dReal y, dReal z,  Trimesh_3D *tyre, Trimesh_
 			dRFromEulerAngles(rot, b.rot[0]*M_PI/180.0, b.rot[1]*M_PI/180.0, b.rot[2]*M_PI/180.0);
 			dGeomSetOffsetRotation(geom, rot);
 		}
-		//friction
-		gdata->mu = conf.body_mu;
+
+		gdata->mu=b.mu;
+		gdata->bounce=b.bounce;
+		gdata->spring=b.spring;
+		gdata->damping=b.damping;
 	}
 	//then: spheres
 	struct sphere sphere;
@@ -379,8 +424,11 @@ Car *Car_Template::Spawn (dReal x, dReal y, dReal z,  Trimesh_3D *tyre, Trimesh_
 		if (sphere.pos[0]||sphere.pos[1]||sphere.pos[2]) //need offset
 			dGeomSetOffsetPosition(geom,sphere.pos[0],sphere.pos[1],sphere.pos[2]);
 
-		//friction
-		gdata->mu = conf.body_mu;
+
+		gdata->mu=sphere.mu;
+		gdata->bounce=sphere.bounce;
+		gdata->spring=sphere.spring;
+		gdata->damping=sphere.damping;
 	}
 	//finally: capsule
 	struct capsule capsule;
@@ -401,8 +449,11 @@ Car *Car_Template::Spawn (dReal x, dReal y, dReal z,  Trimesh_3D *tyre, Trimesh_
 			dRFromEulerAngles(rot, capsule.rot[0]*M_PI/180.0, capsule.rot[1]*M_PI/180.0, capsule.rot[2]*M_PI/180.0);
 			dGeomSetOffsetRotation(geom, rot);
 		}
-		//friction
-		gdata->mu = conf.body_mu;
+
+		gdata->mu=capsule.mu;
+		gdata->bounce=capsule.bounce;
+		gdata->spring=capsule.spring;
+		gdata->damping=capsule.damping;
 	}
 
 	//side detection sensors:

@@ -36,8 +36,6 @@ struct Car_Conf
 	dReal xpeak, xshape, xpos[2], xsharp[2];
 	dReal ypeak, yshape, ypos[2], ysharp[2], yshift;
 
-	dReal body_mu;
-
 	dReal body_linear_drag[3], body_angular_drag, wheel_linear_drag, wheel_angular_drag;
 
 	dReal body[3];
@@ -66,7 +64,6 @@ const struct Car_Conf car_conf_defaults = {
 	0.1, 45.0, 20, 300000.0, 10000.0,
 	2000.0, 1.5, {0.1, 0.0}, {20.0, -0.4},
 	1500.0, 1.5, {13.0, -0.2}, {0.05, 0.6}, 0.02,
-	0.1,
 	{10,5,15}, 1, 4, 0.5,
 	{3.5,8.2,1},
 	1.0, 0.5,
@@ -125,7 +122,6 @@ const struct Conf_Index car_conf_index[] = {
 	{"tyre.y:shift",	'R',1, offsetof(struct Car_Conf, yshift)},
 
 	{"body",		'R',3, offsetof(struct Car_Conf, body)},
-	{"body_mu",		'R',1, offsetof(struct Car_Conf, body_mu)},
 
 	{"body_linear_drag",	'R',3, offsetof(struct Car_Conf, body_linear_drag)},
 	{"body_angular_drag",	'R',1, offsetof(struct Car_Conf, body_angular_drag)},
@@ -162,6 +158,7 @@ class Car_Template:public Racetime_Data
 			dReal size[3];
 			dReal pos[3];
 			dReal rot[3];
+			dReal mu,bounce,spring,damping;
 		};
 
 		std::vector<class box> boxes;
@@ -169,6 +166,7 @@ class Car_Template:public Racetime_Data
 		struct sphere {
 			dReal radius;
 			dReal pos[3];
+			dReal mu,bounce,spring,damping;
 		};
 
 		std::vector<class sphere> spheres;
@@ -177,6 +175,7 @@ class Car_Template:public Racetime_Data
 			dReal size[2];
 			dReal pos[3];
 			dReal rot[3];
+			dReal mu,bounce,spring,damping;
 		};
 
 		std::vector<class capsule> capsules;
