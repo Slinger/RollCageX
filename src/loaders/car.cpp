@@ -301,6 +301,7 @@ Car *Car_Template::Spawn (dReal x, dReal y, dReal z,  Trimesh_3D *tyre, Trimesh_
 	car->max_steer = conf.max_steer;
 	car->steerdecr = conf.steer_decrease;
 	car->diffres = conf.diff_res;
+	car->airtorque = conf.air_torque;
 	car->dsteer = conf.dsteer;
 	car->dbreak = conf.dbreak;
 	car->fwd = conf.drive[0];
