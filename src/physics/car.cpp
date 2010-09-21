@@ -109,40 +109,35 @@ void Car::Physics_Step(dReal step)
 		dJointSetHinge2Param (carp->joint[3],dParamHiStop,A[3]);
 		//
 
-
 		//breaking/accelerating:
+
+		//(might be needed):
+		dReal kpower = carp->dir*carp->motor_power*carp->throttle;
+
+		//(rear and front break: "half of ratio of max by throttle")
+		dReal kfbreak = carp->dir*carp->max_break*0.5*carp->dbreak*carp->throttle;
+		dReal krbreak = carp->dir*carp->max_break*0.5*(1.0-carp->dbreak)*carp->throttle;
+
+		//front wheels use front breaks, rear wheels use rear breaks
+		dReal kbreak[4] = {kfbreak, krbreak, krbreak, kfbreak};
+
+		dReal kinertia = carp->wheel->inertia;
+		dReal kdiffres = carp->diffres;
+
+		dReal radius[4] = {0,0,0,0}; //turning radius (always correct for all wheels)
+		dReal r[4] = {0,0,0,0}; //turning radius of each wheel (set to 0 in some situations)
+
+
+		dReal t[4] = {0,0,0,0}; //torque on each wheel
+
 		if (carp->drift_breaks) //breaks (lock rear wheels)
 		{
-			dJointSetHinge2Param (carp->joint[1],dParamVel2,0);
-			dJointSetHinge2Param (carp->joint[1],dParamFMax2,dInfinity);
-			dJointSetHinge2Param (carp->joint[2],dParamVel2,0);
-			dJointSetHinge2Param (carp->joint[2],dParamFMax2,dInfinity);
+			//apply torque on rear wheels to lock them
+			t[1] = -rotv[1]*kinertia/step;
+			t[2] = -rotv[2]*kinertia/step;
 		}
 		else //acceleration or soft (non-locking) breaks
 		{
-			//make sure drift break is not locked...
-			dJointSetHinge2Param (carp->joint[1],dParamFMax2,0);
-			dJointSetHinge2Param (carp->joint[2],dParamFMax2,0);
-
-			//will be needed:
-			dReal kpower = carp->dir*carp->motor_power*carp->throttle;
-
-			//(rear and front break: "half of ratio of max by throttle")
-			dReal kfbreak = carp->dir*carp->max_break*0.5*carp->dbreak*carp->throttle;
-			dReal krbreak = carp->dir*carp->max_break*0.5*(1.0-carp->dbreak)*carp->throttle;
-
-			//front wheels use front breaks, rear wheels use rear breaks
-			dReal kbreak[4] = {kfbreak, krbreak, krbreak, kfbreak};
-
-			dReal kinertia = carp->wheel->inertia;
-			dReal kdiffres = carp->diffres;
-
-			//values to calculate:
-			dReal r[4] = {0,0,0,0}; //turning radius of each wheel
-			dReal t[4] = {0,0,0,0}; //torque on each wheel
-
-			dReal radius[4] = {0,0,0,0}; //turning radius (always correct for all wheels)
-
 			if (carp->smart_drive)
 			{
 				//I'm not confident letting the following calculations process infinite turning radius (no turning)...
@@ -335,13 +330,14 @@ void Car::Physics_Step(dReal step)
 						t[i] += power[i]/rotv[i];
 				}
 			}
-
-			//(sum torque and break variables - one of them is always zero)
-			dJointAddHinge2Torques (carp->joint[0],0, t[0]);
-			dJointAddHinge2Torques (carp->joint[1],0, t[1]);
-			dJointAddHinge2Torques (carp->joint[2],0, t[2]);
-			dJointAddHinge2Torques (carp->joint[3],0, t[3]);
 		}
+
+		//apply torques
+		dJointAddHinge2Torques (carp->joint[0],0, t[0]);
+		dJointAddHinge2Torques (carp->joint[1],0, t[1]);
+		dJointAddHinge2Torques (carp->joint[2],0, t[2]);
+		dJointAddHinge2Torques (carp->joint[3],0, t[3]);
+
 		//
 
 		//done, next car...
