@@ -65,7 +65,6 @@ Geom::Geom (dGeomID geom, Object *obj): Component(obj) //pass object argument to
 	bounce = 0.0; //no bouncyness
 
 	//normal friction scaling for tyre
-	tyre_peak_scale = 1.0;
 	tyre_pos_scale = 1.0;
 	tyre_sharp_scale = 1.0;
 

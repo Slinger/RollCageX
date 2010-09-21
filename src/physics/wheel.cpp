@@ -264,7 +264,7 @@ void Wheel::Set_Contacts(dBodyID wbody, dBodyID obody, Geom *ogeom, bool wheel_f
 		//
 
 		//max mu value
-		peak = xpeak *ogeom->tyre_peak_scale;
+		peak = xpeak *ogeom->mu;
 		//shape
 		shape = xshape;
 		//needed to get peak at right position, and used by peak_sharpness

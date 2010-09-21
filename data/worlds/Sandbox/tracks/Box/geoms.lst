@@ -8,7 +8,7 @@
 #example/default:
 #> surface mu 1.0 bounce 0 spring inf damping 0
 #defaults for tyre property scaling:
-#> surface peak 1.0 position 1.0 sharpness 1.0
+#> surface position 1.0 sharpness 1.0
 
 #position  rotation  geom model  optional render model
 0 0 0      0 0 0     "Box.obj"   #"Box.obj"
