@@ -86,8 +86,8 @@ void Car::Physics_Step(dReal step)
 		else //dumb
 		{
 			//different distribution and direction of fron and rear wheels
-			dReal front = carp->dsteer*carp->steering*carp->dir;
-			dReal rear = -(1.0-carp->dsteer)*carp->steering*carp->dir;
+			dReal front = maxsteer*carp->dsteer*carp->steering*carp->dir;
+			dReal rear = -maxsteer*(1.0-carp->dsteer)*carp->steering*carp->dir;
 			A[0] = front;
 			A[1] = rear;
 			A[2] = rear;
