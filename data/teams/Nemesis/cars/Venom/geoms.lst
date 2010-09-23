@@ -1,6 +1,7 @@
 #some or all collision properties can be modified:
 #> mu 1 bounce 0 spring inf damping 0 #(defaults)
 #will affect all following geoms until new values are specified
+> mu 1 #1N/N friction
 
 #spheres are best performance-wise, followed by capsules and then boxes
 

@@ -48,7 +48,7 @@ Car_Template *Car_Template::Load (const char *path)
 	if (file.Open(lst))
 	{
 		//default surface parameters
-		dReal mu = internal.mu;
+		dReal mu = 0.0;
 		dReal bounce = 0.0;
 		dReal spring = dInfinity;
 		dReal damping = 0.0;

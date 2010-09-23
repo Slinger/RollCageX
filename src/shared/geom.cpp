@@ -60,6 +60,7 @@ Geom::Geom (dGeomID geom, Object *obj): Component(obj) //pass object argument to
 	model = NULL; //default: don't render
 
 	//collision contactpoint data
+	mu = 0.0;
 	spring = dInfinity; //infinite spring constant (disabled)
 	damping = 0.0; //no collision damping (only with spring)
 	bounce = 0.0; //no bouncyness
@@ -67,9 +68,6 @@ Geom::Geom (dGeomID geom, Object *obj): Component(obj) //pass object argument to
 	//normal friction scaling for tyre
 	tyre_pos_scale = 1.0;
 	tyre_sharp_scale = 1.0;
-
-	//default from internal.conf
-	mu = internal.mu;
 
 	wheel = NULL; //not a wheel
 

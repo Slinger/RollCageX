@@ -30,7 +30,6 @@ extern struct internal_struct {
 	int contact_points;
 	dReal collision_erp,collision_cfm;
 	dReal joint_erp,joint_cfm;
-	dReal mu;
 	dReal linear_drag, angular_drag;
 
 	dReal dis_linear, dis_angular, dis_time;
@@ -60,7 +59,6 @@ const struct internal_struct internal_defaults = {
 	20,
 	0.8, 0.00001,
 	0.8, 0.00001,
-	1.0,
 	5.0,5.0,
 	0.05,0.10,0.5,
 	1,
@@ -92,7 +90,6 @@ const struct Conf_Index internal_index[] = {
 	{"collision_cfm",	'R',1, offsetof(struct internal_struct, collision_cfm)},
 	{"joint_erp",		'R',1, offsetof(struct internal_struct, joint_erp)},
 	{"joint_cfm",		'R',1, offsetof(struct internal_struct, joint_cfm)},
-	{"default_mu",		'R',1, offsetof(struct internal_struct, mu)},
 	{"default_linear_drag",	'R',1, offsetof(struct internal_struct, linear_drag)},
 	{"default_angular_drag",'R',1, offsetof(struct internal_struct, angular_drag)},
 	{"auto_disable_linear",	'R',1, offsetof(struct internal_struct, dis_linear)},

@@ -10,5 +10,8 @@
 #defaults for tyre property scaling:
 #> surface position 1.0 sharpness 1.0
 
+#set mu to 1N/N
+> surface mu 1
+
 #position  rotation  geom model  optional render model
 0 0 0      0 0 0     "Box.obj"   #"Box.obj"
