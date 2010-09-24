@@ -45,6 +45,7 @@ struct Car_Conf
 	bool drive[2];
 	dReal max_steer;
 	dReal steer_decrease;
+	dReal min_steer;
 	dReal diff_res;
 	bool smartsteer, smartdrive;
 	dReal air_torque;
@@ -68,8 +69,9 @@ const struct Car_Conf car_conf_defaults = {
 	{3.5,8.2,1},
 	1.0, 0.5,
 	{false, true},
-	40.0,
+	30.0,
 	0.4,
+	15.0,
 	100.0,
 	true, true,
 	100.0,
@@ -89,6 +91,7 @@ const struct Conf_Index car_conf_index[] = {
 	{"front-rear_drive",	'b',2, offsetof(struct Car_Conf, drive)},
 	{"max_steer",		'R',1, offsetof(struct Car_Conf, max_steer)},
 	{"steer_decrease",	'R',1, offsetof(struct Car_Conf, steer_decrease)},
+	{"min_decreased_steer",	'R',1, offsetof(struct Car_Conf, min_steer)},
 	{"diff_resistance",	'R',1, offsetof(struct Car_Conf, diff_res)},
 	{"air_torque_limit",	'R',1, offsetof(struct Car_Conf, air_torque)},
 	{"smart_steering",	'b',1, offsetof(struct Car_Conf, smartsteer)},
@@ -210,7 +213,8 @@ class Car:public Object
 		dReal diffres;
 		dReal airtorque;
 
-		dReal steerdecr;
+		dReal steerdecr, min_steer;
+
 		dReal dsteer, dbreak;
 		bool fwd, rwd;
 		bool smart_steer, smart_drive;
