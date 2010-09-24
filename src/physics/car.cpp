@@ -40,6 +40,10 @@ void Car::Physics_Step(dReal step)
 		else
 			antigrav = false;
 
+		//sensors have been read, reset them
+		carp->sensor1->colliding = false;
+		carp->sensor2->colliding = false;
+
 		if (antigrav) //TODO
 		{
 //			dBodyAddRelForce (carp->bodyid,0,0, carp->dir*100);
@@ -329,16 +333,21 @@ void Car::Physics_Step(dReal step)
 			}
 		}
 
-		//if in air, lets limit the torques
-		if ( !(carp->sensor1->colliding) && !(carp->sensor2->colliding) )
+		//if a wheel is in air, lets limit the torques
+		for (i=0; i<4; ++i)
 		{
-			for (i=0; i<4; ++i)
+			//is in air
+			if (!carp->wheel_geom_data[i]->colliding)
 			{
+				//above limit...
 				if (t[i] > kairtorque)
 					t[i] = kairtorque;
 				else if (t[i] < -kairtorque)
 					t[i] = -kairtorque;
 			}
+
+			//reset "wheel sensor" for next time
+			carp->wheel_geom_data[i]->colliding=false;
 		}
 
 		//apply torques
@@ -348,10 +357,6 @@ void Car::Physics_Step(dReal step)
 		dJointAddHinge2Torques (carp->joint[3],0, t[3]);
 
 		//
-
-		//sensors have been read, reset them
-		carp->sensor1->colliding = false;
-		carp->sensor2->colliding = false;
 
 		//done, next car...
 		carp=carp->next;
