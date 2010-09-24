@@ -115,6 +115,7 @@ bool load_track (const char *path)
 	//tmp plane until respawning implemented
 	geom = dCreatePlane (0, 0,0,1,track.respawn);
 	data = new Geom(geom, track.object);
+	data->mu = 1.0; //to make it possible to drive on tmp (not respawning) plane
 
 	//loading of model files
 	char glist[strlen(path)+10+1];
