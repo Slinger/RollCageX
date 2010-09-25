@@ -90,7 +90,10 @@ void Wheel::Set_Contacts(dBodyID wbody, dBodyID obody, Geom *ogeom, bool wheel_f
 	dReal inclination;
 
 	//calculation koefficients for tyre friction calculation
-	dReal peak, shape, K, peak_at, peak_sharpness, shift;
+	dReal peakX, peakY, shape, K, peak_at, peak_sharpness, shift;
+
+	//and "combined slip"
+	dReal diff;
 
 	//variables for processing:
 	//for slip:
@@ -264,7 +267,7 @@ void Wheel::Set_Contacts(dBodyID wbody, dBodyID obody, Geom *ogeom, bool wheel_f
 		//
 
 		//max mu value
-		peak = xpeak *ogeom->mu;
+		peakX = xpeak *ogeom->mu;
 		//shape
 		shape = xshape;
 		//needed to get peak at right position, and used by peak_sharpness
@@ -275,9 +278,9 @@ void Wheel::Set_Contacts(dBodyID wbody, dBodyID obody, Geom *ogeom, bool wheel_f
 		peak_sharpness = (peak_at/K)*xsharp*pow(Fz, xsharpch) *ogeom->tyre_sharp_scale;
 
 		//calculate!
-		MUx = peak*sin(shape*atan(K*pow((fabs(slip_ratio)/peak_at), peak_sharpness)));
+		MUx = peakX*sin(shape*atan(K*pow((fabs(slip_ratio)/peak_at), peak_sharpness)));
 
-		peak = ypeak; //*material_peak_scale
+		peakY = ypeak; //*material_peak_scale
 		shape = yshape;
 		K = tan( (M_PI/2)/shape );
 		peak_at = ypos*pow(Fz, yposch); //*material_peak_at_scale
@@ -289,7 +292,7 @@ void Wheel::Set_Contacts(dBodyID wbody, dBodyID obody, Geom *ogeom, bool wheel_f
 		if (slip_angle < 0.0)
 			shift = -shift;
 
-		MUy = peak*sin(shape*atan(K*pow((fabs(slip_angle)/peak_at), peak_sharpness))) + shift;
+		MUy = peakY*sin(shape*atan(K*pow((fabs(slip_angle)/peak_at), peak_sharpness))) + shift;
 
 		//MUx and MUy might get negative in the calculations, which means no friction so
 		//set to 0
@@ -303,7 +306,31 @@ void Wheel::Set_Contacts(dBodyID wbody, dBodyID obody, Geom *ogeom, bool wheel_f
 		//
 		//3) combined slip (scale Fx and Fy to combine)
 		//
-		//TODO!
+		//NOTE: when ode contact joints are automatically computing "force direction" 1 and 2, they
+		//_appears_ to be set so that fdir1 is along movement and fdir2 is perpendicular. thus the fdir1
+		//force is always proportional to the "absolute velocity" and fdir2 force is always 0. this
+		//results in a realistic "circle" approximation of the friction (same force for all direction).
+		//
+		//however: for tyre, fdir1 (and fdir2) must be set outside ode, so that a different mu can be given
+		//for fdir1 (along wheel heading) and fdir2 (sideways). this separation results in a less realistic
+		//"box" friction approximation (movement along both direction 1 and 2 results in more friction than
+		//equal movement along only one direction).
+		//to solve this, we apply "combined slip condition correction" to the Mu for x and y.
+		//
+		//the normal solution would be a simple circular approximation, but for tyre friction it seems we
+		//want to make it elliptic instead - but only when (and based on) movement along both x and y.
+		//this way the friction in one direction (and the total friction too) will decrease if the wheel is
+		//moving along the other direction too.
+
+
+		//there are different solutions to this.... TODO: decide on what to use!
+		//this one: kinda, sorta, inspired by part of something simple developed by MSC:
+		diff = (MUx/peakY)*(sin(slip_angle*M_PI/180.0)/slip_ratio); //TODO
+		MUx /=sqrt(1.0+diff*diff);
+
+		diff = (MUy/peakX)*(slip_ratio/sin(slip_angle*M_PI/180.0)); //TODO
+		MUy /=sqrt(1.0+diff*diff);
+
 
 		//
 		//4) set output values:
