@@ -90,7 +90,7 @@ void Wheel::Set_Contacts(dBodyID wbody, dBodyID obody, Geom *ogeom, bool wheel_f
 	dReal inclination;
 
 	//calculation koefficients for tyre friction calculation
-	dReal peakX, peakY, shape, K, peak_at, peak_sharpness, shift;
+	dReal peak, shape, K, peak_at, peak_sharpness, shift;
 
 	//and "combined slip"
 	dReal diff;
@@ -267,7 +267,7 @@ void Wheel::Set_Contacts(dBodyID wbody, dBodyID obody, Geom *ogeom, bool wheel_f
 		//
 
 		//max mu value
-		peakX = xpeak *ogeom->mu;
+		peak = xpeak *ogeom->mu;
 		//shape
 		shape = xshape;
 		//needed to get peak at right position, and used by peak_sharpness
@@ -278,9 +278,9 @@ void Wheel::Set_Contacts(dBodyID wbody, dBodyID obody, Geom *ogeom, bool wheel_f
 		peak_sharpness = (peak_at/K)*xsharp*pow(Fz, xsharpch) *ogeom->tyre_sharp_scale;
 
 		//calculate!
-		MUx = peakX*sin(shape*atan(K*pow((fabs(slip_ratio)/peak_at), peak_sharpness)));
+		MUx = peak*sin(shape*atan(K*pow((fabs(slip_ratio)/peak_at), peak_sharpness)));
 
-		peakY = ypeak; //*material_peak_scale
+		peak = ypeak; //*material_peak_scale
 		shape = yshape;
 		K = tan( (M_PI/2)/shape );
 		peak_at = ypos*pow(Fz, yposch); //*material_peak_at_scale
@@ -292,7 +292,7 @@ void Wheel::Set_Contacts(dBodyID wbody, dBodyID obody, Geom *ogeom, bool wheel_f
 		if (slip_angle < 0.0)
 			shift = -shift;
 
-		MUy = peakY*sin(shape*atan(K*pow((fabs(slip_angle)/peak_at), peak_sharpness))) + shift;
+		MUy = peak*sin(shape*atan(K*pow((fabs(slip_angle)/peak_at), peak_sharpness))) + shift;
 
 		//MUx and MUy might get negative in the calculations, which means no friction so
 		//set to 0
@@ -325,7 +325,6 @@ void Wheel::Set_Contacts(dBodyID wbody, dBodyID obody, Geom *ogeom, bool wheel_f
 
 		//there are different solutions to this.... TODO: decide on what to use!
 		//using simple (but nice!) circular approximation
-		diff = (MUx/peakY)*(sin(slip_angle*M_PI/180.0)/slip_ratio); //TODO
 		diff = fabs(VDot(Y, Vpoint)/VDot(X, Vpoint)); //difference between velocity of point along X and Y
 		//TODO: diff might become NaN here...?
 		MUx /=sqrt(1.0+diff*diff);
