@@ -324,13 +324,12 @@ void Wheel::Set_Contacts(dBodyID wbody, dBodyID obody, Geom *ogeom, bool wheel_f
 
 
 		//there are different solutions to this.... TODO: decide on what to use!
-		//this one: kinda, sorta, inspired by part of something simple developed by MSC:
+		//using simple (but nice!) circular approximation
 		diff = (MUx/peakY)*(sin(slip_angle*M_PI/180.0)/slip_ratio); //TODO
+		diff = fabs(VDot(Y, Vpoint)/VDot(X, Vpoint)); //difference between velocity of point along X and Y
+		//TODO: diff might become NaN here...?
 		MUx /=sqrt(1.0+diff*diff);
-
-		diff = (MUy/peakX)*(slip_ratio/sin(slip_angle*M_PI/180.0)); //TODO
-		MUy /=sqrt(1.0+diff*diff);
-
+		MUy /=sqrt(1.0+1.0/(diff*diff));
 
 		//
 		//4) set output values:
