@@ -115,6 +115,7 @@ void Graphic_List_Update()
 				buffer_size+=INITIAL_GRAPHIC_LIST_BUFFER_SIZE;
 				buffer1.list = (list_element*) realloc(buffer1.list, sizeof(list_element)*buffer_size);
 				buffer2.list = (list_element*) realloc(buffer2.list, sizeof(list_element)*buffer_size);
+				list=tmp->list;
 			}
 		}
 	}
@@ -155,11 +156,12 @@ void Graphic_List_Update()
 			//if buffer full...
 			if (++(*count) == buffer_size)
 			{
-				printlog(1, "Note: Graphic_List buffers were too small, resizing");
+				printlog(2, "Note: Graphic_List buffers were too small, resizing");
 
 				buffer_size+=INITIAL_GRAPHIC_LIST_BUFFER_SIZE;
 				buffer1.list = (list_element*) realloc(buffer1.list, sizeof(list_element)*buffer_size);
 				buffer2.list = (list_element*) realloc(buffer2.list, sizeof(list_element)*buffer_size);
+				list=tmp->list;
 			}
 		}
 	}

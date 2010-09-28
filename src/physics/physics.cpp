@@ -136,8 +136,6 @@ int physics_loop (void *d)
 	return 0;
 }
 
-//TODO: add physics loop
-
 void physics_quit (void)
 {
 	printlog(1, "Quit physics");
