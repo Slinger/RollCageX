@@ -229,7 +229,8 @@ Car_Template *Car_Template::Load (const char *path)
 
 	//check and copy data from conf to wheel class
 	//x
-	target->wheel.xpeak = target->conf.xpeak;
+	target->wheel.xpeak = target->conf.xpeak[0];
+	target->wheel.xpeaksch = target->conf.xpeak[1];
 
 	if (target->conf.xshape > 1.0)
 		target->wheel.xshape = target->conf.xshape;
@@ -251,7 +252,8 @@ Car_Template *Car_Template::Load (const char *path)
 	target->wheel.xsharpch = target->conf.xsharp[1];
 
 	//y
-	target->wheel.ypeak = target->conf.ypeak;
+	target->wheel.ypeak = target->conf.ypeak[0];
+	target->wheel.ypeaksch = target->conf.ypeak[1];
 
 	if (target->conf.yshape > 1.0)
 		target->wheel.yshape = target->conf.yshape;

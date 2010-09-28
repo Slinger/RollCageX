@@ -57,6 +57,7 @@
 Wheel::Wheel()
 {
 	xpeak = 0.0;
+	xpeaksch = 0.0;
 	xshape = 2.0;
 	xpos = 1.0;
 	xposch = 0.0;
@@ -64,6 +65,7 @@ Wheel::Wheel()
 	xsharpch = 0.0;
 
 	ypeak = 0.0;
+	ypeaksch = 0.0;
 	yshape = 2.0;
 	ypos = 1.0;
 	yposch = 0.0;
@@ -267,7 +269,7 @@ void Wheel::Set_Contacts(dBodyID wbody, dBodyID obody, Geom *ogeom, bool wheel_f
 		//
 
 		//max mu value
-		peak = xpeak *ogeom->mu;
+		peak = (xpeak+xpeaksch*Fz)*ogeom->mu;
 		//shape
 		shape = xshape;
 		//needed to get peak at right position, and used by peak_sharpness
@@ -280,11 +282,11 @@ void Wheel::Set_Contacts(dBodyID wbody, dBodyID obody, Geom *ogeom, bool wheel_f
 		//calculate!
 		MUx = peak*sin(shape*atan(K*pow((fabs(slip_ratio)/peak_at), peak_sharpness)));
 
-		peak = ypeak; //*material_peak_scale
+		peak = (ypeak+ypeaksch*Fz)*ogeom->mu;
 		shape = yshape;
 		K = tan( (M_PI/2)/shape );
-		peak_at = ypos*pow(Fz, yposch); //*material_peak_at_scale
-		peak_sharpness = (peak_at/K)*ysharp*pow(Fz, ysharpch); //*material_sharpness_scale
+		peak_at = ypos*pow(Fz, yposch) *ogeom->tyre_pos_scale;
+		peak_sharpness = (peak_at/K)*ysharp*pow(Fz, ysharpch) *ogeom->tyre_sharp_scale;
 		shift = yshift*inclination;
 
 		//based on the turning angle (positive or negative), the shift might change

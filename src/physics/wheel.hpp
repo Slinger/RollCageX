@@ -31,6 +31,7 @@ class Wheel
 
 		//friction data:
 		dReal xpeak;
+		dReal xpeaksch;
 		dReal xshape;
 		dReal xpos;
 		dReal xposch;
@@ -38,6 +39,7 @@ class Wheel
 		dReal xsharpch;
 
 		dReal ypeak;
+		dReal ypeaksch;
 		dReal yshape;
 		dReal ypos;
 		dReal yposch;
