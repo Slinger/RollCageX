@@ -325,8 +325,13 @@ void Wheel::Set_Contacts(dBodyID wbody, dBodyID obody, Geom *ogeom, bool wheel_f
 
 		//there are different solutions to this.... TODO: decide on what to use!
 		//using simple (but nice!) circular approximation
-		diff = fabs(VDot(Y, Vpoint)/VDot(X, Vpoint)); //difference between velocity of point along X and Y
-		//TODO: diff might become NaN here...?
+		diff = VDot(Y, Vpoint)/VDot(X, Vpoint); //difference between velocity of point along X and Y
+
+		//might become NaN? Probably only with 0 velocity... Anyway, default to 45° distribution
+		if (isnan(diff))
+			diff=1.0;
+
+		//apply
 		MUx /=sqrt(1.0+diff*diff);
 		MUy /=sqrt(1.0+1.0/(diff*diff));
 
