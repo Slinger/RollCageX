@@ -220,7 +220,9 @@ Car_Template *Car_Template::Load (const char *path)
 		strcat(file, target->conf.model);
 
 		if ( !(target->model = Trimesh_3D::Quick_Load(file,
-				target->conf.resize, target->conf.rotate, target->conf.offset)) )
+				target->conf.resize,
+				target->conf.rotate[0], target->conf.rotate[1], target->conf.rotate[2],
+				target->conf.offset[0], target->conf.offset[1], target->conf.offset[2])) )
 			return NULL;
 	}
 

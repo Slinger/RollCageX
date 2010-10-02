@@ -102,7 +102,9 @@ Trimesh_3D::~Trimesh_3D()
 }
 
 //loading of a 3d model directly
-Trimesh_3D *Trimesh_3D::Quick_Load(const char *name, float resize, float rotate[], float offset[])
+Trimesh_3D *Trimesh_3D::Quick_Load(const char *name, float resize,
+		float rotx, float roty, float rotz,
+		float offx, float offy, float offz)
 {
 	//check if already exists
 	if (Trimesh_3D *tmp=Racetime_Data::Find<Trimesh_3D>(name))
@@ -117,8 +119,8 @@ Trimesh_3D *Trimesh_3D::Quick_Load(const char *name, float resize, float rotate[
 
 	//pass modification requests (will be ignored if defaults)
 	mesh.Resize(resize);
-	mesh.Rotate(rotate[0], rotate[1], rotate[2]);
-	mesh.Offset(offset[0], offset[1], offset[2]);
+	mesh.Rotate(rotx, roty, rotz);
+	mesh.Offset(offx, offy, offz);
 
 	//create a geom from this and return it
 	return mesh.Create_3D();
@@ -185,7 +187,9 @@ Trimesh_3D *Trimesh_3D::Quick_Load_Conf(const char *path, const char *file)
 	strcat(model, modelconf.model);
 
 	//load
-	return Trimesh_3D::Quick_Load(model, modelconf.resize, modelconf.rotate, modelconf.offset);
+	return Trimesh_3D::Quick_Load(model, modelconf.resize,
+			modelconf.rotate[0], modelconf.rotate[1], modelconf.rotate[2],
+			modelconf.offset[0], modelconf.offset[1], modelconf.offset[2]);
 }
 
 //method for creating a Trimesh_3D from Trimesh
