@@ -84,7 +84,6 @@ bool load_track (const char *path)
 	camera.Set_Pos(track.cam_start, track.focus_start);
 
 	//append forced data
-	track.position[3] = 0.0f; //directional
 	track.ambient[3] = 1.0f; //a = 1.0f
 	track.diffuse[3] = 1.0f; //-''-
 	track.specular[3] = 1.0f; //-''-
