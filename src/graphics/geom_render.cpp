@@ -464,6 +464,21 @@ void Geom_Render()
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexVBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(geom_index)*index_usage, indices, GL_STREAM_DRAW);
 	
+	//check if memory problems...
+	//TODO: do this after each BufferData?
+	if (GLenum error = glGetError())
+	{
+		//should be a memory issue, but lets take a look
+		if (error == GL_OUT_OF_MEMORY)
+			printlog(0, "WARNING: insufficient graphics memory, can not render geoms...");
+		else
+			printlog(0, "ERROR: unexpected opengl error!!! Fix this!");
+
+		//disable rendering and quit before causing any harm (hope gl is still ok)...
+		geom_render_level = 0;
+		return;
+	}
+
 	//configure rendering options:
 	glDisable (GL_LIGHTING);
 	glShadeModel (GL_FLAT);
