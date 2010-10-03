@@ -161,11 +161,6 @@ class Car:public Object
 
 		static void Physics_Step(dReal step);
 
-		//public for now
-		//controlling values
-		bool drift_breaks;
-		dReal throttle, steering; //-1.0 to +1.0
-		dReal velocity; //keep track of car velocity
 
 	private:
 		Car(); //not allowed to be allocated freely
@@ -187,6 +182,10 @@ class Car:public Object
 		Geom *sensor1, *sensor2;
 		dReal dir; //direction, 1 or -1
 
+		//controlling values
+		bool drift_breaks;
+		dReal throttle, steering; //-1.0 to +1.0
+		dReal velocity; //keep track of car velocity
 
 		//tmp: wheel position...
 		dReal wx, wy;
@@ -195,6 +194,9 @@ class Car:public Object
 		//appart from the object list, keep a list of all cars
 		static Car *head;
 		Car *prev, *next;
+
+		//controls car
+		friend void Profile_Events_Step(Uint32 step);
 
 		//tmp: needs access to above pointers
 		friend int events_loop (void *d);

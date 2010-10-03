@@ -97,8 +97,7 @@ void Car::Physics_Step(dReal step)
 
 				//if throttle and and current direction is the same, accelerate. or if rotation is
 				//wrong way, but so slow that the motor is better than breaks, also use accelerate
-				if (	(rotation > 0.0 && (carp->throttle*carp->dir) > 0.0) ||
-					(rotation < 0.0 && (carp->throttle*carp->dir) < 0.0) ||
+				if (	(rotation * carp->throttle) > 0.0 || //negative if different signs
 					(gear_torque > carp->max_break) )
 				{
 					//if front wheel, front motor, if rear, rear motor
@@ -121,30 +120,30 @@ void Car::Physics_Step(dReal step)
 			//apply torques:
 			if (carp->torque_compensator) //only on wheels
 			{
-				dBodyAddRelTorque(carp->wheel_body[0], 0, 0, -torque[0]*carp->throttle*carp->dir);
-				dBodyAddRelTorque(carp->wheel_body[1], 0, 0, -torque[1]*carp->throttle*carp->dir);
-				dBodyAddRelTorque(carp->wheel_body[2], 0, 0, torque[2]*carp->throttle*carp->dir);
-				dBodyAddRelTorque(carp->wheel_body[3], 0, 0, torque[3]*carp->throttle*carp->dir);
+				dBodyAddRelTorque(carp->wheel_body[0], 0, 0, -torque[0]*carp->throttle);
+				dBodyAddRelTorque(carp->wheel_body[1], 0, 0, -torque[1]*carp->throttle);
+				dBodyAddRelTorque(carp->wheel_body[2], 0, 0, torque[2]*carp->throttle);
+				dBodyAddRelTorque(carp->wheel_body[3], 0, 0, torque[3]*carp->throttle);
 			}
 			else //between wheels and body
 			{
-				dJointAddHinge2Torques (carp->joint[0],0,torque[0]*carp->throttle*carp->dir);
-				dJointAddHinge2Torques (carp->joint[1],0,torque[1]*carp->throttle*carp->dir);
-				dJointAddHinge2Torques (carp->joint[2],0,torque[2]*carp->throttle*carp->dir);
-				dJointAddHinge2Torques (carp->joint[3],0,torque[3]*carp->throttle*carp->dir);
+				dJointAddHinge2Torques (carp->joint[0],0,torque[0]*carp->throttle);
+				dJointAddHinge2Torques (carp->joint[1],0,torque[1]*carp->throttle);
+				dJointAddHinge2Torques (carp->joint[2],0,torque[2]*carp->throttle);
+				dJointAddHinge2Torques (carp->joint[3],0,torque[3]*carp->throttle);
 			}
 		}
 
 		//steering
-		dJointSetHinge2Param (carp->joint[0],dParamLoStop,carp->steering*carp->dir *carp->fsteer);
-		dJointSetHinge2Param (carp->joint[0],dParamHiStop,carp->steering*carp->dir *carp->fsteer);
-		dJointSetHinge2Param (carp->joint[3],dParamLoStop,carp->steering*carp->dir *carp->fsteer);
-		dJointSetHinge2Param (carp->joint[3],dParamHiStop,carp->steering*carp->dir *carp->fsteer);
+		dJointSetHinge2Param (carp->joint[0],dParamLoStop,carp->steering *carp->fsteer);
+		dJointSetHinge2Param (carp->joint[0],dParamHiStop,carp->steering *carp->fsteer);
+		dJointSetHinge2Param (carp->joint[3],dParamLoStop,carp->steering *carp->fsteer);
+		dJointSetHinge2Param (carp->joint[3],dParamHiStop,carp->steering *carp->fsteer);
 
-		dJointSetHinge2Param (carp->joint[1],dParamLoStop,carp->steering*carp->dir *carp->rsteer);
-		dJointSetHinge2Param (carp->joint[1],dParamHiStop,carp->steering*carp->dir *carp->rsteer);
-		dJointSetHinge2Param (carp->joint[2],dParamLoStop,carp->steering*carp->dir *carp->rsteer);
-		dJointSetHinge2Param (carp->joint[2],dParamHiStop,carp->steering*carp->dir *carp->rsteer);
+		dJointSetHinge2Param (carp->joint[1],dParamLoStop,carp->steering *carp->rsteer);
+		dJointSetHinge2Param (carp->joint[1],dParamHiStop,carp->steering *carp->rsteer);
+		dJointSetHinge2Param (carp->joint[2],dParamLoStop,carp->steering *carp->rsteer);
+		dJointSetHinge2Param (carp->joint[2],dParamHiStop,carp->steering *carp->rsteer);
 
 
 		//save car velocity
