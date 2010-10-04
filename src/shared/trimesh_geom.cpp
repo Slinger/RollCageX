@@ -35,7 +35,9 @@ Trimesh_Geom::Trimesh_Geom(const char *name,
 	//perhaps use dGeomTriMeshDataPreprocess here, but it takes a long time to complete...
 }
 
-Trimesh_Geom *Trimesh_Geom::Quick_Load(const char *name, float resize, float rotate[], float offset[])
+Trimesh_Geom *Trimesh_Geom::Quick_Load(const char *name, float resize,
+		float rotx, float roty, float rotz,
+		float offx, float offy, float offz)
 {
 	//check if already exists
 	if (Trimesh_Geom *tmp=Racetime_Data::Find<Trimesh_Geom>(name))
@@ -50,8 +52,8 @@ Trimesh_Geom *Trimesh_Geom::Quick_Load(const char *name, float resize, float rot
 
 	//pass modification requests (will be ignored if defaults)
 	mesh.Resize(resize);
-	mesh.Rotate(rotate[0], rotate[1], rotate[2]);
-	mesh.Offset(offset[0], offset[1], offset[2]);
+	mesh.Rotate(rotx, roty, rotz);
+	mesh.Offset(offx, offy, offz);
 
 	//create a geom from this and return it
 	return mesh.Create_Geom();

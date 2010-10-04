@@ -37,7 +37,9 @@ class Trimesh_3D: public Racetime_Data
 {
 	public:
 		//will load and modify a 3d file to use only as a rendering trimesh
-		static Trimesh_3D *Quick_Load(const char* name, float resize, float rotate[], float offset[]);
+		static Trimesh_3D *Quick_Load(const char* name, float resize,
+				float rotx, float roty, float rotz,
+				float offx, float offy, float offz);
 		//the same, but no modification needed
 		static Trimesh_3D *Quick_Load(const char* name);
 		//all data provided by conf
@@ -90,7 +92,9 @@ class Trimesh_Geom: public Racetime_Data
 {
 	public:
 		//will load and modify a 3d file to use only as a collision trimesh
-		static Trimesh_Geom *Quick_Load(const char* name, float resize, float rotate[], float offset[]);
+		static Trimesh_Geom *Quick_Load(const char* name, float resize,
+				float rotx, float roty, float rotz,
+				float offx, float offy, float offz);
 		//the same, but no modification needed
 		static Trimesh_Geom *Quick_Load(const char* name);
 

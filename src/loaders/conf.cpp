@@ -33,28 +33,30 @@ bool load_conf (const char *name, char *memory, const struct Conf_Index index[])
 
 	int i;
 	int argnr;
-	char *str_left; //text left in word if not completely converted
+	char *strleft; //text left in word if not completely converted
+
+	//tmp loading variables:
+	int tmpi;
+	float tmpf;
+	double tmpd;
+	dReal tmpr;
 	while (file.Read_Line())
 	{
-		printlog(2, "Parameter: %s", file.words[0]);
-
 		//find matching index (loop until end of list or found matching
 		for (i=0; ((index[i].type !=0) && (strcmp(index[i].name,file.words[0]) != 0) ); ++i);
 
 		if (index[i].type==0) //not match, got to end
 		{
-			printlog(0, "ERROR: Parameter: %s - No index name match!", file.words[0]);
+			printlog(0, "WARNING: parameter \"%s\" does not match any parameter name!", file.words[0]);
 			continue;
 		}
-
 		//else, we have a match
-		printlog(2, "match found!, %i, %c, %i",i,index[i].type,index[i].length);
 
 		//see if ammount of args is correct
 		//argument name+values == words
 		if (index[i].length+1 != file.word_count)
 		{
-			printlog(0, "ERROR: Parameter: %s - wrong ammount of args: %i, expected: %i!",file.words[0], file.word_count, index[i].length);
+			printlog(0, "WARNING: parameter \"%s\" has wrong ammount of args: expected: %i, got %i!",file.words[0], index[i].length, file.word_count);
 			continue;
 		}
 
@@ -66,61 +68,78 @@ bool load_conf (const char *name, char *memory, const struct Conf_Index index[])
 			{
 				//float
 				case 'f':
-					*( ((float*)(memory+index[i].offset))+argnr ) = strtof(file.words[argnr+1], &str_left);
+					tmpf = strtof(file.words[argnr+1], &strleft);
+
+					if (strleft == file.words[argnr+1])
+						printlog(0, "WARNING: \"%s\" is invalid for \"floating point\" parameter \"%s\"!", file.words[argnr+1], index[i].name);
+					else //ok
+						*( ((float*)(memory+index[i].offset))+argnr ) = tmpf;
 				break;
 
 				//double
 				case 'd':
-					*( ((double*)(memory+index[i].offset))+argnr ) = strtod(file.words[argnr+1], &str_left);
+					tmpd = strtod(file.words[argnr+1], &strleft);
+
+					if (strleft == file.words[argnr+1])
+						printlog(0, "WARNING: \"%s\" is invalid for \"double precision floating point\" parameter \"%s\"!", file.words[argnr+1], index[i].name);
+					else //ok
+						*( ((double*)(memory+index[i].offset))+argnr ) = tmpd;
 				break;
 
 				//dReal
 				case 'R':
 					//there are two alternatives here (depending on how ode is configured): float or double
 					//always read values as double, and then cast them to whatever "dReal" might be
-					*( ((dReal*)(memory+index[i].offset))+argnr ) = strtod(file.words[argnr+1], &str_left);
+					tmpr = strtod(file.words[argnr+1], &strleft);
+
+					if (strleft == file.words[argnr+1])
+						printlog(0, "WARNING: \"%s\" is invalid for \"dReal floating point\" parameter \"%s\"!", file.words[argnr+1], index[i].name);
+					else
+						*( ((dReal*)(memory+index[i].offset))+argnr ) = tmpr;
 				break;
 
 				//bool
 				case 'b':
-					if ( (!strcasecmp(file.words[argnr+1], "true")) || (!strcmp(file.words[argnr+1], "1")) )
+					//"true" if: "true", "on", "yes", "1"
+					if (	(!strcasecmp(file.words[argnr+1], "true")) ||
+						(!strcasecmp(file.words[argnr+1], "on")) ||
+						(!strcasecmp(file.words[argnr+1], "yes")) ||
+						(!strcmp(file.words[argnr+1], "1"))	)
 						*(((bool*)(memory+index[i].offset))+argnr) = true;
-					else //false
+					//false if: "false", "off", "no", "0"
+					else if((!strcasecmp(file.words[argnr+1], "false")) ||
+						(!strcasecmp(file.words[argnr+1], "off")) ||
+						(!strcasecmp(file.words[argnr+1], "no")) ||
+						(!strcmp(file.words[argnr+1], "0"))	)
 						*(((bool*)(memory+index[i].offset))+argnr) = false;
-
-					str_left = NULL; //assume always working
+					else //failure (unknown word)
+						printlog(0, "WARNING: \"%s\" is invalid for \"boolean\" parameter \"%s\"!", file.words[argnr+1], index[i].name);
 				break;
 
 				//integer
 				case 'i':
-					*( ((int*)(memory+index[i].offset))+argnr ) = strtol (file.words[argnr+1], &str_left, 0);
+					tmpi = strtol (file.words[argnr+1], &strleft, 0);
+
+					if (strleft == file.words[argnr+1])
+						printlog(0, "WARNING: \"%s\" is invalid for \"integer\" parameter \"%s\"!", file.words[argnr+1], index[i].name);
+					else
+						*( ((int*)(memory+index[i].offset))+argnr ) = tmpi;
 				break;
 
 				//string
 				case 's':
 					//check length
 					if (strlen(file.words[argnr+1]) >= Conf_String_Size) //equal or bigger than max size
-					{
-						printlog(0, "ERROR: word in conf file was too big for string!");
-					}
-					else
-					{
-						//ok
+						printlog(0, "WARNING: word in conf file was too big for direct string copy!");
+					else //ok, just copy
 						strcpy(*( ((Conf_String*)(memory+index[i].offset))+argnr ),    file.words[argnr+1] );
-						//indicate success
-						str_left = NULL;
-					}
 				break;
 
 				//unknown
 				default:
-					printlog(0, "ERROR: Parameter: %s - unknown type(%c)!", file.words[0], index[i].type);
+					printlog(0, "WARNING: parameter \"%s\" is of unknown type (\"%c\")!", file.words[0], index[i].type);
 				break;
 			}
-
-			//if the word wasn't processed
-			if (str_left == file.words[argnr+1])
-				printlog(0, "ERROR: Could not translate word \"%s\" to type \"%c\"", file.words[argnr+1], index[i].type);
 		}
 
 	}

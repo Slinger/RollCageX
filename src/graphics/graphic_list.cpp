@@ -39,20 +39,19 @@ struct list_element
 };
 
 //keeps track of a buffer of elements:
+//the buffers are initially set to 0 size, and increased when needed
+//(but never decreased. but since not so big)
 struct list_buffer
 {
 	bool filled;
 	size_t count;
+	size_t size;
 	list_element *list;
 };
 
-//the buffers are initially set at this size, and increased when needed
-//(but never decreased. but since relatively smal, no out-of-memory problems?)
-size_t buffer_size = INITIAL_GRAPHIC_LIST_BUFFER_SIZE;
-
 //buffers
-list_buffer buffer1 = {0, false, (list_element*)malloc(sizeof(list_element)*buffer_size)};
-list_buffer buffer2 = {0, false, (list_element*)malloc(sizeof(list_element)*buffer_size)};
+list_buffer buffer1 = {false, 0, 0, NULL};
+list_buffer buffer2 = {false, 0, 0, NULL};
 
 //pointers at buffers
 list_buffer *buffer_in = &buffer1; //filled with data
@@ -79,6 +78,23 @@ void Graphic_List_Update()
 	{
 		if (g->model)
 		{
+			//if buffer full...
+			if (*count == tmp->size)
+			{
+				printlog(1, "Graphic_List buffer was too small, resizing");
+
+				tmp->size+=INITIAL_GRAPHIC_LIST_BUFFER_SIZE;
+				tmp->list = (list_element*) realloc(tmp->list, sizeof(list_element)*tmp->size);
+				list=tmp->list;
+
+				//check for failure:
+				if (!tmp->list)
+				{
+					printlog(0, "lack of memory for model rendering list, will exit!");
+					exit(-1);
+				}
+			}
+
 			pos = dGeomGetPosition(g->geom_id);
 			rot = dGeomGetRotation(g->geom_id);
 			matrix = list[*count].matrix;
@@ -107,16 +123,8 @@ void Graphic_List_Update()
 			//set object owning this component:
 			list[*count].object = g->object_parent;
 
-			//if buffer full...
-			if (++(*count) == buffer_size)
-			{
-				printlog(2, "Note: Graphic_List buffers were too small, resizing");
-
-				buffer_size+=INITIAL_GRAPHIC_LIST_BUFFER_SIZE;
-				buffer1.list = (list_element*) realloc(buffer1.list, sizeof(list_element)*buffer_size);
-				buffer2.list = (list_element*) realloc(buffer2.list, sizeof(list_element)*buffer_size);
-				list=tmp->list;
-			}
+			//increase counter
+			++(*count);
 		}
 	}
 
@@ -125,6 +133,23 @@ void Graphic_List_Update()
 	{
 		if (b->model)
 		{
+			//if buffer full...
+			if (*count == tmp->size)
+			{
+				printlog(1, "Graphic_List buffers were too small, resizing");
+
+				tmp->size+=INITIAL_GRAPHIC_LIST_BUFFER_SIZE;
+				tmp->list = (list_element*) realloc(tmp->list, sizeof(list_element)*tmp->size);
+				list=tmp->list;
+
+				//check for failure:
+				if (!tmp->list)
+				{
+					printlog(0, "lack of memory for model rendering list, will exit!");
+					exit(-1);
+				}
+			}
+
 			pos = dBodyGetPosition(b->body_id);
 			rot = dBodyGetRotation(b->body_id);
 			matrix = list[*count].matrix;
@@ -153,16 +178,8 @@ void Graphic_List_Update()
 			//set object owning this component:
 			list[*count].object = b->object_parent;
 
-			//if buffer full...
-			if (++(*count) == buffer_size)
-			{
-				printlog(2, "Note: Graphic_List buffers were too small, resizing");
-
-				buffer_size+=INITIAL_GRAPHIC_LIST_BUFFER_SIZE;
-				buffer1.list = (list_element*) realloc(buffer1.list, sizeof(list_element)*buffer_size);
-				buffer2.list = (list_element*) realloc(buffer2.list, sizeof(list_element)*buffer_size);
-				list=tmp->list;
-			}
+			//increase counter
+			++(*count);
 		}
 	}
 

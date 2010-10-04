@@ -93,20 +93,27 @@ void Assure_Memory(unsigned int vertex_needed, unsigned int index_needed)
 		i = &indices[index_usage];
 	}
 
+	//check for failure in allocation
+	//(realloc is allowed to leak memory on failure, by writing NULL to
+	//the old pointers, but it doesn't matter here: we just exit anyway)
+	if (!vertices || !indices)
+	{
+		printlog(0, "lack of memory for geom rendering, will exit!");
+		exit(-1);
+	}
 }
 
 //creates vbo and allocates memory
 void Geom_Render_Create()
 {
-	size_t v_mem = sizeof(geom_vertex)*VERTEX_BLOCK;
-	size_t i_mem = sizeof(geom_index)*INDEX_BLOCK;
-	printlog(1, "generating buffers for geom rendering (vertices: %u bytes, indices: %u bytes)", v_mem, i_mem);
+	printlog(1, "generating buffers for geom rendering");
 
-	//allocate for building
-	vertices = (geom_vertex*)malloc(v_mem);
-	vertex_size = VERTEX_BLOCK;
-	indices = (geom_index*)malloc(i_mem);
-	index_size = INDEX_BLOCK;
+	//no allocation yet
+	vertices = NULL;
+	vertex_size = 0;
+	indices = NULL;
+	index_size = 0;
+
 
 	//create
 	glGenBuffers(1, &vertexVBO);
@@ -464,6 +471,21 @@ void Geom_Render()
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexVBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(geom_index)*index_usage, indices, GL_STREAM_DRAW);
 	
+	//check if memory problems...
+	//TODO: do this after each BufferData?
+	if (GLenum error = glGetError())
+	{
+		//should be a memory issue, but lets take a look
+		if (error == GL_OUT_OF_MEMORY)
+			printlog(0, "WARNING: insufficient graphics memory, can not render geoms...");
+		else
+			printlog(0, "ERROR: unexpected opengl error!!! Fix this!");
+
+		//disable rendering and quit before causing any harm (hope gl is still ok)...
+		geom_render_level = 0;
+		return;
+	}
+
 	//configure rendering options:
 	glDisable (GL_LIGHTING);
 	glShadeModel (GL_FLAT);

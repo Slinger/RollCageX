@@ -85,7 +85,7 @@ void Car::Physics_Step(dReal step)
 		}
 
 		//calculate turning radius
-		dReal R = (carp->wy*2.0)/tan(maxsteer*carp->steering*carp->dir);
+		dReal R = (carp->wy*2.0)/tan(maxsteer*carp->steering);
 
 		if (carp->smart_steer)
 		{
@@ -98,8 +98,8 @@ void Car::Physics_Step(dReal step)
 		else //dumb
 		{
 			//different distribution and direction of fron and rear wheels
-			dReal front = maxsteer*carp->dsteer*carp->steering*carp->dir;
-			dReal rear = -maxsteer*(1.0-carp->dsteer)*carp->steering*carp->dir;
+			dReal front = maxsteer*carp->dsteer*carp->steering;
+			dReal rear = -maxsteer*(1.0-carp->dsteer)*carp->steering;
 			A[0] = front;
 			A[1] = rear;
 			A[2] = rear;
@@ -120,11 +120,11 @@ void Car::Physics_Step(dReal step)
 		//breaking/accelerating:
 
 		//(might be needed):
-		dReal kpower = carp->dir*carp->motor_power*carp->throttle;
+		dReal kpower = carp->motor_power*carp->throttle;
 
 		//(rear and front break: "half of ratio of max by throttle")
-		dReal kfbreak = carp->dir*carp->max_break*0.5*carp->dbreak*carp->throttle;
-		dReal krbreak = carp->dir*carp->max_break*0.5*(1.0-carp->dbreak)*carp->throttle;
+		dReal kfbreak = carp->max_break*0.5*carp->dbreak*carp->throttle;
+		dReal krbreak = carp->max_break*0.5*(1.0-carp->dbreak)*carp->throttle;
 
 		//front wheels use front breaks, rear wheels use rear breaks
 		dReal kbreak[4] = {kfbreak, krbreak, krbreak, kfbreak};
@@ -341,8 +341,6 @@ void Car::Physics_Step(dReal step)
 					t[i] += power[i]/rotv[i];
 			}
 		}
-
-
 
 		//if a wheel is in air, lets limit the torques
 		for (i=0; i<4; ++i)

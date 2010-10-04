@@ -44,7 +44,30 @@ class VBO: public Racetime_Data
 					return p;
 
 			//else, did not find enough room, create
-			return new VBO;
+			printlog(1, "creating new vbo, %u bytes of size", internal.vbo_size);
+
+			//create and bind vbo:
+			GLuint target;
+			glGenBuffers(1, &target);
+			glBindBuffer(GL_ARRAY_BUFFER, target);
+			glBufferData(GL_ARRAY_BUFFER, internal.vbo_size, NULL, GL_STATIC_DRAW);
+			//
+
+			//check if allocated ok:
+			if (GLenum error = glGetError()) //if got error...
+			{
+				//...should be a memory issue...
+				if (error == GL_OUT_OF_MEMORY)
+					printlog(0, "WARNING: insufficient graphics memory, can not store rendering models...");
+				else //...but might be a coding error
+					printlog(0, "ERROR: unexpected opengl error!!! Fix this!");
+
+				//anyway, we return NULL to indicate failure
+				return NULL;
+			}
+
+			//ok, so create a class to track it (until not needed anymore)
+			return new VBO(target);
 		}
 
 		GLuint id; //size of buffer (for mapping)
@@ -54,19 +77,12 @@ class VBO: public Racetime_Data
 		//normally, Racetime_Data is only for tracking loaded data, one class for each loaded...
 		//but this is slightly different: one vbo class can store several model sets
 		//(making it a Racetime_Data makes sure all VBOs gets deleted at the same time as models)
-		VBO(): Racetime_Data("VBO tracking class") //name all vbo classes this...
+		VBO(GLuint target): Racetime_Data("VBO tracking class") //name all vbo classes this...
 		{
-			printlog(1, "creating new vbo, %u bytes of size", internal.vbo_size);
-
 			//place on top of list
 			next=head;
 			head=this;
-
-			//create and bind vbo:
-			glGenBuffers(1, &id);
-			glBindBuffer(GL_ARRAY_BUFFER, id);
-			glBufferData(GL_ARRAY_BUFFER, internal.vbo_size, NULL, GL_STATIC_DRAW);
-			//
+			id=target;
 			usage=0; //no data yet
 		}
 		~VBO()
@@ -102,7 +118,9 @@ Trimesh_3D::~Trimesh_3D()
 }
 
 //loading of a 3d model directly
-Trimesh_3D *Trimesh_3D::Quick_Load(const char *name, float resize, float rotate[], float offset[])
+Trimesh_3D *Trimesh_3D::Quick_Load(const char *name, float resize,
+		float rotx, float roty, float rotz,
+		float offx, float offy, float offz)
 {
 	//check if already exists
 	if (Trimesh_3D *tmp=Racetime_Data::Find<Trimesh_3D>(name))
@@ -117,8 +135,8 @@ Trimesh_3D *Trimesh_3D::Quick_Load(const char *name, float resize, float rotate[
 
 	//pass modification requests (will be ignored if defaults)
 	mesh.Resize(resize);
-	mesh.Rotate(rotate[0], rotate[1], rotate[2]);
-	mesh.Offset(offset[0], offset[1], offset[2]);
+	mesh.Rotate(rotx, roty, rotz);
+	mesh.Offset(offx, offy, offz);
 
 	//create a geom from this and return it
 	return mesh.Create_3D();
@@ -185,7 +203,9 @@ Trimesh_3D *Trimesh_3D::Quick_Load_Conf(const char *path, const char *file)
 	strcat(model, modelconf.model);
 
 	//load
-	return Trimesh_3D::Quick_Load(model, modelconf.resize, modelconf.rotate, modelconf.offset);
+	return Trimesh_3D::Quick_Load(model, modelconf.resize,
+			modelconf.rotate[0], modelconf.rotate[1], modelconf.rotate[2],
+			modelconf.offset[0], modelconf.offset[1], modelconf.offset[2]);
 }
 
 //method for creating a Trimesh_3D from Trimesh

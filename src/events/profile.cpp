@@ -43,21 +43,12 @@ void Profile_Events_Step(Uint32 step)
 
 			dReal t_speed = prof->throttle_speed*step;
 			if (keys[prof->up])
-			{
-				carp->throttle += t_speed;
-				if (carp->throttle > 1.0)
-					carp->throttle = 1.0;
-			}
-			else if (keys[SDLK_DOWN])
-			{
-				carp->throttle -= t_speed;
-				if (carp->throttle < -1.0)
-					carp->throttle = -1.0;
-			}
+				carp->throttle += t_speed*carp->dir;
+			else if (keys[prof->down])
+				carp->throttle -= t_speed*carp->dir;
 			else
 			{
-				if (carp->throttle <= t_speed &&
-					carp->throttle >= -(t_speed))
+				if (fabs(carp->throttle) <= t_speed)
 					carp->throttle = 0.0;
 
 				else if (carp->throttle > 0.0)
@@ -67,23 +58,23 @@ void Profile_Events_Step(Uint32 step)
 				    carp->throttle += t_speed;
 			}
 
+			//check if too much
+			if (carp->throttle > 1.0)
+				carp->throttle = 1.0;
+			else if (carp->throttle < -1.0)
+				carp->throttle = -1.0;
+
+
+
 			t_speed = prof->steer_speed*step;
 			if (keys[prof->left]&&!keys[prof->right])
-			{
-				carp->steering -= t_speed;
-				if (carp->steering < -1.0)
-					carp->steering = -1.0;
-			}
+				carp->steering -= t_speed*carp->dir;
 			else if (!keys[prof->left]&&keys[prof->right])
-			{
-				carp->steering += t_speed;
-				if (carp->steering > 1.0)
-					carp->steering = 1.0;
-			}
+				carp->steering += t_speed*carp->dir;
 			else //center
 			{
 				//can center in this step
-				if (fabs(carp->steering) <= fabs(t_speed))
+				if (fabs(carp->steering) <= t_speed)
 					carp->steering = 0.0;
 
 				else if (carp->steering > 0.0)
@@ -92,6 +83,12 @@ void Profile_Events_Step(Uint32 step)
 				else
 				    carp->steering += t_speed;
 			}
+
+			//same kind of check
+			if (carp->steering > 1.0)
+				carp->steering = 1.0;
+			else if (carp->steering < -1.0)
+				carp->steering = -1.0;
 		}
 	}
 }
