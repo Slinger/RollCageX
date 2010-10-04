@@ -32,6 +32,12 @@ Text_File::Text_File ()
 	list_size = INITIAL_TEXT_FILE_LIST_SIZE;
 	buffer = (char*) malloc (buffer_size*sizeof(char));
 	words = (char**) malloc (list_size*sizeof(char**));
+
+	if (!buffer || !words)
+	{
+		printlog(0, "lack of memory for initial Text_File allocation, will exit!");
+		exit(-1);
+	}
 }
 
 Text_File::~Text_File ()
@@ -149,9 +155,15 @@ bool Text_File::Line_To_Buffer()
 			return true;
 		
 		//else: I guess the buffer was too small...
-		printlog(2, "Note: Text_File buffer was too small, resizing");
+		printlog(1, "Text_File line buffer was too small, resizing");
 		buffer_size += INITIAL_TEXT_FILE_BUFFER_SIZE;
 		buffer = (char*) realloc (buffer, buffer_size);
+
+		if (!buffer)
+		{
+			printlog(0, "lack of memory for Text_File buffer, will exit!");
+			exit(-1);
+		}
 	}
 }
 
@@ -245,9 +257,15 @@ void Text_File::Append_To_List(char *word)
 
 	if (word_count > list_size)
 	{
-		printlog(2, "Note: Text_File word list was too small, resizing");
+		printlog(1, "Text_File word list was too small, resizing");
 		list_size+=INITIAL_TEXT_FILE_LIST_SIZE;
 		words = (char**) realloc(words, list_size*sizeof(char**));
+
+		if (!words)
+		{
+			printlog(0, "lack of memory for Text_File word list, will exit!");
+			exit(-1);
+		}
 	}
 
 	words[word_count-1] = word; //point to word in buffer

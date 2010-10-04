@@ -61,13 +61,11 @@ Profile *Profile_Load (const char *path)
 	*prof = profile_defaults; //set all to defaults
 
 	//load personal conf
-	char *conf=(char *)calloc(strlen(path)+13+1,sizeof(char));//+1 for \0
+	char conf[strlen(path)+13+1];//+1 for \0
 	strcpy (conf,path);
 	strcat (conf,"/profile.conf");
 
 	load_conf(conf, (char *)prof, profile_index); //try to load conf
-
-	free (conf);
 
 	//set camera
 	if (prof->camera >0 && prof->camera <5)

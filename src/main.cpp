@@ -339,7 +339,7 @@ int main (int argc, char *argv[])
 			//"<path to self - minus self>/data"
 			s[1]='\0'; //modify string to end after last slash
 
-			datadir=(char*)malloc(sizeof(char)*(strlen(argv[0])+5));
+			datadir=new char[strlen(argv[0])+5];
 
 			strcpy(datadir, argv[0]);
 			strcat(datadir, "data");
@@ -347,7 +347,7 @@ int main (int argc, char *argv[])
 		else
 		{
 			//just change into "data"
-			datadir=(char*)malloc(sizeof(char)*5);
+			datadir=new char[5];
 			strcpy(datadir, "data");
 		}
 
@@ -358,7 +358,7 @@ int main (int argc, char *argv[])
 			printf("Failed to cd, will try to load from current directory instead...\n");
 
 		//not needed anymore
-		free (datadir);
+		delete[] datadir;
 	}
 
 
