@@ -342,7 +342,14 @@ Car *Car_Template::Spawn (dReal x, dReal y, dReal z,  Trimesh_3D *tyre, Trimesh_
 	car->wheel = &wheel;
 
 	car->motor_power = conf.motor_power;
-	car->gear_limit = conf.gear_limit;
+
+	//if electric motor enabled:
+	if (conf.electric_torque)
+		car->gear_limit = conf.motor_power/conf.electric_torque;
+	else //else, direct gear_limit:
+		car->gear_limit = conf.gear_limit;
+
+
 	car->max_break = conf.max_break;
 	car->max_steer = conf.max_steer;
 	car->steerdecr = conf.steer_decrease;
