@@ -14,8 +14,8 @@
 //general info
 const char VERSION[] = "0.07 (70\% done)"; //supports alphanumeric versioning
 
-const char ISSUE[] =
-"    RollCageX  Copyright (C) 2009-2010 Mats Wahlberg (\"Slinger\" on gorcx.net forum)\n\n\
+const char ISSUE[] = "\
+   RollCageX  Copyright (C) 2009-2010 Mats Wahlberg (\"Slinger\" on gorcx.net forum)\n\n\
    This program is free software: you can redistribute it and/or modify\n\
    it under the terms of the GNU General Public License as published by\n\
    the Free Software Foundation, either version 3 of the License, or\n\
@@ -27,13 +27,13 @@ const char ISSUE[] =
    GNU General Public License for more details.\n\n\
    You should have received a copy of the GNU General Public License\n\
    along with this program.  If not, see <http://www.gnu.org/licenses/>.\n\
-\n               = Credits =\n\n\
+\n                           -=[ Credits ]=-\n\n\
     * Mats Wahlberg (\"Slinger\")     -       Creator (coder)\n\
     * \"XEWEASEL\" (\"Codie Morgan\")   -       High Definition 3D Models\n\
     * \"K.Mac\" (\"Mac\")               -       Extensive testing, hacks and new ideas\n\
     * \"MeAkaJon\"                    -       Creator/maintainer of gorcx.net webpage\n\
     * \"Spontificus\"                 -       Testing, hacks and various fixes\n\n\
-\n  = Other Projects that made RCX possible =\n\n\
+\n               -=[ Other Projects that made RCX possible ]=\n\n\
     * \"Simple DirectMedia Layer\"    -       OS/hardware abstractions\n\
     * \"Open Dynamics Engine\"        -       Rigid body dynamics and collision detection\n\
     * \"The GNU Project\"             -       Its fight for computer freedom has changed the world\n\n\
@@ -41,5 +41,9 @@ const char ISSUE[] =
     More keys exists for debug/testing/demo, see README if you are interested.\n\
     - See README for more info -\n\n";
  
+const char HELP[] = "\
+   Usage: rcx [-d|-p]\n\
+     -d <path to data>       override path to directory with data\n\
+     -p <path to profile>    override path to directory with user data and settings\n";
 
 #endif

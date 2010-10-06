@@ -80,7 +80,7 @@ void Run_Race(void)
 //try to load "tmp menu selections" for menu simulation
 //what we do is try to open this file, and then try to find menu selections in it
 //note: if selections are not found, will still fall back on safe defaults
-bool tmp_menus()
+bool tmp_menus(const char *profiledir)
 {
 	//initiate graphics
 	if (!graphics_init())
@@ -91,7 +91,8 @@ bool tmp_menus()
 	file.Open("tmp menu selections"); //just assume it opens...
 
 	//MENU: welcome to rcx, please select profile or create a new profile
-	sprofile = "profiles/";
+	sprofile = profiledir; //specified dir
+	sprofile += "/"; //and separator
 	if (file.Read_Line() && file.word_count == 2 && !strcmp(file.words[0], "profile"))
 		sprofile += file.words[1];
 	else
@@ -300,68 +301,80 @@ bool tmp_menus()
 //
 
 
+//default options (paths)
+const char profiledefault[] = "profiles";
+char *datadefault; //need to check path to rcx before deciding this
+
 //main function, will change a lot in future versions...
 int main (int argc, char *argv[])
 {
 	//issue
-	printf("\n     -=[ Hello, and welcome to RollCageX version %s ]=-\n\n%s\n", VERSION, ISSUE);
+	printf("\n     -=[ Welcome to RollCageX version %s ]=-\n\n%s\n", VERSION, ISSUE);
 	//end
 
-
-	//path specified as first arg
-	//TODO: use getopt?
-	bool cd_ok=false;
-	if (argc != 1)
+	//attempt to generate default data path
+	char *datadefault;
+	//check if program was called with another pwd (got '/' in "name")
+	if (char *s = strrchr(argv[0], '/'))
 	{
-		//stack memory instead of allocating
-		char datadir[sizeof(char)*strlen(argv[1])];
-		strcpy(datadir, argv[1]);
+		//"<path to self - minus self>/data"
+		s[1]='\0'; //modify string to end after last slash
 
-		printf("Assuming first argument to be path to data dir (\"%s\")\n", datadir);
+		datadefault=new char[strlen(argv[0])+5];
 
-		//works?
-		if (chdir(datadir))
-			printf("Failed to cd, will not use specified directory\n");
-		else
-			cd_ok=true;
+		strcpy(datadefault, argv[0]);
+		strcat(datadefault, "data");
+	}
+	else
+	{
+		//just change into "data"
+		datadefault=new char[5];
+		strcpy(datadefault, "data");
 	}
 
-	//else (no args or failed to cd)
-	if (!cd_ok)
+	//set default values:
+	const char *datadir = datadefault;
+	const char *profiledir = profiledefault;
+
+	//use getopt to parse options to to allow overide defaults:
+	char c;
+	while ( (c = getopt(argc, argv, "d:p:")) != -1 )
 	{
-		//don't know size yet
-		char *datadir;
-
-		//attempt to generate path
-		//check if program was called with another pwd (got '/' in "name")
-		if (char *s = strrchr(argv[0], '/'))
+		switch(c)
 		{
-			//"<path to self - minus self>/data"
-			s[1]='\0'; //modify string to end after last slash
+			case 'd': //data directory
+				printf("Alternative path to data directory specified (\"%s\")\n", optarg);
+				datadir = optarg;
+				break;
 
-			datadir=new char[strlen(argv[0])+5];
+			case 'p': //profile directory
+				printf("Alternative path to profile directory specified (\"%s\")\n", optarg);
+				profiledir = optarg;
+				break;
 
-			strcpy(datadir, argv[0]);
-			strcat(datadir, "data");
+			default:
+				puts(HELP); //print help output
+				exit(-1); //stop execution
 		}
-		else
-		{
-			//just change into "data"
-			datadir=new char[5];
-			strcpy(datadir, "data");
-		}
-
-		printf("Attempting to cd into data directory (\"%s\")\n", datadir);
-
-		//ok, try to get into the data directory
-		if (chdir (datadir))
-			printf("Failed to cd, will try to load from current directory instead...\n");
-
-		//not needed anymore
-		delete[] datadir;
 	}
 
+	//ok, try to get into the data directory
+	if (chdir (datadir))
+	{
+		printf("Failed to cd into data directory...\n");
 
+		//lets see if this was not the default (and the default works):
+		if ( (datadir != datadefault) && !chdir(datadefault) )
+			printf("Using default directory (\"%s\") instead\n", datadefault);
+		else
+			printf("Will try to load from current directory instead...\n");
+	}
+
+	//not needed anymore (used or not, will not be needed any more)
+	delete[] datadefault;;
+
+
+	//ok, start loading
 	printlog(0, "Loading...\n");
 	runlevel = loading;
 
@@ -370,7 +383,7 @@ int main (int argc, char *argv[])
 	//
 	//TODO: there should be menus here, but menu/osd system is not implemented yet... also:
 	//on failure, rcx should not just terminate but instead abort the race and warn the user
-	if (!tmp_menus())
+	if (!tmp_menus(profiledir))
 	{
 		printlog(0, "One or more errors, can not start!");
 		return -1; //just quit if failure
