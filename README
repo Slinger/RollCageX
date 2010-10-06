@@ -55,6 +55,14 @@ and all 3D models. Without the 3D files in the data directory, rcx will not
 have anything to render, which is why rcx will refuse to start if these files
 are missing.
 
+A few options are available as arguments:
+Path to data directory ("-d"), default: "data" in the same dir as the binary).
+Path to profile directory ("-p"), default: "profiles" inside the data dir.
+
+Example: the following uses the read only _data_ directory "/opt/rcx/data",
+and a _profile_ directory the user has read/write access to (in home):
+> rcx -d /opt/rcx/data -p /home/slinger/rcx
+
 
 
 4) [DEFAULT CONTROLS]
