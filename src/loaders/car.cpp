@@ -281,25 +281,25 @@ Car_Template *Car_Template::Load (const char *path)
 
 	//make sure the values are correct
 	//steering distribution
-	if (target->conf.dsteer >1.0 || target->conf.dsteer <0.0 )
+	if (target->conf.dist_steer >1.0 || target->conf.dist_steer <0.0 )
 	{
 		printlog(0, "ERROR: front/rear steering distribution should be range 0 to 1! (enabling front)");
-		target->conf.dsteer = 1.0;
+		target->conf.dist_steer = 1.0;
 	}
 
 	//check if neither front or rear drive
-	if ( (!target->conf.drive[0]) && (!target->conf.drive[1]) )
+	if ( (!target->conf.dist_motor[0]) && (!target->conf.dist_motor[1]) )
 	{
 		printlog(0, "ERROR: either front and rear motor distribution must be enabled! (enabling 4WD)");
-		target->conf.drive[0] = true;
-		target->conf.drive[1] = true;
+		target->conf.dist_motor[0] = true;
+		target->conf.dist_motor[1] = true;
 	}
 
 	//breaking distribution
-	if (target->conf.dbreak>1.0 || target->conf.dbreak<0.0 )
+	if (target->conf.dist_break>1.0 || target->conf.dist_break<0.0 )
 	{
 		printlog(0, "ERROR: front/rear breaking distribution should be range 0 to 1! (enabling rear)");
-		target->conf.dbreak = 0.0;
+		target->conf.dist_break = 0.0;
 	}
 
 
@@ -341,11 +341,11 @@ Car *Car_Template::Spawn (dReal x, dReal y, dReal z,  Trimesh_3D *tyre, Trimesh_
 
 	car->wheel = &wheel;
 
-	car->motor_power = conf.motor_power;
+	car->power = conf.power;
 
 	//if electric motor enabled:
 	if (conf.electric_torque)
-		car->gear_limit = conf.motor_power/conf.electric_torque;
+		car->gear_limit = conf.power/conf.electric_torque;
 	else //else, direct gear_limit:
 		car->gear_limit = conf.gear_limit;
 
@@ -354,14 +354,19 @@ Car *Car_Template::Spawn (dReal x, dReal y, dReal z,  Trimesh_3D *tyre, Trimesh_
 	car->max_steer = conf.max_steer;
 	car->steerdecr = conf.steer_decrease;
 	car->min_steer = conf.min_steer;
-	car->diffres = conf.diff_res;
 	car->airtorque = conf.air_torque;
-	car->dsteer = conf.dsteer;
-	car->dbreak = conf.dbreak;
-	car->fwd = conf.drive[0];
-	car->rwd = conf.drive[1];
-	car->smart_steer = conf.smartsteer;
-	car->smart_drive = conf.smartdrive;
+
+	car->dsteer = conf.dist_steer;
+	car->dbreak = conf.dist_break;
+	car->fwd = conf.dist_motor[0];
+	car->rwd = conf.dist_motor[1];
+	car->fwredist = conf.redist[0];
+	car->rwredist = conf.redist[1];
+
+	car->diff = conf.diff;
+	car->adapt_steer = conf.adapt_steer;
+	car->adapt_redist = conf.adapt_redist;
+	car->redist_force = conf.redist_force;
 
 	//start building
 	new Space(car);

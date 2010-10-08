@@ -27,28 +27,35 @@
 //for loading car.conf
 struct Car_Conf
 {
-	dReal motor_power, gear_limit, electric_torque;
+	//motor
+	dReal power, gear_limit, electric_torque;
+	dReal air_torque;
+	bool dist_motor[2];
+	bool diff;
+	bool redist[2];
+	bool adapt_redist;
+	dReal redist_force;
+
+	//break
 	dReal max_break;
-	dReal body_mass, wheel_mass;
+	dReal dist_break;
+
+	//steer
+	dReal max_steer;
+	dReal dist_steer;
+	dReal steer_decrease;
+	dReal min_steer;
+	bool adapt_steer;
+
+	//other
+	dReal body_mass, body[3], wheel_mass;
 	dReal suspension_spring, suspension_damping;
-	dReal rim_mu, rim_angle, rollres, tyre_spring, tyre_damping;
+	dReal body_linear_drag[3], body_angular_drag, wheel_linear_drag, wheel_angular_drag;
+	dReal tyre_spring, tyre_damping, rollres, rim_angle, rim_mu;
 
 	dReal xpeak[2], xshape, xpos[2], xsharp[2];
 	dReal ypeak[2], yshape, ypos[2], ysharp[2], yshift;
 
-	dReal body_linear_drag[3], body_angular_drag, wheel_linear_drag, wheel_angular_drag;
-
-	dReal body[3];
-
-	//values for moving steering/breaking/turning between front/rear wheels
-	dReal dsteer, dbreak;
-	bool drive[2];
-	dReal max_steer;
-	dReal steer_decrease;
-	dReal min_steer;
-	dReal diff_res;
-	bool smartsteer, smartdrive;
-	dReal air_torque;
 
 	Conf_String model; //filename+path for model
 	float resize, rotate[3], offset[3];
@@ -58,61 +65,70 @@ struct Car_Conf
 };
 
 const struct Car_Conf car_conf_defaults = {
-	800000.0, 0.5, 0.0,
-	60000.0,
-	6000.0, 500.0,
-	150000.0, 5000.0,
-	0.1, 45.0, 20, 300000.0, 10000.0,
-	{2000.0, -30.0}, 1.5, {0.1, 0.0}, {20.0, -0.4},
-	{1500.0, -10.0}, 1.5, {13.0, -0.2}, {0.05, 0.6}, 0.02,
-	{10,5,15}, 1, 4, 0.5,
-	{3.5,8.2,1},
-	1.0, 0.5,
+	500000.0, 2.0, 0.0,
+	10.0,
 	{false, true},
+	true,
+	{true, true},
+	true,
+	1000.0,
+
+	100000.0,
+	0.5,
+
 	30.0,
+	1.0,
 	0.4,
 	15.0,
-	100.0,
-	true, true,
-	100.0,
+	true,
+
+	2500.0, {2.6,5.8,0.7}, 250.0,
+	150000.0, 5000.0,
+	{5.0,2.0,10.0}, 2.0, 2.0, 2.0,
+	300000.0, 10000.0, 20.0, 50.0, 0.1,
+
+	{2000.0, -30.0}, 1.5, {0.1, 0.0}, {20.0, -0.4},
+	{1500.0, -10.0}, 1.5, {13.0, -0.2}, {0.05, 0.6}, 0.02,
+
 	"",
-	1, {0,0,0}, {0,0,0},
-	{5.8,4.4,2,1.5}, {1.5,1.7}, {2.9,2.2}, 2.4};
+	1.0, {0,0,0}, {0,0,0},
+
+	{4.83,3.67,1.67,1.25}, {1.25,1.42}, {2.42,1.83}, 2.0};
 
 const struct Conf_Index car_conf_index[] = {
-	{"motor_power",		'R',1, offsetof(struct Car_Conf, motor_power)},
+	{"power",		'R',1, offsetof(struct Car_Conf, power)},
 	{"gear_limit",		'R',1, offsetof(struct Car_Conf, gear_limit)},
 	{"electric_torque",	'R',1, offsetof(struct Car_Conf, electric_torque)},
-	{"max_break",		'R',1, offsetof(struct Car_Conf, max_break)},
-	{"body_mass",		'R',1, offsetof(struct Car_Conf, body_mass)},
-	{"wheel_mass",		'R',1, offsetof(struct Car_Conf, wheel_mass)},
+	{"air_torque_limit",	'R',1, offsetof(struct Car_Conf, air_torque)},
+	{"motor_distribution",	'b',2, offsetof(struct Car_Conf, dist_motor)},
+	{"differential",	'b',1, offsetof(struct Car_Conf, diff)},
+	{"torque_redistribution",'b',2, offsetof(struct Car_Conf, redist)},
+	{"adaptive_redistribution",'b',1, offsetof(struct Car_Conf, adapt_redist)},
+	{"redistribution_force",'R',1, offsetof(struct Car_Conf, redist_force)},
 
-	{"steer_distribution",	'R',1, offsetof(struct Car_Conf, dsteer)},
-	{"break_distribution",	'R',1, offsetof(struct Car_Conf, dbreak)},
-	{"front-rear_drive",	'b',2, offsetof(struct Car_Conf, drive)},
+	{"max_break",		'R',1, offsetof(struct Car_Conf, max_break)},
+	{"break_distribution",	'R',1, offsetof(struct Car_Conf, dist_break)},
+
 	{"max_steer",		'R',1, offsetof(struct Car_Conf, max_steer)},
+	{"steer_distribution",	'R',1, offsetof(struct Car_Conf, dist_steer)},
 	{"steer_decrease",	'R',1, offsetof(struct Car_Conf, steer_decrease)},
 	{"min_decreased_steer",	'R',1, offsetof(struct Car_Conf, min_steer)},
-	{"diff_resistance",	'R',1, offsetof(struct Car_Conf, diff_res)},
-	{"air_torque_limit",	'R',1, offsetof(struct Car_Conf, air_torque)},
-	{"smart_steering",	'b',1, offsetof(struct Car_Conf, smartsteer)},
-	{"smart_driving",	'b',1, offsetof(struct Car_Conf, smartdrive)},
+	{"adaptive_steering",	'b',1, offsetof(struct Car_Conf, adapt_steer)},
 
-	{"model",		's',1, offsetof(struct Car_Conf, model)},
-	{"model:resize",	'f',1, offsetof(struct Car_Conf, resize)},
-	{"model:rotate",	'f',3, offsetof(struct Car_Conf, rotate)},
-	{"model:offset",	'f',3, offsetof(struct Car_Conf, offset)},
-
+	{"body_mass",		'R',1, offsetof(struct Car_Conf, body_mass)},
+	{"body",		'R',3, offsetof(struct Car_Conf, body)},
+	{"wheel_mass",		'R',1, offsetof(struct Car_Conf, wheel_mass)},
 	{"suspension_spring",	'R',1, offsetof(struct Car_Conf, suspension_spring)},
 	{"suspension_damping",	'R',1, offsetof(struct Car_Conf, suspension_damping)},
-
-	{"rim_angle",		'R',1, offsetof(struct Car_Conf, rim_angle)},
-	{"rim_mu",		'R',1, offsetof(struct Car_Conf, rim_mu)},
-
-	{"rolling_resistance",	'R',1, offsetof(struct Car_Conf, rollres)},
-
+	{"body_linear_drag",	'R',3, offsetof(struct Car_Conf, body_linear_drag)},
+	{"body_angular_drag",	'R',1, offsetof(struct Car_Conf, body_angular_drag)},
+	{"wheel_linear_drag",	'R',1, offsetof(struct Car_Conf, wheel_linear_drag)},
+	{"wheel_angular_drag",	'R',1, offsetof(struct Car_Conf, wheel_angular_drag)},
 	{"tyre_spring",		'R',1, offsetof(struct Car_Conf, tyre_spring)},
 	{"tyre_damping",	'R',1, offsetof(struct Car_Conf, tyre_damping)},
+	{"rolling_resistance",	'R',1, offsetof(struct Car_Conf, rollres)},
+	{"rim_angle",		'R',1, offsetof(struct Car_Conf, rim_angle)},
+	{"rim_mu",		'R',1, offsetof(struct Car_Conf, rim_mu)},
 
 	{"tyre.x:peak",		'R',2, offsetof(struct Car_Conf, xpeak)},
 	{"tyre.x:shape",	'R',1, offsetof(struct Car_Conf, xshape)},
@@ -125,13 +141,11 @@ const struct Conf_Index car_conf_index[] = {
 	{"tyre.y:sharpness",	'R',2, offsetof(struct Car_Conf, ysharp)},
 	{"tyre.y:shift",	'R',1, offsetof(struct Car_Conf, yshift)},
 
-	{"body",		'R',3, offsetof(struct Car_Conf, body)},
+	{"model",		's',1, offsetof(struct Car_Conf, model)},
+	{"model:resize",	'f',1, offsetof(struct Car_Conf, resize)},
+	{"model:rotate",	'f',3, offsetof(struct Car_Conf, rotate)},
+	{"model:offset",	'f',3, offsetof(struct Car_Conf, offset)},
 
-	{"body_linear_drag",	'R',3, offsetof(struct Car_Conf, body_linear_drag)},
-	{"body_angular_drag",	'R',1, offsetof(struct Car_Conf, body_angular_drag)},
-	{"wheel_linear_drag",	'R',1, offsetof(struct Car_Conf, wheel_linear_drag)},
-	{"wheel_angular_drag",	'R',1, offsetof(struct Car_Conf, wheel_angular_drag)},
-	
 	//the following is for sizes not yet determined
 	{"s",	'R',	4,	offsetof(struct Car_Conf, s)}, //flipover
 	{"w",	'R',	2,	offsetof(struct Car_Conf, w)}, //wheel
@@ -153,8 +167,6 @@ class Car_Template:public Racetime_Data
 		struct Car_Conf conf; //loads from conf
 
 		//more data:
-		char *name;
-		dReal fsteer, rsteer, fmotor, rmotor, fbreak, rbreak;
 		Wheel wheel;
 
 		//geoms
@@ -205,15 +217,18 @@ class Car:public Object
 		friend class Camera; //needs access to car info
 
 		//configuration data (copied from Car_Template)
-		dReal motor_power, gear_limit, max_break, max_steer;
-		dReal diffres;
+		dReal power, gear_limit;
 		dReal airtorque;
 
-		dReal steerdecr, min_steer;
+		dReal max_steer, steerdecr, min_steer;
+		dReal max_break;
 
-		dReal dsteer, dbreak;
+		bool diff;
 		bool fwd, rwd;
-		bool smart_steer, smart_drive;
+		bool fwredist, rwredist;
+		bool adapt_steer, adapt_redist;
+		dReal redist_force;
+		dReal dsteer, dbreak;
 
 		//just for keeping track
 		dBodyID bodyid,wheel_body[4];
