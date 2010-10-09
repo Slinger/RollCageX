@@ -141,81 +141,84 @@ void Car::Physics_Step(dReal step)
 		}
 		else
 		{
-			//motor torque based on gearbox output rotation:
-			//check if using good torque calculation or bad one:
-			if (carp->diff) //even distribution
+			if (carp->throttle) //if driver is throttling (breake/accelerate)
 			{
-				dReal rotation;
-				if (carp->fwd&&carp->rwd) //4wd
+				//motor torque based on gearbox output rotation:
+				//check if using good torque calculation or bad one:
+				if (carp->diff) //even distribution
 				{
-					rotation = fabs(rotv[0]+rotv[1]+rotv[2]+rotv[3])/4.0;
+					dReal rotation;
+					if (carp->fwd&&carp->rwd) //4wd
+					{
+						rotation = fabs(rotv[0]+rotv[1]+rotv[2]+rotv[3])/4.0;
 
-					//same torque for all wheels
-					torque[0]=torque[1]=torque[2]=torque[3]=kpower;
+						//same torque for all wheels
+						torque[0]=torque[1]=torque[2]=torque[3]=kpower;
+					}
+					else if (carp->rwd) //rwd
+					{
+						rotation = fabs(rotv[1]+rotv[2])/2.0;
+
+						//(wheel 0 and 3 = 0 -> torque=0)
+						torque[1]=torque[2]=kpower;
+					}
+					else //fwd
+					{
+						rotation = fabs(rotv[0]+rotv[3])/2.0;
+						torque[0]=torque[3]=kpower;
+					}
+
+					//if less than optimal rotation (for gearbox), set to this level
+					if (rotation < carp->gear_limit)
+						rotation = carp->gear_limit;
+
+					//apply
+					for (i=0; i<4; ++i)
+						torque[i]/=rotation;
 				}
-				else if (carp->rwd) //rwd
+				else //uneven: one motor+gearbox for each wheel....
 				{
-					rotation = fabs(rotv[1]+rotv[2])/2.0;
-
-					//(wheel 0 and 3 = 0 -> torque=0)
-					torque[1]=torque[2]=kpower;
-				}
-				else //fwd
-				{
-					rotation = fabs(rotv[0]+rotv[3])/2.0;
-					torque[0]=torque[3]=kpower;
-				}
-
-				//if less than optimal rotation (for gearbox), set to this level
-				if (rotation < carp->gear_limit)
-					rotation = carp->gear_limit;
-
-				//apply
-				for (i=0; i<4; ++i)
-					torque[i]/=rotation;
-			}
-			else //uneven: one motor+gearbox for each wheel....
-			{
-				if (carp->fwd&&carp->rwd)
-					torque[0]=torque[1]=torque[2]=torque[3]=kpower/4.0;
-				else if (carp->rwd)
-					torque[1]=torque[2]=kpower/2.0;
-				else
-					torque[0]=torque[3]=kpower/2.0;
-
-				for (i=0; i<4; ++i)
-				{
-					if (fabs(rotv[i]) < carp->gear_limit)
-						torque[i]/=carp->gear_limit;
+					if (carp->fwd&&carp->rwd)
+						torque[0]=torque[1]=torque[2]=torque[3]=kpower/4.0;
+					else if (carp->rwd)
+						torque[1]=torque[2]=kpower/2.0;
 					else
-						torque[i]/=fabs(rotv[i]);
+						torque[0]=torque[3]=kpower/2.0;
+
+					for (i=0; i<4; ++i)
+					{
+						if (fabs(rotv[i]) < carp->gear_limit)
+							torque[i]/=carp->gear_limit;
+						else
+							torque[i]/=fabs(rotv[i]);
+					}
 				}
-			}
 
-			//check if wanting to break
-			dReal needed;
-			for (i=0; i<4; ++i)
-			{
-				//if rotating in the oposite way of wanted, use breaks
-				if (rotv[i]*kpower < 0.0) //(different signs makes negative)
+				//check if wanting to break
+				dReal needed;
+				for (i=0; i<4; ++i)
 				{
-					//this much torque (in this direction) is needed to break wheel
-					//not too reliable, since ignores the mass of the car body, and the fact
-					//that the breaking will have to slow down the car movement too...
-					needed = -rotv[i]*kinertiatensor/step;
+					//if rotating in the oposite way of wanted, use breaks
+					if (rotv[i]*kpower < 0.0) //(different signs makes negative)
+					{
+						//this much torque (in this direction) is needed to break wheel
+						//not too reliable, since ignores the mass of the car body, and the fact
+						//that the breaking will have to slow down the car movement too...
+						needed = -rotv[i]*kinertiatensor/step;
 
-					//got motor and its strong enough to break...
-					if ( torque[i] != 0.0 && (needed/torque[i] < 1.0) )
-						continue;
+						//got motor and its strong enough to break...
+						if ( torque[i] != 0.0 && (needed/torque[i] < 1.0) )
+							continue;
 
 
-					//else, we should break:
-					//to make transition between breaking and acceleration smooth
-					//use different ways of calculate breaking torque:
-					else if ( needed/kbreak[i] < 1.0) //more breaking then needed
-						torque[i] += needed; //break as needed + keep possible motor
-					else //not enough break to stop... full break
-						torque[i] = kbreak[i]; //full break
+						//else, we should break:
+						//to make transition between breaking and acceleration smooth
+						//use different ways of calculate breaking torque:
+						else if ( needed/kbreak[i] < 1.0) //more breaking then needed
+							torque[i] += needed; //break as needed + keep possible motor
+						else //not enough break to stop... full break
+							torque[i] = kbreak[i]; //full break
+					}
 				}
 			}
 
