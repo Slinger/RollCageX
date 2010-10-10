@@ -128,6 +128,12 @@ void Wheel::Set_Contacts(dBodyID wbody, dBodyID obody, Geom *ogeom, bool wheel_f
 	//all of these values are input values, Fx and Fy, but not Fz!, are the output (used as mu1 and mu2)
 	for (int i=0; i<count; ++i)
 	{
+		//set erp+cfm (spring+damping):
+		contact[i].surface.soft_erp = erp;
+		contact[i].surface.soft_cfm = cfm;
+		//
+
+
 		//"Slinger's not-so-magic formula":
 
 		//
@@ -343,17 +349,12 @@ void Wheel::Set_Contacts(dBodyID wbody, dBodyID obody, Geom *ogeom, bool wheel_f
 		//enable: separate mu for dir 1&2, specify dir 1
 		//(note: dir2 is automatically calculated by ode)
 		//also enable erp+cfm specifying (for spring+damping)
-		contact[i].surface.mode |= dContactMu2 | dContactFDir1 |
-			dContactSoftERP | dContactSoftCFM;
+		contact[i].surface.mode |= dContactMu2 | dContactFDir1;
 
 		//fdir1
 		contact[i].fdir1[0] = X[0];
 		contact[i].fdir1[1] = X[1];
 		contact[i].fdir1[2] = X[2];
-
-		//erp+cfm (spring+damping)
-		contact[i].surface.soft_erp = erp;
-		contact[i].surface.soft_cfm = cfm;
 
 		//specify mu1 and mu2
 

@@ -220,8 +220,8 @@ Car_Template *Car_Template::Load (const char *path)
 
 	//wheel simulation class (friction + some custom stuff):
 	target->wheel.rim_angle = target->conf.rim_angle;
-	target->wheel.spring = target->conf.tyre_spring;
-	target->wheel.damping = target->conf.tyre_damping;
+	target->wheel.spring = target->conf.wheel_spring;
+	target->wheel.damping = target->conf.wheel_damping;
 	//cylinder moment of inertia tensor for Z = (mass*r²)/2
 	target->wheel.inertia = target->conf.wheel_mass*target->conf.w[0]*target->conf.w[0]/2.0; 
 	target->wheel.resistance = target->conf.rollres;
