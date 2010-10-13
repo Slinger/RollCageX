@@ -87,13 +87,17 @@ void Car::Physics_Step(dReal step)
 		//calculate turning radius
 		dReal R = (carp->wy*2.0)/tan(maxsteer*carp->steering);
 
+		//turning radius plus/minus distance to wheels (similar to L1 and L2)
+		dReal R1 = R-carp->wx;
+		dReal R2 = R+carp->wx;
+
 		if (carp->adapt_steer)
 		{
 			//turning angle of each wheel:
-			A[0] = atan(L1/(R-carp->wx));
-			A[1] = atan(L2/(R-carp->wx));
-			A[2] = atan(L2/(R+carp->wx));
-			A[3] = atan(L1/(R+carp->wx));
+			A[0] = atan(L1/(R1));
+			A[1] = atan(L2/(R1));
+			A[2] = atan(L2/(R2));
+			A[3] = atan(L1/(R2));
 		}
 		else //dumb
 		{
@@ -233,11 +237,6 @@ void Car::Physics_Step(dReal step)
 				//otherwise they'll all be set to the same (1m)
 				if (carp->adapt_redist && carp->steering)
 				{
-					//length between turning point and right/left wheels
-					//(will accompany L1 and L2 values)
-					dReal R1 = R-(carp->wx);
-					dReal R2 = R+(carp->wx);
-
 					//calculate proper turning radius for all wheels
 					radius[0] =  sqrt(R1*R1+L1*L1); //right front
 					radius[1] =  sqrt(R1*R1+L2*L2); //right rear
