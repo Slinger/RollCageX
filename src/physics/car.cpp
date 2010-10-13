@@ -72,7 +72,7 @@ void Car::Physics_Step(dReal step)
 		dReal minsteer = carp->min_steer*(M_PI/180.0); //don't decrease more than this
 
 		//should not steer more than this (-turning radius = v²*conf- and then calculated into turning angle)
-		dReal limitsteer = atan( (carp->wy*2.0) /(carp->steerdecr * fabs(carp->velocity)) );
+		dReal limitsteer = atan( (carp->wy*2.0) /(carp->steerdecr * fabs(carp->velocity*carp->velocity)) );
 
 		//if limit is within what the actual turning can handle, use the limited as the max:
 		if (limitsteer < maxsteer)
