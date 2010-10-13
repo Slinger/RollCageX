@@ -33,6 +33,7 @@ class Geom: public Component
 		~Geom();
 
 		//methods for steps/simulations:
+		static void Clear_Collisions();
 		static void Physics_Step();
 		static void TMP_Events_Step(Uint32 step);
 

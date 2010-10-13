@@ -68,35 +68,6 @@ void Animation_Timer::Events_Step(Uint32 step)
 		const dReal *pos = dGeomGetPosition(geom);
 		dGeomSetPosition(geom, pos[0], pos[1], timer->counter);
 
-
-			//const dReal *pos;
-			//pos = dGeomGetPosition(geom->flipper_geom);
-			//dGeomSetPosition(
-			/*if (geom->colliding)
-			{
-				const dReal *pos;
-				pos = dGeomGetPosition(geom->flipper_geom);
-				dGeomSetPosition(geom->flipper_geom, pos[0], pos[1],
-						pos[2]+step*0.02);
-				if ((geom->flipper_counter+=step) > 10)
-					//geom->colliding=false; //no
-			}
-			else if (geom->flipper_counter>0)
-			{
-				const dReal *pos;
-				pos = dGeomGetPosition(geom->flipper_geom);
-				dGeomSetPosition(geom->flipper_geom, pos[0], pos[1],
-						pos[2]-step*0.02);
-				geom->flipper_counter-=step;
-			}
-			else
-				geom->flipper_counter=0;*/
-
-		//
-		//end of TMP
-		//
-
-		
 		//depending on which direction counter goes (increase/decrease) determine if reached goal
 		if (	(timer->speed > 0 && timer->counter >= timer->goal) || //counter increased to goal
 			(timer->speed < 0 && timer->counter <= timer->goal)  ) //counter decreased to goal

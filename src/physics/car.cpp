@@ -39,10 +39,6 @@ void Car::Physics_Step(dReal step)
 		else
 			antigrav = false;
 
-		//sensors have been read, reset them
-		carp->sensor1->colliding = false;
-		carp->sensor2->colliding = false;
-
 		if (antigrav) //TODO
 		{
 //			dBodyAddRelForce (carp->bodyid,0,0, carp->dir*100);

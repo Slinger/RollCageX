@@ -21,6 +21,13 @@
 
 #include <ode/ode.h>
 
+//clears geom collision flags
+void Geom::Clear_Collisions()
+{
+	for (Geom *geom=head; geom; geom=geom->next)
+		geom->colliding = false;
+}
+
 //when two geoms might intersect
 void Geom::Collision_Callback (void *data, dGeomID o1, dGeomID o2)
 {
@@ -198,7 +205,7 @@ void Geom::Collision_Callback (void *data, dGeomID o1, dGeomID o2)
 			}
 		}
 	}
-	
+
 	//with physical contact or not, might respond to collision events
 	if (geom1->spring) //geom1 would have generated collision
 		geom2->colliding = true; //thus geom2 is colliding
@@ -305,9 +312,6 @@ void Geom::Physics_Step()
 
 				new Sensor_Event_List(geom);
 			}
-
-			//always reset collision status for these geoms - allows update for each step
-			geom->colliding=false;
 		}
 
 		//if (geom->radar_event)... - TODO

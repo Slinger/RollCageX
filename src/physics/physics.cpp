@@ -86,6 +86,8 @@ int physics_loop (void *d)
 				Car::Physics_Step(divided_stepsize); //control, antigrav...
 				Body::Physics_Step(divided_stepsize); //drag (air/liquid "friction")
 
+				Geom::Clear_Collisions(); //set all collision flags to false
+
 				dSpaceCollide (space, (void*)(&divided_stepsize), &Geom::Collision_Callback);
 
 				dWorldQuickStep (world, divided_stepsize);

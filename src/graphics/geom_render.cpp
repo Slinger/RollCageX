@@ -241,6 +241,25 @@ void Geom_Render()
 		new_vertices=0;
 		new_indices=0;
 
+		//check if rendering with collision indication
+		if (geom_render_level == 5)
+		{
+			if (geom->colliding)
+			{
+				colour[0]= 1.0;
+				colour[1]= 0.0;
+				colour[2]= 0.0;
+			}
+			//if not
+			else
+			{
+				colour[0]= 0.0;
+				colour[1]= 1.0;
+				colour[2]= 0.0;
+			}
+		}
+
+		//ok, render
 		switch (dGeomGetClass(g))
 		{
 			case dSphereClass:
@@ -249,8 +268,9 @@ void Geom_Render()
 				pos = dGeomGetPosition(g);
 				r = dGeomSphereGetRadius(g);
 
-				//colour based on volume
-				Volume_Colour(r*r*M_PI);
+				//colour based on volume (if needed)
+				if (geom_render_level != 5)
+					Volume_Colour(r*r*M_PI);
 
 				//vertices:
 				//circles around sphere
@@ -282,8 +302,9 @@ void Geom_Render()
 				rot = dGeomGetRotation(g);
 				dGeomBoxGetLengths(g, result);
 
-				//colour based on volume
-				Volume_Colour(result[0]*result[1]*result[2]);
+				//colour based on volume (if needed)
+				if (geom_render_level != 5)
+					Volume_Colour(result[0]*result[1]*result[2]);
 
 				//half of lengths
 				x=result[0]/2.0;
@@ -326,8 +347,9 @@ void Geom_Render()
 				rot = dGeomGetRotation(g);
 				dGeomCapsuleGetParams(g, &r, &l);
 
-				//colour based on volume
-				Volume_Colour(r*r*M_PI+r*M_PI*l);
+				//colour based on volume (if needed)
+				if (geom_render_level != 5)
+					Volume_Colour(r*r*M_PI+r*M_PI*l);
 
 				l/=2.0;
 
@@ -375,8 +397,9 @@ void Geom_Render()
 				rot = dGeomGetRotation(g);
 				dGeomCylinderGetParams(g, &r, &l);
 
-				//colour based on volume
-				Volume_Colour(r+l);
+				//colour based on volume (if needed)
+				if (geom_render_level != 5)
+					Volume_Colour(r+l);
 
 				l/=2.0; //for cleaner code, divided here
 
@@ -414,7 +437,7 @@ void Geom_Render()
 
 			case dTriMeshClass:
 				//check if ultimate geom rendering level
-				if (geom_render_level == 2 || geom_render_level == 3)
+				if (geom_render_level == 2 || geom_render_level == 3 || geom_render_level == 5)
 				{
 					//how many triangles in trimesh
 					triangles = dGeomTriMeshGetTriangleCount(g);
@@ -422,8 +445,9 @@ void Geom_Render()
 					//make sure got memory
 					Assure_Memory (triangles*3, triangles*3);
 
-					//colour based on triangle count
-					Volume_Colour((float)triangles);
+					//colour based on triangle count (if needed)
+					if (geom_render_level != 5)
+						Volume_Colour((float)triangles);
 
 					for (tloop=0; tloop<triangles; ++tloop)
 					{
@@ -491,7 +515,7 @@ void Geom_Render()
 	glShadeModel (GL_FLAT);
 	glDisable (GL_CULL_FACE);
 
-	//disable depth testing at these levels
+	//disable depth testing at levels 1, 3 and every above 3
 	if (geom_render_level == 1 || geom_render_level >= 3)
 		glDisable (GL_DEPTH_TEST);
 

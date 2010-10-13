@@ -161,7 +161,7 @@ int events_loop (void *d)
 						//switch what to render
 						case SDLK_F12:
 							//increase geom rendering level, and reset if at last
-							if (++geom_render_level >= 5)
+							if (++geom_render_level >= 6)
 								geom_render_level = 0;
 						break;
 
