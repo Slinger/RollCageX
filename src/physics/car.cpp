@@ -153,19 +153,19 @@ void Car::Physics_Step(dReal step)
 						rotation = fabs(rotv[0]+rotv[1]+rotv[2]+rotv[3])/4.0;
 
 						//same torque for all wheels
-						torque[0]=torque[1]=torque[2]=torque[3]=kpower;
+						torque[0]=torque[1]=torque[2]=torque[3]=kpower/4.0;
 					}
 					else if (carp->rwd) //rwd
 					{
 						rotation = fabs(rotv[1]+rotv[2])/2.0;
 
 						//(wheel 0 and 3 = 0 -> torque=0)
-						torque[1]=torque[2]=kpower;
+						torque[1]=torque[2]=kpower/2.0;
 					}
 					else //fwd
 					{
 						rotation = fabs(rotv[0]+rotv[3])/2.0;
-						torque[0]=torque[3]=kpower;
+						torque[0]=torque[3]=kpower/2.0;
 					}
 
 					//if less than optimal rotation (for gearbox), set to this level
