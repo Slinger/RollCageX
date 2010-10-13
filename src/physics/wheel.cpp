@@ -93,6 +93,7 @@ void Wheel::Set_Contacts(dBodyID wbody, dBodyID obody, Geom *ogeom, bool wheel_f
 
 	//calculation koefficients for tyre friction calculation
 	dReal peak, shape, K, peak_at, peak_sharpness, shift;
+	dReal amount_x, amount_y;
 
 	//and "combined slip"
 	dReal diff;
@@ -286,7 +287,8 @@ void Wheel::Set_Contacts(dBodyID wbody, dBodyID obody, Geom *ogeom, bool wheel_f
 		peak_sharpness = (peak_at/K)*xsharp*pow(Fz, xsharpch) *ogeom->tyre_sharp_scale;
 
 		//calculate!
-		MUx = peak*sin(shape*atan(K*pow((fabs(slip_ratio)/peak_at), peak_sharpness)));
+		amount_x = sin(shape*atan(K*pow((fabs(slip_ratio)/peak_at), peak_sharpness)));
+		MUx = peak*amount_x;
 
 		peak = (ypeak+ypeaksch*Fz)*ogeom->mu;
 		shape = yshape;
@@ -300,7 +302,8 @@ void Wheel::Set_Contacts(dBodyID wbody, dBodyID obody, Geom *ogeom, bool wheel_f
 		if (slip_angle < 0.0)
 			shift = -shift;
 
-		MUy = peak*sin(shape*atan(K*pow((fabs(slip_angle)/peak_at), peak_sharpness))) + shift;
+		amount_y = sin(shape*atan(K*pow((fabs(slip_angle)/peak_at), peak_sharpness))) + shift;
+		MUy = peak*amount_y;
 
 		//MUx and MUy might get negative in the calculations, which means no friction so
 		//set to 0
@@ -334,6 +337,7 @@ void Wheel::Set_Contacts(dBodyID wbody, dBodyID obody, Geom *ogeom, bool wheel_f
 		//there are different solutions to this.... TODO: decide on what to use!
 		//using simple (but nice!) circular approximation
 		diff = VDot(Y, Vpoint)/VDot(X, Vpoint); //difference between velocity of point along X and Y
+		diff *= amount_y/amount_x; //and also difference between how much of peak mu is used in each
 
 		//might become NaN? Probably only with 0 velocity... Anyway, default to 45° distribution
 		if (isnan(diff))
