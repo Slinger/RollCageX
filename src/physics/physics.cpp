@@ -119,17 +119,19 @@ int physics_loop (void *d)
 		//sync physics with realtime
 		if (internal.sync_physics)
 		{
-			//perform busy-waiting?
-			if (internal.physics_spinning)
-				while (physics_time > SDL_GetTicks());
-			else //use sleep calls?
+			//get some time to while away?
+			realtime = SDL_GetTicks();
+			if (physics_time > realtime)
 			{
-				realtime = SDL_GetTicks();
-				if (physics_time > realtime)
-					SDL_Delay (physics_time - realtime);
+				//busy-waiting:
+				if (internal.physics_spinning)
+					while (physics_time > SDL_GetTicks());
+				//sleep:
 				else
-					++physics_lag;
+					SDL_Delay (physics_time - realtime);
 			}
+			else
+				++physics_lag;
 		}
 
 		//count how many steps
