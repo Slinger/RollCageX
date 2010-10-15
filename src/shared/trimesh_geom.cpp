@@ -9,6 +9,7 @@
  * See license.txt and README for more info
  */
 
+#include "internal.hpp"
 #include "trimesh.hpp"
 #include "geom.hpp"
 #include "printlog.hpp"
@@ -81,6 +82,20 @@ Geom *Trimesh_Geom::Create_Geom(Object *obj)
 	//create geom without space, callback, array callback or ray callback
 	dGeomID g = dCreateTriMesh(0, data, 0, 0, 0);
 	Geom *geom = new Geom(g, obj);
+
+	//see if should enable temporal coherence
+	if (internal.temporal_coherence)
+	{
+		dGeomTriMeshEnableTC(g, dSphereClass, 1);
+		dGeomTriMeshEnableTC(g, dBoxClass, 1);
+		dGeomTriMeshEnableTC(g, dCapsuleClass, 1);
+
+		//following are not supporting in ode right now:
+		dGeomTriMeshEnableTC(g, dCylinderClass, 1); //not working yet
+		dGeomTriMeshEnableTC(g, dPlaneClass, 1); //not working yet
+		dGeomTriMeshEnableTC(g, dRayClass, 1); //not working yet
+		dGeomTriMeshEnableTC(g, dTriMeshClass, 1); //not working yet
+	}
 
 	return geom;
 }

@@ -43,7 +43,9 @@ bool physics_init(void)
 
 	//set global ode parameters (except those specific to track)
 
-	space = dQuadTreeSpaceCreate(0, internal.center, internal.extents, internal.depth);
+	space = dHashSpaceCreate(0);
+	dHashSpaceSetLevels(space, internal.hash_levels[0], internal.hash_levels[1]);
+
 	contactgroup = dJointGroupCreate(0);
 
 	dWorldSetQuickStepNumIterations (world, internal.iterations);
@@ -86,6 +88,8 @@ int physics_loop (void *d)
 				Car::Physics_Step(divided_stepsize); //control, antigrav...
 				Body::Physics_Step(divided_stepsize); //drag (air/liquid "friction")
 
+				Geom::Clear_Collisions(); //set all collision flags to false
+
 				dSpaceCollide (space, (void*)(&divided_stepsize), &Geom::Collision_Callback);
 
 				dWorldQuickStep (world, divided_stepsize);
@@ -117,17 +121,19 @@ int physics_loop (void *d)
 		//sync physics with realtime
 		if (internal.sync_physics)
 		{
-			//perform busy-waiting?
-			if (internal.physics_spinning)
-				while (physics_time > SDL_GetTicks());
-			else //use sleep calls?
+			//get some time to while away?
+			realtime = SDL_GetTicks();
+			if (physics_time > realtime)
 			{
-				realtime = SDL_GetTicks();
-				if (physics_time > realtime)
-					SDL_Delay (physics_time - realtime);
+				//busy-waiting:
+				if (internal.physics_spinning)
+					while (physics_time > SDL_GetTicks());
+				//sleep:
 				else
-					++physics_lag;
+					SDL_Delay (physics_time - realtime);
 			}
+			else
+				++physics_lag;
 		}
 
 		//count how many steps
