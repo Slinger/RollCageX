@@ -38,6 +38,8 @@ extern struct internal_struct {
 	dReal center[3], extents[3];
 	int depth;
 
+	bool temporal_coherence;
+
 	//graphics
 	int res[2]; //resolution
 	int vbo_size;
@@ -64,6 +66,7 @@ const struct internal_struct internal_defaults = {
 	1,
 	{0,0,0}, {100.0, 100.0, 100.0},
 	8,
+	true,
 	//graphics
 	{1200,800},
 	16000000,
@@ -99,6 +102,7 @@ const struct Conf_Index internal_index[] = {
 	{"center",		'R',3, offsetof(struct internal_struct, center)},
 	{"extents",		'R',3, offsetof(struct internal_struct, extents)},
 	{"depth",		'i',1, offsetof(struct internal_struct, depth)},
+	{"temporal_coherence",	'b',1, offsetof(struct internal_struct, temporal_coherence)},
 
 	//graphics
 	{"resolution",		'i',2, offsetof(struct internal_struct, res)},
