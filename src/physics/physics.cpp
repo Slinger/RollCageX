@@ -43,7 +43,9 @@ bool physics_init(void)
 
 	//set global ode parameters (except those specific to track)
 
-	space = dQuadTreeSpaceCreate(0, internal.center, internal.extents, internal.depth);
+	space = dHashSpaceCreate(0);
+	dHashSpaceSetLevels(space, internal.hash_levels[0], internal.hash_levels[1]);
+
 	contactgroup = dJointGroupCreate(0);
 
 	dWorldSetQuickStepNumIterations (world, internal.iterations);
