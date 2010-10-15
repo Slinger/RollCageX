@@ -81,7 +81,7 @@ void Graphic_List_Update()
 			//if buffer full...
 			if (*count == tmp->size)
 			{
-				printlog(1, "Graphic_List buffer was too small, resizing");
+				printlog(2, "Graphic_List buffer was too small, resizing");
 
 				tmp->size+=INITIAL_GRAPHIC_LIST_BUFFER_SIZE;
 				tmp->list = (list_element*) realloc(tmp->list, sizeof(list_element)*tmp->size);
@@ -136,7 +136,7 @@ void Graphic_List_Update()
 			//if buffer full...
 			if (*count == tmp->size)
 			{
-				printlog(1, "Graphic_List buffers were too small, resizing");
+				printlog(2, "Graphic_List buffers were too small, resizing");
 
 				tmp->size+=INITIAL_GRAPHIC_LIST_BUFFER_SIZE;
 				tmp->list = (list_element*) realloc(tmp->list, sizeof(list_element)*tmp->size);
