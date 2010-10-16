@@ -238,6 +238,19 @@ void Car::Physics_Step(dReal step)
 					radius[1] =  sqrt(R1*R1+L2*L2); //right rear
 					radius[2] =  sqrt(R2*R2+L2*L2); //left rear
 					radius[3] =  sqrt(R2*R2+L1*L1); //left front
+
+					//when reversing, the car will turn reversed, which the player
+					//understands. but when reversing and driver turnings while
+					//pressing forward, the driver usually expects the turning to
+					//be normal, like driving forwards (at least I...).
+					if (carp->velocity < 0.0 && carp->throttle*carp->dir > 0.0)
+					{
+						//ok, so how solve this? swapping the wheels'turning
+						//radius (left/right) will reverse the redistribution.
+						dReal tmp;
+						tmp = radius[0]; radius[0]=radius[3]; radius[3]=tmp;
+						tmp = radius[1]; radius[1]=radius[2]; radius[2]=tmp;
+					}
 				}
 
 				dReal average; //average rotation ("per meters of turning radius")
