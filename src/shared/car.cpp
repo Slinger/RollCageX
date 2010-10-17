@@ -32,6 +32,7 @@ Car::Car(void)
 	drift_breaks = true; //if the user does nothing, lock wheels
 	throttle = 0;
 	steering = 0;
+	oldsteerlimit = 0;
 	velocity = 0;
 
 	//linking

@@ -92,6 +92,22 @@ void Car::Physics_Step(dReal step)
 				maxsteer = minsteer;
 		}
 
+		//smooth transition from old max steer to new max steer
+		//(if enabled)
+		dReal speed = carp->limit_speed*(M_PI/180.0)*step;
+		dReal old = carp->oldsteerlimit;
+		//if not 0, not infinity, and not enough to move in this step
+		if (speed && speed != dInfinity && fabs(maxsteer-old) > speed)
+		{
+			if (old < maxsteer)
+				maxsteer = old+speed;
+			else
+				maxsteer = old-speed;
+		}
+
+		//store max steer
+		carp->oldsteerlimit = maxsteer;
+
 		//calculate turning radius
 		dReal R = (carp->wy*2.0)/tan(maxsteer*carp->steering);
 
