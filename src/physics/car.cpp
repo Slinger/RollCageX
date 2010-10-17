@@ -50,10 +50,22 @@ void Car::Physics_Step(dReal step)
 		for (i=0; i<4; ++i)
 			rotv[i] = dJointGetHinge2Angle2Rate (carp->joint[i]);
 
-		//save car velocity
-		//(calculated from the average wheel rotation)
-		carp->velocity = carp->dir*carp->wheel->radius*(rotv[0]+rotv[1]+rotv[2]+rotv[3])/4;
+		//get car velocity:
+		//TODO/IMPORTANT: need to find a reliable solution to this...
 
+		//calculated from the average wheel rotation?
+		//(wheels will often spin, resulting in too high value...)
+		//carp->velocity = carp->dir*carp->wheel->radius*(rotv[0]+rotv[1]+rotv[2]+rotv[3])/4;
+
+		//calculate from absolute velocity of body?
+		//(doesn't take account of non-static surfaces (platforms)...)
+		const dReal *vel = dBodyGetLinearVel (carp->bodyid);
+		const dReal *rot = dBodyGetRotation  (carp->bodyid);
+		carp->velocity = (rot[1]*vel[0] + rot[5]*vel[1] + rot[9]*vel[2]);
+
+		//calculate velocity relative to surface in contact with side sensor?
+		//(not implemented yet. will need bitfield to mask away non-ground gepms)
+		//
 
 		//calculate turning:
 		dReal A[4];
