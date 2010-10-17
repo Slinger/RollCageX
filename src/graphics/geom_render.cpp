@@ -515,8 +515,8 @@ void Geom_Render()
 	glShadeModel (GL_FLAT);
 	glDisable (GL_CULL_FACE);
 
-	//disable depth testing at levels 1, 3 and every above 3
-	if (geom_render_level == 1 || geom_render_level >= 3)
+	//disable depth testing at level 1, since we need to see everything
+	if (geom_render_level == 1)
 		glDisable (GL_DEPTH_TEST);
 
 	//(I wounder if this is deprecated in latest ogl?)

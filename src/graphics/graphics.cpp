@@ -42,8 +42,8 @@ float view_angle_rate_x=0.0;
 float view_angle_rate_y=0.0;
 //
 
-//remember if rendering geoms or not
-bool geom_rendering = false;
+//remember if rendering background or not
+bool background = true;
 //
 
 void graphics_resize (int new_w, int new_h)
@@ -184,19 +184,19 @@ int graphics_loop ()
 
 		//start rendering
 
-		//check if now switching to geom rendering...
-		if (geom_render_level && !geom_rendering)
+		//check if now switching to geom rendering with no background...
+		if (geom_render_level == 5 && background)
 		{
 			//black background
 			glClearColor (0.0, 0.0, 0.0, 1.0);
-			geom_rendering = true;
+			background = false;
 		}
 		//if now switching from geom rendering...
-		else if (geom_rendering && !geom_render_level)
+		else if (!background && geom_render_level != 5)
 		{
 			//restore track specified background
 			glClearColor (track.sky[0],track.sky[1],track.sky[2],1.0);
-			geom_rendering = false;
+			background = true;
 		}
 
 		//clear screen
