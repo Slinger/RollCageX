@@ -81,7 +81,8 @@ bool load_track (const char *path)
 	load_conf(conf, (char *)&track, track_index);
 
 	//set camera default values, some from track specs
-	camera.Set_Pos(track.cam_start, track.focus_start);
+	camera.Set_Pos(track.cam_start[0], track.cam_start[1], track.cam_start[2],
+			track.focus_start[0], track.focus_start[1], track.focus_start[2]);
 
 	//append forced data
 	track.ambient[3] = 1.0f; //a = 1.0f
@@ -106,14 +107,6 @@ bool load_track (const char *path)
 	//using trimesh geoms and one plane for describing world, store in track object
 	track.object = new Object();
 	track.space = new Space (track.object);
-
-	//tmp vars
-	dGeomID geom;
-	Geom *data;
-
-	//tmp plane until respawning implemented
-	geom = dCreatePlane (0, 0,0,1,track.respawn);
-	data = new Geom(geom, track.object);
 
 	//loading of model files
 	char glist[strlen(path)+10+1];

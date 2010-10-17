@@ -91,15 +91,15 @@ void Camera::Set_Car (Car *c)
 	float l=VLength(V); \
 	(V)[0]/=l; (V)[1]/=l; (V)[2]/=l;}
 
-void Camera::Set_Pos(float p[], float d[])
+void Camera::Set_Pos(float px, float py, float pz, float tx, float ty, float tz)
 {
 	//set position directly
-	pos[0]=p[0];
-	pos[1]=p[1];
-	pos[2]=p[2];
+	pos[0]=px;
+	pos[1]=py;
+	pos[2]=pz;
 
 	//direction to look at
-	float new_dir[3] = {d[0]-p[0], d[1]-p[1], d[2]-p[2]};
+	float new_dir[3] = {tx-px, ty-py, tz-pz};
 
 	//no direction (keep original rotation)
 	if (new_dir[0] == 0 && new_dir[1] == 0 && new_dir[2] == 0)
@@ -141,22 +141,19 @@ void Camera::Move(float x, float y, float z)
 	}
 	else //camera got no settings, or is paused
 	{
-		//move camera
-		pos[0] += x;
-		pos[1] += y;
-		pos[2] += z;
-
 		//we probably got a car?
 		if (car)
 		{
 			//good, lets look at center of car
 			const dReal *p = dBodyGetPosition(car->bodyid);
-			//in case dReal is double, cast to float
-			float dir[3] = {p[0], p[1], p[2]};
-			//(pos is unchanged: pos=pos in Set_Pos)
-			Set_Pos(pos, dir);
+			Set_Pos((pos[0]+x), (pos[1]+y), (pos[2]+z), p[0], p[1], p[2]);
 		}
 		//ok, no car... lets just keep old rotation
+		else
+		{
+			pos[0]+=x;
+			pos[1]+=y;
+			pos[2]+=z;
+		}
 	}
 }
-

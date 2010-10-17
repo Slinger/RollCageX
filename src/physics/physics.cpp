@@ -86,11 +86,13 @@ int physics_loop (void *d)
 			for (int i=0; i<internal.multiplier; ++i)
 			{
 				Car::Physics_Step(divided_stepsize); //control, antigrav...
-				Body::Physics_Step(divided_stepsize); //drag (air/liquid "friction")
+				Body::Physics_Step(divided_stepsize); //drag (air/liquid "friction") and respawning
 
 				Geom::Clear_Collisions(); //set all collision flags to false
 
 				dSpaceCollide (space, (void*)(&divided_stepsize), &Geom::Collision_Callback);
+
+				Geom::Physics_Step(); //sensor/radar handling
 
 				dWorldQuickStep (world, divided_stepsize);
 				dJointGroupEmpty (contactgroup);
@@ -99,7 +101,6 @@ int physics_loop (void *d)
 				Collision_Feedback::Physics_Step(divided_stepsize); //forces from collisions
 			}
 
-			Geom::Physics_Step(); //sensor/radar handling
 			camera.Physics_Step(internal.stepsize); //move camera to wanted postion
 
 			//done with ode
