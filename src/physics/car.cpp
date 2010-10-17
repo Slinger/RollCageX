@@ -320,9 +320,6 @@ void Car::Physics_Step(dReal step)
 				else if (torque[i] < -airtorque)
 					torque[i] = -airtorque;
 			}
-
-			//reset "wheel sensor" for next time
-			carp->wheel_geom_data[i]->colliding=false;
 		}
 
 		//apply torques
