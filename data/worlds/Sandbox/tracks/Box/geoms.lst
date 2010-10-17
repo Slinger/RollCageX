@@ -1,3 +1,7 @@
+#note: "hash levels" tweaked for geoms under 1024 meters
+#bigger models should be divided into smaller pieces
+#(also true for all models with high number of triangles)
+
 #optional: use "> model" before the model is used to force
 #loading. this is useful for overriding model defaults.
 #example/default:

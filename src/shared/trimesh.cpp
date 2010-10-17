@@ -216,8 +216,7 @@ void Trimesh::Offset(float x, float y, float z)
 
 float Trimesh::Find_Longest_Distance()
 {
-	printlog(2, "Finding longest distance vertex in trimesh");
-
+	printlog(2, "Finding longest distance vertex in trimesh (\"radius\")");
 	size_t end = vertices.size();
 	size_t i;
 	float biggest=0.0, length;
@@ -230,6 +229,8 @@ float Trimesh::Find_Longest_Distance()
 		if (length > biggest)
 			biggest=length;
 	}
+
+	printlog(2, "longest distance in trimesh: %f", biggest);
 
 	return biggest;
 }
