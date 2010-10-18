@@ -93,11 +93,11 @@ Debugging:
 * F11 - simulation paus (camera can still be moved)
 * F12 - wireframe geom/collision rendering toggle, the following is provided:
    + models (normal rendering, only the 3D models)
-   + models and simple geoms (everything except trimesh geoms)
-   + models and all geoms (includes trimesh geoms)
-   + all geoms (like before, but without 3D models)
-   + simple geoms (like before but without trimesh geoms)
-   + collisions (all geoms, with colour based on collision instead of size)
+   + models and (clearly visible) simple geoms (all geoms but trimeshes)
+   + models and all geoms (includes trimeshes)
+   + all geoms (like above, but without 3D models)
+   + simple geoms (like above but without trimeshes)
+   + collisions (all geoms, black background and colour based on collision)
 
 
 
