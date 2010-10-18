@@ -12,6 +12,7 @@
 #include "../shared/internal.hpp"
 #include "../shared/racetime_data.hpp"
 #include "../shared/car.hpp"
+#include "../shared/camera.hpp"
 #include "../shared/printlog.hpp"
 #include "../shared/track.hpp"
 #include "../shared/geom.hpp"
@@ -603,6 +604,12 @@ void Car::Respawn (dReal x, dReal y, dReal z)
 {
 	printlog(1, "respawning car at: %f %f %f", x,y,z);
 
+	//remember old car position
+	const dReal *pos = dBodyGetPosition(bodyid);
+	float oldx = pos[0];
+	float oldy = pos[1];
+	float oldz = pos[2];
+
 	//will use this to reset rotation
 	dMatrix3 r;
 
@@ -638,4 +645,10 @@ void Car::Respawn (dReal x, dReal y, dReal z)
 	dBodySetAngularVel(wheel_body[2], 0.0, 0.0, 0.0);
 	dBodySetLinearVel(wheel_body[3], 0.0, 0.0, 0.0);
 	dBodySetAngularVel(wheel_body[3], 0.0, 0.0, 0.0);
+
+	//set camera position (move it as much as we moved the car)
+	//TODO: in future (with multiple cameras), loop through them all and change those that looks at this car
+	camera.pos[0] += (x-oldx);
+	camera.pos[1] += (y-oldy);
+	camera.pos[2] += (z-oldz);
 }

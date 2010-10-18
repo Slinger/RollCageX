@@ -104,6 +104,7 @@ class Geom: public Component
 
 		//tmp
 		friend void Body::TMP_Events_Step(Uint32 step); //this is just TMP for accessing above...
+		friend void Body::Physics_Step (dReal step); //dito
 		//
 
 		friend void Graphic_List_Update(); //to allow loop through geoms

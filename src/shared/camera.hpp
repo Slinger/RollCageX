@@ -43,8 +43,8 @@ class Camera
 		//focus on this car
 		void Set_Car(Car*);
 
-		//sets position and rotation of camera from two points
-		void Set_Pos(float p[3], float d[3]);
+		//sets position and target of camera from two points
+		void Set_Pos(float px, float py, float pz, float tx, float ty, float tz);
 
 		//movement (might change or be removed at some point)
 		void Move(float x, float y, float z);
@@ -71,6 +71,7 @@ class Camera
 		bool reverse;
 		bool in_air;
 
+		friend class Car;
 		friend void Graphic_List_Render();
 
 		//physics simulation functions
