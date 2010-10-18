@@ -648,7 +648,13 @@ void Car::Respawn (dReal x, dReal y, dReal z)
 
 	//set camera position (move it as much as we moved the car)
 	//TODO: in future (with multiple cameras), loop through them all and change those that looks at this car
-	camera.pos[0] += (x-oldx);
-	camera.pos[1] += (y-oldy);
-	camera.pos[2] += (z-oldz);
+	//for (Camera camera = Camera::head; camera; camera=camera->next)
+	//{
+		if (camera.car == this)
+		{
+			camera.pos[0] += (x-oldx);
+			camera.pos[1] += (y-oldy);
+			camera.pos[2] += (z-oldz);
+		}
+	//}
 }
