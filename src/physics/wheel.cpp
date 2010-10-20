@@ -373,7 +373,7 @@ void Wheel::Set_Contacts(dBodyID wbody, dBodyID obody, Geom *ogeom, bool wheel_f
 		//some simplifications:
 		//*rolling speed is ignored (doesn't make much difference)
 		//*compression of tyre is also ignored (assumed to be small enough)
-		torque = Fz*resistance; //breaking torque
+		torque = Fz*resistance*ogeom->tyre_rollres_scale; //breaking torque
 
 		//rotation inertia (relative to ground if got body)
 		if (obody)

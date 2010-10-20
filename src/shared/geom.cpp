@@ -68,6 +68,7 @@ Geom::Geom (dGeomID geom, Object *obj): Component(obj) //pass object argument to
 	//normal friction scaling for tyre
 	tyre_pos_scale = 1.0;
 	tyre_sharp_scale = 1.0;
+	tyre_rollres_scale = 1.0;
 
 	wheel = NULL; //not a wheel
 
