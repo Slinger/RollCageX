@@ -242,8 +242,6 @@ void Wheel::Set_Contacts(dBodyID wbody, dBodyID obody, Geom *ogeom, bool wheel_f
 		Fz = contact[i].geom.depth*cspring //collision depth * spring value
 			- (Vz *cdamping); //velocity along z * damping value
 
-		Fz /= 1000.0; //change from N to kN
-
 		//contact joints only generates forces pulling the colliding bodies _appart_
 		//so negative (traction) forces are not added (complying with reality btw)
 		//(in this case it's the damping force getting higher than spring force when
@@ -363,9 +361,8 @@ void Wheel::Set_Contacts(dBodyID wbody, dBodyID obody, Geom *ogeom, bool wheel_f
 		//specify mu1 and mu2
 
 		//let ode calculate friction from internal Fz
-		//(these mu values use kN, not N, so divide by k)
-		contact[i].surface.mu = MUx/1000.0;
-		contact[i].surface.mu2 = MUy/1000.0;
+		contact[i].surface.mu = MUx;
+		contact[i].surface.mu2 = MUy;
 
 
 
