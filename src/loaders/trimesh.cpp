@@ -48,3 +48,32 @@ bool Trimesh::Load(const char *file)
 	return false;
 }
 
+//for materials
+bool Trimesh::Load_Material(const char *file)
+{
+	printlog(1, "Loading material from file \"%s\"", file);
+	printlog(2, "determining file type from suffix");
+
+	if (file == NULL)
+	{
+		printlog(0, "WARNING: empty file path+name for material");
+		return false;
+	}
+
+	const char *suffix = strrchr(file, '.');
+
+	//in case something really wrong
+	if (!suffix)
+	{
+		printlog(0, "ERROR: no suffix for file \"%s\"", file);
+		return false;
+	}
+
+	//see if match:
+	if (!strcasecmp(suffix, ".mtl"))
+		return Load_MTL(file);
+
+	//else, no match
+	printlog(0, "ERROR: unknown 3D file suffix for \"%s\"", file);
+	return false;
+}

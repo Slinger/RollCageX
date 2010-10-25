@@ -153,7 +153,7 @@ bool Trimesh::Load_OBJ(const char *f)
 				strcpy(filename, file.words[1]); //overwrite with mtl filename
 			}
 				
-			Load_MTL(filename); //if not succesfull, continue - might not need any materials anyway?
+			Load_Material(filename); //if not succesfull, continue - might not need any materials anyway?
 		}
 	}
 

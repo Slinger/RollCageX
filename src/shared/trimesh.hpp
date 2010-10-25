@@ -148,6 +148,9 @@ class Trimesh
 		//check if name matches specified
 		bool Compare_Name(const char*);
 	private:
+		//like Load, for material files (private)
+		bool Load_Material(const char*);
+
 		//just for the other trimesh classes (for Racetime_Data name)
 		std::string name;
 
