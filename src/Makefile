@@ -33,7 +33,7 @@ $(OBJS): build/%.o:%.cpp
 #if build dir not exists, create it (plus subdirs)
 build:
 	@echo "Creating build directories..."
-	@mkdir -p build/shared build/events build/loaders build/graphics build/physics
+	@mkdir -p build/shared build/loaders build/interface build/simulation          build/events #tmp events
 
 clean:
 	@echo "Removing build files..."

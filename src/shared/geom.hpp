@@ -16,7 +16,7 @@
 #include "object.hpp"
 #include "trimesh.hpp"
 #include "script.hpp"
-#include "../physics/wheel.hpp"
+#include "../simulation/wheel.hpp"
 #include <SDL/SDL_stdinc.h> //definition for Uint32
 
 //Geom: (meta)data for geometrical shape (for collision detection), for: 

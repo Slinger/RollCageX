@@ -51,11 +51,9 @@ void Run_Race(void)
 
 	//launch threads
 	SDL_Thread *physics = SDL_CreateThread (physics_loop, NULL);
-	SDL_Thread *events = SDL_CreateThread (events_loop, NULL);
 	graphics_loop(); //we already got opengl context in main thread
 
 	//wait for threads
-	SDL_WaitThread (events, NULL);
 	SDL_WaitThread (physics, NULL);
 
 	//cleanup
@@ -406,9 +404,6 @@ int main (int argc, char *argv[])
 
 	printlog(1, "Avarage graphics/second:	%u steps (FPS) (%u%% of physics steps)",
 						(1000*graphics_count)/racetime, (100*graphics_count)/physics_count);
-
-	printlog(1, "Avarage events/second:	%u steps (%u in total, %u%% of physics steps)",
-						(1000*events_count)/racetime, events_count, (100*events_count)/physics_count);
 
 	printf("\nBye!\n\n");
 

@@ -20,6 +20,7 @@
 #include "../shared/runlevel.hpp"
 #include "../shared/threads.hpp"
 #include "../shared/printlog.hpp"
+#include "../shared/profile.hpp"
 
 #include "../shared/camera.hpp"
 #include "gl_extensions.hpp"
@@ -29,13 +30,14 @@
 SDL_Surface *screen;
 Uint32 flags = SDL_OPENGL | SDL_RESIZABLE;
 
+//TMP: keep track of demo spawn stuff
+Object_Template *box = NULL;
+Object_Template *sphere = NULL;
+Object_Template *funbox = NULL;
+Object_Template *molecule = NULL;
+
 //count frames
 unsigned int graphics_count = 0;
-
-//if multithreading, event thread will alert graphics thread about resizing events (to avoid stealing the context)
-bool graphics_event_resize = false;
-int graphics_event_resize_w, graphics_event_resize_h;
-//
 
 //needed by graphics_list:
 float view_angle_rate_x=0.0;
@@ -148,6 +150,9 @@ int graphics_loop ()
 	//just make sure not rendering geoms yet
 	geom_render_level = 0;
 
+	//store current time
+	Uint32 time_old = SDL_GetTicks();
+
 	//only stop render if done with race
 	while (runlevel != done)
 	{
@@ -160,24 +165,152 @@ int graphics_loop ()
 			SDL_mutexV(sync_mutex);
 		}
 
+		//get time
+		Uint32 time = SDL_GetTicks();
+		//how much it differs from old
+		Uint32 delta = time-time_old;
+		time_old = time;
+		//
 
-		//in case event thread can't pump SDL events (limit of some OSes)
-		SDL_mutexP(sdl_mutex);
-		SDL_PumpEvents();
+		//current car
+		Car *car = profile_head->car;
 
-		//see if we need to resize
-		if (graphics_event_resize)
+		//check all sdl events
+		SDL_Event event;
+		while (SDL_PollEvent (&event))
 		{
-			screen = SDL_SetVideoMode (graphics_event_resize_w, graphics_event_resize_h, 0, flags);
-
-			if (screen)
+			switch (event.type)
 			{
-				graphics_resize (screen->w, screen->h);
-				graphics_event_resize = false;
+				case SDL_VIDEORESIZE:
+					screen = SDL_SetVideoMode (event.resize.w, event.resize.h, 0, flags);
+
+					if (screen)
+						graphics_resize (screen->w, screen->h);
+					else
+						printlog(0, "Warning: resizing failed");
+				break;
+
+				case SDL_QUIT:
+					runlevel = done;
+				break;
+
+				case SDL_ACTIVEEVENT:
+					if (event.active.gain == 0)
+						printlog(1, "(FIXME: pause when losing focus (or being iconified)!)");
+				break;
+
+				//check for special key presses (debug/demo keys)
+				case SDL_KEYDOWN:
+					switch (event.key.keysym.sym)
+					{
+						case SDLK_ESCAPE:
+							runlevel = done;
+						break;
+
+						//box spawning
+						case SDLK_F5:
+							SDL_mutexP(ode_mutex);
+							box->Spawn (0,0,10);
+							SDL_mutexV(ode_mutex);
+						break;
+
+						//sphere spawning
+						case SDLK_F6:
+							SDL_mutexP(ode_mutex);
+							sphere->Spawn (0,0,10);
+							SDL_mutexV(ode_mutex);
+						break;
+
+						//spawn funbox
+						case SDLK_F7:
+							SDL_mutexP(ode_mutex);
+							funbox->Spawn (0,0,10);
+							SDL_mutexV(ode_mutex);
+						break;
+
+						//molecule
+						case SDLK_F8:
+							SDL_mutexP(ode_mutex);
+							molecule->Spawn (0,0,10);
+							SDL_mutexV(ode_mutex);
+						break;
+
+						//switch car
+						case SDLK_F9:
+							//not null
+							if (car)
+							{
+								//next in list
+								car = car->next;
+								//in case at end of list, go to head
+								if (!car)
+									car = Car::head;
+
+								//set new car
+								profile_head->car = car;
+								camera.Set_Car(car);
+							}
+						break;
+
+						//respawn car
+						case SDLK_F10:
+							if (car)
+							{
+								SDL_mutexP(ode_mutex);
+								car->Respawn(track.start[0], track.start[1], track.start[2]);
+								SDL_mutexV(ode_mutex);
+							}
+						break;
+
+						//paus physics
+						case SDLK_F11:
+							if (runlevel == paused)
+								runlevel = running;
+							else
+								runlevel = paused;
+						break;
+
+						//switch what to render
+						case SDLK_F12:
+							//increase geom rendering level, and reset if at last
+							if (++geom_render_level >= 6)
+								geom_render_level = 0;
+						break;
+
+						default:
+							break;
+					}
+				break;
+
+				default:
+					break;
 			}
-			else
-				printlog(0, "Warning: resizing failed, will retry");
 		}
+
+		//(tmp) camera movement keys:
+		Uint8 *keys = SDL_GetKeyState(NULL);
+
+		if (keys[SDLK_d]) //+x
+			camera.Move(+0.03*delta, 0, 0);
+		if (keys[SDLK_a]) //-x
+			camera.Move(-0.03*delta, 0, 0);
+
+		if (keys[SDLK_w]) //+y
+			camera.Move(0, +0.03*delta, 0);
+		if (keys[SDLK_s]) //-y
+			camera.Move(0, -0.03*delta, 0);
+
+		if (keys[SDLK_q]) //+z
+			camera.Move(0, 0, +0.03*delta);
+		if (keys[SDLK_e]) //-z
+			camera.Move(0, 0, -0.03*delta);
+		//
+
+		//car control
+		if (runlevel == running)
+			Profile_Events_Step(delta);
+
+
 
 		//done with sdl
 		SDL_mutexV(sdl_mutex);

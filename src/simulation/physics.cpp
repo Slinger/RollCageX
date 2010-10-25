@@ -27,7 +27,10 @@
 
 #include "collision_feedback.hpp"
 
-#include "../graphics/graphic_list.hpp"
+#include "../interface/graphic_list.hpp"
+
+//tmp
+#include "../events/timers.hpp"
 
 unsigned int physics_lag = 0;
 unsigned int physics_count = 0;
@@ -108,6 +111,17 @@ int physics_loop (void *d)
 			
 			Graphic_List_Update(); //make copy of position/rotation for rendering
 		}
+
+		//previous simulations might have caused events (to be processed by scripts)...
+		//Event_Lists_Process();
+		Geom::TMP_Events_Step(internal.stepsize);
+		Joint::TMP_Events_Step(internal.stepsize);
+		Body::TMP_Events_Step(internal.stepsize);
+
+		Object::Events_Step(); //remove inactive objects
+
+		//timers
+		Animation_Timer::Events_Step(internal.stepsize);
 
 		//broadcast to wake up sleeping threads
 		if (internal.sync_events || internal.sync_graphics)
