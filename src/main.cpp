@@ -316,11 +316,11 @@ int main (int argc, char *argv[])
 	if (char *s = strrchr(argv[0], '/'))
 	{
 		//"<path to self - minus self>/data"
-		s[1]='\0'; //modify string to end after last slash
+		int length=1+s-argv[0]; //length of argv0 until (including) last slash
 
-		datadefault=new char[strlen(argv[0])+5];
+		datadefault=new char[length+5];
 
-		strcpy(datadefault, argv[0]);
+		strncpy(datadefault, argv[0], length);
 		strcat(datadefault, "data");
 	}
 	else
