@@ -37,7 +37,6 @@ class Body: public Component
 		void Set_Advanced_Linear_Drag(dReal x, dReal y, dReal z);
 
 		static void Physics_Step(dReal step);
-		static void TMP_Events_Step(Uint32 step);
 
 		//body data bellongs to
 		dBodyID body_id;

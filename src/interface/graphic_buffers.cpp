@@ -9,7 +9,7 @@
  * See license.txt and README for more info
  */
 
-#include "graphic_list.hpp"
+#include "graphic_buffers.hpp"
 #include "gl_extensions.hpp"
 
 #include "../shared/internal.hpp"
@@ -83,7 +83,7 @@ void Graphic_List_Update()
 			{
 				printlog(2, "Graphic_List buffer was too small, resizing");
 
-				tmp->size+=INITIAL_GRAPHIC_LIST_BUFFER_SIZE;
+				tmp->size+=INITIAL_GRAPHIC_BUFFER_SIZE;
 				tmp->list = (list_element*) realloc(tmp->list, sizeof(list_element)*tmp->size);
 				list=tmp->list;
 
@@ -138,7 +138,7 @@ void Graphic_List_Update()
 			{
 				printlog(2, "Graphic_List buffers were too small, resizing");
 
-				tmp->size+=INITIAL_GRAPHIC_LIST_BUFFER_SIZE;
+				tmp->size+=INITIAL_GRAPHIC_BUFFER_SIZE;
 				tmp->list = (list_element*) realloc(tmp->list, sizeof(list_element)*tmp->size);
 				list=tmp->list;
 

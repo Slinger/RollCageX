@@ -11,7 +11,7 @@
 
 #include "../shared/joint.hpp"
 #include "../shared/internal.hpp"
-#include "../events/event_lists.hpp"
+#include "event_buffers.hpp"
 
 //set event
 void Joint::Set_Buffer_Event(dReal thres, dReal buff, Script *scr)

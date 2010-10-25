@@ -13,7 +13,7 @@
 #include "object.hpp"
 #include "internal.hpp"
 #include "printlog.hpp"
-#include "../events/event_lists.hpp"
+#include "../simulation/event_buffers.hpp"
 
 Body *Body::head = NULL;
 

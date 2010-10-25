@@ -36,7 +36,6 @@ class Geom: public Component
 		//methods for steps/simulations:
 		static void Clear_Collisions();
 		static void Physics_Step();
-		static void TMP_Events_Step(Uint32 step);
 
 		static void Collision_Callback(void *, dGeomID, dGeomID);
 
@@ -102,13 +101,10 @@ class Geom: public Component
 		Geom *prev;
 		Geom *next;
 
-		//tmp
-		friend void Body::TMP_Events_Step(Uint32 step); //this is just TMP for accessing above...
-		friend void Body::Physics_Step (dReal step); //dito
-		//
-
 		friend void Graphic_List_Update(); //to allow loop through geoms
-		friend void Geom_Render(); //same as above, but for debug collision render
+		friend void Event_Buffers_Process(dReal); //to allow looping
+		friend void Body::Physics_Step (dReal step); //dito
+		friend void Geom_Render(); //same as above, for debug collision render
 };
 
 #endif

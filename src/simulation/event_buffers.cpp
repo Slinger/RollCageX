@@ -9,7 +9,9 @@
  * See license.txt and README for more info
  */
 
-#include "event_lists.hpp"
+#include "../shared/track.hpp"
+#include "event_buffers.hpp"
+#include "timers.hpp"
 
 
 //
@@ -247,4 +249,147 @@ void Object_Event_List::Remove(Object *obj)
 			p = p->next;
 		}
 	}
+}
+
+
+//process all events:
+void Event_Buffers_Process(dReal step)
+{
+	Geom *geom;
+	Body *body;
+	Joint *joint;
+
+	//buffer:
+	while (Buffer_Event_List::Get_Event(&geom))
+	{
+		dBodyID bodyid = dGeomGetBody(geom->geom_id);
+
+		//if has body, remove body and this geom
+		if (bodyid)
+		{
+			//break into two pieces
+			if (geom->TMP_pillar_geom)
+			{
+				const dReal *rot = dBodyGetRotation(bodyid);
+				dVector3 pos1, pos2;
+				dBodyGetRelPointPos(bodyid, 0,0,5.0/4.0, pos1);
+				dBodyGetRelPointPos(bodyid, 0,0,-5.0/4.0, pos2);
+
+				//geom1
+				dGeomID g = dCreateBox(0, 2,2,5.0/2.0);
+				Geom *gd = new Geom(g, geom->object_parent);
+				gd->mu = 1.0;
+				gd->Set_Buffer_Event(150000, 1000, (Script*)1337);
+
+				//body1
+				dBodyID b = dBodyCreate(world);
+				dMass m;
+				dMassSetBox (&m, 1, 2,2,5.0/2.0);
+				dMassAdjust (&m, 100); //200kg
+				dBodySetMass(b, &m);
+				new Body(b, geom->object_parent);
+				dBodySetPosition(b, pos1[0], pos1[1], pos1[2]);
+				dBodySetRotation(b, rot);
+				dGeomSetBody(g,b);
+
+				gd->model = geom->TMP_pillar_graphics;
+
+				//geom2
+				g = dCreateBox(0, 2,2,5.0/2.0);
+				gd = new Geom(g, geom->object_parent);
+				gd->mu = 1.0;
+				gd->Set_Buffer_Event(150000, 1000, (Script*)1337);
+
+				//body2
+				b = dBodyCreate(world);
+				dMassSetBox (&m, 1, 2,2,5.0/2.0);
+				dMassAdjust (&m, 100); //200kg
+				dBodySetMass(b, &m);
+				new Body(b, geom->object_parent);
+				dBodySetPosition(b, pos2[0], pos2[1], pos2[2]);
+				dBodySetRotation(b, rot);
+				dGeomSetBody(g,b);
+
+				gd->model = geom->TMP_pillar_graphics;
+			}
+			Body *body = (Body*)dBodyGetData(bodyid);
+
+			delete geom;
+			delete body;
+		}
+		else //static geom, hmm...
+		{
+			if (geom->TMP_pillar_geom)
+			{
+				//pillar that should be getting a body (to detach), and buffer refill
+				dBodyID body = dBodyCreate(world);
+
+				//mass
+				dMass m;
+				dMassSetBox (&m, 1, 2,2,5);
+				dMassAdjust (&m, 200); //200kg
+				dBodySetMass(body, &m);
+
+				new Body(body, geom->object_parent);
+				//position
+				const dReal *pos = dGeomGetPosition(geom->geom_id);
+				dBodySetPosition(body, pos[0], pos[1], pos[2]);
+
+				//attach
+				dGeomSetBody(geom->geom_id, body);
+
+
+				//reset buffer
+				geom->Increase_Buffer(8000);
+			}
+		}
+	}
+
+	Geom *next;
+	while (Buffer_Event_List::Get_Event(&body))
+	{
+		//first of all, remove all connected (to this body) geoms:
+		//ok, this is _really_ uggly...
+		//ode lacks a "dBodyGetGeom" routine (why?! it's easy to implement!)...
+		//solution: loop through all geoms remove all with "force_to_body"==this body
+		for (geom=Geom::head; geom; geom=next)
+		{
+			next=geom->next; //needs this after possibly destroying the geom (avoid segfault)
+			if (geom->force_to_body == body)
+				delete geom;
+		}
+
+		delete body;
+	}
+
+	//loop joints
+	while (Buffer_Event_List::Get_Event(&joint))
+	{
+		//assume the joint should be destroyed
+		delete joint;
+	}
+
+	//sensors:
+	while (Sensor_Event_List::Get_Event(&geom))
+	{
+		if (geom->flipper_geom)
+		{
+			//this geom (the sensor) is connected to the flipper surface geom ("flipper_geom") which is moved
+			if (geom->sensor_last_state == true) //triggered
+			{
+				//run script for each step with a value going from <z> to <z+2> over 0.1 seconds
+				const dReal *pos;
+				pos = dGeomGetPosition(geom->flipper_geom); //get position (need z)
+				new Animation_Timer(geom->object_parent, (Script*)geom->flipper_geom, pos[2], pos[2]+2.0, 0.1);
+				//note: Animation_Timer expects a script, but pass flipper geom instead...
+			}
+		}
+		else
+			printlog(0, "WARNING: unidentified geom got configured as sensor?! - ignoring...");
+	}
+
+	//objects (depleted activity)
+	Object *obj;
+	while (Object_Event_List::Get_Event(&obj))
+		delete obj;
 }

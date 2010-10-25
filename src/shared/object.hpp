@@ -59,9 +59,6 @@ class Object
 		virtual ~Object(); //(virtual makes sure also inherited classes calls this destructor)
 		static void Destroy_All();
 
-		//removes empty objects
-		static void Events_Step();
-
 		//for increasing/decreasing activity counter
 		void Increase_Activity();
 		void Decrease_Activity();

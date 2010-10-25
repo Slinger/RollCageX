@@ -14,7 +14,7 @@
 #include "printlog.hpp"
 #include "track.hpp"
 #include "internal.hpp"
-#include "../events/event_lists.hpp"
+#include "../simulation/event_buffers.hpp"
 #include "../loaders/conf.hpp"
 
 Geom *Geom::head = NULL;

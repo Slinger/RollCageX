@@ -29,7 +29,6 @@ class Joint: public Component
 		~Joint();
 
 		static void Physics_Step(dReal step);
-		static void TMP_Events_Step(Uint32 step);
 
 		//geom data bellongs to
 		dJointID joint_id;

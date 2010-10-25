@@ -24,7 +24,7 @@
 
 #include "../shared/camera.hpp"
 #include "gl_extensions.hpp"
-#include "graphic_list.hpp"
+#include "graphic_buffers.hpp"
 #include "geom_render.hpp"
 
 SDL_Surface *screen;

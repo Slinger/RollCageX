@@ -9,13 +9,16 @@
  * See license.txt and README for more info
  */
 
-#ifndef _RCX_EVENT_LISTS_H
-#define _RCX_EVENT_LISTS_H
+#ifndef _RCX_EVENT_BUFFERS_H
+#define _RCX_EVENT_BUFFERS_H
 //definitions of components that causes/uses events
 #include "../shared/component.hpp"
 #include "../shared/geom.hpp"
 #include "../shared/body.hpp"
 #include "../shared/joint.hpp"
+
+//processes buffered events
+void Event_Buffers_Process(dReal step);
 
 //for components having "health" buffers
 class Buffer_Event_List

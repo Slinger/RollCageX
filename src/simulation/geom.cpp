@@ -16,8 +16,7 @@
 #include "../shared/printlog.hpp"
 
 #include "collision_feedback.hpp"
-
-#include "../events/event_lists.hpp"
+#include "event_buffers.hpp"
 
 #include <ode/ode.h>
 

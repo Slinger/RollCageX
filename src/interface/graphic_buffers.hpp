@@ -9,14 +9,13 @@
  * See license.txt and README for more info
  */
 
-#include <ode/ode.h>
-#include "../shared/object.hpp"
-#include "event_lists.hpp"
+#ifndef _RCX_GRAPHIC_BUFFERS_H
+#define _RCX_GRAPHIC_BUFFERS_H
 
-//temporary geom event processing
-void Object::Events_Step()
-{
-	Object *obj;
-	while (Object_Event_List::Get_Event(&obj))
-		delete obj;
-}
+//currently just list for components (geoms+bodies)
+#define INITIAL_GRAPHIC_BUFFER_SIZE 150
+
+void Graphic_List_Update(); //copy pos/rot
+void Graphic_List_Render(); //render
+
+#endif

@@ -26,11 +26,11 @@
 #include "../shared/joint.hpp"
 
 #include "collision_feedback.hpp"
+#include "event_buffers.hpp"
+#include "timers.hpp"
 
-#include "../interface/graphic_list.hpp"
+#include "../interface/graphic_buffers.hpp"
 
-//tmp
-#include "../events/timers.hpp"
 
 unsigned int physics_lag = 0;
 unsigned int physics_count = 0;
@@ -113,15 +113,11 @@ int physics_loop (void *d)
 		}
 
 		//previous simulations might have caused events (to be processed by scripts)...
-		//Event_Lists_Process();
-		Geom::TMP_Events_Step(internal.stepsize);
-		Joint::TMP_Events_Step(internal.stepsize);
-		Body::TMP_Events_Step(internal.stepsize);
+		Event_Buffers_Process(internal.stepsize);
 
-		Object::Events_Step(); //remove inactive objects
-
-		//timers
+		//process timers:
 		Animation_Timer::Events_Step(internal.stepsize);
+
 
 		//broadcast to wake up sleeping threads
 		if (internal.sync_events || internal.sync_graphics)
