@@ -50,11 +50,11 @@ void Run_Race(void)
 	starttime = SDL_GetTicks(); //how long it took for race to start
 
 	//launch threads
-	SDL_Thread *physics = SDL_CreateThread (physics_loop, NULL);
-	graphics_loop(); //we already got opengl context in main thread
+	SDL_Thread *simulation = SDL_CreateThread (Simulation_Loop, NULL);
+	Interface_Loop(); //we already got opengl context in main thread
 
 	//wait for threads
-	SDL_WaitThread (physics, NULL);
+	SDL_WaitThread (simulation, NULL);
 
 	//cleanup
 	SDL_DestroyMutex(ode_mutex);
@@ -66,7 +66,7 @@ void Run_Race(void)
 	printlog(0, "Race Done!");
 
 	racetime = SDL_GetTicks() - starttime;
-	simtime = physics_time - starttime;
+	simtime = simulation_time - starttime;
 }
 
 //
@@ -80,8 +80,8 @@ void Run_Race(void)
 //note: if selections are not found, will still fall back on safe defaults
 bool tmp_menus(const char *profiledir)
 {
-	//initiate graphics
-	if (!graphics_init())
+	//initiate interface
+	if (!Interface_Init())
 		return false;
 
 	std::string sprofile, sworld, strack, steam, scar, sdiameter, styre, srim; //easy text manipulation...
@@ -101,11 +101,11 @@ bool tmp_menus(const char *profiledir)
 		return false; //GOTO: profile menu
 
 
-	//initiate physics
-	if (!physics_init())
+	//initiate simulation
+	if (!Simulation_Init())
 	{
 		//menu: warn and quit!
-		graphics_quit();
+		Interface_Init();
 		return false;
 	}
 
@@ -284,12 +284,12 @@ bool tmp_menus(const char *profiledir)
 
 	//MENU: back to main menu here
 	// - assuming player wants to log out -
-	physics_quit();
+	Simulation_Quit();
 	Profile_Remove_All(); //should only be one active profile right now, but any case, remove all
 
 	//MENU: select profile
 	// - assumes player wants to quit -
-	graphics_quit();
+	Interface_Quit();
 
 	return true;
 }
@@ -396,14 +396,14 @@ int main (int argc, char *argv[])
 	printlog(1, "Simulated time:		%ums (%u%% of real time)",
 						simtime, (100*simtime)/racetime);
 
-	printlog(1, "Avarage physics/second:	%u steps (%u in total)",
-						(1000*physics_count)/racetime, physics_count);
+	printlog(1, "Average simulations/second:	%u steps/second (%u in total)",
+						(1000*simulation_count)/racetime, simulation_count);
 
 	printlog(1, "Physics lag:			%u%% of steps (%u in total)",
-						(100*physics_lag)/physics_count, physics_lag);
+						(100*simulation_lag)/simulation_count, simulation_lag);
 
-	printlog(1, "Avarage graphics/second:	%u steps (FPS) (%u%% of physics steps)",
-						(1000*graphics_count)/racetime, (100*graphics_count)/physics_count);
+	printlog(1, "Average frames/second:	%u FPS (%u%% of simulation steps)",
+						(1000*interface_count)/racetime, (100*interface_count)/simulation_count);
 
 	printf("\nBye!\n\n");
 

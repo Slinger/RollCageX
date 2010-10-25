@@ -9,8 +9,6 @@
  * See license.txt and README for more info
  */
 
-//handles physics simulation (mostly rigid body dynamics)
-
 #include <SDL/SDL_timer.h>
 #include <SDL/SDL_mutex.h>
 
@@ -32,13 +30,13 @@
 #include "../interface/graphic_buffers.hpp"
 
 
-unsigned int physics_lag = 0;
-unsigned int physics_count = 0;
-Uint32 physics_time = 0;
+unsigned int simulation_lag = 0;
+unsigned int simulation_count = 0;
+Uint32 simulation_time = 0;
 
-bool physics_init(void)
+bool Simulation_Init(void)
 {
-	printlog(0, "Initiating physics");
+	printlog(0, "Initiating simulation");
 	dInitODE2(0);
 	dAllocateODEDataForThread(dAllocateFlagBasicData | dAllocateFlagCollisionData);
 
@@ -60,7 +58,7 @@ bool physics_init(void)
 	dWorldSetAutoDisableSteps (world, internal.dis_steps);
 	dWorldSetAutoDisableTime (world, internal.dis_time);
 
-	//joint softness (collisions are specified in physics/geom.cpp)
+	//joint softness
 	dWorldSetERP (world, internal.joint_erp);
 	dWorldSetCFM (world, internal.joint_cfm);
 
@@ -68,11 +66,11 @@ bool physics_init(void)
 }
 
 
-int physics_loop (void *d)
+int Simulation_Loop (void *d)
 {
-	printlog(1, "Starting physics loop");
+	printlog(1, "Starting simulation loop");
 
-	physics_time = SDL_GetTicks(); //set simulated time to realtime
+	simulation_time = SDL_GetTicks(); //set simulated time to realtime
 	Uint32 realtime; //real time (with possible delay since last update)
 	Uint32 stepsize_ms = (Uint32) (internal.stepsize*1000.0+0.0001);
 	dReal divided_stepsize = internal.stepsize/internal.multiplier;
@@ -120,42 +118,42 @@ int physics_loop (void *d)
 
 
 		//broadcast to wake up sleeping threads
-		if (internal.sync_events || internal.sync_graphics)
+		if (internal.sync_interface)
 		{
 			SDL_mutexP(sync_mutex);
 			SDL_CondBroadcast (sync_cond);
 			SDL_mutexV(sync_mutex);
 		}
 
-		physics_time += stepsize_ms;
+		simulation_time += stepsize_ms;
 
-		//sync physics with realtime
-		if (internal.sync_physics)
+		//sync simulation with realtime
+		if (internal.sync_simulation)
 		{
 			//get some time to while away?
 			realtime = SDL_GetTicks();
-			if (physics_time > realtime)
+			if (simulation_time > realtime)
 			{
 				//busy-waiting:
-				if (internal.physics_spinning)
-					while (physics_time > SDL_GetTicks());
+				if (internal.spinning)
+					while (simulation_time > SDL_GetTicks());
 				//sleep:
 				else
-					SDL_Delay (physics_time - realtime);
+					SDL_Delay (simulation_time - realtime);
 			}
 			else
-				++physics_lag;
+				++simulation_lag;
 		}
 
 		//count how many steps
-		++physics_count;
+		++simulation_count;
 	}
 	return 0;
 }
 
-void physics_quit (void)
+void Simulation_Quit (void)
 {
-	printlog(1, "Quit physics");
+	printlog(1, "Quit simulation");
 	dJointGroupDestroy (contactgroup);
 	dSpaceDestroy (space);
 	dWorldDestroy (world);

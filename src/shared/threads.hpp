@@ -23,32 +23,28 @@ extern SDL_cond  *sync_cond;
 
 
 //prototypes for communication/statistic variables
-//physics:
-extern unsigned int physics_lag;
-extern unsigned int physics_count;
-extern Uint32 physics_time;
-//graphics:
-extern unsigned int graphics_count;
-extern bool graphics_event_resize;
-extern int graphics_event_resize_w, graphics_event_resize_h;
+//simulation:
+extern unsigned int simulation_lag;
+extern unsigned int simulation_count;
+extern Uint32 simulation_time;
+
+//interface:
+extern unsigned int interface_count;
 extern bool render_models;
 extern bool render_geoms;
-//events:
-extern unsigned int events_count;
 
 //functions
-bool graphics_init(void);
-void graphics_quit(void);
-bool physics_init(void);
-void physics_quit (void);
+bool Interface_Init(void);
+void Interface_Quit(void);
+bool Simulation_Init(void);
+void Simulation_Quit (void);
 
-int graphics_loop (void);
-int events_loop (void *d);
-int physics_loop (void *d);
-
+int Interface_Loop (void);
+int Simulation_Loop (void *d);
 
 
-//TMP: used by events for keeping track of objects spawning
+
+//TMP: used for keeping track for objects spawning
 #include "object.hpp"
 extern Object_Template *box;
 extern Object_Template *sphere;

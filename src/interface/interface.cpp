@@ -9,8 +9,6 @@
  * See license.txt and README for more info
  */
 
-//handle drawing of 3d/2d accelerated graphics
-
 #include <SDL/SDL.h>
 #include <SDL/SDL_opengl.h>
 
@@ -37,9 +35,9 @@ Object_Template *funbox = NULL;
 Object_Template *molecule = NULL;
 
 //count frames
-unsigned int graphics_count = 0;
+unsigned int interface_count = 0;
 
-//needed by graphics_list:
+//needed by graphics_buffers:
 float view_angle_rate_x=0.0;
 float view_angle_rate_y=0.0;
 //
@@ -48,7 +46,7 @@ float view_angle_rate_y=0.0;
 bool background = true;
 //
 
-void graphics_resize (int new_w, int new_h)
+void Resize (int new_w, int new_h)
 {
 	screen = SDL_SetVideoMode (new_w, new_h, 0, flags);
 	int w=screen->w;
@@ -99,9 +97,9 @@ void graphics_resize (int new_w, int new_h)
 	glLoadIdentity();
 }
 
-bool graphics_init(void)
+bool Interface_Init(void)
 {
-	printlog(0, "Initiating graphics");
+	printlog(0, "Initiating interface");
 
 	SDL_Init(SDL_INIT_VIDEO);
 	screen = SDL_SetVideoMode (internal.res[0], internal.res[1], 0, flags);
@@ -135,7 +133,7 @@ bool graphics_init(void)
 			printlog(0, "Error: unable to toggle fullscreen");
 
 	//set up window, as if resized
-	graphics_resize (screen->w, screen->h);
+	Resize (screen->w, screen->h);
 
 	//everything ok
 	return true;
@@ -143,9 +141,9 @@ bool graphics_init(void)
 
 
 
-int graphics_loop ()
+int Interface_Loop ()
 {
-	printlog(1, "Starting graphics loop");
+	printlog(1, "Starting interface loop");
 
 	//just make sure not rendering geoms yet
 	geom_render_level = 0;
@@ -158,7 +156,7 @@ int graphics_loop ()
 	{
 		//make sure only render frame after it's been simulated
 		//quckly lock mutex in order to listen to physics broadcasts
-		if (internal.sync_graphics)
+		if (internal.sync_interface)
 		{
 			SDL_mutexP(sync_mutex);
 			SDL_CondWaitTimeout (sync_cond, sync_mutex, 500); //if no signal in half a second, stop waiting
@@ -185,7 +183,7 @@ int graphics_loop ()
 					screen = SDL_SetVideoMode (event.resize.w, event.resize.h, 0, flags);
 
 					if (screen)
-						graphics_resize (screen->w, screen->h);
+						Resize (screen->w, screen->h);
 					else
 						printlog(0, "Warning: resizing failed");
 				break;
@@ -356,7 +354,7 @@ int graphics_loop ()
 		SDL_GL_SwapBuffers();
 
 		//keep track of how many rendered frames
-		++graphics_count;
+		++interface_count;
 	}
 
 	//during rendering, memory might be allocated to use as buffers
@@ -366,9 +364,9 @@ int graphics_loop ()
 	return 0;
 }
 
-void graphics_quit(void)
+void Interface_Quit(void)
 {
-	printlog(1, "Quit graphics");
+	printlog(1, "Quit interface");
 	SDL_Quit();
 }
 
