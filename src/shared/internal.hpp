@@ -43,7 +43,6 @@ extern struct internal_struct {
 	int res[2]; //resolution
 	int vbo_size;
 	float dist;
-	bool force;
 	float angle;
 	float clipping[2];
 	bool fullscreen;
@@ -69,8 +68,7 @@ const struct internal_struct internal_defaults = {
 	{1200,800},
 	16000000,
 	2800.0,
-	false,
-	60.0,
+	0,
 	{1.0, 1000.0},
 	false,
 	true};
@@ -103,7 +101,6 @@ const struct Conf_Index internal_index[] = {
 	{"resolution",		'i',2, offsetof(struct internal_struct, res)},
 	{"VBO_size",		'i',1, offsetof(struct internal_struct, vbo_size)},
 	{"eye_distance",	'f',1, offsetof(struct internal_struct, dist)},
-	{"force_angle",		'b',1, offsetof(struct internal_struct, force)},
 	{"view_angle",		'f',1, offsetof(struct internal_struct, angle)},
 	{"fullscreen",		'b',1, offsetof(struct internal_struct, fullscreen)},
 	{"backface_culling",	'b',1, offsetof(struct internal_struct, culling)},

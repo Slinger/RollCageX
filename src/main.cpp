@@ -399,7 +399,7 @@ int main (int argc, char *argv[])
 	printlog(1, "Average simulations/second:	%u steps/second (%u in total)",
 						(1000*simulation_count)/racetime, simulation_count);
 
-	printlog(1, "Physics lag:			%u%% of steps (%u in total)",
+	printlog(1, "Simulation lag:		%u%% of steps (%u in total)",
 						(100*simulation_lag)/simulation_count, simulation_lag);
 
 	printlog(1, "Average frames/second:	%u FPS (%u%% of simulation steps)",

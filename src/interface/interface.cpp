@@ -64,7 +64,7 @@ void Resize (int new_w, int new_h)
 	//
 	float angle;
 
-	if (!internal.force) //good
+	if (!internal.angle) //good
 	{
 		//angle between w/2 (distance from center of screen to right edge) and players eye distance
 		angle = atan( (((GLfloat) w)/2.0)/internal.dist );
@@ -73,7 +73,7 @@ void Resize (int new_w, int new_h)
 	else //bad...
 	{
 		printlog(1, "Angle forced to: %f degrees. And you are an evil person...", internal.angle);
-		angle = (internal.angle * M_PI/180);;
+		angle = ( (internal.angle/2.0) * M_PI/180);;
 	}
 
 	//useful for more things:
