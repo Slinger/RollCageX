@@ -79,7 +79,7 @@ Object::~Object()
 		delete components; //just removes the one in top each time
 
 	//make sure no events for this object is left
-	Object_Event_List::Remove(this);
+	Event_Buffer_Remove_All(this);
 }
 
 void Object::Increase_Activity()
@@ -90,10 +90,7 @@ void Object::Increase_Activity()
 void Object::Decrease_Activity()
 {
 	if ((--activity) == 0)
-	{
-		printlog(2, "Object became inactive, generating event");
-		new Object_Event_List(this);
-	}
+		Event_Buffer_Add_Inactive(this);
 }
 
 //destroys all objects

@@ -27,7 +27,7 @@ void Joint::Set_Buffer_Event(dReal thres, dReal buff, Script *scr)
 		buffer_script=scr;
 
 		//make sure no old event is left
-		Buffer_Event_List::Remove(this);
+		Event_Buffer_Remove_All(this);
 
 		buffer_event=true;
 	}
@@ -41,7 +41,7 @@ void Joint::Set_Buffer_Event(dReal thres, dReal buff, Script *scr)
 			delete feedback;
 			feedback=NULL;
 		}
-		Buffer_Event_List::Remove(this);
+		Event_Buffer_Remove_All(this);
 		//disable
 		dJointSetFeedback(joint_id, 0);
 	}
@@ -76,10 +76,7 @@ void Joint::Physics_Step (dReal step)
 				{
 					d->buffer -= delt*step;
 					if (d->buffer < 0)
-					{
-						printlog(2, "Joint buffer depleted, generating event");
-						new Buffer_Event_List(d);
-					}
+						Event_Buffer_Add_Depleted(d);
 				}
 			}
 		}

@@ -23,7 +23,7 @@ class Animation_Timer
 	public:
 		Animation_Timer (Object*, Script*, dReal start, dReal stop, dReal duration);
 		~Animation_Timer();
-		static void Events_Step(Uint32 step);
+		static void Events_Step(dReal step);
 
 	private:
 		Object *object;

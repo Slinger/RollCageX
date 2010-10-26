@@ -18,87 +18,59 @@
 //component buffers:
 //
 
-//make sure header pointers are NULL for the wanted lists
-Buffer_Event_List *Buffer_Event_List::geom_head = NULL;
-Buffer_Event_List *Buffer_Event_List::body_head = NULL;
-Buffer_Event_List *Buffer_Event_List::joint_head = NULL;
-
-//for adding to lists
-Buffer_Event_List::Buffer_Event_List(Geom *geom): component(geom)
+//standard single linked-list approach for storing:
+struct Link
 {
-	next = geom_head;
-	geom_head = this;
+	void *p;
+	Link *next;
+};
+
+//heads (lists/buffers used)
+Link *geom_depleted=NULL; //=damaged
+Link *geom_triggered=NULL; //=sensor triggered
+//Link *geom_radar=NULL; somehow keep track of all geoms
+Link *body_depleted=NULL; //=damaged
+Link *joint_depleted=NULL; //=damaged
+Link *object_inactive=NULL; //=done
+
+//
+//universal buffer processing functions (used through wrappers)
+//
+//add to buffer
+void Push(Link **buffer, void *p)
+{
+	Link *tmp = new Link;
+	tmp->p = p;
+	tmp->next = *buffer;
+	*buffer = tmp;
 }
-
-Buffer_Event_List::Buffer_Event_List(Body *body): component(body)
+//get top and remove from buffer
+void *Pop(Link **buffer)
 {
-	next = body_head;
-	body_head = this;
-}
+	//end of list?
+	if (!*buffer)
+		return NULL;
 
-Buffer_Event_List::Buffer_Event_List(Joint *joint): component(joint)
-{
-	next = joint_head;
-	joint_head = this;
-}
+	//remove this link
+	Link *tmp = *buffer;
+	*buffer = tmp->next;
 
-//for getting
-bool Buffer_Event_List::Get_Event(Geom **geom)
-{
-	//if end of list
-	if (!geom_head)
-		return false;
-
-	//remove from list
-	Buffer_Event_List *tmp = geom_head;
-	geom_head = tmp->next;
-
-	//set wanted data and delete
-	*geom = (Geom*)tmp->component; //safe to assume this list consists of wanted component
+	//return data and remove
+	void *p = tmp->p;
 	delete (tmp);
 
-	return true;
+	//ok
+	return p;
 }
-
-bool Buffer_Event_List::Get_Event(Body **body)
+//remove all matching from buffer
+void RemoveAll(Link **buffer, void *target)
 {
-	if (!body_head)
-		return false;
-
-	Buffer_Event_List *tmp = body_head;
-	body_head = tmp->next;
-
-	*body = (Body*)tmp->component;
-	delete (tmp);
-
-	return true;
-}
-
-bool Buffer_Event_List::Get_Event(Joint **joint)
-{
-	if (!joint_head)
-		return false;
-
-	Buffer_Event_List *tmp = joint_head;
-	joint_head = tmp->next;
-
-	*joint = (Joint*)tmp->component;
-	delete (tmp);
-
-	return true;
-}
-
-//removing
-void Buffer_Event_List::Remove(Geom *comp)
-{
-	printlog(2, "seeking and removing all events for specified Geom");
-
-	Buffer_Event_List *p = geom_head; //points at current event in list
-	Buffer_Event_List **pp = &geom_head; //points at pointer ("next") pointing at current event
+	Link *p=*buffer; //points at current event in list
+	Link **pp=&(*buffer); //points at pointer ("next") pointing at current event
 
 	while (p)
 	{
-		if (p->component == comp) //remove
+		if (p->p == target) //remove
 		{
 			*pp = p->next; //change last 'next' pointer
 			delete p; //delete this block
@@ -112,145 +84,64 @@ void Buffer_Event_List::Remove(Geom *comp)
 	}
 }
 
-void Buffer_Event_List::Remove(Body *comp)
-{
-	printlog(2, "seeking and removing all events for specified Body");
-	Buffer_Event_List *p = body_head;
-	Buffer_Event_List **pp = &body_head;
-	while (p)
-	{
-		if (p->component == comp)
-		{
-			*pp = p->next;
-			delete p;
-			p = *pp;
-		}
-		else
-		{
-			pp = &p->next;
-			p = p->next;
-		}
-	}
-}
-
-void Buffer_Event_List::Remove(Joint *comp)
-{
-	printlog(2, "seeking and removing all events for specified Joint");
-
-	Buffer_Event_List *p = joint_head;
-	Buffer_Event_List **pp = &joint_head;
-	while (p)
-	{
-		if (p->component == comp)
-		{
-			*pp = p->next;
-			delete p;
-			p = *pp;
-		}
-		else
-		{
-			pp = &p->next;
-			p = p->next;
-		}
-	}
-}
-
 //
-//sensor triggering/untriggering
+//wrappers (for use of above functions)
 //
-
-Sensor_Event_List *Sensor_Event_List::head = NULL;
-
-Sensor_Event_List::Sensor_Event_List(Geom *g): geom(g)
+//adding functions
+void Event_Buffer_Add_Depleted(Geom *geom)
 {
-	next = head;
-	head = this;
+	printlog(2, "Geom depleted event registered");
+	Push(&geom_depleted, (void*)geom);
 }
 
-bool Sensor_Event_List::Get_Event(Geom **g)
+void Event_Buffer_Add_Triggered(Geom *geom)
 {
-	if (!head)
-		return false;
-
-	Sensor_Event_List *tmp = head;
-	head = tmp->next;
-
-	*g = tmp->geom;
-	delete (tmp);
-
-	return true;
+	printlog(2, "Geom sensor event registered");
+	Push(&geom_triggered, (void*)geom);
 }
 
-void Sensor_Event_List::Remove(Geom *geom)
+void Event_Buffer_Add_Depleted(Body *body)
 {
-	printlog(2, "removing all events for specified Sensor");
-
-	Sensor_Event_List *p = head; //points at first event
-	Sensor_Event_List **pp = &head; //points at pointer for first event
-
-	while (p)
-	{
-		if (p->geom == geom)
-		{
-			*pp = p->next;
-			delete p;
-			p = *pp;
-		}
-		else
-		{
-			pp = &p->next;
-			p = p->next;
-		}
-	}
+	printlog(2, "Body depleted event registered");
+	Push(&body_depleted, (void*)body);
 }
 
-//
-//object inactivity:
-//
-Object_Event_List *Object_Event_List::head = NULL;
-
-Object_Event_List::Object_Event_List(Object *obj): object(obj)
+void Event_Buffer_Add_Depleted(Joint *joint)
 {
-	next = head;
-	head = this;
+	printlog(2, "Joint depleted event registered");
+	Push(&joint_depleted, (void*)joint);
 }
 
-bool Object_Event_List::Get_Event(Object **obj)
+void Event_Buffer_Add_Inactive(Object *object)
 {
-	if (!head)
-		return false;
-
-	*obj = head->object;
-
-	Object_Event_List *tmp = head;
-	head = head->next;
-
-	delete tmp;
-	return true;
+	printlog(2, "Object inactive event registered");
+	Push(&object_inactive, (void*)object);
 }
 
-void Object_Event_List::Remove(Object *obj)
-{
-	printlog(2, "removing all events for specified Object");
 
-	Object_Event_List *p = head;
-	Object_Event_List **pp = &head;
-	while (p)
-	{
-		if (p->object == obj)
-		{
-			*pp = p->next;
-			delete p;
-			p = *pp;
-		}
-		else
-		{
-			pp = &p->next;
-			p = p->next;
-		}
-	}
+//removing functions (when needing to remove all events for one thing)
+void Event_Buffer_Remove_All(Geom *geom)
+{
+	RemoveAll(&geom_depleted, geom); //damage
+	RemoveAll(&geom_triggered, geom); //sensor
 }
 
+void Event_Buffer_Remove_All(Body *body)
+{
+	RemoveAll(&body_depleted, body);
+}
+
+void Event_Buffer_Remove_All(Joint *joint)
+{
+	RemoveAll(&joint_depleted, joint);
+}
+
+void Event_Buffer_Remove_All(Object *object)
+{
+	RemoveAll(&object_inactive, object);
+}
+
+//function for parsing all buffered events
 
 //process all events:
 void Event_Buffers_Process(dReal step)
@@ -258,9 +149,10 @@ void Event_Buffers_Process(dReal step)
 	Geom *geom;
 	Body *body;
 	Joint *joint;
+	Object *object;
 
-	//buffer:
-	while (Buffer_Event_List::Get_Event(&geom))
+	//geom buffer:
+	while ((geom = (Geom*)Pop(&geom_depleted)))
 	{
 		dBodyID bodyid = dGeomGetBody(geom->geom_id);
 
@@ -345,8 +237,28 @@ void Event_Buffers_Process(dReal step)
 		}
 	}
 
+	//geom sensor:
+	while ((geom = (Geom*)Pop(&geom_triggered)))
+	{
+		if (geom->flipper_geom)
+		{
+			//this geom (the sensor) is connected to the flipper surface geom ("flipper_geom") which is moved
+			if (geom->sensor_last_state == true) //triggered
+			{
+				//run script for each step with a value going from <z> to <z+2> over 0.1 seconds
+				const dReal *pos;
+				pos = dGeomGetPosition(geom->flipper_geom); //get position (need z)
+				new Animation_Timer(geom->object_parent, (Script*)geom->flipper_geom, pos[2], pos[2]+2.0, 0.1);
+				//note: Animation_Timer expects a script, but pass flipper geom instead...
+			}
+		}
+		else
+			printlog(0, "WARNING: tmp unidentified geom got configured as sensor?! - ignoring...");
+	}
+
+	//body buffer:
 	Geom *next;
-	while (Buffer_Event_List::Get_Event(&body))
+	while ((body = (Body*)Pop(&body_depleted)))
 	{
 		//first of all, remove all connected (to this body) geoms:
 		//ok, this is _really_ uggly...
@@ -362,34 +274,12 @@ void Event_Buffers_Process(dReal step)
 		delete body;
 	}
 
-	//loop joints
-	while (Buffer_Event_List::Get_Event(&joint))
-	{
-		//assume the joint should be destroyed
+	//joints buffer:
+	while ((joint = (Joint*)Pop(&joint_depleted)))
 		delete joint;
-	}
 
-	//sensors:
-	while (Sensor_Event_List::Get_Event(&geom))
-	{
-		if (geom->flipper_geom)
-		{
-			//this geom (the sensor) is connected to the flipper surface geom ("flipper_geom") which is moved
-			if (geom->sensor_last_state == true) //triggered
-			{
-				//run script for each step with a value going from <z> to <z+2> over 0.1 seconds
-				const dReal *pos;
-				pos = dGeomGetPosition(geom->flipper_geom); //get position (need z)
-				new Animation_Timer(geom->object_parent, (Script*)geom->flipper_geom, pos[2], pos[2]+2.0, 0.1);
-				//note: Animation_Timer expects a script, but pass flipper geom instead...
-			}
-		}
-		else
-			printlog(0, "WARNING: unidentified geom got configured as sensor?! - ignoring...");
-	}
-
-	//objects (depleted activity)
-	Object *obj;
-	while (Object_Event_List::Get_Event(&obj))
-		delete obj;
+	//objects buffer:
+	while ((object = (Object*)Pop(&object_inactive)))
+		delete object;
 }
+

@@ -46,7 +46,7 @@ Joint::~Joint ()
 	printlog(2, "clearing Joint class");
 
 	//remove all events
-	Buffer_Event_List::Remove(this);
+	Event_Buffer_Remove_All(this);
 
 	//1: remove it from the list
 	if (!prev) //head in list, change head pointer

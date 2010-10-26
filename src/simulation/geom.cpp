@@ -179,7 +179,7 @@ void Geom::Set_Buffer_Event(dReal thres, dReal buff, Script *scr)
 		buffer_script=scr;
 
 		//make sure no old event is left
-		Buffer_Event_List::Remove(this);
+		Event_Buffer_Remove_All(this);
 
 		buffer_event=true;
 	}
@@ -187,7 +187,7 @@ void Geom::Set_Buffer_Event(dReal thres, dReal buff, Script *scr)
 	{
 		printlog(2, "disabling Geom event");
 		buffer_event=false;
-		Buffer_Event_List::Remove(this);
+		Event_Buffer_Remove_All(this);
 	}
 }
 
@@ -215,10 +215,7 @@ void Geom::Damage_Buffer(dReal force, dReal step)
 
 		//now it's negative, issue event
 		if (buffer < 0)
-		{
-			printlog(2, "Geom buffer depleted, generating event");
-			new Buffer_Event_List(this);
-		}
+			Event_Buffer_Add_Depleted(this);
 	}
 	else //just damage buffer even more
 		buffer -= force*step;
@@ -229,7 +226,7 @@ void Geom::Increase_Buffer(dReal buff)
 	buffer+=buff;
 
 	if (buffer < 0) //still depleted, regenerate event
-		new Buffer_Event_List(this);
+		Event_Buffer_Add_Depleted(this);
 }
 
 //sensor
@@ -258,8 +255,7 @@ void Geom::Physics_Step()
 			if (geom->colliding != geom->sensor_last_state)
 			{
 				geom->sensor_last_state=geom->colliding;
-
-				new Sensor_Event_List(geom);
+				Event_Buffer_Add_Triggered(geom);
 			}
 		}
 
