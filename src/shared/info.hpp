@@ -27,19 +27,20 @@ const char ISSUE[] = "\
    GNU General Public License for more details.\n\n\
    You should have received a copy of the GNU General Public License\n\
    along with this program.  If not, see <http://www.gnu.org/licenses/>.\n\
-\n                           -=[ Credits ]=-\n\n\
-    * Mats Wahlberg (\"Slinger\")     -       Creator (coder)\n\
-    * \"XEWEASEL\" (\"Codie Morgan\")   -       High Definition 3D Models\n\
-    * \"K.Mac\" (\"Mac\")               -       Extensive testing, hacks and new ideas\n\
-    * \"MeAkaJon\"                    -       Creator/maintainer of gorcx.net webpage\n\
-    * \"Spontificus\"                 -       Testing, hacks and various fixes\n\n\
-\n               -=[ Other Projects that made RCX possible ]=\n\n\
-    * \"Simple DirectMedia Layer\"    -       OS/hardware abstractions\n\
-    * \"Open Dynamics Engine\"        -       Rigid body dynamics and collision detection\n\
-    * \"The GNU Project\"             -       Its fight for computer freedom has changed the world\n\n\
-    Default key bindings can be found (and changed) in \"data/profiles/default/keys.lst\"\n\
-    More keys exists for debug/testing/demo, see README if you are interested.\n\
-    - See README for more info -\n\n";
+\n				-=[ Credits ]=-\n\n\
+    * Mats Wahlberg (\"Slinger\")		-	Creator (coder)\n\
+    * \"XEWEASEL\" (\"Codie Morgan\")	-	High Definition 3D Models\n\
+    * \"K.Mac\" (\"Mac\")			-	Extensive testing, hacks and new ideas\n\
+    * \"MeAkaJon\"			-	Creator/maintainer of gorcx.net webpage\n\
+    * \"Spontificus\"			-	Testing, hacks and various fixes\n\n\
+\n		-=[ Other Projects that made RCX possible ]=\n\n\
+    * \"Free Software Foundation\"	-	\"Free Software, Free Society\", supporting the free software movement\n\
+    * \"The GNU Project\"			-	For a Free OS. Its fight for computer freedom has changed the world\n\
+    * \"Simple DirectMedia Layer\"	-	OS/hardware abstraction library\n\
+    * \"Open Dynamics Engine\"		-	Rigid body dynamics and collision detection library\n\n\
+   Default key bindings can be found (and changed) in \"data/profiles/default/keys.lst\"\n\
+   More keys exists for debug/testing/demo, see README if you are interested.\n\
+   - See README for more info -\n\n";
  
 const char HELP[] = "\
    Usage: rcx [-d|-p]\n\

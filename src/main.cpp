@@ -307,7 +307,7 @@ char *datadefault; //need to check path to rcx before deciding this
 int main (int argc, char *argv[])
 {
 	//issue
-	printf("\n     -=[ Welcome to RollCageX version %s ]=-\n\n%s\n", VERSION, ISSUE);
+	printf("\n		-=[ Welcome to RollCageX version %s ]=-\n\n%s\n", VERSION, ISSUE);
 	//end
 
 	//attempt to generate default data path
