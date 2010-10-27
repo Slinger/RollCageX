@@ -79,7 +79,7 @@ Trimesh_Geom *Trimesh_Geom::Quick_Load(const char *name)
 
 Geom *Trimesh_Geom::Create_Geom(Object *obj)
 {
-	//create geom without space, callback, array callback or ray callback
+	//create a trimesh geom (with usual global space for now)
 	dGeomID g = dCreateTriMesh(0, data, 0, 0, 0);
 	Geom *geom = new Geom(g, obj);
 
@@ -96,6 +96,10 @@ Geom *Trimesh_Geom::Create_Geom(Object *obj)
 		dGeomTriMeshEnableTC(g, dRayClass, 1); //not working yet
 		dGeomTriMeshEnableTC(g, dTriMeshClass, 1); //not working yet
 	}
+
+	//enable collision callback (register which triangles collides)
+	//TODO: should be optional (if mesh is "solid"=one surface type)
+	dGeomTriMeshSetArrayCallback(g, Geom::Trimesh_Callback);
 
 	return geom;
 }

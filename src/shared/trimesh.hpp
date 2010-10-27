@@ -99,7 +99,6 @@ class Trimesh_Geom: public Racetime_Data
 		static Trimesh_Geom *Quick_Load(const char* name);
 
 		class Geom *Create_Geom(class Object *obj); //creates geom from trimesh
-		//TODO: ode supports callbacks for trimeshes, could be usefull...
 
 	private:
 		Trimesh_Geom(const char*, //name

@@ -163,6 +163,17 @@ void Geom::Collision_Callback (void *data, dGeomID o1, dGeomID o2)
 		geom1->colliding = true; //thus geom2 is colliding
 }
 
+//when one geom collides with a trimesh (all colliding triangles)
+void Geom::Trimesh_Callback(dGeomID mesh, dGeomID other,
+		const int *triangle, int count)
+{
+	//TODO: parse......
+	//printf("> ");
+	//for (int i=0; i<count ; ++i)
+		//printf(" %i ", triangle[i]);
+	//printf("\n");
+}
+
 //
 //set events:
 //
