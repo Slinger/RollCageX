@@ -24,7 +24,13 @@
 void Geom::Clear_Collisions()
 {
 	for (Geom *geom=head; geom; geom=geom->next)
+	{
 		geom->colliding = false;
+
+		//clear all triangle collision bools (for trimeshes)
+		if (geom->triangle_count)
+			bzero(geom->triangle_colliding, sizeof(bool)*geom->triangle_count);
+	}
 }
 
 //when two geoms might intersect
@@ -167,11 +173,9 @@ void Geom::Collision_Callback (void *data, dGeomID o1, dGeomID o2)
 void Geom::Trimesh_Callback(dGeomID mesh, dGeomID other,
 		const int *triangle, int count)
 {
-	//TODO: parse......
-	//printf("> ");
-	//for (int i=0; i<count ; ++i)
-		//printf(" %i ", triangle[i]);
-	//printf("\n");
+	Geom *geom = (Geom*)dGeomGetData(mesh);
+	for (int i=0; i<count ; ++i)
+		geom->triangle_colliding[triangle[i]] = true;
 }
 
 //

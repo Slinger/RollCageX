@@ -112,6 +112,7 @@ class Trimesh_Geom: public Racetime_Data
 		//
 		//data for trimesh:
 		//
+		int triangle_count;
 
 		dTriMeshDataID data; //collected, pointers
 		Vector_Float *vertices;

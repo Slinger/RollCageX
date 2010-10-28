@@ -99,6 +99,8 @@ Geom *Trimesh_Geom::Create_Geom(Object *obj)
 
 	//enable collision callback (register which triangles collides)
 	//TODO: should be optional (if mesh is "solid"=one surface type)
+	geom->triangle_count = triangle_count;
+	geom->triangle_colliding = new bool[triangle_count];
 	dGeomTriMeshSetArrayCallback(g, Geom::Trimesh_Callback);
 
 	return geom;
@@ -216,10 +218,15 @@ Trimesh_Geom *Trimesh::Create_Geom()
 	printlog(2, "How many normals recalculated (from smooth): %u", new_normals);
 
 	//create
-	return new Trimesh_Geom(name.c_str(),
+	Trimesh_Geom *result = new Trimesh_Geom(name.c_str(),
 			v, verts,
 			i, tris*3,
 			n);
+
+	//needs triangle count...
+	result->triangle_count = tris;
+
+	return result;
 }
 
 

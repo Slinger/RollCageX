@@ -52,8 +52,20 @@ class Geom: public Component
 		//scaling values for tyres:
 		dReal tyre_pos_scale, tyre_sharp_scale, tyre_rollres_scale;
 
-		//points at a wheel simulation class, or NULL if not a wheel
+		//register if geom is colliding
+		bool colliding; //set after each collision
+
+
+		//special kind of geoms:
+		//wheel: points at a wheel simulation class, or NULL if not a wheel
 		Wheel *wheel;
+
+		//trimesh: how many triangles (0 if not trimesh/disabled) and which colliding:
+		int triangle_count;
+		bool *triangle_colliding;
+		//TODO: material-specific-surface-parameters
+		//end of special geoms
+
 
 		//End of physics data
 		
@@ -64,9 +76,6 @@ class Geom: public Component
 
 		bool TMP_pillar_geom;
 		Trimesh_3D *TMP_pillar_graphics; //TMP
-
-		//register if geom is colliding
-		bool colliding; //set after each collision
 
 		//for buffer events
 		void Set_Buffer_Event(dReal thresh, dReal buff, Script *scr);

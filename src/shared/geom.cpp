@@ -70,7 +70,9 @@ Geom::Geom (dGeomID geom, Object *obj): Component(obj) //pass object argument to
 	tyre_sharp_scale = 1.0;
 	tyre_rollres_scale = 1.0;
 
+	//special geom indicators
 	wheel = NULL; //not a wheel
+	triangle_count = 0; //no "triangles"
 
 	//events:
 	//for force handling (disable)
@@ -104,5 +106,9 @@ Geom::~Geom ()
 
 	//decrease activity and check if 0
 	object_parent->Decrease_Activity();
+
+	//clear collision checking
+	if (triangle_count)
+		delete[] triangle_colliding;
 }
 
