@@ -501,7 +501,7 @@ void Camera::Physics_Step(dReal step)
 		//check for some exceptions
 		if (settings->reverse) //enabled
 		{
-			if (car->dir*car->throttle > 0.0) //wanting to go forward
+			if (car->dir*car->throttle > 0.0 && car->velocity > 0.0) //wanting and going forward
 				reverse = false;
 			else if (car->dir*car->throttle < 0.0 && car->velocity < 0.0) //wanting and going backwards
 				reverse = true;
