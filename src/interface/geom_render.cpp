@@ -229,7 +229,7 @@ void Geom_Render()
 
 	//misc
 	unsigned int loop, new_indices, new_vertices;
-	int tloop, triangles;
+	int tloop, triangles, collidingtriangles;
 	float vseg = 2.0*M_PI/8.0;
 
 	//lock ode: make sure no geoms change while we build render
@@ -442,22 +442,24 @@ void Geom_Render()
 					//how many triangles in trimesh
 					triangles = dGeomTriMeshGetTriangleCount(g);
 
-					//make sure got memory
-					Assure_Memory (triangles*3, triangles*3);
-
-					//colour based on triangle count (if needed)
-					if (geom_render_level != 5)
-						Volume_Colour((float)triangles);
-
 					//if enabled, and in right level, colour triangles based collision:
 					if ( geom->triangle_count && geom_render_level == 5)
 					{
-						//collision colour
+						//we will be rendering the colliding triangles twice:
+						//count colliding triangles
+						collidingtriangles=0;
+						for (tloop=0; tloop<triangles; ++tloop)
+							if (geom->triangle_colliding[tloop])
+								++collidingtriangles;
+
+						//make sure got memory
+						Assure_Memory ((triangles+collidingtriangles)*3, (triangles+collidingtriangles)*3);
+
+						//copy vertices (with red colour)
 						colour[0]= 1.0;
 						colour[1]= 0.0;
 						colour[2]= 0.0;
 
-						//render these triangles
 						for (tloop=0; tloop<triangles; ++tloop)
 							if (geom->triangle_colliding[tloop])
 							{
@@ -465,18 +467,37 @@ void Geom_Render()
 								AAVertex(v0[0], v0[1], v0[2]);
 								AAVertex(v1[0], v1[1], v1[2]);
 								AAVertex(v2[0], v2[1], v2[2]);
-								Index(tloop*3+0, tloop*3+1);
-								Index(tloop*3+1, tloop*3+2);
-								Index(tloop*3+2, tloop*3+0);
 							}
 
-						//set normal colour
+						//create indices (for simple triangle array rendering):
+						for (tloop=0; tloop<collidingtriangles; ++tloop)
+						{
+							Index(tloop*3+0, tloop*3+1);
+							Index(tloop*3+1, tloop*3+2);
+							Index(tloop*3+2, tloop*3+0);
+						}
+
+						//set normal colour for the rest
 						colour[0]= 0.0;
 						colour[1]= 1.0;
 						colour[2]= 0.0;
 
+
 						//this way, hopefully, (thanks to depth testing) all red lines will cover the (incorrectly)
 						//green ones when rendered again (below and since most lines are shared by two triangles)
+
+						//update usage counters
+						vertex_usage+=new_vertices;
+						index_usage+=new_indices;
+					}
+					else
+					{
+						//make sure got memory
+						Assure_Memory (triangles*3, triangles*3);
+
+						//colour based on triangle count (if needed)
+						if (geom_render_level != 5)
+							Volume_Colour((float)triangles);
 					}
 
 					//render all triangles

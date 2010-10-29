@@ -102,6 +102,7 @@ Geom *Trimesh_Geom::Create_Geom(Object *obj)
 	geom->triangle_count = triangle_count;
 	geom->triangle_colliding = new bool[triangle_count];
 	dGeomTriMeshSetArrayCallback(g, Geom::Trimesh_Callback);
+	//dGeomTriMeshSetCallback(g, Geom::Trimesh_Callback2);
 
 	return geom;
 }

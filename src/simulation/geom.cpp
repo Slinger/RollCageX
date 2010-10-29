@@ -178,6 +178,13 @@ void Geom::Trimesh_Callback(dGeomID mesh, dGeomID other,
 		geom->triangle_colliding[triangle[i]] = true;
 }
 
+/*int Geom::Trimesh_Callback2(dGeomID mesh, dGeomID other, int index)
+{
+	Geom *g = (Geom*)dGeomGetData(mesh);
+	g->triangle_colliding[index]=true;
+	return 1;
+}*/
+
 //
 //set events:
 //
