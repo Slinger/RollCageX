@@ -449,49 +449,50 @@ void Geom_Render()
 					if (geom_render_level != 5)
 						Volume_Colour((float)triangles);
 
-					//if enabled, will colour triangles based on if colliding:
-					if (geom->triangle_count)
+					//if enabled, and in right level, colour triangles based collision:
+					if ( geom->triangle_count && geom_render_level == 5)
+					{
+						//collision colour
+						colour[0]= 1.0;
+						colour[1]= 0.0;
+						colour[2]= 0.0;
+
+						//render these triangles
 						for (tloop=0; tloop<triangles; ++tloop)
-						{
-							//set colour if colliding
 							if (geom->triangle_colliding[tloop])
 							{
-								colour[0]= 1.0;
-								colour[1]= 0.0;
-								colour[2]= 0.0;
-							}
-							else
-							{
-								colour[0]= 0.0;
-								colour[1]= 1.0;
-								colour[2]= 0.0;
+								dGeomTriMeshGetTriangle(g, tloop, &v0, &v1, &v2);
+								AAVertex(v0[0], v0[1], v0[2]);
+								AAVertex(v1[0], v1[1], v1[2]);
+								AAVertex(v2[0], v2[1], v2[2]);
+								Index(tloop*3+0, tloop*3+1);
+								Index(tloop*3+1, tloop*3+2);
+								Index(tloop*3+2, tloop*3+0);
 							}
 
-							//vertices (3 per tri):
-							dGeomTriMeshGetTriangle(g, tloop, &v0, &v1, &v2);
-							AAVertex(v0[0], v0[1], v0[2]);
-							AAVertex(v1[0], v1[1], v1[2]);
-							AAVertex(v2[0], v2[1], v2[2]);
+						//set normal colour
+						colour[0]= 0.0;
+						colour[1]= 1.0;
+						colour[2]= 0.0;
 
-							//indices (3 per tri):
-							Index(tloop*3+0, tloop*3+1);
-							Index(tloop*3+1, tloop*3+2);
-							Index(tloop*3+2, tloop*3+0);
-						}
-					else //already got color for whole trimesh
-						for (tloop=0; tloop<triangles; ++tloop)
-						{
-							//vertices (3 per tri):
-							dGeomTriMeshGetTriangle(g, tloop, &v0, &v1, &v2);
-							AAVertex(v0[0], v0[1], v0[2]);
-							AAVertex(v1[0], v1[1], v1[2]);
-							AAVertex(v2[0], v2[1], v2[2]);
+						//this way, hopefully, (thanks to depth testing) all red lines will cover the (incorrectly)
+						//green ones when rendered again (below and since most lines are shared by two triangles)
+					}
 
-							//indices (3 per tri):
-							Index(tloop*3+0, tloop*3+1);
-							Index(tloop*3+1, tloop*3+2);
-							Index(tloop*3+2, tloop*3+0);
-						}
+					//render all triangles
+					for (tloop=0; tloop<triangles; ++tloop)
+					{
+						//vertices (3 per tri):
+						dGeomTriMeshGetTriangle(g, tloop, &v0, &v1, &v2);
+						AAVertex(v0[0], v0[1], v0[2]);
+						AAVertex(v1[0], v1[1], v1[2]);
+						AAVertex(v2[0], v2[1], v2[2]);
+
+						//indices (3 per tri):
+						Index(tloop*3+0, tloop*3+1);
+						Index(tloop*3+1, tloop*3+2);
+						Index(tloop*3+2, tloop*3+0);
+					}
 				}
 
 				break;

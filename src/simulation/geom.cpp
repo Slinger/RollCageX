@@ -174,7 +174,7 @@ void Geom::Trimesh_Callback(dGeomID mesh, dGeomID other,
 		const int *triangle, int count)
 {
 	Geom *geom = (Geom*)dGeomGetData(mesh);
-	for (int i=0; i<count ; ++i)
+	for (int i=0; i<count; ++i)
 		geom->triangle_colliding[triangle[i]] = true;
 }
 
