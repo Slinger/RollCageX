@@ -54,6 +54,10 @@ class Wheel
 		dReal resistance;
 		dReal radius;
 
+		//debug data:
+		bool approx1;
+		dReal fixedmu;
+
 		//only car and car template (wheen loading) is allowed
 		friend class Car;
 		friend class Car_Template;

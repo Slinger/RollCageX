@@ -136,7 +136,6 @@ void Wheel::Set_Contacts(dBodyID wbody, dBodyID obody, Geom *ogeom, bool wheel_f
 
 
 		//"Slinger's not-so-magic formula":
-
 		//
 		//1) input values:
 		//
@@ -348,21 +347,31 @@ void Wheel::Set_Contacts(dBodyID wbody, dBodyID obody, Geom *ogeom, bool wheel_f
 		//
 		//4) set output values:
 		//
-		//enable: separate mu for dir 1&2, specify dir 1
-		//(note: dir2 is automatically calculated by ode)
-		//also enable erp+cfm specifying (for spring+damping)
-		contact[i].surface.mode |= dContactMu2 | dContactFDir1;
 
-		//fdir1
-		contact[i].fdir1[0] = X[0];
-		contact[i].fdir1[1] = X[1];
-		contact[i].fdir1[2] = X[2];
+		//4.0) debug values:
+		if (!approx1) //dont simulate by load
+			contact[i].surface.mode ^= dContactApprox1; //mask away the contactapprox1 option
 
-		//specify mu1 and mu2
+		if (fixedmu) //ignore all above calculation and force a constant mu (and ode slip combination)
+			contact[i].surface.mu = fixedmu;
+		else //the sane situation: use all stuff we've calculated
+		{
+			//enable: separate mu for dir 1&2, specify dir 1
+			//(note: dir2 is automatically calculated by ode)
+			//also enable erp+cfm specifying (for spring+damping)
+			contact[i].surface.mode |= dContactMu2 | dContactFDir1;
 
-		//let ode calculate friction from internal Fz
-		contact[i].surface.mu = MUx;
-		contact[i].surface.mu2 = MUy;
+			//fdir1
+			contact[i].fdir1[0] = X[0];
+			contact[i].fdir1[1] = X[1];
+			contact[i].fdir1[2] = X[2];
+
+			//specify mu1 and mu2
+
+			//let ode calculate friction from internal Fz
+			contact[i].surface.mu = MUx;
+			contact[i].surface.mu2 = MUy;
+		}
 
 
 

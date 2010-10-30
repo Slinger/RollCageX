@@ -61,6 +61,9 @@ struct Car_Conf
 	Conf_String model; //filename+path for model
 	float resize, rotate[3], offset[3];
 
+	//debug
+	bool turn, gyro, approx1;
+	dReal fixedmu;
 	//debug sizes
 	dReal s[4],w[2],wp[2],jx;
 };
@@ -94,6 +97,9 @@ const struct Car_Conf car_conf_defaults = {
 
 	"",
 	1.0, {0,0,0}, {0,0,0},
+
+	true, true, true,
+	0.0,
 
 	{4.83,3.67,1.67,1.25}, {1.25,1.42}, {2.42,1.83}, 2.0};
 
@@ -149,6 +155,12 @@ const struct Conf_Index car_conf_index[] = {
 	{"model:rotate",	'f',3, offsetof(struct Car_Conf, rotate)},
 	{"model:offset",	'f',3, offsetof(struct Car_Conf, offset)},
 
+	//debug options:
+	{"debug:turn",		'b',1, offsetof(struct Car_Conf, turn)},
+	{"debug:gyroscopic",	'b',1, offsetof(struct Car_Conf, gyro)},
+	{"debug:contactapprox1",'b',1, offsetof(struct Car_Conf, approx1)},
+	{"debug:fixedmu",	'R',1, offsetof(struct Car_Conf, fixedmu)},
+	
 	//the following is for sizes not yet determined
 	{"s",	'R',	4,	offsetof(struct Car_Conf, s)}, //flipover
 	{"w",	'R',	2,	offsetof(struct Car_Conf, w)}, //wheel
@@ -248,6 +260,9 @@ class Car:public Object
 		bool drift_breaks;
 		dReal throttle, steering; //-1.0 to +1.0
 		dReal velocity; //keep track of car velocity
+
+		//debug options:
+		bool turn;
 
 		//tmp: wheel position...
 		dReal wx, wy;

@@ -276,6 +276,10 @@ Car_Template *Car_Template::Load (const char *path)
 	target->wheel.ysharpch = target->conf.ysharp[1];
 	target->wheel.yshift = target->conf.yshift;
 	//
+
+	//debug options:
+	target->wheel.fixedmu = target->conf.fixedmu;
+	target->wheel.approx1 = target->conf.approx1;
 	//
 
 
@@ -369,6 +373,8 @@ Car *Car_Template::Spawn (dReal x, dReal y, dReal z,  Trimesh_3D *tyre, Trimesh_
 	car->adapt_steer = conf.adapt_steer;
 	car->adapt_redist = conf.adapt_redist;
 	car->redist_force = conf.redist_force;
+
+	car->turn = conf.turn;
 
 	//start building
 	new Space(car);
@@ -510,6 +516,11 @@ Car *Car_Template::Spawn (dReal x, dReal y, dReal z,  Trimesh_3D *tyre, Trimesh_
 
 		//never disable wheel body
 		dBodySetAutoDisableFlag (wheel_body[i], 0);
+
+		//disable gyroscopic affect?
+		if (!conf.gyro)
+			dBodySetGyroscopicMode(wheel_body[i], 0);
+
 
 		//set mass
 		dBodySetMass (wheel_body[i], &m);

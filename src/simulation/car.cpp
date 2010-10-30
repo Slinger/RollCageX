@@ -131,14 +131,17 @@ void Car::Physics_Step(dReal step)
 		}
 
 		//apply steering
-		dJointSetHinge2Param (carp->joint[0],dParamLoStop,A[0]);
-		dJointSetHinge2Param (carp->joint[0],dParamHiStop,A[0]);
-		dJointSetHinge2Param (carp->joint[1],dParamLoStop,A[1]);
-		dJointSetHinge2Param (carp->joint[1],dParamHiStop,A[1]);
-		dJointSetHinge2Param (carp->joint[2],dParamLoStop,A[2]);
-		dJointSetHinge2Param (carp->joint[2],dParamHiStop,A[2]);
-		dJointSetHinge2Param (carp->joint[3],dParamLoStop,A[3]);
-		dJointSetHinge2Param (carp->joint[3],dParamHiStop,A[3]);
+		if (carp->turn)
+		{
+			dJointSetHinge2Param (carp->joint[0],dParamLoStop,A[0]);
+			dJointSetHinge2Param (carp->joint[0],dParamHiStop,A[0]);
+			dJointSetHinge2Param (carp->joint[1],dParamLoStop,A[1]);
+			dJointSetHinge2Param (carp->joint[1],dParamHiStop,A[1]);
+			dJointSetHinge2Param (carp->joint[2],dParamLoStop,A[2]);
+			dJointSetHinge2Param (carp->joint[2],dParamHiStop,A[2]);
+			dJointSetHinge2Param (carp->joint[3],dParamLoStop,A[3]);
+			dJointSetHinge2Param (carp->joint[3],dParamHiStop,A[3]);
+		}
 		//
 
 		//breaking/accelerating:
