@@ -97,12 +97,10 @@ Geom *Trimesh_Geom::Create_Geom(Object *obj)
 		dGeomTriMeshEnableTC(g, dTriMeshClass, 1); //not working yet
 	}
 
-	//enable collision callback (register which triangles collides)
+	//enable per-triangle collision detection (for different materials)
 	//TODO: should be optional (if mesh is "solid"=one surface type)
 	geom->triangle_count = triangle_count;
 	geom->triangle_colliding = new bool[triangle_count];
-	dGeomTriMeshSetArrayCallback(g, Geom::Trimesh_Callback);
-	//dGeomTriMeshSetCallback(g, Geom::Trimesh_Callback2);
 
 	return geom;
 }

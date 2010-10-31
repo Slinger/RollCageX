@@ -38,8 +38,6 @@ class Geom: public Component
 		static void Physics_Step();
 
 		static void Collision_Callback(void *, dGeomID, dGeomID);
-		static void Trimesh_Callback(dGeomID, dGeomID, const int*, int);
-		//static int Trimesh_Callback2(dGeomID, dGeomID, int);
 
 		//end of methods, variables:
 		//geom data bellongs to

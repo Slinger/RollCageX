@@ -74,6 +74,16 @@ void Geom::Collision_Callback (void *data, dGeomID o1, dGeomID o2)
 	if (count == 0)
 		return;
 
+	//check if trimeshes, and set their collision bits if so:
+	//using the side{1,2} values: are the triangle indices (not documented feature in ode...)
+	if (geom1->triangle_count)
+		for (int i=0; i<count; ++i)
+			geom1->triangle_colliding[contact[i].geom.side1] = true;
+
+	if (geom2->triangle_count)
+		for (int i=0; i<count; ++i)
+			geom2->triangle_colliding[contact[i].geom.side2] = true;
+
 	//does both components want to collide for real? (not "ghosts"/"sensors")
 	if (geom1->spring&&geom2->spring)
 	{
@@ -169,22 +179,6 @@ void Geom::Collision_Callback (void *data, dGeomID o1, dGeomID o2)
 	if (geom2->spring) //geom2 would have generated collision
 		geom1->colliding = true; //thus geom2 is colliding
 }
-
-//when one geom collides with a trimesh (all colliding triangles)
-void Geom::Trimesh_Callback(dGeomID mesh, dGeomID other,
-		const int *triangle, int count)
-{
-	Geom *geom = (Geom*)dGeomGetData(mesh);
-	for (int i=0; i<count; ++i)
-		geom->triangle_colliding[triangle[i]] = true;
-}
-
-/*int Geom::Trimesh_Callback2(dGeomID mesh, dGeomID other, int index)
-{
-	Geom *g = (Geom*)dGeomGetData(mesh);
-	g->triangle_colliding[index]=true;
-	return 1;
-}*/
 
 //
 //set events:
