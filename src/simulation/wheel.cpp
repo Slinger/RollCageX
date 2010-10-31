@@ -75,7 +75,7 @@ Wheel::Wheel()
 }
 
 //simulation of wheel
-void Wheel::Set_Contacts(dBodyID wbody, dBodyID obody, Geom *ogeom, bool wheel_first,
+void Wheel::Set_Contacts(dBodyID wbody, dBodyID obody, Surface *surface, bool wheel_first,
 		dContact *contact, int count, dReal stepsize)
 {
 	//
@@ -111,8 +111,8 @@ void Wheel::Set_Contacts(dBodyID wbody, dBodyID obody, Geom *ogeom, bool wheel_f
 
 	//
 	//use spring+damping for tyre collision forces:
-	dReal cspring = 1/( 1/(spring) + 1/(ogeom->spring) );
-	dReal cdamping = damping + ogeom->damping;
+	dReal cspring = 1/( 1/(spring) + 1/(surface->spring) );
+	dReal cdamping = damping + surface->damping;
 
 	//calculate erp+cfm from stepsize, spring and damping values:
 	dReal erp = (stepsize*cspring)/(stepsize*cspring +cdamping);
@@ -274,25 +274,25 @@ void Wheel::Set_Contacts(dBodyID wbody, dBodyID obody, Geom *ogeom, bool wheel_f
 		//
 
 		//max mu value
-		peak = (xpeak+xpeaksch*Fz)*ogeom->mu;
+		peak = (xpeak+xpeaksch*Fz)*surface->mu;
 		//shape
 		shape = xshape;
 		//needed to get peak at right position, and used by peak_sharpness
 		K = tan( (M_PI/2)/shape );
 		//where should peak be reached
-		peak_at = xpos*pow(Fz, xposch) *ogeom->tyre_pos_scale;
+		peak_at = xpos*pow(Fz, xposch) *surface->tyre_pos_scale;
 		//how sharp peak should be
-		peak_sharpness = (peak_at/K)*xsharp*pow(Fz, xsharpch) *ogeom->tyre_sharp_scale;
+		peak_sharpness = (peak_at/K)*xsharp*pow(Fz, xsharpch) *surface->tyre_sharp_scale;
 
 		//calculate!
 		amount_x = sin(shape*atan(K*pow((fabs(slip_ratio)/peak_at), peak_sharpness)));
 		MUx = peak*amount_x;
 
-		peak = (ypeak+ypeaksch*Fz)*ogeom->mu;
+		peak = (ypeak+ypeaksch*Fz)*surface->mu;
 		shape = yshape;
 		K = tan( (M_PI/2)/shape );
-		peak_at = ypos*pow(Fz, yposch) *ogeom->tyre_pos_scale;
-		peak_sharpness = (peak_at/K)*ysharp*pow(Fz, ysharpch) *ogeom->tyre_sharp_scale;
+		peak_at = ypos*pow(Fz, yposch) *surface->tyre_pos_scale;
+		peak_sharpness = (peak_at/K)*ysharp*pow(Fz, ysharpch) *surface->tyre_sharp_scale;
 		shift = yshift*inclination;
 
 		//based on the turning angle (positive or negative), the shift might change
@@ -370,7 +370,7 @@ void Wheel::Set_Contacts(dBodyID wbody, dBodyID obody, Geom *ogeom, bool wheel_f
 		//some simplifications:
 		//*rolling speed is ignored (doesn't make much difference)
 		//*compression of tyre is also ignored (assumed to be small enough)
-		torque = Fz*resistance*ogeom->tyre_rollres_scale; //breaking torque
+		torque = Fz*resistance*surface->tyre_rollres_scale; //breaking torque
 
 		//rotation inertia (relative to ground if got body)
 		if (obody)

@@ -169,7 +169,7 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 
 	dGeomID geom  = dCreateBox (0, 1,1,1); //geom
 	Geom *data = new Geom(geom, obj);
-	data->mu = 1.0;
+	data->surface.mu = 1.0;
 	data->Set_Buffer_Event(100000, 10000, (Script*)1337);
 	dBodyID body = dBodyCreate (world);
 
@@ -223,19 +223,19 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 	//geom at (0,0,0)
 	dGeomID geom  = dCreateBox (0, 2,2,2); //geom
 	Geom *data = new Geom(geom, obj);
-	data->mu = 1.0;
+	data->surface.mu = 1.0;
 
 	dGeomSetBody (geom, body1);
 	dBodySetPosition (body1, x, y, z);
 
 	data->model = model[0];
 	data->Set_Buffer_Body(bd); //send collision forces to body
-	data->bounce = 2.0; //about twice the collision force is used to bounce up
+	data->surface.bounce = 2.0; //about twice the collision force is used to bounce up
 
 	//the outer boxes (different offsets)
 	geom = dCreateBox(0, 1.0, 1.0, 1.0);
 	data = new Geom(geom, obj);
-	data->mu = 1.0;
+	data->surface.mu = 1.0;
 	dGeomSetBody (geom, body1);
 	dGeomSetOffsetPosition(geom, 0.70,0,0); //offset
 	//data->f_3d = graphics_debug2; //graphics
@@ -243,7 +243,7 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 
 	geom = dCreateBox(0, 1.0, 1.0, 1.0);
 	data = new Geom(geom, obj);
-	data->mu = 1.0;
+	data->surface.mu = 1.0;
 	dGeomSetBody (geom, body1);
 	dGeomSetOffsetPosition(geom, 0,0.70,0); //offset
 	//data->f_3d = graphics_debug2; //graphics
@@ -251,7 +251,7 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 
 	geom = dCreateBox(0, 1.0, 1.0, 1.0);
 	data = new Geom(geom, obj);
-	data->mu = 1.0;
+	data->surface.mu = 1.0;
 	dGeomSetBody (geom, body1);
 	dGeomSetOffsetPosition(geom, 0,0,0.70); //offset
 	//data->f_3d = graphics_debug2; //graphics
@@ -259,7 +259,7 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 
 	geom = dCreateBox(0, 1.0, 1.0, 1.0);
 	data = new Geom(geom, obj);
-	data->mu = 1.0;
+	data->surface.mu = 1.0;
 	dGeomSetBody (geom, body1);
 	dGeomSetOffsetPosition(geom, -0.70,0,0); //offset
 	//data->f_3d = graphics_debug2; //graphics
@@ -267,7 +267,7 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 
 	geom = dCreateBox(0, 1.0, 1.0, 1.0);
 	data = new Geom(geom, obj);
-	data->mu = 1.0;
+	data->surface.mu = 1.0;
 	dGeomSetBody (geom, body1);
 	dGeomSetOffsetPosition(geom, 0,-0.70,0); //offset
 	//data->f_3d = graphics_debug2; //graphics
@@ -275,7 +275,7 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 
 	geom = dCreateBox(0, 1.0, 1.0, 1.0);
 	data = new Geom(geom, obj);
-	data->mu = 1.0;
+	data->surface.mu = 1.0;
 	dGeomSetBody (geom, body1);
 	dGeomSetOffsetPosition(geom, 0,0,-0.70); //offset
 	//data->f_3d = graphics_debug2; //graphics
@@ -297,7 +297,7 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 	
 	dGeomID geom  = dCreateBox (0, 8,8,0.5); //geom
 	Geom *data = new Geom(geom, obj);
-	data->mu = 1.0;
+	data->surface.mu = 1.0;
 	dGeomSetPosition (geom, x, y, z);
 
 	//Graphics
@@ -307,8 +307,8 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 	//flipper sensor
 	dGeomID geom2 = dCreateBox (0, 3,3,2);
 	data = new Geom(geom2, obj);
-	data->mu = 1.0;
-	data->spring = 0.0; //0 spring constanct = no collision forces
+	data->surface.mu = 1.0;
+	data->surface.spring = 0.0; //0 spring constanct = no collision forces
 	dGeomSetPosition (geom2, x, y, z+0.76);
 
 	data->flipper_geom = geom; //tmp debug solution
@@ -331,7 +331,7 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 	//center sphere
 	dGeomID geom  = dCreateSphere (0, 1); //geom
 	Geom *data = new Geom(geom, obj);
-	data->mu = 1.0;
+	data->surface.mu = 1.0;
 	data->Set_Buffer_Event(100000, 10000, (Script*)1337);
 
 	dBodyID body1 = dBodyCreate (world);
@@ -365,7 +365,7 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 	//connected spheres
 	geom  = dCreateSphere (0, 0.8); //geom
 	data = new Geom(geom, obj);
-	data->mu = 1.0;
+	data->surface.mu = 1.0;
 	data->Set_Buffer_Event(100000, 10000, (Script*)1337);
 	body = dBodyCreate (world);
 
@@ -408,7 +408,7 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 	//center sphere
 	dGeomID geom  = dCreateSphere (0, 1); //geom
 	Geom *data = new Geom(geom, obj);
-	data->mu = 1.0;
+	data->surface.mu = 1.0;
 	data->Set_Buffer_Event(500, 1000, (Script*)1337);
 	dBodyID body1 = dBodyCreate (world);
 
@@ -424,8 +424,8 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 	dBodySetPosition (body1, x, y, z);
 
 	//set spring surface for beachball (should be bouncy)
-	data->spring = 2000.0; //springy (soft)
-	data->damping = 0.0; //no damping
+	data->surface.spring = 2000.0; //springy (soft)
+	data->surface.damping = 0.0; //no damping
 
 	//Next, Graphics
 	data->model=model[0];
@@ -453,7 +453,7 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 		{
 			dGeomID geom  = dCreateBox (0, 4,0.4,2.4); //geom
 			Geom *data = new Geom(geom, obj);
-			data->mu = 1.0;
+			data->surface.mu = 1.0;
 			data->Set_Buffer_Event(100000, 100000, (Script*)1337);
 
 			body1[i] = dBodyCreate (world);
@@ -512,7 +512,7 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 		{
 			dGeomID geom  = dCreateBox (0, 4,4,0.2); //geom
 			Geom *data = new Geom(geom, obj);
-			data->mu = 1.0;
+			data->surface.mu = 1.0;
 			data->Set_Buffer_Event(100000, 100000, (Script*)1337);
 
 			body2[i] = dBodyCreate (world);
@@ -577,7 +577,7 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 		{
 			geom  = dCreateCapsule (0, 0.3,1.4); //geom
 			data = new Geom(geom, obj);
-			data->mu = 1.0;
+			data->surface.mu = 1.0;
 			data->Set_Buffer_Event(100000, 100000, (Script*)1337);
 			body[i] = dBodyCreate (world);
 	
@@ -637,7 +637,7 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 
 		//just one geom in this object
 		Geom *g = new Geom(dCreateBox(0, 2,2,5), new Object());
-		g->mu = 1.0;
+		g->surface.mu = 1.0;
 
 		//position
 		dGeomSetPosition(g->geom_id, x,y,(z+2.5));

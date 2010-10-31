@@ -59,17 +59,6 @@ Geom::Geom (dGeomID geom, Object *obj): Component(obj) //pass object argument to
 	colliding = false; //no collision event yet
 	model = NULL; //default: don't render
 
-	//collision contactpoint data
-	mu = 0.0;
-	spring = dInfinity; //infinite spring constant (disabled)
-	damping = 0.0; //no collision damping (only with spring)
-	bounce = 0.0; //no bouncyness
-
-	//normal friction scaling for tyre
-	tyre_pos_scale = 1.0;
-	tyre_sharp_scale = 1.0;
-	tyre_rollres_scale = 1.0;
-
 	//special geom indicators
 	wheel = NULL; //not a wheel
 	triangle_count = 0; //no "triangles"
@@ -110,5 +99,20 @@ Geom::~Geom ()
 	//clear collision checking
 	if (triangle_count)
 		delete[] triangle_colliding;
+}
+
+//set defaults:
+Surface::Surface()
+{
+	//collision contactpoint data
+	mu = 0.0;
+	spring = dInfinity; //infinite spring constant (disabled)
+	damping = 0.0; //no collision damping (only with spring)
+	bounce = 0.0; //no bouncyness
+
+	//normal friction scaling for tyre
+	tyre_pos_scale = 1.0;
+	tyre_sharp_scale = 1.0;
+	tyre_rollres_scale = 1.0;
 }
 

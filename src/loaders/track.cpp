@@ -119,14 +119,7 @@ bool load_track (const char *path)
 	if (file.Open(glist))
 	{
 		//store surface properties (defaults at first)
-		dReal mu = 0.0;
-		dReal bounce = 0.0;
-		dReal spring = dInfinity;
-		dReal damping = 0.0;
-		dReal position = 1.0;
-		dReal sharpness = 1.0;
-		dReal rollres = 1.0;
-		//(they can be float or double - atof returns double which works for both)
+		Surface surface;
 		
 		while (file.Read_Line())
 		{
@@ -196,19 +189,19 @@ bool load_track (const char *path)
 						//and failing to support infinity support for atof... :-p
 						//only added for spring and mu - the only ones supporting it
 						if (!strcmp(file.words[pos], "mu"))
-							mu = strtod(file.words[++pos], (char**)NULL);
+							surface.mu = strtod(file.words[++pos], (char**)NULL);
 						else if (!strcmp(file.words[pos], "bounce"))
-							bounce = atof(file.words[++pos]);
+							surface.bounce = atof(file.words[++pos]);
 						else if (!strcmp(file.words[pos], "spring"))
-							spring = strtod(file.words[++pos], (char**)NULL);
+							surface.spring = strtod(file.words[++pos], (char**)NULL);
 						else if (!strcmp(file.words[pos], "damping"))
-							damping = atof(file.words[++pos]);
+							surface.damping = atof(file.words[++pos]);
 						else if (!strcmp(file.words[pos], "position"))
-							position = atof(file.words[++pos]);
+							surface.tyre_pos_scale = atof(file.words[++pos]);
 						else if (!strcmp(file.words[pos], "sharpness"))
-							sharpness = atof(file.words[++pos]);
+							surface.tyre_sharp_scale = atof(file.words[++pos]);
 						else if (!strcmp(file.words[pos], "rollingres"))
-							rollres = atof(file.words[++pos]);
+							surface.tyre_rollres_scale = atof(file.words[++pos]);
 						else
 						{
 							printlog(0, "WARNING: trimesh surface option \"%s\" unknown", file.words[pos]);
@@ -268,13 +261,7 @@ bool load_track (const char *path)
 				
 				//configure geom
 				data->model = model; //render geom with model
-				data->mu = mu;
-				data->bounce = bounce;
-				data->spring = spring;
-				data->damping = damping;
-				data->tyre_pos_scale = position;
-				data->tyre_sharp_scale = sharpness;
-				data->tyre_rollres_scale = rollres;
+				data->surface = surface; //use these settings
 
 				//position
 				x = atof(file.words[0]);

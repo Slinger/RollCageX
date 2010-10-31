@@ -49,6 +49,11 @@ void Geom::Collision_Callback (void *data, dGeomID o1, dGeomID o2)
 	geom1 = (Geom*) dGeomGetData (o1);
 	geom2 = (Geom*) dGeomGetData (o2);
 
+	//pointer to the surface settings of both geoms
+	Surface *surf1, *surf2;
+	surf1 = &geom1->surface;
+	surf2 = &geom2->surface;
+
 	//get attached bodies
 	dBodyID b1, b2;
 	b1 = dGeomGetBody(o1);
@@ -62,7 +67,7 @@ void Geom::Collision_Callback (void *data, dGeomID o1, dGeomID o2)
 		return;
 
 	//none wants to create collisions..
-	if (!geom1->spring&&!geom2->spring)
+	if (!surf1->spring&&!surf2->spring)
 	{
 		printlog(1, "not collideable, TODO: bitfield solution");
 		return;
@@ -74,25 +79,25 @@ void Geom::Collision_Callback (void *data, dGeomID o1, dGeomID o2)
 	if (count == 0)
 		return;
 
-	//check if trimeshes, and set their collision bits if so:
-	//using the side{1,2} values: are the triangle indices (not documented feature in ode...)
-	if (geom1->triangle_count)
-		for (int i=0; i<count; ++i)
-			geom1->triangle_colliding[contact[i].geom.side1] = true;
-
-	if (geom2->triangle_count)
-		for (int i=0; i<count; ++i)
-			geom2->triangle_colliding[contact[i].geom.side2] = true;
-
 	//does both components want to collide for real? (not "ghosts"/"sensors")
-	if (geom1->spring&&geom2->spring)
+	if (surf1->spring&&surf2->spring)
 	{
+		//check if trimeshes, and set their collision bits if so:
+		//using the side{1,2} values: are the triangle indices (not documented feature in ode...)
+		if (geom1->triangle_count)
+			for (int i=0; i<count; ++i)
+				geom1->triangle_colliding[contact[i].geom.side1] = true;
+
+		if (geom2->triangle_count)
+			for (int i=0; i<count; ++i)
+				geom2->triangle_colliding[contact[i].geom.side2] = true;
+
 		//default+optional data:
 		dSurfaceParameters surface_base;
 
 		//enable mu overriding and good friction approximation
 		surface_base.mode = dContactApprox1 | dContactSoftERP | dContactSoftCFM;
-		surface_base.mu = (geom1->mu)*(geom2->mu); //friction
+		surface_base.mu = (surf1->mu)*(surf2->mu); //friction
 		surface_base.soft_erp = internal.collision_erp; //erp
 		surface_base.soft_cfm = internal.collision_cfm; //cfm
 
@@ -115,22 +120,22 @@ void Geom::Collision_Callback (void *data, dGeomID o1, dGeomID o2)
 		//optional features:
 		//
 		//optional bouncyness (good for wheels?)
-		if (geom1->bounce != 0.0 || geom2->bounce != 0.0)
+		if (surf1->bounce != 0.0 || surf2->bounce != 0.0)
 		{
 			//enable bouncyness
 			surface_base.mode |= dContactBounce;
 
 			//use sum
-			surface_base.bounce = (geom1->bounce)+(geom2->bounce);
+			surface_base.bounce = (surf1->bounce)+(surf2->bounce);
 		}
 
 		//optional spring+damping erp+cfm override
-		if (geom1->spring != dInfinity || geom2->spring != dInfinity)
+		if (surf1->spring != dInfinity || surf2->spring != dInfinity)
 		{
 			//should be good
-			dReal spring = 1/( 1/(geom1->spring) + 1/(geom2->spring) );
+			dReal spring = 1/( 1/(surf1->spring) + 1/(surf2->spring) );
 			//sum
-			dReal damping = geom1->damping + geom2->damping;
+			dReal damping = surf1->damping + surf2->damping;
 
 			//recalculate erp+cfm from stepsize, spring and damping values:
 			surface_base.soft_erp = (stepsize*spring)/(stepsize*spring +damping);
@@ -148,9 +153,9 @@ void Geom::Collision_Callback (void *data, dGeomID o1, dGeomID o2)
 		//
 		//determine if _one_of the geoms is a wheel
 		if (geom1->wheel&&!geom2->wheel)
-			geom1->wheel->Set_Contacts(b1, b2, geom2, true, contact, count, stepsize);
+			geom1->wheel->Set_Contacts(b1, b2, surf2, true, contact, count, stepsize);
 		else if (!geom1->wheel&&geom2->wheel)
-			geom2->wheel->Set_Contacts(b2, b1, geom1, false, contact, count, stepsize);
+			geom2->wheel->Set_Contacts(b2, b1, surf1, false, contact, count, stepsize);
 
 		//just a reminder to myself
 		if (geom1->wheel&&geom2->wheel)
@@ -173,10 +178,10 @@ void Geom::Collision_Callback (void *data, dGeomID o1, dGeomID o2)
 	}
 
 	//with physical contact or not, might respond to collision events
-	if (geom1->spring) //geom1 would have generated collision
+	if (surf1->spring) //geom1 would have generated collision
 		geom2->colliding = true; //thus geom2 is colliding
 
-	if (geom2->spring) //geom2 would have generated collision
+	if (surf2->spring) //geom2 would have generated collision
 		geom1->colliding = true; //thus geom2 is colliding
 }
 

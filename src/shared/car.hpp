@@ -177,7 +177,7 @@ class Car_Template:public Racetime_Data
 			dReal size[3];
 			dReal pos[3];
 			dReal rot[3];
-			dReal mu,bounce,spring,damping;
+			Surface surface;
 		};
 
 		std::vector<class box> boxes;
@@ -185,7 +185,7 @@ class Car_Template:public Racetime_Data
 		struct sphere {
 			dReal radius;
 			dReal pos[3];
-			dReal mu,bounce,spring,damping;
+			Surface surface;
 		};
 
 		std::vector<class sphere> spheres;
@@ -194,7 +194,7 @@ class Car_Template:public Racetime_Data
 			dReal size[2];
 			dReal pos[3];
 			dReal rot[3];
-			dReal mu,bounce,spring,damping;
+			Surface surface;
 		};
 
 		std::vector<class capsule> capsules;
