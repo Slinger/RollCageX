@@ -19,6 +19,7 @@
 #include "event_buffers.hpp"
 
 #include <ode/ode.h>
+#include <string.h>
 
 //clears geom collision flags
 void Geom::Clear_Collisions()
@@ -29,7 +30,7 @@ void Geom::Clear_Collisions()
 
 		//clear all triangle collision bools (for trimeshes)
 		if (geom->triangle_count)
-			bzero(geom->triangle_colliding, sizeof(bool)*geom->triangle_count);
+			memset(geom->triangle_colliding, false, sizeof(bool)*geom->triangle_count);
 	}
 }
 
