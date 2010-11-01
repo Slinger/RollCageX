@@ -44,7 +44,17 @@ void Geom::Collision_Callback (void *data, dGeomID o1, dGeomID o2)
 		return;
 	}
 
-	//both geoms are geoms, get component_data from geoms
+	//get attached bodies
+	dBodyID b1, b2;
+	b1 = dGeomGetBody(o1);
+	b2 = dGeomGetBody(o2);
+
+	//the same body, and if both are NULL (no bodies at all)
+	//(should probably add a gotgeom/gotnogeom bitfield to also skip hashing)
+	if (b1 == b2)
+		return; //stop
+
+	//both geoms are geoms, get Geom (metadatas) for/from geoms
 	Geom *geom1, *geom2;
 	geom1 = (Geom*) dGeomGetData (o1);
 	geom2 = (Geom*) dGeomGetData (o2);
@@ -54,17 +64,8 @@ void Geom::Collision_Callback (void *data, dGeomID o1, dGeomID o2)
 	surf1 = &geom1->surface;
 	surf2 = &geom2->surface;
 
-	//get attached bodies
-	dBodyID b1, b2;
-	b1 = dGeomGetBody(o1);
-	b2 = dGeomGetBody(o2);
-
 	//the stepsize (supplied as the "collision data")
 	dReal stepsize = *((dReal*)data);
-
-	//none connected to bodies
-	if (!b1 && !b2)
-		return;
 
 	//none wants to create collisions..
 	if (!surf1->spring&&!surf2->spring)
