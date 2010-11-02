@@ -17,6 +17,13 @@
 //length of vector
 #define v_length(x, y, z) (sqrt( (x)*(x) + (y)*(y) + (z)*(z) ))
 
+//override index when merging of contacts (tmp solution until next version of ode!)
+int mergecallback(dGeomID geom, int index1, int index2)
+{
+	//probably needs better decicion on which to use... but hey, this is hackish anyway!
+	return index1; //set index to first
+}
+
 //
 //for geom 3d collision detection trimesh:
 //
@@ -101,6 +108,13 @@ Geom *Trimesh_Geom::Create_Geom(Object *obj)
 	//TODO: should be optional (if mesh is "solid"=one surface type)
 	geom->triangle_count = triangle_count;
 	geom->triangle_colliding = new bool[triangle_count];
+	//opcode merges several contacts into one (currently only trimesh-sphere)
+	//since we  need the triangle index contacts, this causes problems...
+	//TODO: use dGeomLowLevelControl to disable merging of contacts!
+	//(is only available in the next version of ode which few distros got)
+	//
+	//right now, lets just override the index=-1 by defining a callback:
+	dGeomTriMeshSetTriMergeCallback(g, &mergecallback);
 
 	return geom;
 }

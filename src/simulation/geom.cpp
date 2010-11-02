@@ -84,7 +84,7 @@ void Geom::Collision_Callback (void *data, dGeomID o1, dGeomID o2)
 		//using the side{1,2} values: are the triangle indices (not documented feature in ode...)
 		if (geom1->triangle_count) //is trimesh with per-triangle enabled
 		{
-			//might have index value of -1. don't know why, but use geom global instead
+			//might have index value of -1. shouldn't really hapen, but check anyway
 			if (contact[i].geom.side1 != -1)
 			{
 				//set collision flag for this triangle
@@ -95,7 +95,7 @@ void Geom::Collision_Callback (void *data, dGeomID o1, dGeomID o2)
 		}
 		if (geom2->triangle_count) //the same for the other
 		{
-			//might have index value of -1. don't know why, but use geom global instead
+			//might have index value of -1. shouldn't really hapen, but check anyway
 			if (contact[i].geom.side2 != -1)
 			{
 				//set collision flag for this triangle
