@@ -139,18 +139,22 @@ Trimesh_Geom *Trimesh::Create_Geom()
 	if (Trimesh_Geom *tmp = Racetime_Data::Find<Trimesh_Geom>(name.c_str()))
 		return tmp;
 
-	//check that we got any data
-	if (triangles.empty())
+	//check that we got any data (and how much?)
+	unsigned int tris=0;
+	size_t material_count=materials.size();
+	for (unsigned int mat=0; mat<material_count; ++mat)
+		tris += materials[mat].triangles.size();
+
+	if (!tris)
 	{
-		printlog(0, "ERROR: trimesh is empty (at least no useful data)");
+		printlog(0, "ERROR: trimesh is empty (at least no triangles)");
 		return NULL;
 	}
 
-	//sizes
-	unsigned int verts=vertices.size();
-	unsigned int tris=triangles.size();
+	//assumed to be non-empty
+	size_t verts = vertices.size();
 
-	printlog(2, "Number of vertices: %u, number of triangles: %u", verts, tris);
+	printlog(2, "number of vertices: %u, number of triangles: %u", verts, tris);
 
 	//check (vertice and indix count can't exceed int limit)
 	if (verts>INT_MAX || (tris*3)>INT_MAX)
@@ -169,62 +173,76 @@ Trimesh_Geom *Trimesh::Create_Geom()
 	n = new Vector_Float[tris]; //one normal per triangle
 
 	//copy
-	unsigned int loop;
 	//vertices
-	for (loop=0; loop<verts; ++loop)
-	{
+	for (unsigned int loop=0; loop<verts; ++loop)
 		v[loop] = vertices[loop];
-	}
-	//indices
-	for (loop=0; loop<tris; ++loop)
+
+	//triangles (using indexed vertices and an array of normals)
+	//by material:
+	unsigned int iloop=0, nloop=0; //total vertex/normal counters
+	unsigned int *vp, *np; //vertex and normal index pointers
+	unsigned int mloop=0, tloop=0; //material/triangles per material counters
+	unsigned int new_normals=0; //just interesting...
+	for (mloop=0; mloop<material_count; ++mloop)
 	{
-		i[loop*3+0] = triangles[loop].vertex[0];
-		i[loop*3+1] = triangles[loop].vertex[1];
-		i[loop*3+2] = triangles[loop].vertex[2];
-	}
-	//normals
-	unsigned int new_normals=0;
-	for (loop=0; loop<tris; ++loop)
-	{
-		//NOTE: ode uses one, not indexed, normal per triangle,
-		//we store them as 3 indexed nomrals per triangle - translate
+		//how many for this materials
+		tris = materials[mloop].triangles.size();
 
-		//all 3 normals are the same, use it
-		if (	(triangles[loop].normal[0]) == (triangles[loop].normal[1]) &&
-			(triangles[loop].normal[0]) == (triangles[loop].normal[2])	)
+		for (tloop=0; tloop<tris; ++tloop)
 		{
-			n[loop] = normals[triangles[loop].normal[0]]; //copy first specified normal
-		}
-		else //trouble, smooth surface normals? calculate a new normal!
-		{
-			++new_normals;
-			//the same as in Generate_Missing_Normals
+			vp = materials[mloop].triangles[tloop].vertex;
+			np = materials[mloop].triangles[tloop].normal;
 
-			//get vertices
-			Vector_Float v1 = vertices[triangles[loop].vertex[0]];
-			Vector_Float v2 = vertices[triangles[loop].vertex[1]];
-			Vector_Float v3 = vertices[triangles[loop].vertex[2]];
+			//indices
+			i[iloop] = vp[0];
+			++iloop;
+			i[iloop] = vp[1];
+			++iloop;
+			i[iloop] = vp[2];
+			++iloop;
 
-			//create two vectors (a and b)
-			float ax = (v2.x-v1.x);
-			float ay = (v2.y-v1.y);
-			float az = (v2.z-v1.z);
+			//normals
+			//NOTE: ode uses one, not indexed, normal per triangle,
+			//but we have 3 indexed normals per triangle (find compromise)
 
-			float bx = (v3.x-v1.x);
-			float by = (v3.y-v1.y);
-			float bz = (v3.z-v1.z);
+			//all 3 normals are the same, use it
+			if (	(np[0]) == (np[1]) &&
+				(np[0]) == (np[2])	)
+			{
+				n[nloop] = normals[np[0]]; //copy first specified normal
+			}
+			else //trouble, smooth surface normals? calculate a new normal!
+			{
+				++new_normals;
+				//the same as in Generate_Missing_Normals
 
-			//cross product gives normal:
-			float x = (ay*bz)-(az*by);
-			float y = (az*bx)-(ax*bz);
-			float z = (ax*by)-(ay*bx);
-			
-			//set and make unit:
-			float l = v_length(x, y, z);
+				//get vertices
+				Vector_Float v1 = vertices[vp[0]];
+				Vector_Float v2 = vertices[vp[1]];
+				Vector_Float v3 = vertices[vp[2]];
 
-			n[loop].x = x/l;
-			n[loop].y = y/l;
-			n[loop].z = z/l;
+				//create two vectors (a and b)
+				float ax = (v2.x-v1.x);
+				float ay = (v2.y-v1.y);
+				float az = (v2.z-v1.z);
+
+				float bx = (v3.x-v1.x);
+				float by = (v3.y-v1.y);
+				float bz = (v3.z-v1.z);
+
+				//cross product gives normal:
+				float x = (ay*bz)-(az*by);
+				float y = (az*bx)-(ax*bz);
+				float z = (ax*by)-(ay*bx);
+				
+				//set and make unit:
+				float l = v_length(x, y, z);
+
+				n[nloop].x = x/l;
+				n[nloop].y = y/l;
+				n[nloop].z = z/l;
+			}
+			++nloop;
 		}
 	}
 

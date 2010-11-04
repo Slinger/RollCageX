@@ -171,10 +171,28 @@ class Trimesh
 		//actual data to store:
 		//
 
+		//all actual values (indexed below)
 		std::vector<Vector_Float> vertices;
+		//std::vector<Vector_Float> texcoords;
 		std::vector<Vector_Float> normals;
 
-		//materials:
+		//
+		//indices:
+		//
+
+		//triangles are grouped by meterial:
+
+		//each triangle is 6 indices: 3=vertices, 3=normals
+		//(not using texture for now)
+		struct Triangle
+		{
+			unsigned int vertex[3];
+			//unsigned int texcoord[3];
+			unsigned int normal[3];
+		};
+
+		//material:
+		//TODO: class so destruct vector?
 		struct Material
 		{
 			std::string name;
@@ -184,31 +202,16 @@ class Trimesh
 			float specular[4];
 			float emission[4];
 			float shininess;
+
+			//all triangles with this material
+			std::vector<Triangle> triangles;
 		};
+
+		//all materials of this model
+		std::vector<Material> materials;
+
+		//default material
 		static const Material Material_Default;
-
-		std::vector<Material> materials; //store materials
-
-		//
-		//indices:
-		//
-
-		//each triangle is 6 indices: 3=vertices, 3=normals
-		struct Triangle_Index{
-			unsigned int vertex[3];
-			//texture coords
-			unsigned int normal[3];
-		};
-
-		std::vector<Triangle_Index> triangles;
-
-		struct Material_Index
-		{
-			unsigned int material; //number in list
-			unsigned int start_at; //before switching to this material
-		};
-
-		std::vector<Material_Index> material_indices; //swith of materials
 };
 
 #endif

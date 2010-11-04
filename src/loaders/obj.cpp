@@ -30,18 +30,17 @@ bool Trimesh::Load_OBJ(const char *f)
 	name=f;
 
 	//empty old data (if any)
-	triangles.clear();
 	vertices.clear();
+	//texcoords.clear();
 	normals.clear();
 	materials.clear();
-	material_indices.clear();
 
 	//
 	//ok, start processing
 	//
 	Vector_Float vector;
-	Triangle_Index triangle;
-	int i;
+	Triangle triangle; //for building a triangle
+	unsigned int matnr = INDEX_ERROR; //keep track of current material (none right now)
 	unsigned int vi, ni;
 	int count;
 
@@ -66,7 +65,14 @@ bool Trimesh::Load_OBJ(const char *f)
 		} // "f" index and more than 3 words (needs at least 3 indices)
 		else if (file.words[0][0]=='f' && file.words[0][1]=='\0' && file.word_count>3)
 		{
-			for (i=1; i<file.word_count; ++i)
+			//no material right now, warn and create default:
+			if (matnr == INDEX_ERROR)
+			{
+				printlog(0, "ERROR: obj file did not specify material to use before index, using default\n");
+				materials.push_back(Material_Default); //add new material (with defaults)
+			}
+
+			for (int i=1; i<file.word_count; ++i)
 			{
 				// - format: v/(t)/(n) - vertex, texture, normal
 				// only v is absolutely needed, and not optional
@@ -108,7 +114,7 @@ bool Trimesh::Load_OBJ(const char *f)
 					triangle.normal[2]=ni; //normal
 
 					//store
-					triangles.push_back(triangle);
+					materials[matnr].triangles.push_back(triangle);
 				}
 				else if (i==2) //second time
 				{
@@ -124,18 +130,15 @@ bool Trimesh::Load_OBJ(const char *f)
 		}
 		else if (!strcmp(file.words[0], "usemtl") && file.word_count==2)
 		{
-			Material_Index mat;
-			mat.material = Find_Material(file.words[1]);
-			mat.start_at = triangles.size();
+			matnr = Find_Material(file.words[1]);
 
-			if (mat.material == INDEX_ERROR)
+			if (matnr == INDEX_ERROR)
 			{
 				printlog(0, "Ignoring change of material (things will probably look wrong)");
 				continue; //just ignore material change
 			}
 
 			//else, we now have material switch for next triangles
-			material_indices.push_back(mat);
 		}
 		else if (!strcmp(file.words[0], "mtllib") && file.word_count==2)
 		{
@@ -158,7 +161,7 @@ bool Trimesh::Load_OBJ(const char *f)
 	}
 
 	//check that at least something got loaded:
-	if (triangles.empty() || vertices.empty())
+	if (materials.empty() || vertices.empty())
 	{
 		printlog(0, "ERROR: obj seems to exist, but empty?!");
 		return false;
@@ -168,30 +171,38 @@ bool Trimesh::Load_OBJ(const char *f)
 
 	//check so vertex indices are ok (not outside valid range)
 	//takes a little time, but is good for safety
-	size_t tl=triangles.size();
+	size_t triangle_count = 0;
+	size_t ml=materials.size();
 	size_t vl=vertices.size();
 	size_t nl=normals.size();
-	for (size_t i=0; i<tl; ++i)
+	for (size_t mat=0; mat<ml; ++mat) //all materials
 	{
-		if (triangles[i].vertex[0] >= vl || triangles[i].vertex[1] >= vl || triangles[i].vertex[2] >= vl)
+		size_t tl=materials[mat].triangles.size();
+		for (size_t tri=0; tri<tl; ++tri) //all triangles
 		{
-			printlog(0, "ERROR: vertex index out of range, trying to bypass problem (not rendering)");
-			triangles[i].vertex[0] = triangles[i].vertex[1] = triangles[i].vertex[2] = 0; //set them all to 0
-		}
-		if (	(triangles[i].normal[0] >= nl && triangles[i].normal[0] != INDEX_ERROR) ||
-			(triangles[i].normal[1] >= nl && triangles[i].normal[1] != INDEX_ERROR) ||
-			(triangles[i].normal[2] >= nl && triangles[i].normal[2] != INDEX_ERROR)	)
-		{
-			printlog(0, "ERROR: normal index out of range, trying to bypass problem (generating new)");
-			triangles[i].normal[0] = triangles[i].normal[1] = triangles[i].normal[2] = INDEX_ERROR; //set them all to 0
-		}
+			//points at triangle
+			Triangle *trip=&materials[mat].triangles[tri];
 
+			if (trip->vertex[0] >= vl || trip->vertex[1] >= vl || trip->vertex[2] >= vl)
+			{
+				printlog(0, "ERROR: vertex index out of range, trying to bypass problem (not rendering)");
+				trip->vertex[0] = trip->vertex[1] = trip->vertex[2] = 0; //set them all to 0
+			}
+			if (	(trip->normal[0] >= nl && trip->normal[0] != INDEX_ERROR) ||
+				(trip->normal[1] >= nl && trip->normal[1] != INDEX_ERROR) ||
+				(trip->normal[2] >= nl && trip->normal[2] != INDEX_ERROR)	)
+			{
+				printlog(0, "ERROR: normal index out of range, trying to bypass problem (generating new)");
+				trip->normal[0] = trip->normal[1] = trip->normal[2] = INDEX_ERROR; //set them all to 0
+			}
+		}
+		triangle_count+=tl; //count triangles (for info output later on)
 	}
 
 	Normalize_Normals();
 	Generate_Missing_Normals(); //creates missing normals - unit, don't need normalizing
 
-	printlog(1, "OBJ info: %u triangles, %u materials", triangles.size(), materials.size());
+	printlog(1, "OBJ info: %u triangles, %u materials", triangle_count, materials.size());
 
 	return true;
 }

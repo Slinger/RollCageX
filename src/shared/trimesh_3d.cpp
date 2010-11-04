@@ -217,137 +217,124 @@ Trimesh_3D *Trimesh::Create_3D()
 	if (Trimesh_3D *tmp = Racetime_Data::Find<Trimesh_3D>(name.c_str()))
 		return tmp;
 
-	//check that we got any data
-	if (triangles.empty())
+	//check how many vertices (if any)
+	unsigned int vcount=0; //how many vertices
+	unsigned int mcount=0; //how many materials
+	size_t material_count=materials.size();
+	size_t tmp;
+	for (unsigned int mat=0; mat<material_count; ++mat)
 	{
-		printlog(0, "ERROR: trimesh is empty (at least no useful data)");
-		return NULL;
+		//vertices (3 per triangle)
+		tmp = 3*materials[mat].triangles.size();
+		vcount+=tmp;
+
+		//but if this material got 0 triangles, don't use it
+		if (tmp)
+			++mcount;
 	}
 
-	//calculate size and get vbo for storing
+	if (!vcount)
+	{
+		printlog(0, "ERROR: trimesh is empty (at least no triangles)");
+		return NULL;
+	}
+	//mcount is always secured
+
 	//each triangle requires 3 vertices - vertex defined as "Vertex" in "Trimesh_3D"
-	unsigned int needed_vbo_size = sizeof(Trimesh_3D::Vertex)*(triangles.size()*3);
+	unsigned int needed_vbo_size = sizeof(Trimesh_3D::Vertex)*(vcount);
 	VBO *vbo = VBO::Find_Enough_Room(needed_vbo_size);
-	
+
 	if (!vbo)
 		return NULL;
-
-	//make sure got at least one material (if not create a default)
-	if (materials.empty())
-	{
-		printlog(0, "ERROR: Trimesh did not have any materials! Creating default");
-		materials.push_back(Material_Default);
-	}
-
-	if (material_indices.empty())
-	{
-		printlog(0, "ERROR: Trimesh does not select any materials! Selecting first");
-		Material_Index tmp = {0,0}; //use material 0 starting at first triangle
-		material_indices.push_back(tmp);
-	}
 
 	//
 	//ok, ready to go!
 	//
 	
+	printlog(2, "number of vertices: %u", vcount);
+
 	//quickly find furthest vertex of obj, so can determine radius
 	float radius = Find_Longest_Distance();
 	
-	//build a tmp list of all vertices sorted by material to minimize calls
-	//(and list with no unused materials nor duplicates)
+	//build a tmp list of all vertices sorted by material to minimize calls to be copied
+	//to vbo (graphics memory), and list of materials (with no duplicates or unused)
 
 	//first: how big should vertex list be?
-	unsigned int vcount=3*triangles.size(); //3 vertices per triangle
 	Trimesh_3D::Vertex *vertex_list = new Trimesh_3D::Vertex[vcount];
 
-	//make material list as big as the number of materials (might be bigger than needed, but safe+easy)
-	unsigned int mcount=0;
-	Trimesh_3D::Material *material_list = new Trimesh_3D::Material[materials.size()];
+	//make material list as big as the number of materials
+	Trimesh_3D::Material *material_list = new Trimesh_3D::Material[mcount];
 
-	printlog(2, "number of vertices: %u", vcount);
 
 	//some values needed:
-	unsigned int start, stop; //keeps track of data to copy from old triangle list
-	unsigned int position=0, position_old=0; //keep track of position in new vertex list
-	bool material_is_used; //keep track if material is even used
-
-
-	unsigned int m,i; //looping of Material and material Index
+	unsigned int m,t; //looping of Material and Triangle
 	size_t m_size=materials.size();
-	size_t i_size=material_indices.size();
-	for (m=0; m<m_size; ++m) //material
+	size_t t_size;
+	mcount=0; //reset to 0 (will need to count again)
+	vcount=0; //the same here
+	unsigned int vcount_old=0; //keep track of last block of vertices
+
+	//points at current indices:
+	unsigned int *vertexi, *normali;
+
+	//loop through all materials, and for each used, loop through all triangles
+	//(removes indedexing -make copies- and interleaves the vertices+normals)
+	for (m=0; m<m_size; ++m)
 	{
-		material_is_used=false; //so far: not used, no
-
-		for (i=0; i<i_size; ++i) //material index
+		//if this material is used for some triangle:
+		if ((t_size = materials[m].triangles.size()))
 		{
-			if (material_indices[i].material == m) //matches
+			//
+			//copy vertices data:
+			//
+			for (t=0; t<t_size; ++t)
 			{
-				//indicate that we have valid match
-				material_is_used=true;
+				//store indices:
+				vertexi = materials[m].triangles[t].vertex;
+				normali = materials[m].triangles[t].normal;
 
-				//variables for copying:
-				//triangle start
-				if (i==0) //first material, _always_ set start to 0
-					start=0;
-					//material_list[mcount].start =0;
-				else //else, start as specified
-					start=material_indices[i].start_at;
-					//material_list[mcount].stat = material_indices[i].start_at;
+				//vertex
+				vertex_list[vcount].x = vertices[vertexi[0]].x;
+				vertex_list[vcount].y = vertices[vertexi[0]].y;
+				vertex_list[vcount].z = vertices[vertexi[0]].z;
 
-				//triangle stop
-				if ((i+1)==i_size) //last index, _always_ stop at end
-					stop=triangles.size();
-					//material_list[mcount].stop = vertices.size();
-				else //else, stop at start of next material index
-					stop=material_indices[i+1].start_at;
+				//normal
+				vertex_list[vcount].nx = normals[normali[0]].x;
+				vertex_list[vcount].nx = normals[normali[0]].y;
+				vertex_list[vcount].nx = normals[normali[0]].z;
 
-				//copy all specified materials:
-				for (size_t triangle=start; triangle<stop; ++triangle)
-				{
-					//vertex
-					vertex_list[position].x = vertices[triangles[triangle].vertex[0]].x;
-					vertex_list[position].y = vertices[triangles[triangle].vertex[0]].y;
-					vertex_list[position].z = vertices[triangles[triangle].vertex[0]].z;
+				//jump to next
+				++vcount;
 
-					//normal
-					vertex_list[position].nx = normals[triangles[triangle].normal[0]].x;
-					vertex_list[position].ny = normals[triangles[triangle].normal[0]].y;
-					vertex_list[position].nz = normals[triangles[triangle].normal[0]].z;
+				//vertex
+				vertex_list[vcount].x = vertices[vertexi[1]].x;
+				vertex_list[vcount].y = vertices[vertexi[1]].y;
+				vertex_list[vcount].z = vertices[vertexi[1]].z;
 
-					++position;
+				//normal
+				vertex_list[vcount].nx = normals[normali[1]].x;
+				vertex_list[vcount].nx = normals[normali[1]].y;
+				vertex_list[vcount].nx = normals[normali[1]].z;
 
-					//vertex
-					vertex_list[position].x = vertices[triangles[triangle].vertex[1]].x;
-					vertex_list[position].y = vertices[triangles[triangle].vertex[1]].y;
-					vertex_list[position].z = vertices[triangles[triangle].vertex[1]].z;
+				//jump to next
+				++vcount;
 
-					//normal
-					vertex_list[position].nx = normals[triangles[triangle].normal[1]].x;
-					vertex_list[position].ny = normals[triangles[triangle].normal[1]].y;
-					vertex_list[position].nz = normals[triangles[triangle].normal[1]].z;
+				//vertex
+				vertex_list[vcount].x = vertices[vertexi[2]].x;
+				vertex_list[vcount].y = vertices[vertexi[2]].y;
+				vertex_list[vcount].z = vertices[vertexi[2]].z;
 
-					++position;
+				//normal
+				vertex_list[vcount].nx = normals[normali[2]].x;
+				vertex_list[vcount].nx = normals[normali[2]].y;
+				vertex_list[vcount].nx = normals[normali[2]].z;
 
-					//vertex
-					vertex_list[position].x = vertices[triangles[triangle].vertex[2]].x;
-					vertex_list[position].y = vertices[triangles[triangle].vertex[2]].y;
-					vertex_list[position].z = vertices[triangles[triangle].vertex[2]].z;
-
-					//normal
-					vertex_list[position].nx = normals[triangles[triangle].normal[2]].x;
-					vertex_list[position].ny = normals[triangles[triangle].normal[2]].y;
-					vertex_list[position].nz = normals[triangles[triangle].normal[2]].z;
-
-					++position;
-				}
+				//jump to next
+				++vcount;
 			}
-		}
-
-		//ok, this is a used material
-		if (material_is_used)
-		{
+			//
 			//copy material data:
+			//
 			//boooooooorrrriiiiinnnngggg....
 			material_list[mcount].ambient[0] = materials[m].ambient[0];
 			material_list[mcount].ambient[1] = materials[m].ambient[1];
@@ -368,16 +355,16 @@ Trimesh_3D *Trimesh::Create_3D()
 			material_list[mcount].shininess = materials[m].shininess;
 
 			//set up rendering tracking:
-			material_list[mcount].start=position_old;
-			material_list[mcount].size=(position-position_old);
+			material_list[mcount].start=vcount_old;
+			material_list[mcount].size=(vcount-vcount_old);
 
 			//actually, the start should be offsetted by the current usage of vbo
 			//(since this new data will be placed after the last model)
 			//NOTE: instead of counting in bytes, this is counting in "vertices"
 			material_list[mcount].start += (vbo->usage)/sizeof(Trimesh_3D::Vertex);
 
-			//next time, this position will be position_old
-			position_old=position;
+			//next time, this count will be needed
+			vcount_old=vcount;
 
 			//increase material counter
 			++mcount;
