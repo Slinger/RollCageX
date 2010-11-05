@@ -80,7 +80,7 @@ void Geom::Collision_Callback (void *data, dGeomID o1, dGeomID o2)
 		surf1 = &geom1->surface;
 		surf2 = &geom2->surface;
 
-		//check if trimeshes with "per-triangle" enabled
+		//check if trimeshes
 		//using the side{1,2} values: are the triangle indices (not documented feature in ode...)
 		if (geom1->triangle_count) //is trimesh with per-triangle enabled
 		{
@@ -91,6 +91,12 @@ void Geom::Collision_Callback (void *data, dGeomID o1, dGeomID o2)
 				geom1->triangle_colliding[contact[i].geom.side1] = true;
 
 				//TODO: per-triangle surfaces!
+				//something like this:
+				//if (triangle_material)
+				//{
+				//	for (mcount=0; mcount<geom1->material_count && !(contact[i].geom.side1 < geom1->parent_materials[mcount].end); ++mcount);
+				//	surf1 = geom1->triangle_material[mcount];
+				//}
 			}
 		}
 		if (geom2->triangle_count) //the same for the other
@@ -102,6 +108,11 @@ void Geom::Collision_Callback (void *data, dGeomID o1, dGeomID o2)
 				geom2->triangle_colliding[contact[i].geom.side2] = true;
 
 				//TODO: per-triangle surfaces!
+				//if (triangle_material)
+				//{
+				//	for (mcount=0; mcount<geom2->material_count && !(contact[i].geom.side2 < geom2->parent_materials[mcount].end); ++mcount);
+				//	surf2 = geom2->triangle_material[mcount];
+				//}
 			}
 		}
 

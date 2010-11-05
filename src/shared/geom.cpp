@@ -62,6 +62,8 @@ Geom::Geom (dGeomID geom, Object *obj): Component(obj) //pass object argument to
 	//special geom indicators
 	wheel = NULL; //not a wheel
 	triangle_count = 0; //no "triangles"
+	triangle_colliding = NULL;
+	//triangle_materials = NULL;
 
 	//events:
 	//for force handling (disable)
@@ -96,9 +98,9 @@ Geom::~Geom ()
 	//decrease activity and check if 0
 	object_parent->Decrease_Activity();
 
-	//clear collision checking
-	if (triangle_count)
-		delete[] triangle_colliding;
+	//clear possible collision checking and material-based-surfaces
+	delete[] triangle_colliding;
+	//delete[] triangle_materials;
 }
 
 //set defaults:

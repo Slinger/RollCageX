@@ -100,6 +100,13 @@ class Trimesh_Geom: public Racetime_Data
 
 		class Geom *Create_Geom(class Object *obj); //creates geom from trimesh
 
+		//definition needed
+		struct Material
+		{
+			char *name; //name of material
+			int end; //last triangle number using this materisl
+		};
+
 	private:
 		Trimesh_Geom(const char*, //name
 				Vector_Float *v, unsigned int vcount, //vertices
@@ -113,6 +120,8 @@ class Trimesh_Geom: public Racetime_Data
 		//data for trimesh:
 		//
 		int triangle_count;
+		int material_count;
+		Material *materials;
 
 		dTriMeshDataID data; //collected, pointers
 		Vector_Float *vertices;
@@ -192,7 +201,6 @@ class Trimesh
 		};
 
 		//material:
-		//TODO: class so destruct vector?
 		struct Material
 		{
 			std::string name;

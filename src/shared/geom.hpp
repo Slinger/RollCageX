@@ -67,9 +67,10 @@ class Geom: public Component
 		Wheel *wheel;
 
 		//trimesh: how many triangles (0 if not trimesh/disabled) and which colliding:
-		int triangle_count;
+		int triangle_count, material_count;
 		bool *triangle_colliding;
-		//TODO: material-specific-surface-parameters
+		Trimesh_Geom::Material *parent_materials;
+		//Custom_Material_Plus_Surface_Array *triangle_materials;
 		//end of special geoms
 
 

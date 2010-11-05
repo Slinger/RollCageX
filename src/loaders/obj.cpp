@@ -71,6 +71,7 @@ bool Trimesh::Load_OBJ(const char *f)
 			{
 				printlog(0, "ERROR: obj file did not specify material to use before index, using default\n");
 				materials.push_back(Material_Default); //add new material (with defaults)
+				matnr = 0;
 			}
 
 			for (int i=1; i<file.word_count; ++i)

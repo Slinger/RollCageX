@@ -442,8 +442,8 @@ void Geom_Render()
 					//how many triangles in trimesh
 					triangles = dGeomTriMeshGetTriangleCount(g);
 
-					//if enabled, and in right level, colour triangles based collision:
-					if ( geom->triangle_count && geom_render_level == 5)
+					//if in right level, colour triangles based on collision:
+					if ( geom_render_level == 5)
 					{
 						//we will be rendering the colliding triangles twice:
 						//count colliding triangles
@@ -489,15 +489,6 @@ void Geom_Render()
 						//update usage counters
 						vertex_usage+=new_vertices;
 						index_usage+=new_indices;
-					}
-					else
-					{
-						//make sure got memory
-						Assure_Memory (triangles*3, triangles*3);
-
-						//colour based on triangle count (if needed)
-						if (geom_render_level != 5)
-							Volume_Colour((float)triangles);
 					}
 
 					//render all triangles
