@@ -184,12 +184,13 @@ Trimesh_Geom *Trimesh::Create_Geom()
 	unsigned int mloop=0, tloop=0; //material/triangles per material counters
 	float ax,ay,az,bx,by,bz,x,y,z,l; //(fooling myself these declarations will increase speed)
 	unsigned int new_normals=0; //just interesting...
+	unsigned int mtris; //how many triangles per material
 	for (mloop=0; mloop<material_count; ++mloop)
 	{
 		//how many for this materials
-		tris = materials[mloop].triangles.size();
+		mtris = materials[mloop].triangles.size();
 
-		for (tloop=0; tloop<tris; ++tloop)
+		for (tloop=0; tloop<mtris; ++tloop)
 		{
 			vp = materials[mloop].triangles[tloop].vertex;
 			np = materials[mloop].triangles[tloop].normal;
@@ -252,7 +253,7 @@ Trimesh_Geom *Trimesh::Create_Geom()
 	//create
 	Trimesh_Geom *result = new Trimesh_Geom(name.c_str(),
 			v, verts,
-			i, iloop,
+			i, 3*tris,
 			n);
 
 	//needs triangle count...
