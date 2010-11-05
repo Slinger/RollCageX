@@ -252,8 +252,8 @@ Trimesh_Geom *Trimesh::Create_Geom()
 	//create
 	Trimesh_Geom *result = new Trimesh_Geom(name.c_str(),
 			v, verts,
-			i, tris*3,
-			NULL/*n*/);
+			i, iloop,
+			n);
 
 	//needs triangle count...
 	result->triangle_count = tris;

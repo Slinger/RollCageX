@@ -279,8 +279,6 @@ Trimesh_3D *Trimesh::Create_3D()
 
 	//loop through all materials, and for each used, loop through all triangles
 	//(removes indedexing -make copies- and interleaves the vertices+normals)
-	printf("%f %f %f\n", normals[0].x, normals[0].y, normals[0].z);
-	printf("%f %f %f\n", normals[6].x, normals[6].y, normals[6].z);
 	for (m=0; m<m_size; ++m)
 	{
 		//if this material is used for some triangle:
