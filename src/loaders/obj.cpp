@@ -41,6 +41,7 @@ bool Trimesh::Load_OBJ(const char *f)
 	Vector_Float vector;
 	Triangle triangle; //for building a triangle
 	unsigned int matnr = INDEX_ERROR; //keep track of current material (none right now)
+	unsigned int tmpmatnr;
 	unsigned int vi, ni;
 	int count;
 
@@ -130,13 +131,12 @@ bool Trimesh::Load_OBJ(const char *f)
 		}
 		else if (!strcmp(file.words[0], "usemtl") && file.word_count==2)
 		{
-			matnr = Find_Material(file.words[1]);
+			tmpmatnr = Find_Material(file.words[1]);
 
-			if (matnr == INDEX_ERROR)
-			{
+			if (tmpmatnr == INDEX_ERROR)
 				printlog(0, "Ignoring change of material (things will probably look wrong)");
-				continue; //just ignore material change
-			}
+			else
+				matnr = tmpmatnr;
 
 			//else, we now have material switch for next triangles
 		}

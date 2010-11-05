@@ -182,6 +182,7 @@ Trimesh_Geom *Trimesh::Create_Geom()
 	unsigned int iloop=0, nloop=0; //total vertex/normal counters
 	unsigned int *vp, *np; //vertex and normal index pointers
 	unsigned int mloop=0, tloop=0; //material/triangles per material counters
+	float ax,ay,az,bx,by,bz,x,y,z,l; //(fooling myself these declarations will increase speed)
 	unsigned int new_normals=0; //just interesting...
 	for (mloop=0; mloop<material_count; ++mloop)
 	{
@@ -206,7 +207,7 @@ Trimesh_Geom *Trimesh::Create_Geom()
 			//but we have 3 indexed normals per triangle (find compromise)
 
 			//all 3 normals are the same, use it
-			if (	(np[0]) == (np[1]) &&
+			if (	(np[0]) == (np[1])	&&
 				(np[0]) == (np[2])	)
 			{
 				n[nloop] = normals[np[0]]; //copy first specified normal
@@ -222,21 +223,21 @@ Trimesh_Geom *Trimesh::Create_Geom()
 				Vector_Float v3 = vertices[vp[2]];
 
 				//create two vectors (a and b)
-				float ax = (v2.x-v1.x);
-				float ay = (v2.y-v1.y);
-				float az = (v2.z-v1.z);
+				ax = (v2.x-v1.x);
+				ay = (v2.y-v1.y);
+				az = (v2.z-v1.z);
 
-				float bx = (v3.x-v1.x);
-				float by = (v3.y-v1.y);
-				float bz = (v3.z-v1.z);
+				bx = (v3.x-v1.x);
+				by = (v3.y-v1.y);
+				bz = (v3.z-v1.z);
 
 				//cross product gives normal:
-				float x = (ay*bz)-(az*by);
-				float y = (az*bx)-(ax*bz);
-				float z = (ax*by)-(ay*bx);
+				x = (ay*bz)-(az*by);
+				y = (az*bx)-(ax*bz);
+				z = (ax*by)-(ay*bx);
 				
 				//set and make unit:
-				float l = v_length(x, y, z);
+				l = v_length(x, y, z);
 
 				n[nloop].x = x/l;
 				n[nloop].y = y/l;
@@ -252,7 +253,7 @@ Trimesh_Geom *Trimesh::Create_Geom()
 	Trimesh_Geom *result = new Trimesh_Geom(name.c_str(),
 			v, verts,
 			i, tris*3,
-			n);
+			NULL/*n*/);
 
 	//needs triangle count...
 	result->triangle_count = tris;
