@@ -62,8 +62,9 @@ Geom::Geom (dGeomID geom, Object *obj): Component(obj) //pass object argument to
 	//special geom indicators
 	wheel = NULL; //not a wheel
 	triangle_count = 0; //no "triangles"
+	material_count = 0; //no "materials"
 	triangle_colliding = NULL;
-	//triangle_materials = NULL;
+	material_surfaces = NULL;
 
 	//events:
 	//for force handling (disable)
@@ -100,7 +101,40 @@ Geom::~Geom ()
 
 	//clear possible collision checking and material-based-surfaces
 	delete[] triangle_colliding;
-	//delete[] triangle_materials;
+	delete[] material_surfaces;
+}
+
+Surface *Geom::Find_Material_Surface(const char *name)
+{
+	//is possible at all?
+	if (!material_count)
+	{
+		printlog(0, "WARNING: tried to use per-material surfaces for non-trimesh geom");
+		return NULL;
+	}
+
+	//firtst of all, check if enabled?
+	if (!material_surfaces)
+	{
+		printlog(2, "enabling per-material surfaces");
+		material_surfaces = new Surface[material_count];
+
+		//set default (set to out global surface)
+		for (int i=0; i<material_count; ++i)
+			material_surfaces[i] = surface;
+	}
+
+	//ok 
+	int i;
+	for (i=0; i<material_count && strcmp(name, parent_materials[i].name); ++i);
+
+	if (i==material_count)
+	{
+		printlog(0, "WARNING: could not find material \"%s\" for trimesh", name);
+		return NULL;
+	}
+	else
+		return &material_surfaces[i];
 }
 
 //set defaults:

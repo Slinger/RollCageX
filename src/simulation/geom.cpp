@@ -73,6 +73,9 @@ void Geom::Collision_Callback (void *data, dGeomID o1, dGeomID o2)
 	if (count == 0)
 		return;
 
+	//might be needed
+	int mcount;
+
 	//loop through all collision points and configure surface settings for each
 	for (int i=0; i<count; ++i)
 	{
@@ -90,13 +93,17 @@ void Geom::Collision_Callback (void *data, dGeomID o1, dGeomID o2)
 				//set collision flag for this triangle
 				geom1->triangle_colliding[contact[i].geom.side1] = true;
 
-				//TODO: per-triangle surfaces!
-				//something like this:
-				//if (triangle_material)
-				//{
-				//	for (mcount=0; mcount<geom1->material_count && !(contact[i].geom.side1 < geom1->parent_materials[mcount].end); ++mcount);
-				//	surf1 = geom1->triangle_material[mcount];
-				//}
+				//surface based on material?
+				if (geom1->material_surfaces)
+				{
+					//loop through all materials until finding the one for this triangle
+					for (mcount=0; mcount<geom1->material_count &&
+							!(contact[i].geom.side1 < geom1->parent_materials[mcount].end);
+							++mcount);
+
+					//set surface
+					surf1 = &geom1->material_surfaces[mcount];
+				}
 			}
 		}
 		if (geom2->triangle_count) //the same for the other
@@ -107,12 +114,14 @@ void Geom::Collision_Callback (void *data, dGeomID o1, dGeomID o2)
 				//set collision flag for this triangle
 				geom2->triangle_colliding[contact[i].geom.side2] = true;
 
-				//TODO: per-triangle surfaces!
-				//if (triangle_material)
-				//{
-				//	for (mcount=0; mcount<geom2->material_count && !(contact[i].geom.side2 < geom2->parent_materials[mcount].end); ++mcount);
-				//	surf2 = geom2->triangle_material[mcount];
-				//}
+				if (geom2->material_surfaces)
+				{
+					for (mcount=0; mcount<geom2->material_count &&
+							!(contact[i].geom.side2 < geom2->parent_materials[mcount].end);
+							++mcount);
+
+					surf2 = &geom2->material_surfaces[mcount];
+				}
 			}
 		}
 
