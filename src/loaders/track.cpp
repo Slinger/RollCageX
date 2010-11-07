@@ -176,7 +176,7 @@ bool load_track (const char *path)
 					}
 				}
 				//surface manipulation (of latest geom)
-				else if (!strcmp(file.words[1], "surface") && latestgeom)
+				else if (!strcmp(file.words[1], "surface") && file.word_count >= 3 && latestgeom)
 				{
 					printlog(2, "changing surface properties");
 					Surface *surface=NULL;
@@ -185,13 +185,13 @@ bool load_track (const char *path)
 					if (!strcmp(file.words[2], "global"))
 					{
 						surface = &(latestgeom->surface);
-						pos = 2;
+						pos = 3;
 					}
-					else if (!strcmp(file.words[2], "material") && file.word_count >= 3)
+					else if (!strcmp(file.words[2], "material") && file.word_count >= 4)
 					{
 						//locate surface named as specified
 						surface = latestgeom->Find_Material_Surface(file.words[3]);
-						pos = 3;
+						pos = 4;
 					}
 					else
 						printlog(0, "WARNING: surface type must be either global or material");
