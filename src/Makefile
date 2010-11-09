@@ -45,12 +45,15 @@ distclean: clean
 
 
 #static windows 32b compilation (reuses this makefiles with rewritten variables)
+#static: contains all needed libraries (since these people lack package managers)
+#stripped: no symbols (since they usually can't debug, just small file size instead)
 w32:
-	@echo "Compiling static windows binary..."
+	@echo "Compiling \"release\" (static+stripped) windows binary..."
 	@make \
 		LIBS='`sdl-config --static-libs --libs` `ode-config --libs` -lopengl32 -static -lstdc++ -lwinmm -lgdi32' \
 		FLAGS='`sdl-config --cflags` `ode-config --cflags`' \
 		ARGS='-MD -O2 -pipe -Wall -march=i686 -mtune=i686 $$(FLAGS) -Dwindows'
+	@strip ../rcx.exe
 
 #these rules don't generate any files
 .PHONY: all w32 clean distclean
