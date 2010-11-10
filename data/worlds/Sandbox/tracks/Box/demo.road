@@ -1,13 +1,13 @@
 #just trying out the custom road generator
 #note: a lot of stuff missing (commented out)!
 
-#materialfile road.mtl #use these materials (for colours and frictions)
+#use these materials (for colours and frictions)
+material_file Box.mtl #borrow from Box model...
 
 #define some road shapes (by name)
 section flat		-8 0	8 0 #10m flat surface
 section half-pipe 	-8 10	-8 -3	8 -3	8 10 #U shaped half-pipe
 
-#create a road:
 #capp ends or not?
 #capping #on by default, disabled by "nocapping"
 #depth of road (0 disables)
@@ -15,17 +15,20 @@ section half-pipe 	-8 10	-8 -3	8 -3	8 10 #U shaped half-pipe
 
 #build one or more pieces of road
 
-#choose cement colour (define surface in geoms.lst!)
-#material tarmac
+#the two following can be changed whenever wanted
+#choose colour (define surface in geoms.lst!)
+material Material.001
 #how many vertices in width and length (between each section)
-#resolution 10 15
-#add <section> <position> <rotation> <stiffness>
-add flat	0 -10 0		0 0 0	5
-#resolution 20 20
-add half-pipe	0 5 0		0 0 0	5
-add half-pipe	0 10 0		0 0 0	5
-#resolution 10 15
-add flat	0 20 5		-10 0 0	5
+resolution 10 15
 
+#add <section> <position> <rotation> <stiffness>
+add flat	0 -20 0		0 0 0	2
+add half-pipe	0 -10 0		0 0 0	3
+material Material.002
+add half-pipe	0 10 0		0 0 0	3
+material Material.001
+add flat	0 20 0		0 0 0	2
+
+#TODO: remove this? (force use of multiple files/trimeshes: better performance)
 #stop the current chaing of sections (allows multiple roads)
-stop #not actually needed for end of file
+#stop #not actually needed for end of file

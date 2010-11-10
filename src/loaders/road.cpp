@@ -245,9 +245,6 @@ bool Trimesh::Load_Road(const char *f)
 				continue;
 			}
 
-			//get all data we want:
-			//newsection.pos = ...
-
 			//no point continuing if only got one section yet
 			if (!oldend.active)
 				continue;
@@ -265,7 +262,9 @@ bool Trimesh::Load_Road(const char *f)
 			float p0[3], p1[3], p2[3], p3[3];
 			float mult0, mult1, mult2, mult3;
 			Vector_Float vertex;
+			//TODO
 			//TODO: join vertices for section shared by two pieces of road
+			//TODO
 			int x,y; //looping
 			float w=0.0,l=0.0; //Width&Length
 			float wd=1.0/float(xres); //length of each step
@@ -320,20 +319,49 @@ bool Trimesh::Load_Road(const char *f)
 					material->triangles.push_back(triangle);
 				}
 		}
+		//TODO: remove?!
 		else if (!strcmp(file.words[0], "stop"))
 		{
 			//reset
 			oldend.active=false;
 			newend.active=false;
 		}
+		else if (!strcmp(file.words[0], "resolution"))
+		{
+			xres=atof(file.words[1]);
+			yres=atof(file.words[2]);
+		}
+		else if (!strcmp(file.words[0], "material"))
+		{
+			unsigned int tmp = Find_Material(file.words[1]);
+
+			if (tmp == INDEX_ERROR)
+				printlog(0, "WARNING: failed to change material (things will probably look wrong)");
+			else
+				material=&materials[tmp];
+		}
+		else if (!strcmp(file.words[0], "material_file"))
+		{
+			//directly copied from obj.cpp
+			char filename[strlen(f)+strlen(file.words[1])];
+			strcpy(filename, f);
+			char *last = strrchr(filename, '/');
+
+			if (last)
+			{
+				last[1]='\0';
+				strcat(filename, file.words[1]);
+			}
+			else
+			{
+				strcpy(filename, file.words[1]);
+			}
+			Load_Material(filename);
+		}
+		/*else if (!strcmp(file.words[0], "depth"))
+		{}*/
 		else
 			printlog(0, "WARNING: malformated line in road file, ignoring");
-		/*else if (!strcmp(file.words[0], "resolution"))
-		{}
-		else if (!strcmp(file.words[0], "depth"))
-		{}
-		else if (!strcmp(file.words[0], "material....*"))
-		{}*/
 	}
 
 	//done, remove all data:

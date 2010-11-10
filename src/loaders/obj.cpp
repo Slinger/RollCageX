@@ -135,7 +135,7 @@ bool Trimesh::Load_OBJ(const char *f)
 			tmpmatnr = Find_Material(file.words[1]);
 
 			if (tmpmatnr == INDEX_ERROR)
-				printlog(0, "Ignoring change of material (things will probably look wrong)");
+				printlog(0, "WARNING: ignoring change of material (things will probably look wrong)");
 			else
 				matnr = tmpmatnr;
 

@@ -57,5 +57,5 @@
 
 #add demo scramble road (and set all surfaces to mu=1)
 0 0 0  0 0 0  demo.road
-> surface global mu 1
-#> surface material ice mu 0.1
+> surface material Material.001 mu 0.5
+> surface material Material.002 mu 0
