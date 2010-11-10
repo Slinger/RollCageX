@@ -490,6 +490,8 @@ void Geom_Render()
 						vertex_usage+=new_vertices;
 						index_usage+=new_indices;
 					}
+					else
+						Assure_Memory (triangles*3, triangles*3);
 
 					//render all triangles
 					for (tloop=0; tloop<triangles; ++tloop)

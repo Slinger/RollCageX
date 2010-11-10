@@ -268,9 +268,9 @@ bool Trimesh::Load_Road(const char *f)
 			//TODO: join vertices for section shared by two pieces of road
 			int x,y; //looping
 			float w=0.0,l=0.0; //Width&Length
-			float wd=1.0/float(xres-1); //length of each step
-			float ld=1.0/float(yres-1);
-			for (x=0; x<xres; ++x)
+			float wd=1.0/float(xres); //length of each step
+			float ld=1.0/float(yres);
+			for (x=0; x<=xres; ++x)
 			{
 				oldend.GetPosPoint(w, p0);
 				oldend.GetDirPoint(w, false, p1);
@@ -279,7 +279,7 @@ bool Trimesh::Load_Road(const char *f)
 				//create curve based on bezier curve (4 points)
 
 				l=0.0;
-				for (y=0; y<yres; ++y)
+				for (y=0; y<=yres; ++y)
 				{
 					mult0 = (1.0-l)*(1.0-l)*(1.0-l);
 					mult1 = 3*(1.0-l)*(1.0-l)*l;
@@ -305,18 +305,18 @@ bool Trimesh::Load_Road(const char *f)
 			triangle.normal[1]=INDEX_ERROR;
 			triangle.normal[2]=INDEX_ERROR;
 
-			for (int x=0; x<(xres-1); ++x)
-				for (int y=0; y<(yres-1); ++y)
+			for (int x=0; x<xres; ++x)
+				for (int y=0; y<yres; ++y)
 				{
 					//two triangles per "square"
-					triangle.vertex[0]=start+(y)+(x)*yres;
-					triangle.vertex[1]=start+(y)+(x+1)*yres;
-					triangle.vertex[2]=start+(y+1)+(x)*yres;
+					triangle.vertex[0]=start+(y)+(x)*(yres+1);
+					triangle.vertex[1]=start+(y)+(x+1)*(yres+1);
+					triangle.vertex[2]=start+(y+1)+(x)*(yres+1);
 					material->triangles.push_back(triangle);
 
-					triangle.vertex[0]=start+(y)+(x+1)*yres;
-					triangle.vertex[1]=start+(y+1)+(x+1)*yres;
-					triangle.vertex[2]=start+(y+1)+(x)*yres;
+					triangle.vertex[0]=start+(y)+(x+1)*(yres+1);
+					triangle.vertex[1]=start+(y+1)+(x+1)*(yres+1);
+					triangle.vertex[2]=start+(y+1)+(x)*(yres+1);
 					material->triangles.push_back(triangle);
 				}
 		}
