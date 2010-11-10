@@ -173,8 +173,10 @@ class Trimesh
 		//obj files (obj.cpp)
 		bool Load_OBJ(const char *);
 		bool Load_MTL(const char *); //used by obj loader
+		//road files (road.cpp, custom road generator)
+		bool Load_Road(const char *);
 		//3ds files (3ds.cpp)
-		bool Load_3DS(const char *);
+		//bool Load_3DS(const char *);
 
 		//
 		//actual data to store:

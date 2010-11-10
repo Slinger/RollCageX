@@ -54,3 +54,8 @@
 #enable per-material surfaces and set bouncyness for this one
 #("Material" is the light-blue material at the edges)
 > surface material "Material" mu 0
+
+#add demo scramble road (and set all surfaces to mu=1)
+0 0 0  0 0 0  demo.road
+> surface global mu 1
+#> surface material ice mu 0.1
