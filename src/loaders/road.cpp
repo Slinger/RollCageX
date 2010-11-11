@@ -48,9 +48,9 @@ class Bezier
 		}
 		static Bezier *Find(const char *name)
 		{
-			for (Bezier *p=head; p; p=p->next)
-				if (p->name == name)
-					return p;
+			for (Bezier *point=head; point; point=point->next)
+				if (point->name == name)
+					return point;
 
 			//else
 			printlog(0, "WARNING: unable to find section of road named \"%s\"", name);
@@ -95,29 +95,57 @@ class Bezier
 			}
 			//done
 		}
-		/*void GetDir(float t, float *dir)
+		void GetDir(float t, float *dir)
 		{
-			//derive
-			dir={0,0};
+			dir[0]=0;
+			dir[1]=0;
+
+			//calculate (derivation of above)
+			int k=1;
+			//power-off for each term:
+			float t1=1.0; //t^i
+			float t2=1.0; //(1-t)^(n-i)
+			for (int i=0; i<n-2; ++i)
+				t2*=(1.0-t);
+
+			//if t=1, then prevent NaN...
+			float t2mod = t==1.0? 1.0:1.0/(1.0-t);
+
 			//calculate
 			for (int i=0; i<(n-1); ++i)
 			{
-				//binomial coefficient
-				dir[0] += n*binomial(n-1,i)*t^i*(1.0-t)^(n-1-i)*(p[i+1]-p[i]);
-				dir[1] += 
+				//binomial coefficient (fixed n=row, for each i)
+				dir[0] += float(k)*t1*t2*(p[i+1].x-p[i].x);
+				dir[1] += float(k)*t1*t2*(p[i+1].y-p[i].y);
+
+				//coefficient for next time
+				k*=(n-1-i);
+				k/=(i+1);
+
+				//t1&t2
+				t1*=t;
+				t2*=t2mod;
+
+				//if at last, set to 1
+				if (i+2==n)
+					t2=1;
 			}
+			dir[0]*=n;
+			dir[1]*=n;
+
 			//normalize
 			float l = sqrt(dir[0]*dir[0]+dir[1]*dir[1]);
-			dir[0]/l;
-			dir[1]/l;
-		}*/
+			dir[0]/=l;
+			dir[1]/=l;
+		}
 		static void RemoveAll()
 		{
 			Bezier *next;
-			while ((head=next))
+			while (head)
 			{
 				next=head->next;
 				delete head;
+				head=next;
 			}
 		}
 
@@ -141,7 +169,17 @@ Bezier *Bezier::head = NULL;
 class End
 {
 	public:
-		End(): active(false) {};
+		End()
+		{
+			active=false;
+			//the rest is to prevent compiler warnings:
+			shape=NULL;
+			for (int i=0; i<3; ++i)
+				pos[i]=0.0;
+			for (int i=0; i<9; ++i)
+				rot[i]=0.0;
+			ctrl=0.0;
+		}
 
 		bool active;
 
@@ -170,17 +208,24 @@ class End
 			else
 				active=false;
 		}
-		void GetPosPoint(float t, float *p)
+		void GetPosPoint(float t, float d, float *p)
 		{
 			float point[2];
 			shape->GetPos(t, point);
 			p[0]=pos[0]+rot[0]*point[0]+rot[2]*point[1];
 			p[1]=pos[1]+rot[3]*point[0]+rot[5]*point[1];
 			p[2]=pos[2]+rot[6]*point[0]+rot[8]*point[1];
+
+			if (d)
+			{
+				float dir[2];
+				shape->GetDir(t, dir);
+				//printf("%f %f\n", dir[0], dir[1]);
+			}
 		}
-		void GetDirPoint(float t, bool reverse, float *p)
+		void GetDirPoint(float t, float d, bool reverse, float *p)
 		{
-			GetPosPoint(t, p);
+			GetPosPoint(t, d, p);
 			if (reverse)
 			{
 				p[0]-=rot[1]*ctrl;
@@ -195,7 +240,7 @@ class End
 			}
 		}
 
-	private:
+	public:
 		Bezier *shape;
 		float pos[3];
 		float rot[9];
@@ -264,18 +309,23 @@ bool Trimesh::Load_Road(const char *f)
 			Vector_Float vertex;
 			//TODO
 			//TODO: join vertices for section shared by two pieces of road
+			//if (thesameresolution && thesamedepth)
+			//	reuse
+			//else
+			//	current
 			//TODO
+	
 			int x,y; //looping
 			float w=0.0,l=0.0; //Width&Length
 			float wd=1.0/float(xres); //length of each step
 			float ld=1.0/float(yres);
 			for (x=0; x<=xres; ++x)
 			{
-				oldend.GetPosPoint(w, p0);
-				oldend.GetDirPoint(w, false, p1);
-				newend.GetDirPoint(w, true, p2);
-				newend.GetPosPoint(w, p3);
-				//create curve based on bezier curve (4 points)
+				oldend.GetPosPoint(w, depth, p0);
+				oldend.GetDirPoint(w, depth, false, p1);
+				newend.GetDirPoint(w, depth, true, p2);
+				newend.GetPosPoint(w, depth, p3);
+				//create curve based on (4 point) bezier curve
 
 				l=0.0;
 				for (y=0; y<=yres; ++y)
@@ -297,6 +347,7 @@ bool Trimesh::Load_Road(const char *f)
 
 				w+=wd;
 			}
+
 			//generate indices
 			Triangle triangle;
 			//don't specify normals (generated later on)
@@ -304,8 +355,8 @@ bool Trimesh::Load_Road(const char *f)
 			triangle.normal[1]=INDEX_ERROR;
 			triangle.normal[2]=INDEX_ERROR;
 
-			for (int x=0; x<xres; ++x)
-				for (int y=0; y<yres; ++y)
+			for (x=0; x<xres; ++x)
+				for (y=0; y<yres; ++y)
 				{
 					//two triangles per "square"
 					triangle.vertex[0]=start+(y)+(x)*(yres+1);
@@ -358,8 +409,12 @@ bool Trimesh::Load_Road(const char *f)
 			}
 			Load_Material(filename);
 		}
-		/*else if (!strcmp(file.words[0], "depth"))
-		{}*/
+		else if (!strcmp(file.words[0], "depth"))
+			depth=atof(file.words[1]);
+		else if (!strcmp(file.words[0], "capping"))
+			capping=true;
+		else if (!strcmp(file.words[0], "nocapping"))
+			capping=false;
 		else
 			printlog(0, "WARNING: malformated line in road file, ignoring");
 	}
