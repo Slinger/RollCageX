@@ -8,18 +8,19 @@ material_file Box.mtl #borrow from Box model...
 section flat		-8 0	8 0 #10m flat surface
 section half-pipe 	-8 10	-8 -3	8 -3	8 10 #U shaped half-pipe
 
-#capp ends or not?
-#capping #on by default, disabled by "nocapping"
-#depth of road (0 disables)
-depth 1
-
 #build one or more pieces of road
 
-#the two following can be changed whenever wanted
+#capp ends or not?
+#capping #on by default, disabled by "nocapping"
+
+#the 3 following can be changed whenever wanted
+#(that is, from one section "add" to another)
 #choose colour (define surface in geoms.lst!)
 material Material.001
 #how many vertices in width and length (between each section)
 resolution 15 15
+#depth of road (0 disables)
+depth 1
 
 #add <section> <position> <rotation> <stiffness>
 add flat	0 -20 0		0 0 0	2

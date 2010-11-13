@@ -28,10 +28,11 @@ class Bezier
 			//allocate
 			int words = file->word_count; //how many words
 			n = (words-2)/2; //not the first two, then two words per point
-			p = new point[n];
+			n -= 1; //and start counting on 0
+			p = new point[n+1];
 
 			//store:
-			for (int i=0; i<n; ++i)
+			for (int i=0; i<=n; ++i)
 			{
 				p[i].x = atof(file->words[2+2*i]);
 				p[i].y = atof(file->words[3+2*i]);
@@ -68,30 +69,30 @@ class Bezier
 			float t1=1.0; //t^i
 
 			float t2=1.0; //(1-t)^(n-i)
-			for (int i=0; i<n-1; ++i)
+			for (int i=0; i<=n-1; ++i)
 				t2*=(1.0-t);
 
 			//if t=1, then prevent NaN...
 			float t2mod = t==1.0? 1.0:1.0/(1.0-t);
 
 			//calculate
-			for (int i=0; i<n; ++i)
+			for (int i=0; i<=n; ++i)
 			{
+				//if at last, set to 1
+				if (i==n)
+					t2=1;
+
 				//binomial coefficient (fixed n=row, for each i)
 				pos[0] += float(k)*t1*t2*p[i].x;
 				pos[1] += float(k)*t1*t2*p[i].y;
 
 				//coefficient for next time
-				k*=(n-1-i);
+				k*=(n-i);
 				k/=(i+1);
 
 				//t1&t2
 				t1*=t;
 				t2*=t2mod;
-
-				//if at last, set to 1
-				if (i+2==n)
-					t2=1;
 			}
 			//done
 		}
@@ -104,16 +105,20 @@ class Bezier
 			int k=1;
 			//power-off for each term:
 			float t1=1.0; //t^i
-			float t2=1.0; //(1-t)^(n-i)
-			for (int i=0; i<n-2; ++i)
+			float t2=1.0; //(1-t)^(n-1-i)
+			for (int i=0; i<=n-2; ++i)
 				t2*=(1.0-t);
 
 			//if t=1, then prevent NaN...
 			float t2mod = t==1.0? 1.0:1.0/(1.0-t);
 
 			//calculate
-			for (int i=0; i<(n-1); ++i)
+			for (int i=0; i<=(n-1); ++i)
 			{
+				//if at last, set to 1
+				if (i==n-1)
+					t2=1;
+
 				//binomial coefficient (fixed n=row, for each i)
 				dir[0] += float(k)*t1*t2*(p[i+1].x-p[i].x);
 				dir[1] += float(k)*t1*t2*(p[i+1].y-p[i].y);
@@ -125,10 +130,6 @@ class Bezier
 				//t1&t2
 				t1*=t;
 				t2*=t2mod;
-
-				//if at last, set to 1
-				if (i+2==n)
-					t2=1;
 			}
 			dir[0]*=n;
 			dir[1]*=n;
@@ -212,16 +213,16 @@ class End
 		{
 			float point[2];
 			shape->GetPos(t, point);
-			p[0]=pos[0]+rot[0]*point[0]+rot[2]*point[1];
-			p[1]=pos[1]+rot[3]*point[0]+rot[5]*point[1];
-			p[2]=pos[2]+rot[6]*point[0]+rot[8]*point[1];
-
 			if (d)
 			{
 				float dir[2];
 				shape->GetDir(t, dir);
-				//printf("%f %f\n", dir[0], dir[1]);
+				point[0]-=dir[1]*d;
+				point[1]+=dir[0]*d;
 			}
+			p[0]=pos[0]+rot[0]*point[0]+rot[2]*point[1];
+			p[1]=pos[1]+rot[3]*point[0]+rot[5]*point[1];
+			p[2]=pos[2]+rot[6]*point[0]+rot[8]*point[1];
 		}
 		void GetDirPoint(float t, float d, bool reverse, float *p)
 		{
@@ -272,6 +273,7 @@ bool Trimesh::Load_Road(const char *f)
 	bool capping=true; //enabled but only used when depth
 	Material *material=NULL;
 	End oldend, newend;
+	//float lastdepth, lastxres, lastyres;
 
 	while  (file.Read_Line())
 	{
@@ -309,7 +311,7 @@ bool Trimesh::Load_Road(const char *f)
 			Vector_Float vertex;
 			//TODO
 			//TODO: join vertices for section shared by two pieces of road
-			//if (thesameresolution && thesamedepth)
+			//if (thesameresolution)
 			//	reuse
 			//else
 			//	current
@@ -321,10 +323,10 @@ bool Trimesh::Load_Road(const char *f)
 			float ld=1.0/float(yres);
 			for (x=0; x<=xres; ++x)
 			{
-				oldend.GetPosPoint(w, depth, p0);
-				oldend.GetDirPoint(w, depth, false, p1);
-				newend.GetDirPoint(w, depth, true, p2);
-				newend.GetPosPoint(w, depth, p3);
+				oldend.GetPosPoint(w, depth/2.0, p0);
+				oldend.GetDirPoint(w, depth/2.0, false, p1);
+				newend.GetDirPoint(w, depth/2.0, true, p2);
+				newend.GetPosPoint(w, depth/2.0, p3);
 				//create curve based on (4 point) bezier curve
 
 				l=0.0;
