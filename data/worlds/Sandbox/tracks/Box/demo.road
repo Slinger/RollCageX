@@ -30,6 +30,3 @@ add half-pipe	0 10 0		0 0 0	3
 material Material.001
 add flat	0 20 0		0 0 0	2
 
-#TODO: remove this? (force use of multiple files/trimeshes: better performance)
-#stop the current chaing of sections (allows multiple roads)
-#stop #not actually needed for end of file

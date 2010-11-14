@@ -313,6 +313,27 @@ void GenIndices(std::vector<Triangle_Uint> *triangles,
 		}
 }
 
+void GenCapIndices(std::vector<Triangle_Uint> *triangles,
+		int start1, int start2, int stride, int xres)
+{
+	Triangle_Uint triangle;
+	triangle.normal[0]=INDEX_ERROR;
+	triangle.normal[1]=INDEX_ERROR;
+	triangle.normal[2]=INDEX_ERROR;
+	for (int x=0; x<xres; ++x)
+	{
+			triangle.vertex[0]=start1+(x)*(stride);
+			triangle.vertex[1]=start2+(x)*(stride);
+			triangle.vertex[2]=start2+(x+1)*(stride);
+			triangles->push_back(triangle);
+
+			triangle.vertex[0]=start2+(x+1)*(stride);
+			triangle.vertex[1]=start1+(x+1)*(stride);
+			triangle.vertex[2]=start1+(x)*(stride);
+			triangles->push_back(triangle);
+	}
+}
+
 bool Trimesh::Load_Road(const char *f)
 {
 	printlog(2, "Loading trimesh from road file %s", f);
@@ -346,6 +367,9 @@ bool Trimesh::Load_Road(const char *f)
 				new Bezier(&file);
 		else if (!strcmp(file.words[0], "add") && file.word_count == 9)
 		{
+			//if last end doesn't exist, this is first part of road, cap it
+			bool cap=oldend.active? false: true;
+
 			oldend=newend;
 			newend.Add(&file);
 
@@ -396,14 +420,11 @@ bool Trimesh::Load_Road(const char *f)
 				GenIndices(&material->triangles, start+(xres+1)*(yres+1), -(xres+1)*(yres+1), 1, yres);
 				//right:
 				GenIndices(&material->triangles, start+(xres)*(yres+1), (xres+1)*(yres+1), 1, yres);
+
+				//capping:
+				if (cap)
+					GenCapIndices(&material->triangles, 0, (xres+1)*(yres+1), yres+1, xres);
 			}
-		}
-		//TODO: remove?!
-		else if (!strcmp(file.words[0], "stop"))
-		{
-			//reset
-			oldend.active=false;
-			newend.active=false;
 		}
 		else if (!strcmp(file.words[0], "resolution"))
 		{
@@ -446,6 +467,11 @@ bool Trimesh::Load_Road(const char *f)
 		else
 			printlog(0, "WARNING: malformated line in road file, ignoring");
 	}
+
+	//at end, should cap?
+	if (depth && capping)
+		GenCapIndices(&material->triangles, (vertices.size()-1)-xres*(yres+1),
+				(vertices.size()-1)-xres*(yres+1)-(xres+1)*(yres+1), yres+1, xres);
 
 	//done, remove all data:
 	Bezier::RemoveAll();
