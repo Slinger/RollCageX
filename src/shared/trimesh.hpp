@@ -26,6 +26,16 @@ struct Vector_Float{
 	float x, y, z;
 };
 
+//each triangle is 6 indices: 3=vertices, 3=normals
+//(not using texture for now)
+struct Triangle_Uint
+{
+	unsigned int vertex[3];
+	//unsigned int texcoord[3];
+	unsigned int normal[3];
+};
+
+
 //for indicating missing data
 #define INDEX_ERROR UINT_MAX
 
@@ -191,16 +201,7 @@ class Trimesh
 		//indices:
 		//
 
-		//triangles are grouped by meterial:
-
-		//each triangle is 6 indices: 3=vertices, 3=normals
-		//(not using texture for now)
-		struct Triangle
-		{
-			unsigned int vertex[3];
-			//unsigned int texcoord[3];
-			unsigned int normal[3];
-		};
+		//triangles are grouped by material:
 
 		//material:
 		struct Material
@@ -214,7 +215,7 @@ class Trimesh
 			float shininess;
 
 			//all triangles with this material
-			std::vector<Triangle> triangles;
+			std::vector<Triangle_Uint> triangles;
 		};
 
 		//all materials of this model

@@ -248,6 +248,71 @@ class End
 		float ctrl;
 };
 
+//TODO: unsigned int instead of int? (and check for int overflow?)
+void GenVertices(std::vector<Vector_Float> *vertices, End *oldend, End *newend,
+		float offset, int xres, int yres)
+{
+	float p0[3], p1[3], p2[3], p3[3];
+	float mult0, mult1, mult2, mult3;
+	Vector_Float vertex;
+	float w=0.0,l=0.0; //Width&Length
+	float wd=1.0/float(xres); //length of each step
+	float ld=1.0/float(yres); //dito
+	for (int x=0; x<=xres; ++x)
+	{
+		oldend->GetPosPoint(w, offset, p0);
+		oldend->GetDirPoint(w, offset, false, p1);
+		newend->GetDirPoint(w, offset, true, p2);
+		newend->GetPosPoint(w, offset, p3);
+		//create curve based on (4 point) bezier curve
+
+		l=0.0;
+		for (int y=0; y<=yres; ++y)
+		{
+			mult0 = (1.0-l)*(1.0-l)*(1.0-l);
+			mult1 = 3*(1.0-l)*(1.0-l)*l;
+			mult2 = 3*(1.0-l)*l*l;
+			mult3 = l*l*l;
+
+			vertex.x=p0[0]*mult0+p1[0]*mult1+p2[0]*mult2+p3[0]*mult3;
+			vertex.y=p0[1]*mult0+p1[1]*mult1+p2[1]*mult2+p3[1]*mult3;
+			vertex.z=p0[2]*mult0+p1[2]*mult1+p2[2]*mult2+p3[2]*mult3;
+
+			//add
+			vertices->push_back(vertex);
+
+			l+=ld;
+		}
+
+		w+=wd;
+	}
+}
+
+void GenIndices(std::vector<Triangle_Uint> *triangles,
+		int start, int stride, int xres, int yres)
+{
+	Triangle_Uint triangle;
+	//don't specify normals (generated later on)
+	triangle.normal[0]=INDEX_ERROR;
+	triangle.normal[1]=INDEX_ERROR;
+	triangle.normal[2]=INDEX_ERROR;
+
+	for (int x=0; x<xres; ++x)
+		for (int y=0; y<yres; ++y)
+		{
+			//two triangles per "square"
+			triangle.vertex[0]=start+(y)+(x)*(stride);
+			triangle.vertex[1]=start+(y)+(x+1)*(stride);
+			triangle.vertex[2]=start+(y+1)+(x)*(stride);
+			triangles->push_back(triangle);
+
+			triangle.vertex[0]=start+(y)+(x+1)*(stride);
+			triangle.vertex[1]=start+(y+1)+(x+1)*(stride);
+			triangle.vertex[2]=start+(y+1)+(x)*(stride);
+			triangles->push_back(triangle);
+		}
+}
+
 bool Trimesh::Load_Road(const char *f)
 {
 	printlog(2, "Loading trimesh from road file %s", f);
@@ -304,11 +369,6 @@ bool Trimesh::Load_Road(const char *f)
 				material=&materials[0];
 			}
 
-			//generate vertices
-			int start=vertices.size(); //store current position in vertex list
-			float p0[3], p1[3], p2[3], p3[3];
-			float mult0, mult1, mult2, mult3;
-			Vector_Float vertex;
 			//TODO
 			//TODO: join vertices for section shared by two pieces of road
 			//if (thesameresolution)
@@ -316,61 +376,27 @@ bool Trimesh::Load_Road(const char *f)
 			//else
 			//	current
 			//TODO
-	
-			int x,y; //looping
-			float w=0.0,l=0.0; //Width&Length
-			float wd=1.0/float(xres); //length of each step
-			float ld=1.0/float(yres);
-			for (x=0; x<=xres; ++x)
+
+			//generate vertices (for a top surface)
+			int start=vertices.size(); //store current position in vertex list
+			GenVertices(&vertices, &oldend, &newend, depth/2.0, xres, yres);
+
+			//generate indices (for the surface)
+			GenIndices(&material->triangles, start, yres+1, xres, yres);
+
+			//depth in road
+			if (depth)
 			{
-				oldend.GetPosPoint(w, depth/2.0, p0);
-				oldend.GetDirPoint(w, depth/2.0, false, p1);
-				newend.GetDirPoint(w, depth/2.0, true, p2);
-				newend.GetPosPoint(w, depth/2.0, p3);
-				//create curve based on (4 point) bezier curve
+				//other (bottom) side
+				GenVertices(&vertices, &oldend, &newend, -depth/2.0, xres, yres);
+				GenIndices(&material->triangles, vertices.size()-(yres+1), -(yres+1), xres, yres);
 
-				l=0.0;
-				for (y=0; y<=yres; ++y)
-				{
-					mult0 = (1.0-l)*(1.0-l)*(1.0-l);
-					mult1 = 3*(1.0-l)*(1.0-l)*l;
-					mult2 = 3*(1.0-l)*l*l;
-					mult3 = l*l*l;
-
-					vertex.x=p0[0]*mult0+p1[0]*mult1+p2[0]*mult2+p3[0]*mult3;
-					vertex.y=p0[1]*mult0+p1[1]*mult1+p2[1]*mult2+p3[1]*mult3;
-					vertex.z=p0[2]*mult0+p1[2]*mult1+p2[2]*mult2+p3[2]*mult3;
-
-					//add
-					vertices.push_back(vertex);
-
-					l+=ld;
-				}
-
-				w+=wd;
+				//and sides (reuses already existing vertices)
+				//left:
+				GenIndices(&material->triangles, start+(xres+1)*(yres+1), -(xres+1)*(yres+1), 1, yres);
+				//right:
+				GenIndices(&material->triangles, start+(xres)*(yres+1), (xres+1)*(yres+1), 1, yres);
 			}
-
-			//generate indices
-			Triangle triangle;
-			//don't specify normals (generated later on)
-			triangle.normal[0]=INDEX_ERROR;
-			triangle.normal[1]=INDEX_ERROR;
-			triangle.normal[2]=INDEX_ERROR;
-
-			for (x=0; x<xres; ++x)
-				for (y=0; y<yres; ++y)
-				{
-					//two triangles per "square"
-					triangle.vertex[0]=start+(y)+(x)*(yres+1);
-					triangle.vertex[1]=start+(y)+(x+1)*(yres+1);
-					triangle.vertex[2]=start+(y+1)+(x)*(yres+1);
-					material->triangles.push_back(triangle);
-
-					triangle.vertex[0]=start+(y)+(x+1)*(yres+1);
-					triangle.vertex[1]=start+(y+1)+(x+1)*(yres+1);
-					triangle.vertex[2]=start+(y+1)+(x)*(yres+1);
-					material->triangles.push_back(triangle);
-				}
 		}
 		//TODO: remove?!
 		else if (!strcmp(file.words[0], "stop"))
@@ -381,8 +407,8 @@ bool Trimesh::Load_Road(const char *f)
 		}
 		else if (!strcmp(file.words[0], "resolution"))
 		{
-			xres=atof(file.words[1]);
-			yres=atof(file.words[2]);
+			xres=atoi(file.words[1]);
+			yres=atoi(file.words[2]);
 		}
 		else if (!strcmp(file.words[0], "material"))
 		{

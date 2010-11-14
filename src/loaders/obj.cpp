@@ -39,7 +39,7 @@ bool Trimesh::Load_OBJ(const char *f)
 	//ok, start processing
 	//
 	Vector_Float vector;
-	Triangle triangle; //for building a triangle
+	Triangle_Uint triangle; //for building a triangle
 	unsigned int matnr = INDEX_ERROR; //keep track of current material (none right now)
 	unsigned int tmpmatnr;
 	unsigned int vi, ni;
@@ -182,7 +182,7 @@ bool Trimesh::Load_OBJ(const char *f)
 		for (size_t tri=0; tri<tl; ++tri) //all triangles
 		{
 			//points at triangle
-			Triangle *trip=&materials[mat].triangles[tri];
+			Triangle_Uint *trip=&materials[mat].triangles[tri];
 
 			if (trip->vertex[0] >= vl || trip->vertex[1] >= vl || trip->vertex[2] >= vl)
 			{
