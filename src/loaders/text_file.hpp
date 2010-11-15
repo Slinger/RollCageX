@@ -27,7 +27,6 @@ class Text_File
 		//how many words read from line
 		int word_count;
 
-		//Text_File(std::string name);
 		Text_File();
 		~Text_File();
 

@@ -26,6 +26,16 @@ struct Vector_Float{
 	float x, y, z;
 };
 
+//each triangle is 6 indices: 3=vertices, 3=normals
+//(not using texture for now)
+struct Triangle_Uint
+{
+	unsigned int vertex[3];
+	//unsigned int texcoord[3];
+	unsigned int normal[3];
+};
+
+
 //for indicating missing data
 #define INDEX_ERROR UINT_MAX
 
@@ -100,6 +110,13 @@ class Trimesh_Geom: public Racetime_Data
 
 		class Geom *Create_Geom(class Object *obj); //creates geom from trimesh
 
+		//definition needed
+		struct Material
+		{
+			char *name; //name of material
+			int end; //last triangle number using this materisl
+		};
+
 	private:
 		Trimesh_Geom(const char*, //name
 				Vector_Float *v, unsigned int vcount, //vertices
@@ -113,6 +130,8 @@ class Trimesh_Geom: public Racetime_Data
 		//data for trimesh:
 		//
 		int triangle_count;
+		int material_count;
+		Material *materials;
 
 		dTriMeshDataID data; //collected, pointers
 		Vector_Float *vertices;
@@ -164,17 +183,27 @@ class Trimesh
 		//obj files (obj.cpp)
 		bool Load_OBJ(const char *);
 		bool Load_MTL(const char *); //used by obj loader
+		//road files (road.cpp, custom road generator)
+		bool Load_Road(const char *);
 		//3ds files (3ds.cpp)
-		bool Load_3DS(const char *);
+		//bool Load_3DS(const char *);
 
 		//
 		//actual data to store:
 		//
 
+		//all actual values (indexed below)
 		std::vector<Vector_Float> vertices;
+		//std::vector<Vector_Float> texcoords;
 		std::vector<Vector_Float> normals;
 
-		//materials:
+		//
+		//indices:
+		//
+
+		//triangles are grouped by material:
+
+		//material:
 		struct Material
 		{
 			std::string name;
@@ -184,31 +213,16 @@ class Trimesh
 			float specular[4];
 			float emission[4];
 			float shininess;
+
+			//all triangles with this material
+			std::vector<Triangle_Uint> triangles;
 		};
+
+		//all materials of this model
+		std::vector<Material> materials;
+
+		//default material
 		static const Material Material_Default;
-
-		std::vector<Material> materials; //store materials
-
-		//
-		//indices:
-		//
-
-		//each triangle is 6 indices: 3=vertices, 3=normals
-		struct Triangle_Index{
-			unsigned int vertex[3];
-			//texture coords
-			unsigned int normal[3];
-		};
-
-		std::vector<Triangle_Index> triangles;
-
-		struct Material_Index
-		{
-			unsigned int material; //number in list
-			unsigned int start_at; //before switching to this material
-		};
-
-		std::vector<Material_Index> material_indices; //swith of materials
 };
 
 #endif

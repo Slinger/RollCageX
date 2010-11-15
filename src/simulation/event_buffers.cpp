@@ -170,7 +170,7 @@ void Event_Buffers_Process(dReal step)
 				//geom1
 				dGeomID g = dCreateBox(0, 2,2,5.0/2.0);
 				Geom *gd = new Geom(g, geom->object_parent);
-				gd->mu = 1.0;
+				gd->surface.mu = 1.0;
 				gd->Set_Buffer_Event(150000, 1000, (Script*)1337);
 
 				//body1
@@ -189,7 +189,7 @@ void Event_Buffers_Process(dReal step)
 				//geom2
 				g = dCreateBox(0, 2,2,5.0/2.0);
 				gd = new Geom(g, geom->object_parent);
-				gd->mu = 1.0;
+				gd->surface.mu = 1.0;
 				gd->Set_Buffer_Event(150000, 1000, (Script*)1337);
 
 				//body2

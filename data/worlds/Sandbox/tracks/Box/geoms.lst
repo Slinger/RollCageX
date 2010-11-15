@@ -2,20 +2,60 @@
 #bigger models should be divided into smaller pieces
 #(also true for all models with high number of triangles)
 
-#optional: use "> model" before the model is used to force
-#loading. this is useful for overriding model defaults.
-#example/default:
-#> model "Box.obj" resize 1 rotate 0 0 0 offset 0 0 0
+#options and their default values:
+#(several actions can be used on one line)
+#
+#model manipulation:
+#used before any usage of the model (geom and/or rendering)
+# > modify MODEL [ACTION VALUE]...
+#
+#default values:
+# resize 1
+# rotate 0 0 0
+# offset 0 0 0
+#
+#
+#surface options:
+#affects latest spawned geom (used after spawned geom)
+# > surface TYPE [OPTION VALUE]...
+#
+#where type can be just "global" or "material" followed by
+#a name of a material used by the model. the first one
+#is most common, and sets one surface for the whole geom
+#the second one affects (and enables) surfaces based on
+#the material of the model
+#
+#when surface based on material is enabled, the current
+#global surface will be disabled, and its current values
+#are copied to all materials (as defaults until changed)
+#
+#default values:
+# mu 0
+# bounce 0
+# spring inf
+# damping 0
+#
+#and those affecting (scaling) the tyre features:
+# position 1.0
+# sharpness 1.0
+# rollingres 1.0
 
-#optional: use "> surface" to change default surface
-#parameters (will affect all geoms after).
-#example/default:
-#> surface mu 1.0 bounce 0 spring inf damping 0
-#defaults for tyre property scaling:
-#> surface position 1.0 sharpness 1.0 rollingres 1.0
 
-#set mu to 1N/N
-> surface mu 1
+#modify model "Box.obj": resize it to 2x of size
+> modify Box.obj resize 2
 
-#position  rotation  geom model  optional render model
-0 0 0      0 0 0     "Box.obj"   #"Box.obj"
+#spawning of trimesh geom (with overrideable rendering model):
+# POSITION ROTATION GEOM_MODEL [RENDER_MODEL]
+  0 0 0    0 0 0    "Box.obj"  #"Box.obj"
+
+#specify the global mu of latest geom
+> surface global mu 1
+
+#enable per-material surfaces and set bouncyness for this one
+#("Material" is the light-blue material at the edges)
+> surface material "Material" mu 0
+
+#add demo scramble road (and set all surfaces to mu=1)
+25 50 0  0 0 45  demo.road
+> surface material Material.001 mu 0.5
+> surface material Material.002 mu 0.2

@@ -311,16 +311,19 @@ int main (int argc, char *argv[])
 	//end
 
 	//attempt to generate default data path
-	char *datadefault;
 	//check if program was called with another pwd (got '/' in "name")
 	if (char *s = strrchr(argv[0], '/'))
 	{
 		//"<path to self - minus self>/data"
-		int length=1+s-argv[0]; //length of argv0 until (including) last slash
+		int length=strlen(argv[0])-strlen(s)+1;
 
 		datadefault=new char[length+5];
 
+		//copy the path to self (first part of argv0)
 		strncpy(datadefault, argv[0], length);
+		//add null termination (for strcat)
+		datadefault[length]='\0';
+		//append data instead of self
 		strcat(datadefault, "data");
 	}
 	else

@@ -22,10 +22,20 @@
 //Geom: (meta)data for geometrical shape (for collision detection), for: 
 //contactpoint generation (friction and saftness/hardness). also contains
 //rendering data for geom
-//
-//(contains boolean variable indicating collision - for triggering event script)
-//
-//>Dynamically allocated
+
+//surface properties:
+class Surface
+{
+	public:
+		Surface(); //just sets default values
+
+		//options
+		dReal mu, bounce;
+		dReal spring, damping;
+		dReal tyre_pos_scale, tyre_sharp_scale, tyre_rollres_scale;
+};
+
+//geom tracking class
 class Geom: public Component
 {
 	public:
@@ -44,12 +54,9 @@ class Geom: public Component
 		dGeomID geom_id;
 
 		//Physics data:
+		Surface surface;
+
 		//placeholder for more physics data
-		dReal spring, damping; //to make surfaces properly soft
-		dReal mu, bounce;
-		//note: spring+dmaping should give bouncyness, so no need to use both
-		//scaling values for tyres:
-		dReal tyre_pos_scale, tyre_sharp_scale, tyre_rollres_scale;
 
 		//register if geom is colliding
 		bool colliding; //set after each collision
@@ -59,12 +66,11 @@ class Geom: public Component
 		//wheel: points at a wheel simulation class, or NULL if not a wheel
 		Wheel *wheel;
 
-		//trimesh: how many triangles (0 if not trimesh/disabled) and which colliding:
-		int triangle_count;
-		bool *triangle_colliding;
-		//TODO: material-specific-surface-parameters
-		//end of special geoms
+		//gets surface-per-triangle-per-material
+		//also enables this functionality when first run.
+		Surface *Find_Material_Surface(const char*);
 
+		//end of special geoms
 
 		//End of physics data
 		
@@ -103,6 +109,13 @@ class Geom: public Component
 		dReal buffer;
 		Script *buffer_script; //script to execute when colliding (NULL if not used)
 
+		//for special kind of geoms:
+		//trimesh: how many triangles (0 if not trimesh/disabled) and which colliding:
+		int triangle_count, material_count;
+		bool *triangle_colliding;
+		Trimesh_Geom::Material *parent_materials;
+		Surface *material_surfaces;
+		//end
 
 		//used to find next/prev geom in list of all geoms
 		//set next to null in last link in chain (prev = NULL in first)
@@ -110,6 +123,7 @@ class Geom: public Component
 		Geom *prev;
 		Geom *next;
 
+		friend class Trimesh_Geom; //will be required to modify triangle_* stuff above
 		friend void Graphic_List_Update(); //to allow loop through geoms
 		friend void Event_Buffers_Process(dReal); //to allow looping
 		friend void Body::Physics_Step (dReal step); //dito

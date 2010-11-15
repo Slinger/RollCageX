@@ -1,0 +1,32 @@
+#just trying out the custom road generator
+#note: a lot of stuff missing (commented out)!
+
+#use these materials (for colours and frictions)
+material_file Box.mtl #borrow from Box model...
+
+#define some road shapes (by name)
+section flat		-8 0	8 0 #10m flat surface
+section half-pipe 	-8 10	-8 -3	8 -3	8 10 #U shaped half-pipe
+
+#build one or more pieces of road
+
+#capp ends or not?
+capping #on by default, disabled by "nocapping"
+
+#the 3 following can be changed whenever wanted
+#(that is, from one section "add" to another)
+#choose colour (define surface in geoms.lst!)
+material Material.001
+#how many vertices in width and length (between each section)
+resolution 15 15
+#depth of road (0 disables)
+depth 1
+
+#add <section> <position> <rotation> <stiffness>
+add flat	0 -20 0		0 0 0	2
+add half-pipe	0 0 0		0 0 0	11
+material Material.002
+add half-pipe	20 20 0		0 0 90	11
+material Material.001
+add flat	40 20 0		0 0 90	2
+

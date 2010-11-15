@@ -25,6 +25,7 @@ const Trimesh::Material Trimesh::Material_Default =
 	{0.0, 0.0, 0.0, 1.0},
 	{0.0, 0.0, 0.0, 1.0},
 	0.0
+	//no value for vector of triangles
 };
 
 
@@ -77,8 +78,7 @@ void Trimesh::Generate_Missing_Normals()
 {
 	printlog(2, "Generating missing normals for trimesh");
 
-	size_t end = triangles.size();
-	unsigned int *nindex;
+	unsigned int *nindex, *vindex;;
 	Vector_Float v1, v2, v3;
 
 	float ax,ay,az, bx,by,bz, l;
@@ -86,50 +86,60 @@ void Trimesh::Generate_Missing_Normals()
 	unsigned new_normal_number;
 
 
-	for (size_t i=0; i<end; ++i)
-	{
-		nindex=triangles[i].normal;
+	size_t m, mend = materials.size();
+	size_t t, tend;
 
-		//one or more indices are unspecified
-		if (nindex[0] == INDEX_ERROR || nindex[1] == INDEX_ERROR || nindex[2] == INDEX_ERROR)
-		{
-			//copy vertices:
-			v1=vertices[triangles[i].vertex[0]];
-			v2=vertices[triangles[i].vertex[1]];
-			v3=vertices[triangles[i].vertex[2]];
+	//all triangles in all materials
+	for (m=0; m<mend; ++m)
+		if ((tend = materials[m].triangles.size()))
+			for (t=0; t<tend; ++t)
+			{
+				//normal indices
+				nindex=materials[m].triangles[t].normal;
 
-			//create two vectors (a and b) from the first point to the two others:
-			ax = (v2.x-v1.x);
-			ay = (v2.y-v1.y);
-			az = (v2.z-v1.z);
+				//one or more indices are unspecified
+				if (nindex[0] == INDEX_ERROR || nindex[1] == INDEX_ERROR || nindex[2] == INDEX_ERROR)
+				{
+					//vertex indices
+					vindex=materials[m].triangles[t].vertex;
 
-			bx = (v3.x-v1.x);
-			by = (v3.y-v1.y);
-			bz = (v3.z-v1.z);
+					//copy vertices:
+					v1=vertices[vindex[0]];
+					v2=vertices[vindex[1]];
+					v3=vertices[vindex[2]];
 
-			//cross product gives normal:
-			new_normal.x = (ay*bz)-(az*by);
-			new_normal.y = (az*bx)-(ax*bz);
-			new_normal.z = (ax*by)-(ay*bx);
-			
-			//make unit:
-			l = v_length(new_normal.x,new_normal.y,new_normal.z);
-			new_normal.x /= l;
-			new_normal.y /= l;
-			new_normal.z /= l;
+					//create two vectors (a and b) from the first point to the two others:
+					ax = (v2.x-v1.x);
+					ay = (v2.y-v1.y);
+					az = (v2.z-v1.z);
 
-			//store it:
-			//note: since indexing the normal array isn't needed for any later stage
-			//(will be "unindexed"), don't bother about duplicates
-			normals.push_back(new_normal);
+					bx = (v3.x-v1.x);
+					by = (v3.y-v1.y);
+					bz = (v3.z-v1.z);
 
-			//set up indices:
-			new_normal_number = normals.size()-1;
-			nindex[0] = new_normal_number;
-			nindex[1] = new_normal_number;
-			nindex[2] = new_normal_number;
-		}
-	}
+					//cross product gives normal:
+					new_normal.x = (ay*bz)-(az*by);
+					new_normal.y = (az*bx)-(ax*bz);
+					new_normal.z = (ax*by)-(ay*bx);
+					
+					//make unit:
+					l = v_length(new_normal.x,new_normal.y,new_normal.z);
+					new_normal.x /= l;
+					new_normal.y /= l;
+					new_normal.z /= l;
+
+					//store it:
+					//note: since indexing the normal array isn't needed for any later stage
+					//(will be "unindexed"), don't bother about duplicates
+					normals.push_back(new_normal);
+
+					//set up indices:
+					new_normal_number = normals.size()-1;
+					nindex[0] = new_normal_number;
+					nindex[1] = new_normal_number;
+					nindex[2] = new_normal_number;
+				}
+			}
 }
 
 //resize, rotate, change offset stuff:

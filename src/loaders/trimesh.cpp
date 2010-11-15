@@ -40,6 +40,8 @@ bool Trimesh::Load(const char *file)
 	//see if match:
 	if (!strcasecmp(suffix, ".obj"))
 		return Load_OBJ(file);
+	else if (!strcasecmp(suffix, ".road"))
+		return Load_Road(file);
 	//else if (!strcasecmp(suffix, ".3ds"))
 		//return Load_3DS(file);
 	

@@ -119,22 +119,15 @@ bool load_track (const char *path)
 	if (file.Open(glist))
 	{
 		//store surface properties (defaults at first)
-		dReal mu = 0.0;
-		dReal bounce = 0.0;
-		dReal spring = dInfinity;
-		dReal damping = 0.0;
-		dReal position = 1.0;
-		dReal sharpness = 1.0;
-		dReal rollres = 1.0;
-		//(they can be float or double - atof returns double which works for both)
-		
+		Geom *latestgeom=NULL;
+
 		while (file.Read_Line())
 		{
 			//if requesting optional stuff
 			if (!strcmp(file.words[0], ">") && file.word_count >= 2)
 			{
 				//model manipulation
-				if (!strcmp(file.words[1], "model"))
+				if (!strcmp(file.words[1], "modify"))
 				{
 					printlog(2, "overriding model properties");
 
@@ -182,12 +175,33 @@ bool load_track (const char *path)
 						}
 					}
 				}
-				//surface manipulation
-				else if (!strcmp(file.words[1], "surface"))
+				//surface manipulation (of latest geom)
+				else if (!strcmp(file.words[1], "surface") && file.word_count >= 3 && latestgeom)
 				{
 					printlog(2, "changing surface properties");
+					Surface *surface=NULL;
+					int pos=0;
 
-					int pos = 2;
+					if (!strcmp(file.words[2], "global"))
+					{
+						surface = &(latestgeom->surface);
+						pos = 3;
+					}
+					else if (!strcmp(file.words[2], "material") && file.word_count >= 4)
+					{
+						//locate surface named as specified
+						surface = latestgeom->Find_Material_Surface(file.words[3]);
+						pos = 4;
+					}
+					else
+						printlog(0, "WARNING: surface type must be either global or material");
+
+					if (!surface)
+					{
+						printlog(0, "WARNING: could not find specified surface");
+						continue;
+					}
+
 					//as long as there are two words left (option name and value)
 					while ( (file.word_count-pos) >= 2)
 					{
@@ -196,19 +210,19 @@ bool load_track (const char *path)
 						//and failing to support infinity support for atof... :-p
 						//only added for spring and mu - the only ones supporting it
 						if (!strcmp(file.words[pos], "mu"))
-							mu = strtod(file.words[++pos], (char**)NULL);
+							surface->mu = strtod(file.words[++pos], (char**)NULL);
 						else if (!strcmp(file.words[pos], "bounce"))
-							bounce = atof(file.words[++pos]);
+							surface->bounce = atof(file.words[++pos]);
 						else if (!strcmp(file.words[pos], "spring"))
-							spring = strtod(file.words[++pos], (char**)NULL);
+							surface->spring = strtod(file.words[++pos], (char**)NULL);
 						else if (!strcmp(file.words[pos], "damping"))
-							damping = atof(file.words[++pos]);
+							surface->damping = atof(file.words[++pos]);
 						else if (!strcmp(file.words[pos], "position"))
-							position = atof(file.words[++pos]);
+							surface->tyre_pos_scale = atof(file.words[++pos]);
 						else if (!strcmp(file.words[pos], "sharpness"))
-							sharpness = atof(file.words[++pos]);
+							surface->tyre_sharp_scale = atof(file.words[++pos]);
 						else if (!strcmp(file.words[pos], "rollingres"))
-							rollres = atof(file.words[++pos]);
+							surface->tyre_rollres_scale = atof(file.words[++pos]);
 						else
 						{
 							printlog(0, "WARNING: trimesh surface option \"%s\" unknown", file.words[pos]);
@@ -229,7 +243,6 @@ bool load_track (const char *path)
 				Trimesh *mesh1, *mesh2;
 				Trimesh_3D *model;
 				Trimesh_Geom *geom;
-				Geom *data;
 				float x,y,z;
 
 				//no alternative render model
@@ -264,23 +277,16 @@ bool load_track (const char *path)
 				}
 
 				//ok, now geom and model should contain useful data...
-				data = geom->Create_Geom(track.object); //create geom from geom-trimesh
+				latestgeom = geom->Create_Geom(track.object); //create geom from geom-trimesh
 				
 				//configure geom
-				data->model = model; //render geom with model
-				data->mu = mu;
-				data->bounce = bounce;
-				data->spring = spring;
-				data->damping = damping;
-				data->tyre_pos_scale = position;
-				data->tyre_sharp_scale = sharpness;
-				data->tyre_rollres_scale = rollres;
+				latestgeom->model = model; //render geom with model
 
 				//position
 				x = atof(file.words[0]);
 				y = atof(file.words[1]);
 				z = atof(file.words[2]);
-				dGeomSetPosition(data->geom_id, x,y,z);
+				dGeomSetPosition(latestgeom->geom_id, x,y,z);
 				
 				//rotation
 				dMatrix3 rot;
@@ -289,7 +295,7 @@ bool load_track (const char *path)
 				z = atof(file.words[5])*M_PI/180.0;
 
 				dRFromEulerAngles(rot, x,y,z);
-				dGeomSetRotation(data->geom_id, rot);
+				dGeomSetRotation(latestgeom->geom_id, rot);
 			}
 			else
 			{

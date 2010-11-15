@@ -49,10 +49,7 @@ Car_Template *Car_Template::Load (const char *path)
 	if (file.Open(lst))
 	{
 		//default surface parameters
-		dReal mu = 0.0;
-		dReal bounce = 0.0;
-		dReal spring = dInfinity;
-		dReal damping = 0.0;
+		Surface surface;
 
 		while (file.Read_Line())
 		{
@@ -62,15 +59,20 @@ Car_Template *Car_Template::Load (const char *path)
 				//as long as there are two words left (option name and value)
 				while ( (file.word_count-pos) >= 2)
 				{
-					//strtod for lack of intinity for atof on losedoze
 					if (!strcmp(file.words[pos], "mu"))
-						mu = strtod(file.words[++pos], (char**)NULL);
+						surface.mu = strtod(file.words[++pos], (char**)NULL);
 					else if (!strcmp(file.words[pos], "bounce"))
-						bounce = atof(file.words[++pos]);
+						surface.bounce = atof(file.words[++pos]);
 					else if (!strcmp(file.words[pos], "spring"))
-						spring = strtod(file.words[++pos], (char**)NULL);
+						surface.spring = strtod(file.words[++pos], (char**)NULL);
 					else if (!strcmp(file.words[pos], "damping"))
-						damping = atof(file.words[++pos]);
+						surface.damping = atof(file.words[++pos]);
+					else if (!strcmp(file.words[pos], "position"))
+						surface.tyre_pos_scale = atof(file.words[++pos]);
+					else if (!strcmp(file.words[pos], "sharpness"))
+						surface.tyre_sharp_scale = atof(file.words[++pos]);
+					else if (!strcmp(file.words[pos], "rollingres"))
+						surface.tyre_rollres_scale = atof(file.words[++pos]);
 					else
 					{
 						printlog(0, "WARNING: surface option \"%s\" unknown", file.words[pos]);
@@ -101,10 +103,7 @@ Car_Template *Car_Template::Load (const char *path)
 					tmp_box.rot[2]=0.0;
 
 					//surface properties
-					tmp_box.mu=mu;
-					tmp_box.bounce=bounce;
-					tmp_box.spring=spring;
-					tmp_box.damping=damping;
+					tmp_box.surface = surface;
 				}
 				else if (file.word_count == 13) //also rotate?
 				{
@@ -124,10 +123,7 @@ Car_Template *Car_Template::Load (const char *path)
 					tmp_box.rot[2] = atof(file.words[12]);
 
 					//surface properties
-					tmp_box.mu=mu;
-					tmp_box.bounce=bounce;
-					tmp_box.spring=spring;
-					tmp_box.damping=damping;
+					tmp_box.surface = surface;
 				}
 				else
 				{
@@ -152,10 +148,7 @@ Car_Template *Car_Template::Load (const char *path)
 				tmp_sphere.pos[1] = atof(file.words[5]);
 				tmp_sphere.pos[2] = atof(file.words[6]);
 
-				tmp_sphere.mu=mu;
-				tmp_sphere.bounce=bounce;
-				tmp_sphere.spring=spring;
-				tmp_sphere.damping=damping;
+				tmp_sphere.surface = surface;
 
 				//store
 				target->spheres.push_back(tmp_sphere);
@@ -177,10 +170,7 @@ Car_Template *Car_Template::Load (const char *path)
 					tmp_capsule.rot[1] = 0.0;
 					tmp_capsule.rot[2] = 0.0;
 					//surface
-					tmp_capsule.mu=mu;
-					tmp_capsule.bounce=bounce;
-					tmp_capsule.spring=spring;
-					tmp_capsule.damping=damping;
+					tmp_capsule.surface = surface;
 				}
 				else if (file.word_count == 12) //also rotate?
 				{
@@ -196,10 +186,7 @@ Car_Template *Car_Template::Load (const char *path)
 					tmp_capsule.rot[1] = atof(file.words[10]);
 					tmp_capsule.rot[2] = atof(file.words[11]);
 					//surface
-					tmp_capsule.mu=mu;
-					tmp_capsule.bounce=bounce;
-					tmp_capsule.spring=spring;
-					tmp_capsule.damping=damping;
+					tmp_capsule.surface = surface;
 				}
 				else
 				{
@@ -430,10 +417,7 @@ Car *Car_Template::Spawn (dReal x, dReal y, dReal z,  Trimesh_3D *tyre, Trimesh_
 			dGeomSetOffsetRotation(geom, rot);
 		}
 
-		gdata->mu=b.mu;
-		gdata->bounce=b.bounce;
-		gdata->spring=b.spring;
-		gdata->damping=b.damping;
+		gdata->surface = b.surface;
 	}
 	//then: spheres
 	struct sphere sphere;
@@ -450,10 +434,7 @@ Car *Car_Template::Spawn (dReal x, dReal y, dReal z,  Trimesh_3D *tyre, Trimesh_
 			dGeomSetOffsetPosition(geom,sphere.pos[0],sphere.pos[1],sphere.pos[2]);
 
 
-		gdata->mu=sphere.mu;
-		gdata->bounce=sphere.bounce;
-		gdata->spring=sphere.spring;
-		gdata->damping=sphere.damping;
+		gdata->surface = b.surface;
 	}
 	//finally: capsule
 	struct capsule capsule;
@@ -475,10 +456,7 @@ Car *Car_Template::Spawn (dReal x, dReal y, dReal z,  Trimesh_3D *tyre, Trimesh_
 			dGeomSetOffsetRotation(geom, rot);
 		}
 
-		gdata->mu=capsule.mu;
-		gdata->bounce=capsule.bounce;
-		gdata->spring=capsule.spring;
-		gdata->damping=capsule.damping;
+		gdata->surface = b.surface;
 	}
 
 	//side detection sensors:
@@ -486,13 +464,13 @@ Car *Car_Template::Spawn (dReal x, dReal y, dReal z,  Trimesh_3D *tyre, Trimesh_
 
 	geom = dCreateBox(0,s[0],s[1],s[2]);
 	car->sensor1 = new Geom (geom, car);
-	car->sensor1->spring = 0.0; //untouchable "ghost" geom - sensor
+	car->sensor1->surface.spring = 0.0; //untouchable "ghost" geom - sensor
 	dGeomSetBody (geom, car->bodyid);
 	dGeomSetOffsetPosition(geom,0,0,-s[3]);
 
 	geom = dCreateBox(0,s[0],s[1],s[2]);
 	car->sensor2 = new Geom (geom, car);
-	car->sensor2->spring = 0.0; //sensor
+	car->sensor2->surface.spring = 0.0; //sensor
 	dGeomSetBody (geom, car->bodyid);
 	dGeomSetOffsetPosition(geom,0,0,s[3]);
 
@@ -539,7 +517,7 @@ Car *Car_Template::Spawn (dReal x, dReal y, dReal z,  Trimesh_3D *tyre, Trimesh_
 		//generated by the Wheel class, conveniently pointed to from the geom.
 		//
 		//friction (use rim mu by default until knowing it's tyre)
-		wheel_data[i]->mu = conf.rim_mu;
+		wheel_data[i]->surface.mu = conf.rim_mu;
 		//points at our wheel simulation class (indicates wheel)
 		wheel_data[i]->wheel = &wheel;
 
