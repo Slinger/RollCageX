@@ -248,7 +248,8 @@ class End
 		float ctrl;
 };
 
-//TODO: unsigned int instead of int? (and check for int overflow?)
+//note: uses signed integers, so limited to about 2 billion (range for indices)
+//also performs no overflow checking, but neither does the obj loader...
 void GenVertices(std::vector<Vector_Float> *vertices, End *oldend, End *newend,
 		float offset, int xres, int yres)
 {
@@ -393,13 +394,10 @@ bool Trimesh::Load_Road(const char *f)
 				material=&materials[0];
 			}
 
-			//TODO
 			//TODO: join vertices for section shared by two pieces of road
-			//if (thesameresolution)
-			//	reuse
-			//else
-			//	current
-			//TODO
+			//currently, the vertices between two pieces of road gets duplicated...
+			//doesn't affect the rendering quality or simulation precision but takes
+			//a little more ram (which might not be a big problem, anyway)
 
 			//generate vertices (for a top surface)
 			int start=vertices.size(); //store current position in vertex list
@@ -422,14 +420,22 @@ bool Trimesh::Load_Road(const char *f)
 				GenIndices(&material->triangles, start+(xres)*(yres+1), (xres+1)*(yres+1), 1, yres);
 
 				//capping:
-				if (cap)
+				if (cap&&capping)
 					GenCapIndices(&material->triangles, 0, (xres+1)*(yres+1), yres+1, xres);
 			}
 		}
 		else if (!strcmp(file.words[0], "resolution"))
 		{
-			xres=atoi(file.words[1]);
-			yres=atoi(file.words[2]);
+			int tmp=atoi(file.words[1]);
+			if (tmp > 0)
+				xres=tmp;
+			else
+				printlog(0, "WARNING: x resolution value must be above 0");
+
+			tmp=atoi(file.words[2]);
+			if (tmp > 0)
+				yres=tmp;
+				printlog(0, "WARNING: y resolution value must be above 0");
 		}
 		else if (!strcmp(file.words[0], "material"))
 		{

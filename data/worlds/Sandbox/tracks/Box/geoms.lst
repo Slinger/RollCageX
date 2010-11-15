@@ -56,6 +56,6 @@
 > surface material "Material" mu 0
 
 #add demo scramble road (and set all surfaces to mu=1)
-0 0 0  0 0 0  demo.road
+25 50 0  0 0 45  demo.road
 > surface material Material.001 mu 0.5
-> surface material Material.002 mu 0
+> surface material Material.002 mu 0.2

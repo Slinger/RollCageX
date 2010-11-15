@@ -11,7 +11,7 @@ section half-pipe 	-8 10	-8 -3	8 -3	8 10 #U shaped half-pipe
 #build one or more pieces of road
 
 #capp ends or not?
-#capping #on by default, disabled by "nocapping"
+capping #on by default, disabled by "nocapping"
 
 #the 3 following can be changed whenever wanted
 #(that is, from one section "add" to another)
@@ -24,9 +24,9 @@ depth 1
 
 #add <section> <position> <rotation> <stiffness>
 add flat	0 -20 0		0 0 0	2
-add half-pipe	0 -10 0		0 0 0	3
+add half-pipe	0 0 0		0 0 0	11
 material Material.002
-add half-pipe	0 10 0		0 0 0	3
+add half-pipe	20 20 0		0 0 90	11
 material Material.001
-add flat	0 20 0		0 0 0	2
+add flat	40 20 0		0 0 90	2
 
