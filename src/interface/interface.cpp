@@ -1,5 +1,5 @@
 /*
- * RCX Copyright (C) 2009-2010 Mats Wahlberg ("Slinger")
+ * RCX  Copyright (C) 2009, 2010, 2011 Mats Wahlberg ("Slinger")
  *
  * This program comes with ABSOLUTELY NO WARRANTY!
  *
@@ -114,7 +114,7 @@ bool Interface_Init(void)
 	char name[10+strlen(VERSION)+40+1];
 	strcpy (name,"RollCageX ");
 	strcat (name,VERSION);
-	strcat (name," (C) 2009-2010 Mats Wahlberg (\"Slinger\")"); 
+	strcat (name," (C) 2009, 2010, 2011 Mats Wahlberg (\"Slinger\")"); 
 	SDL_WM_SetCaption (name, "RCX");
 
 	//first of all, make sure we got all needed extansions:
