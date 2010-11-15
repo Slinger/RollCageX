@@ -1,5 +1,5 @@
 /*
- * RCX Copyright (C) 2009-2010 Mats Wahlberg ("Slinger")
+ * RCX  Copyright (C) 2009, 2010, 2011 Mats Wahlberg ("Slinger")
  *
  * This program comes with ABSOLUTELY NO WARRANTY!
  *
@@ -15,7 +15,7 @@
 const char VERSION[] = "0.07 (90\% done)"; //supports alphanumeric versioning
 
 const char ISSUE[] = "\
-   RollCageX  Copyright (C) 2009-2010 Mats Wahlberg (\"Slinger\" on gorcx.net forum)\n\n\
+   RollCageX  Copyright (C) 2009, 2010, 2011 Mats Wahlberg (\"Slinger\" on gorcx.net forum)\n\n\
    This program is free software: you can redistribute it and/or modify\n\
    it under the terms of the GNU General Public License as published by\n\
    the Free Software Foundation, either version 3 of the License, or\n\

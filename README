@@ -1,10 +1,13 @@
 
-
   /----------====----------\
- [# RollCageX version ? #]
+ [# RollCageX version 0.07, <codename here> #]
   \----------====----------/
 
- - a Free Software Sci-Fi Racer inspired by the original RollCage games
+---
+ a Free Software Sci-Fi Racer inspired by the original RollCage games
+ Copyright (C) 2009, 2010, 2011 Mats Wahlberg ("Slinger" on gorcx.net forum)
+---
+
 
 
 1) [TABLE OF CONTENTS]
@@ -103,7 +106,7 @@ Debugging:
 
 5) [Configuration]
 
-RCX can be configured using a couple of plain-text files divided in several
+RCX can be configured using a couple of plain-text files divided into several
 directories inside the data directory, such as "teams", "worlds" and "profiles"
 
 What you might be most interested in is specified in internal.conf, it
@@ -169,25 +172,33 @@ libraries):
 
 8) [COMPILING]
 
-If you want/need to compile rcx, check if your distro provides development
-libraries for ODE and SDL in separate packages and if so, install them. Also
-make sure you got at least a Make program and a C++ compiler (such as GNU Make
-and the GNU C++ Compiler, g++).
+First of all, you will need the libraries mentioned above (requirements),
+including the development headers. Check if your distro provides development
+libraries for ODE and SDL in separate packages and if so, install them too.
+Also make sure you got at least a Make program and a C++ compiler (such as GNU
+Make and the GNU C++ Compiler, g++) and the usual libraries.
 
-Then just cd into the src directory and type "make" to compile rcx.
+RCX currently does not use autoconf, but only a custom makefile, so in order
+to compile, just cd into the src directory and type "make".
 
 
-On windows things will be more difficult: first of all, install MinGW (a
-minimal port of GNU for windows - it provides compilers and standard libraries
-for compilation), make sure to install make, autoconf and g++. Msys is also
-recommended (as it provides a user interface to MinGW).
+On windows things will be more difficult: since there is no package manager,
+you will have to install all requirements manually.
+
+First of all, install MinGW (a minimal port of GNU for windows - it provides
+compilers and standard libraries for compilation), make sure to install make,
+autoconf and g++. Msys is also recommended (as it provides a user interface to
+MinGW).
 
 Then you must compile and install the SDL and ODE libraries. This procedure is
 not covered here, but once you have downloaded and extracted the tarballs, use
 "./configure", "make" and "make install" to install them.
 
-Then use "make -f Makefile.doze" inside the src directory of rcx to compile a
-static binary ("rcx.exe").
+There is also an experimental windows "DevKit", which should provide everything
+needed for compilation. But is not guaranteed to work (it's in testing stage).
+
+Then cd into the src directory and use "make w32" to compile a static binary,
+called "rcx.exe", which includes the needed libraries (for easy redistribution).
 
 
 
@@ -202,9 +213,10 @@ Names (and possibly alternative name on gorcx.net forum).
   * "Spontificus"		Testing, hacks and various fixes
 
   Other Projects that made RCX possible:
+  * "Free Software Foundation"  "Free Software, Free Society", supporting the free software movement
+  * "The GNU Project"           For a Free OS. Its fight for computer freedom has changed the world
   * "Simple DirectMedia Layer"	OS/hardware abstractions
   * "Open Dynamics Engine"	Rigid body dynamics and collision detection
-  * "The GNU Project"		Its fight for computer freedom has changed the world
 
 
 
