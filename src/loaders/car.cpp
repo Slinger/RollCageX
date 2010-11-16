@@ -553,6 +553,7 @@ Car *Car_Template::Spawn (dReal x, dReal y, dReal z,  Trimesh_3D *tyre, Trimesh_
 	dBodySetRotation (wheel_body[3], rot);
 
 	//tmp: might need these later on
+	car->jx = conf.jx;
 	car->wx = conf.wp[0];
 	car->wy = conf.wp[1];
 

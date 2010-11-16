@@ -42,6 +42,9 @@ void Car::Physics_Step(dReal step)
 
 		if (antigrav) //TODO
 		{
+			//downforce (by thrusters to make space tracks possible)
+			//for air-based downforce, this would be: conf*air_density*v*v
+			//but since using thrusters, I'd guess: conf*v*v or just: conf*v
 //			dBodyAddRelForce (carp->bodyid,0,0, carp->dir*100);
 		}
 
@@ -107,9 +110,9 @@ void Car::Physics_Step(dReal step)
 		//calculate turning radius
 		dReal R = (carp->wy*2.0)/tan(maxsteer*carp->steering);
 
-		//turning radius plus/minus distance to wheels (similar to L1 and L2)
-		dReal R1 = R-carp->wx;
-		dReal R2 = R+carp->wx;
+		//turning radius plus/minus distance to wheel hinge/axe/joint (similar to L1 and L2)
+		dReal R1 = R-carp->jx;
+		dReal R2 = R+carp->jx;
 
 		if (carp->adapt_steer)
 		{
@@ -265,6 +268,23 @@ void Car::Physics_Step(dReal step)
 					radius[1] =  sqrt(R1*R1+L2*L2); //right rear
 					radius[2] =  sqrt(R2*R2+L2*L2); //left rear
 					radius[3] =  sqrt(R2*R2+L1*L1); //left front
+
+					//and since wheels might not turn around their center, remove "offset"
+					dReal offset = carp->wx-carp->jx; //difference between joint and wheel x
+					if (R > 0.0) //turning right
+					{
+						radius[0] -= offset;
+						radius[1] -= offset;
+						radius[2] += offset;
+						radius[3] += offset;
+					}
+					else //left
+					{
+						radius[0] += offset;
+						radius[1] += offset;
+						radius[2] -= offset;
+						radius[3] -= offset;
+					}
 
 					//when reversing, the car will turn reversed, which the player
 					//understands. but when reversing and driver turnings while

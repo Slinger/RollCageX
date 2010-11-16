@@ -264,8 +264,8 @@ class Car:public Object
 		//debug options:
 		bool turn;
 
-		//tmp: wheel position...
-		dReal wx, wy;
+		//tmp: wheel+hinge position...
+		dReal jx, wx, wy;
 
 		//appart from the object list, keep a list of all cars
 		static Car *head;
