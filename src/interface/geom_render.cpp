@@ -489,6 +489,9 @@ void Geom_Render()
 						//update usage counters
 						vertex_usage+=new_vertices;
 						index_usage+=new_indices;
+						//... and reset these counters
+						new_vertices=0;
+						new_indices=0;
 					}
 					else
 						Assure_Memory (triangles*3, triangles*3);
