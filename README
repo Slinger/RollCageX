@@ -159,7 +159,8 @@ libraries):
    7.1) [OPENGL]
    As mentioned above, some kind of OpenGL implementation is needed for
    rendering of 3D graphics. This is OS dependent, but it is quite common
-   (either hardware or software). This version requires 1.5 or later.
+   (either hardware or software). This version requires GL 1.5 or later.
+   Note that RCX does not use GLU or GLUT, only GL.
 
    7.2) [SDL]
    RCX uses the library "Simple DirectMedia Layer" for some OS independent
