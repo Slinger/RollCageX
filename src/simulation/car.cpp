@@ -10,43 +10,36 @@
  */
 
 #include "../shared/car.hpp"
+#include "../shared/track.hpp"
 #include "../shared/internal.hpp"
 
 void Car::Physics_Step(dReal step)
 {
 	int i;
 	Car *carp = head;
-	bool antigrav;
+	bool downforce;
 	while (carp != NULL)
 	{
 		//first flipover detection (+ antigrav forces)
 
-		//both sensors are triggered, not flipping, only antigrav
+		//both sensors are triggered, not flipping, only downforce
 		if (carp->sensor1->colliding && carp->sensor2->colliding)
-			antigrav = true;
-		//only one sensor, flipping+antigrav
+			downforce = true;
+		//only one sensor, flipping+downforce
 		else if (carp->sensor1->colliding)
 		{
-			antigrav = true;
+			downforce = true;
 			carp->dir = 1.0;
 		}
 		//same
 		else if (carp->sensor2->colliding)
 		{
-			antigrav = true;
+			downforce = true;
 			carp->dir = -1.0;
 		}
-		//no sensor active, no flipping, no antigrav
+		//no sensor active, no flipping, no downforce
 		else
-			antigrav = false;
-
-		if (antigrav) //TODO
-		{
-			//downforce (by thrusters to make space tracks possible)
-			//for air-based downforce, this would be: conf*air_density*v*v
-			//but since using thrusters, I'd guess: conf*v*v or just: conf*v
-//			dBodyAddRelForce (carp->bodyid,0,0, carp->dir*100);
-		}
+			downforce = false;
 
 		//rotation speed of wheels
 		dReal rotv[4];
@@ -69,6 +62,15 @@ void Car::Physics_Step(dReal step)
 		//calculate velocity relative to surface in contact with side sensor?
 		//(not implemented yet. will need bitfield to mask away non-ground gepms)
 		//
+
+		//downforce (debug implementation)
+		if (downforce && carp->downforce)
+		{
+			//downforce (by thrusters to make space tracks possible)
+			//for air-based downforce, this would be: conf*air_density*v*v
+			//but since using thrusters, I'd guess: conf*v*v or just: conf*v
+			dBodyAddRelForce (carp->bodyid,0,0, -carp->downforce*track.density*carp->dir*carp->velocity*carp->velocity);
+		}
 
 		//calculate turning:
 		dReal A[4];

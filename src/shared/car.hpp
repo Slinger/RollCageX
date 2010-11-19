@@ -64,6 +64,7 @@ struct Car_Conf
 	//debug
 	bool turn, gyro, approx1;
 	dReal fixedmu;
+	dReal downforce;
 	//debug sizes
 	dReal s[4],w[2],wp[2],jx;
 };
@@ -99,6 +100,7 @@ const struct Car_Conf car_conf_defaults = {
 	1.0, {0,0,0}, {0,0,0},
 
 	true, true, true,
+	0.0,
 	0.0,
 
 	{4.83,3.67,1.67,1.25}, {1.25,1.42}, {2.42,1.83}, 2.0};
@@ -160,6 +162,7 @@ const struct Conf_Index car_conf_index[] = {
 	{"debug:gyroscopic",	'b',1, offsetof(struct Car_Conf, gyro)},
 	{"debug:contactapprox1",'b',1, offsetof(struct Car_Conf, approx1)},
 	{"debug:fixedmu",	'R',1, offsetof(struct Car_Conf, fixedmu)},
+	{"debug:downforce",	'R',1, offsetof(struct Car_Conf, downforce)},
 	
 	//the following is for sizes not yet determined
 	{"s",	'R',	4,	offsetof(struct Car_Conf, s)}, //flipover
@@ -263,6 +266,7 @@ class Car:public Object
 
 		//debug options:
 		bool turn;
+		dReal downforce;
 
 		//tmp: wheel+hinge position...
 		dReal jx, wx, wy;

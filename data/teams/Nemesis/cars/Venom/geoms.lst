@@ -7,15 +7,11 @@
 
 #main body
 box s 1.8 5.8 0.3 p 0 0 0
-box s 0.7 5.9 0.5 p 0.9 0 0 r 0 0 -5
-box s 0.7 5.9 0.5 p -0.9 0 0 r 0 0 5
+box s 0.8 6.2 0.5 p 0.8 0 0 r 0 0 -5
+box s 0.8 6.2 0.5 p -0.8 0 0 r 0 0 5
 
 #windows
 sphere s 0.5 p 0 0 0
-
-#front spikes
-box s 0.3 0.8 0.3 p 0.6 3 0
-box s 0.3 0.8 0.3 p -0.6 3 0
 
 #wheel "suspensions"
 box s 3.5 1.5 0.2 p 0 1.7 0 r 0 0 0
