@@ -216,45 +216,36 @@ Trimesh_Geom *Trimesh::Create_Geom()
 
 				//normals
 				//NOTE: ode uses one, not indexed, normal per triangle,
-				//but we have 3 indexed normals per triangle (find compromise)
+				//use cross product to calculate one proper normal:
+				//(the same as in Generate_Missing_Normals)
 
-				//all 3 normals are the same, use it
-				if (	(np[0]) == (np[1])	&&
-					(np[0]) == (np[2])	)
-				{
-					n[tcount] = normals[np[0]]; //copy first specified normal
-				}
-				else //trouble, smooth surface normals? calculate a new normal!
-				{
-					++new_normals;
-					//the same as in Generate_Missing_Normals
+				//get vertices
+				Vector_Float v1 = vertices[vp[0]];
+				Vector_Float v2 = vertices[vp[1]];
+				Vector_Float v3 = vertices[vp[2]];
 
-					//get vertices
-					Vector_Float v1 = vertices[vp[0]];
-					Vector_Float v2 = vertices[vp[1]];
-					Vector_Float v3 = vertices[vp[2]];
+				//create two vectors (a and b)
+				ax = (v2.x-v1.x);
+				ay = (v2.y-v1.y);
+				az = (v2.z-v1.z);
 
-					//create two vectors (a and b)
-					ax = (v2.x-v1.x);
-					ay = (v2.y-v1.y);
-					az = (v2.z-v1.z);
+				bx = (v3.x-v1.x);
+				by = (v3.y-v1.y);
+				bz = (v3.z-v1.z);
 
-					bx = (v3.x-v1.x);
-					by = (v3.y-v1.y);
-					bz = (v3.z-v1.z);
+				//cross product gives normal:
+				x = (ay*bz)-(az*by);
+				y = (az*bx)-(ax*bz);
+				z = (ax*by)-(ay*bx);
+				
+				//set and make unit:
+				l = v_length(x, y, z);
 
-					//cross product gives normal:
-					x = (ay*bz)-(az*by);
-					y = (az*bx)-(ax*bz);
-					z = (ax*by)-(ay*bx);
-					
-					//set and make unit:
-					l = v_length(x, y, z);
+				n[tcount].x = x/l;
+				n[tcount].y = y/l;
+				n[tcount].z = z/l;
 
-					n[tcount].x = x/l;
-					n[tcount].y = y/l;
-					n[tcount].z = z/l;
-				}
+				//increase triangle count
 				++tcount;
 			}
 
@@ -268,8 +259,6 @@ Trimesh_Geom *Trimesh::Create_Geom()
 			//increase material counter
 			++mcount;
 		}
-
-	printlog(2, "How many normals recalculated (from smooth): %u", new_normals);
 
 	//create
 	Trimesh_Geom *result = new Trimesh_Geom(name.c_str(),
