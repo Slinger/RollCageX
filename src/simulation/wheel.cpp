@@ -215,7 +215,6 @@ void Wheel::Set_Contact(dBodyID wbody, dBodyID obody, Surface *surface, bool whe
 	if (Fz < 0.0) //not going to be any friction of this contact
 		return; //let ode just use defaults
 
-
 	//Vsx and Vsy (slip velocity along x and y):
 	dReal Vsx = Vx + Vr; //Vr should be opposite sign of Vx, so this is the difference
 	//Vsy = Vy = VDot (Y, Vwheel); but lets go overkill!
@@ -318,9 +317,13 @@ void Wheel::Set_Contact(dBodyID wbody, dBodyID obody, Surface *surface, bool whe
 	//4) set output values:
 	//
 
+	//for reliability don't let ode multiply by its Fz, use calculated instead:
+	contact->surface.mode ^= dContactApprox1; //mask away the contactapprox1 option
+
 	//4.0) debug values:
-	if (!approx1) //dont simulate by load
-		contact->surface.mode ^= dContactApprox1; //mask away the contactapprox1 option
+	if (approx1) //simulate by load (normal)
+		MUx*=Fz; //multiply by Fz (MU*load=force)
+		MUy*=Fz; //-''-
 
 	if (fixedmu) //ignore all above calculation and force a constant mu (and ode slip combination)
 		contact->surface.mu = fixedmu;

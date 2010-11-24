@@ -198,7 +198,6 @@ Trimesh_Geom *Trimesh::Create_Geom()
 	unsigned int *vp, *np; //vertex and normal index pointers
 	unsigned int mloop=0, tloop=0; //material/triangle looping
 	float ax,ay,az,bx,by,bz,x,y,z,l; //(fooling myself these declarations will increase speed)
-	unsigned int new_normals=0; //just interesting...
 	unsigned int mtris; //how many triangles per material
 	for (mloop=0; mloop<material_count; ++mloop)
 		if ((mtris = materials[mloop].triangles.size()))
