@@ -30,8 +30,8 @@ Text_File::Text_File ()
 	//allocate buffer anyway (even if not open), if reopening
 	buffer_size = INITIAL_TEXT_FILE_BUFFER_SIZE;
 	list_size = INITIAL_TEXT_FILE_LIST_SIZE;
-	buffer = (char*) malloc (buffer_size*sizeof(char));
-	words = (char**) malloc (list_size*sizeof(char**));
+	buffer = new char[buffer_size];
+	words = new char*[list_size];
 
 	if (!buffer || !words)
 	{
@@ -44,8 +44,8 @@ Text_File::~Text_File ()
 {
 	Close();
 
-	free (buffer);
-	free (words);
+	delete[] buffer;
+	delete[] words;
 }
 
 bool Text_File::Open (const char *file)
@@ -139,7 +139,7 @@ bool Text_File::Seek_First()
 
 bool Text_File::Line_To_Buffer()
 {
-	//make sure to realloc buffer if too small
+	//make sure to reallocate buffer if too small
 	int text_read=0; //no text already read
 
 	while (true)
@@ -157,13 +157,12 @@ bool Text_File::Line_To_Buffer()
 		//else: I guess the buffer was too small...
 		printlog(2, "Text_File line buffer was too small, resizing");
 		buffer_size += INITIAL_TEXT_FILE_BUFFER_SIZE;
-		buffer = (char*) realloc (buffer, buffer_size);
 
-		if (!buffer)
-		{
-			printlog(0, "lack of memory for Text_File buffer, will exit!");
-			exit(-1);
-		}
+		//copy old vyffer content
+		char *oldbuffer=buffer;
+		buffer = new char[buffer_size];
+		strcpy(buffer, oldbuffer);
+		delete[] oldbuffer;
 	}
 }
 
@@ -259,13 +258,11 @@ void Text_File::Append_To_List(char *word)
 	{
 		printlog(2, "Text_File word list was too small, resizing");
 		list_size+=INITIAL_TEXT_FILE_LIST_SIZE;
-		words = (char**) realloc(words, list_size*sizeof(char**));
 
-		if (!words)
-		{
-			printlog(0, "lack of memory for Text_File word list, will exit!");
-			exit(-1);
-		}
+		char **oldwords=words;
+		words = new char*[list_size];
+		memcpy(words, oldwords, word_count*sizeof(char*));
+		delete[] oldwords;
 	}
 
 	words[word_count-1] = word; //point to word in buffer

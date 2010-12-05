@@ -71,9 +71,12 @@ void Assure_Memory(unsigned int vertex_needed, unsigned int index_needed)
 		else //no, needed even more memory...
 			vertex_size += v_lacking;
 		
-		size_t memory = sizeof(geom_vertex)*vertex_size;
-		printlog(1, "growing geom rendering vertex buffer to %u bytes", memory);
-		vertices = (geom_vertex*)realloc(vertices, memory);
+		printlog(1, "growing geom rendering vertex buffer to %u bytes", sizeof(geom_vertex)*vertex_size);
+
+		geom_vertex *tmp = vertices;
+		vertices = new geom_vertex[vertex_size];
+		memcpy(vertices, tmp, sizeof(geom_vertex)*vertex_usage);
+		delete[] tmp;
 
 		//since we've changed the memory, reconfigure pointer:
 		v = &vertices[vertex_usage];
@@ -86,20 +89,14 @@ void Assure_Memory(unsigned int vertex_needed, unsigned int index_needed)
 		else
 			index_size += i_lacking;
 		
-		size_t memory = sizeof(geom_index)*index_size;
-		printlog(1, "growing geom rendering index buffer to %u bytes", memory);
-		indices = (geom_index*)realloc(indices, memory);
+		printlog(1, "growing geom rendering index buffer to %u bytes", sizeof(geom_index)*index_size);
+
+		geom_index *tmp = indices;
+		indices = new geom_index[index_size];
+		memcpy(indices, tmp, sizeof(geom_index)*index_usage);
+		delete[] tmp;
 
 		i = &indices[index_usage];
-	}
-
-	//check for failure in allocation
-	//(realloc is allowed to leak memory on failure, by writing NULL to
-	//the old pointers, but it doesn't matter here: we just exit anyway)
-	if (!vertices || !indices)
-	{
-		printlog(0, "lack of memory for geom rendering, will exit!");
-		exit(-1);
 	}
 }
 

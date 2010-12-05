@@ -83,16 +83,14 @@ void Graphic_List_Update()
 			{
 				printlog(2, "Graphic_List buffer was too small, resizing");
 
+				//copy to new memory
+				list_element *oldlist = tmp->list;
 				tmp->size+=INITIAL_GRAPHIC_BUFFER_SIZE;
-				tmp->list = (list_element*) realloc(tmp->list, sizeof(list_element)*tmp->size);
-				list=tmp->list;
+				tmp->list = new list_element[tmp->size];
+				memcpy(tmp->list, oldlist, tmp->count);
 
-				//check for failure:
-				if (!tmp->list)
-				{
-					printlog(0, "lack of memory for model rendering list, will exit!");
-					exit(-1);
-				}
+				//update pointer
+				list=tmp->list;
 			}
 
 			pos = dGeomGetPosition(g->geom_id);
@@ -136,18 +134,16 @@ void Graphic_List_Update()
 			//if buffer full...
 			if (*count == tmp->size)
 			{
-				printlog(2, "Graphic_List buffers were too small, resizing");
+				printlog(2, "Graphic_List buffer was too small, resizing");
 
+				//copy to new memory
+				list_element *oldlist = tmp->list;
 				tmp->size+=INITIAL_GRAPHIC_BUFFER_SIZE;
-				tmp->list = (list_element*) realloc(tmp->list, sizeof(list_element)*tmp->size);
-				list=tmp->list;
+				tmp->list = new list_element[tmp->size];
+				memcpy(tmp->list, oldlist, tmp->count);
 
-				//check for failure:
-				if (!tmp->list)
-				{
-					printlog(0, "lack of memory for model rendering list, will exit!");
-					exit(-1);
-				}
+				//update pointer
+				list=tmp->list;
 			}
 
 			pos = dBodyGetPosition(b->body_id);
