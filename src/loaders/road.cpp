@@ -435,6 +435,7 @@ bool Trimesh::Load_Road(const char *f)
 			tmp=atoi(file.words[2]);
 			if (tmp > 0)
 				yres=tmp;
+			else
 				printlog(0, "WARNING: y resolution value must be above 0");
 		}
 		else if (!strcmp(file.words[0], "material"))
