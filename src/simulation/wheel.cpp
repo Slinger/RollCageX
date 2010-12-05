@@ -89,6 +89,7 @@ void Wheel::Set_Contact(dBodyID wbody, dBodyID obody, Surface *surface, bool whe
 	//
 
 	//set erp+cfm (spring+damping):
+	contact->surface.mode |= dContactSoftERP | dContactSoftCFM; //enable custom ERP/CFM
 	contact->surface.soft_erp = erp;
 	contact->surface.soft_cfm = cfm;
 	//

@@ -59,8 +59,8 @@ bool Simulation_Init(void)
 	dWorldSetAutoDisableTime (world, internal.dis_time);
 
 	//joint softness
-	dWorldSetERP (world, internal.joint_erp);
-	dWorldSetCFM (world, internal.joint_cfm);
+	dWorldSetERP (world, internal.erp);
+	dWorldSetCFM (world, internal.cfm);
 
 	return true;
 }

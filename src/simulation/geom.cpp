@@ -142,10 +142,8 @@ void Geom::Collision_Callback (void *data, dGeomID o1, dGeomID o2)
 
 		//sett surface options:
 		//enable mu overriding and good friction approximation
-		contact[i].surface.mode = dContactApprox1 | dContactSoftERP | dContactSoftCFM;
+		contact[i].surface.mode = dContactApprox1;
 		contact[i].surface.mu = (surf1->mu)*(surf2->mu); //friction
-		contact[i].surface.soft_erp = internal.collision_erp; //erp
-		contact[i].surface.soft_cfm = internal.collision_cfm; //cfm
 
 		//optional or not even/rarely used by rcx, set to 0 to prevent compiler warnings:
 		contact[i].surface.bounce = 0.0;
@@ -179,6 +177,7 @@ void Geom::Collision_Callback (void *data, dGeomID o1, dGeomID o2)
 			dReal damping = surf1->damping + surf2->damping;
 
 			//recalculate erp+cfm from stepsize, spring and damping values:
+			contact[i].surface.mode |= dContactSoftERP | dContactSoftCFM; //enable local
 			contact[i].surface.soft_erp = (stepsize*spring)/(stepsize*spring +damping);
 			contact[i].surface.soft_cfm = 1.0/(stepsize*spring +damping);
 		}
