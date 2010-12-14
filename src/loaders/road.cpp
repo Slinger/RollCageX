@@ -12,6 +12,7 @@
 #include "../shared/trimesh.hpp"
 #include "../shared/printlog.hpp"
 #include "text_file.hpp"
+#include <string.h>
 
 //TODO: needs more documentation: both this code and the ".road" file type...
 
@@ -209,39 +210,35 @@ class End
 			else
 				active=false;
 		}
-		void GetPosPoint(float t, float d, float *p)
+
+		void GetPos(float *pos)
 		{
-			float point[2];
-			shape->GetPos(t, point);
-			if (d)
-			{
-				float dir[2];
-				shape->GetDir(t, dir);
-				point[0]-=dir[1]*d;
-				point[1]+=dir[0]*d;
-			}
-			p[0]=pos[0]+rot[0]*point[0]+rot[2]*point[1];
-			p[1]=pos[1]+rot[3]*point[0]+rot[5]*point[1];
-			p[2]=pos[2]+rot[6]*point[0]+rot[8]*point[1];
+			memcpy(pos, this->pos, sizeof(float)*3);
 		}
-		void GetDirPoint(float t, float d, bool reverse, float *p)
+
+		void GetDirPos(float *pos, bool reverse)
 		{
-			GetPosPoint(t, d, p);
+			GetPos(pos);
+
 			if (reverse)
 			{
-				p[0]-=rot[1]*ctrl;
-				p[1]-=rot[4]*ctrl;
-				p[2]-=rot[7]*ctrl;
+				pos[0]-=rot[1]*ctrl;
+				pos[1]-=rot[4]*ctrl;
+				pos[2]-=rot[7]*ctrl;
 			}
 			else
 			{
-				p[0]+=rot[1]*ctrl;
-				p[1]+=rot[4]*ctrl;
-				p[2]+=rot[7]*ctrl;
+				pos[0]+=rot[1]*ctrl;
+				pos[1]+=rot[4]*ctrl;
+				pos[2]+=rot[7]*ctrl;
 			}
+
+		}
+		void GetRot(float *rot)
+		{
+			memcpy(rot, this->rot, sizeof(float)*9);
 		}
 
-	public:
 		Bezier *shape;
 		float pos[3];
 		float rot[9];
@@ -250,47 +247,67 @@ class End
 
 //note: uses signed integers, so limited to about 2 billion (range for indices)
 //also performs no overflow checking, but neither does the obj loader...
-void GenVertices(std::vector<Vector_Float> *vertices, End *oldend, End *newend,
-		float offset, int xres, int yres)
+
+//adds vertices for one section along one block of road
+//performs transformation (morphing between different ends and rotation)
+void GenVertices(std::vector<Vector_Float> *vertices,
+		float *pos, float *rot, Bezier *oldb, Bezier *newb,
+		float angle, float offset, float t, int xres)
 {
-	float p0[3], p1[3], p2[3], p3[3];
-	float mult0, mult1, mult2, mult3;
+	float dir[2];
+	float tmp1[2], tmp2[2], tmp[2], point[2]; //different points, merge together
+
+	float dx=1.0/float(xres);
+	float x=0.0;
 	Vector_Float vertex;
-	float w=0.0,l=0.0; //Width&Length
-	float wd=1.0/float(xres); //length of each step
-	float ld=1.0/float(yres); //dito
-	for (int x=0; x<=xres; ++x)
+
+	for (int i=0; i<=xres; ++i)
 	{
-		oldend->GetPosPoint(w, offset, p0);
-		oldend->GetDirPoint(w, offset, false, p1);
-		newend->GetDirPoint(w, offset, true, p2);
-		newend->GetPosPoint(w, offset, p3);
-		//create curve based on (4 point) bezier curve
-
-		l=0.0;
-		for (int y=0; y<=yres; ++y)
+		//first alternative of point
+		oldb->GetPos(x, tmp1);
+		if (offset)
 		{
-			mult0 = (1.0-l)*(1.0-l)*(1.0-l);
-			mult1 = 3*(1.0-l)*(1.0-l)*l;
-			mult2 = 3*(1.0-l)*l*l;
-			mult3 = l*l*l;
-
-			vertex.x=p0[0]*mult0+p1[0]*mult1+p2[0]*mult2+p3[0]*mult3;
-			vertex.y=p0[1]*mult0+p1[1]*mult1+p2[1]*mult2+p3[1]*mult3;
-			vertex.z=p0[2]*mult0+p1[2]*mult1+p2[2]*mult2+p3[2]*mult3;
-
-			//add
-			vertices->push_back(vertex);
-
-			l+=ld;
+			oldb->GetDir(x, dir);
+			tmp1[0]-=dir[1]*offset;
+			tmp1[1]+=dir[0]*offset;
 		}
 
-		w+=wd;
+		//second alternative
+		newb->GetPos(x, tmp2);
+		if (offset)
+		{
+			newb->GetDir(x, dir);
+			tmp2[0]-=dir[1]*offset;
+			tmp2[1]+=dir[0]*offset;
+		}
+
+		//transform between points (based on t)
+		tmp[0] = tmp1[0]*(1.0-t)+tmp2[0]*t;
+		tmp[1] = tmp1[1]*(1.0-t)+tmp2[1]*t;
+
+		//rotate between 0 and "angle" rotation
+		angle*=t;
+		point[0] = +cos(angle)*tmp[0] +sin(angle)*tmp[1];
+		point[1] = -sin(angle)*tmp[0] +cos(angle)*tmp[1];
+
+		//apply to 3d space
+		vertex.x=pos[0]+rot[0]*point[0]+rot[2]*point[1];
+		vertex.y=pos[1]+rot[3]*point[0]+rot[5]*point[1];
+		vertex.z=pos[2]+rot[6]*point[0]+rot[8]*point[1];
+
+		//add
+		vertices->push_back(vertex);
+
+		x+=dx;
 	}
 }
 
+//for info output
+int triangle_count=0;
+
 void GenIndices(std::vector<Triangle_Uint> *triangles,
-		int start, int stride, int xres, int yres)
+		int start, int xstride, int ystride,
+		int xres, int yres)
 {
 	Triangle_Uint triangle;
 	//don't specify normals (generated later on)
@@ -298,41 +315,59 @@ void GenIndices(std::vector<Triangle_Uint> *triangles,
 	triangle.normal[1]=INDEX_ERROR;
 	triangle.normal[2]=INDEX_ERROR;
 
-	for (int x=0; x<xres; ++x)
-		for (int y=0; y<yres; ++y)
+	for (int y=0; y<yres; ++y)
+		for (int x=0; x<xres; ++x)
 		{
 			//two triangles per "square"
-			triangle.vertex[0]=start+(y)+(x)*(stride);
-			triangle.vertex[1]=start+(y)+(x+1)*(stride);
-			triangle.vertex[2]=start+(y+1)+(x)*(stride);
+			triangle.vertex[0]=start+xstride*(x+0)+ystride*(y+0);
+			triangle.vertex[1]=start+xstride*(x+1)+ystride*(y+0);
+			triangle.vertex[2]=start+xstride*(x+0)+ystride*(y+1);
 			triangles->push_back(triangle);
 
-			triangle.vertex[0]=start+(y)+(x+1)*(stride);
-			triangle.vertex[1]=start+(y+1)+(x+1)*(stride);
-			triangle.vertex[2]=start+(y+1)+(x)*(stride);
+			triangle.vertex[0]=start+xstride*(x+1)+ystride*(y+0);
+			triangle.vertex[1]=start+xstride*(x+1)+ystride*(y+1);
+			triangle.vertex[2]=start+xstride*(x+0)+ystride*(y+1);
 			triangles->push_back(triangle);
+
+			triangle_count+=2;
 		}
 }
 
-void GenCapIndices(std::vector<Triangle_Uint> *triangles,
-		int start1, int start2, int stride, int xres)
+//change rotation matrix, rot, based on derivative of cubic bezier line for road
+//recalculates the other two directions based on old values
+void Rotation(float *rot, float *p0, float *p1, float *p2, float *p3, float t)
 {
-	Triangle_Uint triangle;
-	triangle.normal[0]=INDEX_ERROR;
-	triangle.normal[1]=INDEX_ERROR;
-	triangle.normal[2]=INDEX_ERROR;
-	for (int x=0; x<xres; ++x)
-	{
-			triangle.vertex[0]=start1+(x)*(stride);
-			triangle.vertex[1]=start2+(x)*(stride);
-			triangle.vertex[2]=start2+(x+1)*(stride);
-			triangles->push_back(triangle);
+	//Y=direction
+	rot[1]=3.0*(p1[0]-p0[0])*(1.0-t)*(1.0-t) +6.0*(p2[0]-p1[0])*(1.0-t)*t +3.0*(p3[0]-p2[0])*t*t; //x
+	rot[4]=3.0*(p1[1]-p0[1])*(1.0-t)*(1.0-t) +6.0*(p2[1]-p1[1])*(1.0-t)*t +3.0*(p3[1]-p2[1])*t*t; //y
+	rot[7]=3.0*(p1[2]-p0[2])*(1.0-t)*(1.0-t) +6.0*(p2[2]-p1[2])*(1.0-t)*t +3.0*(p3[2]-p2[2])*t*t; //z
+	//make unit
+	float l = sqrt(rot[1]*rot[1] +rot[4]*rot[4] +rot[7]*rot[7]);
+	rot[1]/=l; rot[4]/=l; rot[7]/=l;
 
-			triangle.vertex[0]=start2+(x+1)*(stride);
-			triangle.vertex[1]=start1+(x+1)*(stride);
-			triangle.vertex[2]=start1+(x)*(stride);
-			triangles->push_back(triangle);
-	}
+	//X = Y x Zold
+	rot[0]=rot[4]*rot[8] -rot[7]*rot[5];
+	rot[3]=rot[7]*rot[2] -rot[1]*rot[8];
+	rot[6]=rot[1]*rot[5] -rot[4]*rot[2];
+	//unit
+	l = sqrt(rot[0]*rot[0] +rot[3]*rot[3] +rot[6]*rot[6]);
+	rot[0]/=l; rot[3]/=l; rot[6]/=l;
+
+	//Z = X x Y
+	rot[2]=rot[3]*rot[7] -rot[6]*rot[4];
+	rot[5]=rot[6]*rot[1] -rot[0]*rot[7];
+	rot[8]=rot[0]*rot[4] -rot[3]*rot[1];
+	//unit
+	l = sqrt(rot[2]*rot[2] +rot[5]*rot[5] +rot[8]*rot[8]);
+	rot[2]/=l; rot[5]/=l; rot[8]/=l;
+}
+
+//change position along cubic bezier
+void Position(float *pos, float *p0, float *p1, float *p2, float *p3, float t)
+{
+	pos[0]=p0[0]*(1.0-t)*(1.0-t)*(1.0-t) +3.0*p1[0]*(1.0-t)*(1.0-t)*t +3.0*p2[0]*(1.0-t)*t*t +p3[0]*t*t*t;
+	pos[1]=p0[1]*(1.0-t)*(1.0-t)*(1.0-t) +3.0*p1[1]*(1.0-t)*(1.0-t)*t +3.0*p2[1]*(1.0-t)*t*t +p3[1]*t*t*t;
+	pos[2]=p0[2]*(1.0-t)*(1.0-t)*(1.0-t) +3.0*p1[2]*(1.0-t)*(1.0-t)*t +3.0*p2[2]*(1.0-t)*t*t +p3[2]*t*t*t;
 }
 
 bool Trimesh::Load_Road(const char *f)
@@ -362,6 +397,9 @@ bool Trimesh::Load_Road(const char *f)
 	End oldend, newend;
 	//float lastdepth, lastxres, lastyres;
 
+	//set counter to 0
+	triangle_count=0;
+
 	while  (file.Read_Line())
 	{
 		if (!strcmp(file.words[0], "section") && file.word_count >= 4 && !(file.word_count&1))
@@ -386,6 +424,13 @@ bool Trimesh::Load_Road(const char *f)
 			if (!oldend.active)
 				continue;
 
+			//else, add new block of road
+			//
+			//TODO: join vertices for section shared by two pieces of road
+			//currently, the vertices between two pieces of road gets duplicated...
+			//doesn't affect the rendering quality or simulation precision but takes
+			//a little more ram (which might not be a big problem, anyway)
+
 			//check if got material:
 			if (!material)
 			{
@@ -394,35 +439,79 @@ bool Trimesh::Load_Road(const char *f)
 				material=&materials[0];
 			}
 
-			//TODO: join vertices for section shared by two pieces of road
-			//currently, the vertices between two pieces of road gets duplicated...
-			//doesn't affect the rendering quality or simulation precision but takes
-			//a little more ram (which might not be a big problem, anyway)
+			//variables used
+			//TODO: some might need initialization to prevent compiler warning?
+			int i;
+			float rot[9];
+			float pos[3];
+			float t;
+			float dy=1.0/float(yres);
 
-			//generate vertices (for a top surface)
-			int start=vertices.size(); //store current position in vertex list
-			GenVertices(&vertices, &oldend, &newend, depth/2.0, xres, yres);
+			float p0[3], p1[3], p2[3], p3[3];
+			oldend.GetPos(p0);
+			oldend.GetDirPos(p1, false);
+			newend.GetDirPos(p2, true);
+			newend.GetPos(p3);
 
-			//generate indices (for the surface)
-			GenIndices(&material->triangles, start, yres+1, xres, yres);
+			//determine how rotation differs after twitching from first to second end
+			//(needs to be compensated when transforming between the two ends)
+			//simulate rotation from generation before actual rotation:
+			//copy first rotation:
+			oldend.GetRot(rot);
+			t=0.0;
+			for (i=0; i<=yres; ++i)
+			{
+				Rotation(rot, p0, p1, p2, p3, t);
+				t+=dy;
+			}
+			//TODO: if (Z*Z1 > 1) -> v=0
+			//angle of difference: v=arccos(Z*Z1)
+			float v=acos(rot[2]*newend.rot[2] +rot[5]*newend.rot[5] +rot[8]*newend.rot[8]);
+			//direction of difference: Z*X1 > 0.0 -> v<0.0
+			if (rot[2]*newend.rot[0] +rot[5]*newend.rot[3] +rot[8]*newend.rot[6] > 0.0)
+				v=-v;
 
-			//depth in road
+			//done, start real generation.
+			int start=vertices.size(); //store current position (before adding more data)
+			//copy original rotation again
+			oldend.GetRot(rot);
+			//vertices
+			t=0.0;
+			for (i=0; i<=yres; ++i)
+			{
+				Rotation(rot, p0, p1, p2, p3, t);
+				Position(pos, p0, p1, p2, p3, t);
+
+				//TODO: if cubic rotation -> t=3t*t-2*t*t*t
+
+				GenVertices(&vertices, pos, rot, oldend.shape, newend.shape, v, depth/2.0, t, xres);
+
+				//other side
+				if (depth)
+					GenVertices(&vertices, pos, rot, oldend.shape, newend.shape, v, -depth/2.0, t, xres);
+
+				t+=dy;
+			}
+
+			//indices
 			if (depth)
 			{
-				//other (bottom) side
-				GenVertices(&vertices, &oldend, &newend, -depth/2.0, xres, yres);
-				GenIndices(&material->triangles, vertices.size()-(yres+1), -(yres+1), xres, yres);
+				//top
+				GenIndices(&material->triangles, start, 1, 2*(xres+1), xres, yres);
 
-				//and sides (reuses already existing vertices)
-				//left:
-				GenIndices(&material->triangles, start+(xres+1)*(yres+1), -(xres+1)*(yres+1), 1, yres);
-				//right:
-				GenIndices(&material->triangles, start+(xres)*(yres+1), (xres+1)*(yres+1), 1, yres);
+				//bottom
+				GenIndices(&material->triangles, start+2*xres+1, -1, 2*(xres+1), xres, yres);
 
-				//capping:
+				//sides
+				GenIndices(&material->triangles, start+xres, xres+1, 2*(xres+1), 1, yres);
+				GenIndices(&material->triangles, start+xres+1, -(xres+1), 2*(xres+1), 1, yres);
+
+				//capping of this end?
 				if (cap&&capping)
-					GenCapIndices(&material->triangles, 0, (xres+1)*(yres+1), yres+1, xres);
+					GenIndices(&material->triangles, start+xres+1, 1, -(xres+1), xres, 1);
 			}
+			else //only top
+				GenIndices(&material->triangles, start, 1, xres+1, xres, yres);
 		}
 		else if (!strcmp(file.words[0], "resolution"))
 		{
@@ -477,8 +566,7 @@ bool Trimesh::Load_Road(const char *f)
 
 	//at end, should cap?
 	if (depth && capping)
-		GenCapIndices(&material->triangles, (vertices.size()-1)-xres*(yres+1),
-				(vertices.size()-1)-xres*(yres+1)-(xres+1)*(yres+1), yres+1, xres);
+		GenIndices(&material->triangles, vertices.size()-2*(xres+1), 1, xres+1, xres, 1);
 
 	//done, remove all data:
 	Bezier::RemoveAll();
@@ -493,7 +581,7 @@ bool Trimesh::Load_Road(const char *f)
 	//no normals created! generate them
 	Generate_Missing_Normals();
 
-	//printlog(1, "road generation info: %u triangles, %u materials", triangle_count, materials.size());
+	printlog(1, "ROAD generation info: %u triangles, %u materials", triangle_count, materials.size());
 
 	return true;
 }
