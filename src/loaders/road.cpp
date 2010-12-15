@@ -14,7 +14,7 @@
 #include "text_file.hpp"
 #include <string.h>
 
-//TODO: needs more documentation: both this code and the ".road" file type...
+//TODO: this code needs much more documentation...
 
 //class for processing bezier curves
 class Bezier
@@ -180,7 +180,9 @@ class End
 				pos[i]=0.0;
 			for (int i=0; i<9; ++i)
 				rot[i]=0.0;
-			ctrl=0.0;
+			offset=0.0;
+			stiff[0]=0.0;
+			stiff[1]=0.0;
 		}
 
 		bool active;
@@ -194,18 +196,6 @@ class End
 				pos[0] = atof(file->words[2]);
 				pos[1] = atof(file->words[3]);
 				pos[2] = atof(file->words[4]);
-
-				//ugly but reliable: use ode utility for rotation:
-				float x=atof(file->words[5]);
-				float y=atof(file->words[6]);
-				float z=atof(file->words[7]);
-				dMatrix3 r;
-				dRFromEulerAngles (r, x*(M_PI/180), y*(M_PI/180), z*(M_PI/180));
-				rot[0] = r[0];	rot[1] = r[1];	rot[2] = r[2];
-				rot[3] = r[4];	rot[4] = r[5];	rot[5] = r[6];
-				rot[6] = r[8];	rot[7] = r[9];	rot[8] = r[10];
-
-				ctrl = atof(file->words[8]);
 			}
 			else
 				active=false;
@@ -222,15 +212,15 @@ class End
 
 			if (reverse)
 			{
-				pos[0]-=rot[1]*ctrl;
-				pos[1]-=rot[4]*ctrl;
-				pos[2]-=rot[7]*ctrl;
+				pos[0]+=rot[1]*stiff[0];
+				pos[1]+=rot[4]*stiff[0];
+				pos[2]+=rot[7]*stiff[0];
 			}
 			else
 			{
-				pos[0]+=rot[1]*ctrl;
-				pos[1]+=rot[4]*ctrl;
-				pos[2]+=rot[7]*ctrl;
+				pos[0]+=rot[1]*stiff[1];
+				pos[1]+=rot[4]*stiff[1];
+				pos[2]+=rot[7]*stiff[1];
 			}
 
 		}
@@ -241,8 +231,9 @@ class End
 
 		Bezier *shape;
 		float pos[3];
+		float offset;
 		float rot[9];
-		float ctrl;
+		float stiff[2];
 };
 
 //note: uses signed integers, so limited to about 2 billion (range for indices)
@@ -251,8 +242,8 @@ class End
 //adds vertices for one section along one block of road
 //performs transformation (morphing between different ends and rotation)
 void GenVertices(std::vector<Vector_Float> *vertices,
-		float *pos, float *rot, Bezier *oldb, Bezier *newb,
-		float angle, float offset, float t, int xres)
+		float *pos, float *rot, bool top, End *oldend, End *newend,
+		float angle, float t, int xres)
 {
 	float dir[2];
 	float tmp1[2], tmp2[2], tmp[2], point[2]; //different points, merge together
@@ -261,25 +252,31 @@ void GenVertices(std::vector<Vector_Float> *vertices,
 	float x=0.0;
 	Vector_Float vertex;
 
-	for (int i=0; i<=xres; ++i)
+	float offset1, offset2;
+	if (top)
+	{
+		offset1=oldend->offset;
+		offset2=newend->offset;
+	}
+	else //bottom
+	{
+		offset1=-oldend->offset;
+		offset2=-newend->offset;
+	}
+
+	while (x<=1.0)
 	{
 		//first alternative of point
-		oldb->GetPos(x, tmp1);
-		if (offset)
-		{
-			oldb->GetDir(x, dir);
-			tmp1[0]-=dir[1]*offset;
-			tmp1[1]+=dir[0]*offset;
-		}
+		oldend->shape->GetPos(x, tmp1);
+		oldend->shape->GetDir(x, dir);
+		tmp1[0]-=dir[1]*offset1;
+		tmp1[1]+=dir[0]*offset1;
 
 		//second alternative
-		newb->GetPos(x, tmp2);
-		if (offset)
-		{
-			newb->GetDir(x, dir);
-			tmp2[0]-=dir[1]*offset;
-			tmp2[1]+=dir[0]*offset;
-		}
+		newend->shape->GetPos(x, tmp2);
+		newend->shape->GetDir(x, dir);
+		tmp2[0]-=dir[1]*offset2;
+		tmp2[1]+=dir[0]*offset2;
 
 		//transform between points (based on t)
 		tmp[0] = tmp1[0]*(1.0-t)+tmp2[0]*t;
@@ -390,21 +387,29 @@ bool Trimesh::Load_Road(const char *f)
 	materials.clear();
 
 	//configuration variables:
-	int xres=10, yres=10; //resolution of each piece
-	float depth=0.5; //depth of road
-	bool capping=true; //enabled but only used when depth
+	//
+	//for each block of road:
 	Material *material=NULL;
+	int xres=10, yres=10; //resolutionof each piece
+	bool capping=true; //enabled but only used when depth
+	bool cubic=true;
+	//
+	//for each section/end of road ("otf"):
+	//(gets copied into the End class when actually used)
 	End oldend, newend;
-	//float lastdepth, lastxres, lastyres;
+	float depth=0.5; //depth of road
+	float rotation[9] = {1.0,0.0,0.0, 0.0,1.0,0.0, 0.0,0.0,1.0};
+	float stiffness[2] = {5,5};
 
-	//set counter to 0
-	triangle_count=0;
+	//misc:
+	triangle_count=0; //for info output
+	int last_xres=0; //for correct capping (to prevent getting fooled)
 
 	while  (file.Read_Line())
 	{
 		if (!strcmp(file.words[0], "section") && file.word_count >= 4 && !(file.word_count&1))
-				new Bezier(&file);
-		else if (!strcmp(file.words[0], "add") && file.word_count == 9)
+			new Bezier(&file);
+		else if (!strcmp(file.words[0], "add") && file.word_count == 5)
 		{
 			//if last end doesn't exist, this is first part of road, cap it
 			bool cap=oldend.active? false: true;
@@ -420,16 +425,19 @@ bool Trimesh::Load_Road(const char *f)
 				continue;
 			}
 
+			//copy settings to the new end
+			newend.offset = depth/2.0;
+			newend.stiff[0]=stiffness[0];
+			newend.stiff[1]=stiffness[1];
+			memcpy(newend.rot, rotation, sizeof(float)*9);
+
+			bool dpt=oldend.offset||newend.offset? true: false;
+
 			//no point continuing if only got one section yet
 			if (!oldend.active)
 				continue;
 
 			//else, add new block of road
-			//
-			//TODO: join vertices for section shared by two pieces of road
-			//currently, the vertices between two pieces of road gets duplicated...
-			//doesn't affect the rendering quality or simulation precision but takes
-			//a little more ram (which might not be a big problem, anyway)
 
 			//check if got material:
 			if (!material)
@@ -440,10 +448,8 @@ bool Trimesh::Load_Road(const char *f)
 			}
 
 			//variables used
-			//TODO: some might need initialization to prevent compiler warning?
-			int i;
-			float rot[9];
-			float pos[3];
+			float rot[9]={1.0,0.0,0.0, 0.0,1.0,0.0, 0.0,0.0,1.0};;
+			float pos[3]={0.0, 0.0, 0.0};;
 			float t;
 			float dy=1.0/float(yres);
 
@@ -459,14 +465,22 @@ bool Trimesh::Load_Road(const char *f)
 			//copy first rotation:
 			oldend.GetRot(rot);
 			t=0.0;
-			for (i=0; i<=yres; ++i)
+			while (t<=1.0)
 			{
 				Rotation(rot, p0, p1, p2, p3, t);
 				t+=dy;
 			}
-			//TODO: if (Z*Z1 > 1) -> v=0
 			//angle of difference: v=arccos(Z*Z1)
-			float v=acos(rot[2]*newend.rot[2] +rot[5]*newend.rot[5] +rot[8]*newend.rot[8]);
+			float v;
+			//safetycheck in case outside range of acos
+			float dot=rot[2]*newend.rot[2] +rot[5]*newend.rot[5] +rot[8]*newend.rot[8];
+			if (dot > 1.0)
+				v=0.0;
+			else if (dot < -1.0)
+				v=M_PI;
+			else
+				v=acos(dot);
+
 			//direction of difference: Z*X1 > 0.0 -> v<0.0
 			if (rot[2]*newend.rot[0] +rot[5]*newend.rot[3] +rot[8]*newend.rot[6] > 0.0)
 				v=-v;
@@ -477,24 +491,43 @@ bool Trimesh::Load_Road(const char *f)
 			oldend.GetRot(rot);
 			//vertices
 			t=0.0;
-			for (i=0; i<=yres; ++i)
+
+			//check if we can reuse the old vertices (everything matches)... :-)
+			if (last_xres==xres && oldend.offset==newend.offset)
+			{
+				t+=dy; //skip first "row" of vertices
+				//go back a bit
+				if (dpt) //if depth (two rows to skip)
+					start-=2*(xres+1);
+				else //one row
+					start-=xres+1;
+			}
+
+			while (t<=1.0)
 			{
 				Rotation(rot, p0, p1, p2, p3, t);
 				Position(pos, p0, p1, p2, p3, t);
 
-				//TODO: if cubic rotation -> t=3t*t-2*t*t*t
+				if (cubic) //use "cubic" transformation (=smooth)
+				{
+					GenVertices(&vertices, pos, rot, true, &oldend, &newend, v, (3*t*t-2*t*t*t), xres);
 
-				GenVertices(&vertices, pos, rot, oldend.shape, newend.shape, v, depth/2.0, t, xres);
-
-				//other side
-				if (depth)
-					GenVertices(&vertices, pos, rot, oldend.shape, newend.shape, v, -depth/2.0, t, xres);
+					//other side
+					if (dpt)
+						GenVertices(&vertices, pos, rot, false, &oldend, &newend, v, (3*t*t-2*t*t*t), xres);
+				}
+				else //use linear approach
+				{
+					GenVertices(&vertices, pos, rot, true, &oldend, &newend, v, t, xres);
+					if (dpt)
+						GenVertices(&vertices, pos, rot, false, &oldend, &newend, v, t, xres);
+				}
 
 				t+=dy;
 			}
 
 			//indices
-			if (depth)
+			if (dpt)
 			{
 				//top
 				GenIndices(&material->triangles, start, 1, 2*(xres+1), xres, yres);
@@ -506,14 +539,45 @@ bool Trimesh::Load_Road(const char *f)
 				GenIndices(&material->triangles, start+xres, xres+1, 2*(xres+1), 1, yres);
 				GenIndices(&material->triangles, start+xres+1, -(xres+1), 2*(xres+1), 1, yres);
 
-				//capping of this end?
-				if (cap&&capping)
+				//capping of this end (first, got depth and conf wants)?
+				if (cap&&oldend.offset&&capping)
 					GenIndices(&material->triangles, start+xres+1, 1, -(xres+1), xres, 1);
+
+				last_xres = xres;
 			}
 			else //only top
 				GenIndices(&material->triangles, start, 1, xres+1, xres, yres);
 		}
-		else if (!strcmp(file.words[0], "resolution"))
+		else if (!strcmp(file.words[0], "rotation") && file.word_count == 4)
+		{
+			//ugly but reliable: use ode utility for rotation:
+			float x=atof(file.words[1]);
+			float y=atof(file.words[2]);
+			float z=atof(file.words[3]);
+			dMatrix3 r;
+			dRFromEulerAngles (r, x*(M_PI/180), y*(M_PI/180), z*(M_PI/180));
+			rotation[0] = r[0];	rotation[1] = r[1];	rotation[2] = r[2];
+			rotation[3] = r[4];	rotation[4] = r[5];	rotation[5] = r[6];
+			rotation[6] = r[8];	rotation[7] = r[9];	rotation[8] = r[10];
+		}
+		else if (!strcmp(file.words[0], "stiffness") && file.word_count == 3)
+		{
+			float tmp=atof(file.words[1]);
+			if (tmp<0.0)
+				stiffness[0]=tmp;
+			else
+				printlog(0, "WARNING: first stiffness value must be under 0");
+
+			tmp=atof(file.words[2]);
+			if (tmp>0.0)
+				stiffness[1]=tmp;
+			else
+				printlog(0, "WARNING: second stiffness values must be above 0");
+		}
+		else if (!strcmp(file.words[0], "depth"))
+			depth=atof(file.words[1]);
+
+		else if (!strcmp(file.words[0], "resolution") && file.word_count == 3)
 		{
 			int tmp=atoi(file.words[1]);
 			if (tmp > 0)
@@ -527,7 +591,7 @@ bool Trimesh::Load_Road(const char *f)
 			else
 				printlog(0, "WARNING: y resolution value must be above 0");
 		}
-		else if (!strcmp(file.words[0], "material"))
+		else if (!strcmp(file.words[0], "material") && file.word_count == 2)
 		{
 			unsigned int tmp = Find_Material(file.words[1]);
 
@@ -536,7 +600,7 @@ bool Trimesh::Load_Road(const char *f)
 			else
 				material=&materials[tmp];
 		}
-		else if (!strcmp(file.words[0], "material_file"))
+		else if (!strcmp(file.words[0], "material_file") && file.word_count == 2)
 		{
 			//directly copied from obj.cpp
 			char filename[strlen(f)+strlen(file.words[1])];
@@ -554,8 +618,10 @@ bool Trimesh::Load_Road(const char *f)
 			}
 			Load_Material(filename);
 		}
-		else if (!strcmp(file.words[0], "depth"))
-			depth=atof(file.words[1]);
+		else if (!strcmp(file.words[0], "cubic"))
+			cubic=true;
+		else if (!strcmp(file.words[0], "linear"))
+			cubic=false;
 		else if (!strcmp(file.words[0], "capping"))
 			capping=true;
 		else if (!strcmp(file.words[0], "nocapping"))
@@ -565,8 +631,8 @@ bool Trimesh::Load_Road(const char *f)
 	}
 
 	//at end, should cap?
-	if (depth && capping)
-		GenIndices(&material->triangles, vertices.size()-2*(xres+1), 1, xres+1, xres, 1);
+	if (oldend.active && newend.active && newend.offset && capping)
+		GenIndices(&material->triangles, vertices.size()-2*(last_xres+1), 1, last_xres+1, last_xres, 1);
 
 	//done, remove all data:
 	Bezier::RemoveAll();

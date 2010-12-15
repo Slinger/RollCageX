@@ -1,32 +1,56 @@
 #just trying out the custom road generator
-#note: a lot of stuff missing (commented out)!
 
-#use these materials (for colours and frictions)
+#load somematerials (for colours and frictions)
 material_file Box.mtl #borrow from Box model...
 
-#define some road shapes (by name)
+#define some road shapes (arbitrary 2d bezier curve with name)
+#
+#section <name> <P0x P0y> <P1x P1y> ... <Pnx Pny>
+#
 section flat		-8 0	8 0 #10m flat surface
 section half-pipe 	-8 10	-8 -3	8 -3	8 10 #U shaped half-pipe
 
-#build one or more pieces of road
 
-#capp ends or not?
-capping #on by default, disabled by "nocapping"
+#
+#the following can be changed between each block of road:
+#
 
-#the 3 following can be changed whenever wanted
-#(that is, from one section "add" to another)
 #choose colour (define surface in geoms.lst!)
 material Material.001
 #how many vertices in width and length (between each section)
 resolution 15 15
+#transformation approch (rotation&morphing)
+cubic #default, smooth. alternative is "linear"
+
+#
+#the following can be changed whenever wanted
+#(that is, from one section "add" to another = otf)
+#
+
 #depth of road (0 disables)
 depth 1
+#rotation of section of road
+rotation 0 0 0
+#stiffness of road (<before section> <after section>)
+#(first value ignored on first add, last value on last add)
+stiffness -1 5
 
+#
+#special feature: cap first and last end of road (if using depth)
+#
+capping #on by default, disabled by "nocapping"
+
+#build one or more pieces of road (adds sections in 3d space)
+#
 #add <section> <position> <rotation> <stiffness>
-add flat	0 -20 0		0 0 0	2
-add half-pipe	0 0 0		0 0 0	11
+#
+add flat	0 -20 0
+stiffness -5 11
+add half-pipe	0 0 0
+rotation 0 0 90
 material Material.002
-add half-pipe	20 20 0		0 0 90	11
+stiffness -11 5
+add half-pipe	20 20 0
 material Material.001
-add flat	40 20 0		0 0 90	2
-
+stiffness -5 1
+add flat	40 20 0
