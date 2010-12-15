@@ -276,7 +276,7 @@ void GenVertices(std::vector<Vector_Float> *vertices,
 		offset2=-newend->offset;
 	}
 
-	while (x<=1.0)
+	for (int i=0; i<=xres; ++i)
 	{
 		//first alternative of point
 		oldend->shape->GetPos(x, tmp1);
@@ -503,11 +503,14 @@ bool Trimesh::Load_Road(const char *f)
 			oldend.GetRot(rot);
 			//vertices
 			t=0.0;
+			int i=0;
 
 			//check if we can reuse the old vertices (everything matches)... :-)
 			if (last_xres==xres && oldend.offset==newend.offset)
 			{
 				t+=dy; //skip first "row" of vertices
+				i+=1; //skip for for looping variable too
+
 				//go back a bit
 				if (dpt) //if depth (two rows to skip)
 					start-=2*(xres+1);
@@ -515,7 +518,7 @@ bool Trimesh::Load_Road(const char *f)
 					start-=xres+1;
 			}
 
-			while (t<=1.0)
+			for (; i<yres; ++i)
 			{
 				Rotation(rot, p0, p1, p2, p3, t);
 				Position(pos, p0, p1, p2, p3, t);
