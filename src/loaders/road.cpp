@@ -137,8 +137,20 @@ class Bezier
 
 			//normalize
 			float l = sqrt(dir[0]*dir[0]+dir[1]*dir[1]);
-			dir[0]/=l;
-			dir[1]/=l;
+
+			//specially crafted bezier curves (where p0=p1 and/or p(n-1)=pn)
+			//can not be derived correctly for t=0 and t=1. make safetycheck.
+			if (l == 0)
+			{
+				printlog(0, "WARNING: equal road section points exists, derivative not possible!");
+				dir[0]=1.0;
+				dir[1]=0.0;
+			}
+			else
+			{
+				dir[0]/=l;
+				dir[1]/=l;
+			}
 		}
 		static void RemoveAll()
 		{
