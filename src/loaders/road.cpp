@@ -518,7 +518,7 @@ bool Trimesh::Load_Road(const char *f)
 					start-=xres+1;
 			}
 
-			for (; i<yres; ++i)
+			for (; i<=yres; ++i)
 			{
 				Rotation(rot, p0, p1, p2, p3, t);
 				Position(pos, p0, p1, p2, p3, t);
