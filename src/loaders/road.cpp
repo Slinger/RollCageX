@@ -477,7 +477,7 @@ bool Trimesh::Load_Road(const char *f)
 			//copy first rotation:
 			oldend.GetRot(rot);
 			t=0.0;
-			while (t<=1.0)
+			for (int i=0; i<=yres; ++i)
 			{
 				Rotation(rot, p0, p1, p2, p3, t);
 				t+=dy;
