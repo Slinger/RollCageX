@@ -347,12 +347,21 @@ void GenIndices(std::vector<Triangle_Uint> *triangles,
 void Rotation(float *rot, float *p0, float *p1, float *p2, float *p3, float t)
 {
 	//Y=direction
-	rot[1]=3.0*(p1[0]-p0[0])*(1.0-t)*(1.0-t) +6.0*(p2[0]-p1[0])*(1.0-t)*t +3.0*(p3[0]-p2[0])*t*t; //x
-	rot[4]=3.0*(p1[1]-p0[1])*(1.0-t)*(1.0-t) +6.0*(p2[1]-p1[1])*(1.0-t)*t +3.0*(p3[1]-p2[1])*t*t; //y
-	rot[7]=3.0*(p1[2]-p0[2])*(1.0-t)*(1.0-t) +6.0*(p2[2]-p1[2])*(1.0-t)*t +3.0*(p3[2]-p2[2])*t*t; //z
+	float Y[3];
+	Y[0]=3.0*(p1[0]-p0[0])*(1.0-t)*(1.0-t) +6.0*(p2[0]-p1[0])*(1.0-t)*t +3.0*(p3[0]-p2[0])*t*t; //x
+	Y[1]=3.0*(p1[1]-p0[1])*(1.0-t)*(1.0-t) +6.0*(p2[1]-p1[1])*(1.0-t)*t +3.0*(p3[1]-p2[1])*t*t; //y
+	Y[2]=3.0*(p1[2]-p0[2])*(1.0-t)*(1.0-t) +6.0*(p2[2]-p1[2])*(1.0-t)*t +3.0*(p3[2]-p2[2])*t*t; //z
 	//make unit
-	float l = sqrt(rot[1]*rot[1] +rot[4]*rot[4] +rot[7]*rot[7]);
-	rot[1]/=l; rot[4]/=l; rot[7]/=l;
+	float l = sqrt(Y[0]*Y[0] + Y[1]*Y[1] + Y[2]*Y[2]);
+
+	if (l>0.0) //check that we got an actual direction
+	{
+		rot[1]=Y[0]/l;
+		rot[4]=Y[1]/l;
+		rot[7]=Y[2]/l;
+	}
+	//else, this would've resulted in NaN, so keep the old direction...
+	//there might be some better solution to this?
 
 	//X = Y x Zold
 	rot[0]=rot[4]*rot[8] -rot[7]*rot[5];
