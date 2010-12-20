@@ -518,7 +518,6 @@ bool Trimesh::Load_Road(const char *f)
 			//check if we can reuse the old vertices (everything matches)... :-)
 			if (last_xres==xres && last_dpt==dpt)
 			{
-				printf("reuse\n");
 				t+=dy; //skip first "row" of vertices
 				i+=1; //skip for for looping variable too
 
