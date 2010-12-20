@@ -257,11 +257,18 @@ void GenVertices(std::vector<Vector_Float> *vertices,
 		float *pos, float *rot, bool top, End *oldend, End *newend,
 		float angle, float t, int xres)
 {
+	//how much of the rotation should be done
+	angle*=t;
+
+	//variables
 	float dir[2];
 	float tmp1[2], tmp2[2], tmp[2], point[2]; //different points, merge together
 
+	//for looping through all positions along x
 	float dx=1.0/float(xres);
 	float x=0.0;
+
+	//for storing the generated data (before copying)
 	Vector_Float vertex;
 
 	float offset1, offset2;
@@ -295,7 +302,6 @@ void GenVertices(std::vector<Vector_Float> *vertices,
 		tmp[1] = tmp1[1]*(1.0-t)+tmp2[1]*t;
 
 		//rotate between 0 and "angle" rotation
-		angle*=t;
 		point[0] = +cos(angle)*tmp[0] +sin(angle)*tmp[1];
 		point[1] = -sin(angle)*tmp[0] +cos(angle)*tmp[1];
 
