@@ -424,7 +424,8 @@ bool Trimesh::Load_Road(const char *f)
 
 	//misc:
 	triangle_count=0; //for info output
-	int last_xres=0; //for correct capping (to prevent getting fooled)
+	int last_xres=0; //to prevent getting fooled (guaranteed to be accurate)
+	bool last_dpt=false; //the same, set correctly after each road block
 
 	while  (file.Read_Line())
 	{
@@ -515,8 +516,9 @@ bool Trimesh::Load_Road(const char *f)
 			int i=0;
 
 			//check if we can reuse the old vertices (everything matches)... :-)
-			if (last_xres==xres && oldend.offset==newend.offset)
+			if (last_xres==xres && last_dpt==dpt)
 			{
+				printf("reuse\n");
 				t+=dy; //skip first "row" of vertices
 				i+=1; //skip for for looping variable too
 
@@ -566,11 +568,13 @@ bool Trimesh::Load_Road(const char *f)
 				//capping of this end (first, got depth and conf wants)?
 				if (cap&&oldend.offset&&capping)
 					GenIndices(&material->triangles, start+xres+1, 1, -(xres+1), xres, 1);
-
-				last_xres = xres;
 			}
 			else //only top
 				GenIndices(&material->triangles, start, 1, xres+1, xres, yres);
+
+			//keep track of what settings were used
+			last_xres = xres;
+			last_dpt = dpt;
 		}
 		else if (!strcmp(file.words[0], "rotation") && file.word_count == 4)
 		{
