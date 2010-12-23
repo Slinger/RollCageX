@@ -41,9 +41,6 @@
 # rollingres 1.0
 
 
-#modify model "Box.obj": resize it to 2x of size
-> modify Box.obj resize 2
-
 #spawning of trimesh geom (with overrideable rendering model):
 # POSITION ROTATION GEOM_MODEL [RENDER_MODEL]
   0 0 0    0 0 0    "Box.obj"  #"Box.obj"
@@ -51,11 +48,19 @@
 #specify the global mu of latest geom
 > surface global mu 1
 
+
 #enable per-material surfaces and set bouncyness for this one
 #("Material" is the light-blue material at the edges)
-> surface material "Material" mu 0
+#> surface material "Material" bounce 10
 
-#add demo scramble road (and set all surfaces to mu=1)
-25 50 0  0 0 45  demo.road
-> surface material Material.001 mu 0.5
-> surface material Material.002 mu 0.2
+#superbowl road around the track
+0 0 0  0 0 0  superbowl.road
+> surface global mu 1
+
+#a little loop (for antigrav testing)
+-110 80 -0.25  0 0 -45 vertigo.road
+> surface global mu 1
+
+#inspired by the stage2 scramble track
+0 -25 0  0 0 0 "in a spin.road"
+> surface global mu 1

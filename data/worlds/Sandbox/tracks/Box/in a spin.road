@@ -1,0 +1,137 @@
+#"in a spin" - inspired by the stage2 scramble track
+#
+# "like a living thing, it will throw you off its
+#  back if it does not like what you are doing."
+#
+
+#load materials
+material_file surfaces.mtl
+
+#define some sections (shapes) needed:
+#
+#section <name> <P0x P0y> <P1x P1y> ... <Pnx Pny>
+section small	-6 0	6 0
+section wide	-12 0	12 0
+
+
+#
+#the following can be changed between each block of road:
+#
+
+#choose colour (define surface in geoms.lst!)
+material asphalt
+#how many vertices in width and length (between each section)
+resolution 10 10
+#transformation approch (rotation&morphing)
+cubic #default, smooth. alternative is "linear"
+
+#
+#the following can be changed whenever wanted
+#(that is, from one section "add" to another = otf)
+#
+
+#depth of road (0 disables)
+depth 1
+#rotation of section of road
+rotation 0 0 30 
+#stiffness of road (<before section> <after section>)
+#(first value ignored on first add, last value on last add)
+stiffness -22 22
+
+#
+#special feature: cap first and last end of road (if using depth)
+#
+nocapping
+
+#build one or more pieces of road (adds sections in 3d space)
+#
+#add <section> <position> <rotation> <stiffness>
+#
+
+#first a tricky entrance...
+add small 25 0 -0.5
+rotation -20 0 0
+add small 75 80 30
+
+resolution 1 25
+rotation 0 0 0
+add small 75 150 50
+
+#then go to wider road
+stiffness -20 20
+resolution 1 10
+add wide 75 300 50
+
+#continue a bit
+resolution 1 1
+add wide 75 500 50
+
+#90° tilt!
+resolution 10 50
+rotation 0 -90 0
+add wide 63 800 62
+
+#continue
+resolution 1 1
+add wide 63 1000 62
+
+#another 90° tilt - upside down!
+resolution 10 50
+rotation 0 -180 0
+add wide 75 1300 74
+
+#continue a bit
+resolution 1 1
+add wide 75 1500 74
+
+#90° again, prepare for turn
+resolution 10 50
+rotation 0 -270 0
+add wide 87 1800 62
+
+#continue and make a 180° turn!
+resolution 1 1
+stiffness -48 48
+add wide 87 2000 62
+
+resolution 1 25
+rotation -90 0 -90
+add wide 0 2087 62
+rotation 0 -90 -180
+add wide -87 2000 62
+stiffness -20 20
+
+#continue
+resolution 1 1
+add wide -87 1800 62
+
+#another 90° (upside down again)
+resolution 10 50
+rotation 0 -180 -180
+add wide -75 1500 74
+
+#continue
+resolution 1 1
+add wide -75 1100 74
+
+#make road smaller at left and right side
+section small_left	-12 0	0 0
+section small_right	0 0	12 0
+
+add small_left -75 1050 74
+add small_left -75 800 74
+add wide -75 750 74
+add wide -75 600 74
+add small_right -75 550 74
+add small_right -75 300 74
+add wide -75 250 74
+
+#finish with a smaller road
+capping #enable capping for last end
+resolution 5 5
+add small -75 100 74
+
+#down to the ground!
+resolution 1 50
+rotation -90 -180 -180
+add small -75 0 14

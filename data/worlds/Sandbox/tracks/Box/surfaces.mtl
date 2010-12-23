@@ -1,0 +1,25 @@
+#some basic materials for common surfaces
+#used by the "*.road" files
+newmtl concrete
+#shinyness
+Ns 80
+#ambient, diffuse and specular
+Ka 0.0 0.0 0.0
+Kd 0.8 0.8 0.8
+Ks 0.0 0.0 0.0
+
+
+newmtl asphalt
+Ns 45
+Ka 0.000000 0.000000 0.000000
+Kd 0.2 0.2 0.2
+Ks 1.0 1.0 1.0
+
+
+newmtl snow
+Ns 110
+Ka 0.4 0.4 0.4
+Kd 0.9 0.9 0.9
+Ks 1 1 1
+
+

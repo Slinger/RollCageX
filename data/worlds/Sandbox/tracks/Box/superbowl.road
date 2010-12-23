@@ -1,0 +1,31 @@
+#see "in a spin.road" for details on the file format
+
+#load materials
+material_file surfaces.mtl
+
+#we will only need one C-shape for the whole road:
+section C	15 20	-15 20	-15 -20	15 -20
+
+material concrete
+resolution 25 50
+
+depth 0 #to save memory+processing, only render inside
+#(might cause problems with collisions from "wrong" side)
+
+#radius of 160, multiplied by 0.5523... gives good
+#stiffness values for circle approximation
+stiffness -88.37 88.37
+
+nocapping #not needed
+
+#build in 4 quadrants
+add C -160 0 0
+rotation 0 0 90
+add C 0 160 0
+rotation 0 0 180
+add C 160 0 0
+rotation 0 0 270
+add C 0 -160 0
+#finish by going back into the first part of road
+rotation 0 0 0 
+add C -160 0 0 
