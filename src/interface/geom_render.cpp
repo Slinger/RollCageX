@@ -491,7 +491,10 @@ void Geom_Render()
 						new_indices=0;
 					}
 					else
+					{
+						Volume_Colour((float)triangles);
 						Assure_Memory (triangles*3, triangles*3);
+					}
 
 					//render all triangles
 					for (tloop=0; tloop<triangles; ++tloop)
