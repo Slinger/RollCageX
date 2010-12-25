@@ -76,7 +76,7 @@ rotation -270 0 0
 add - 0 0 150
 
 resolution 1 1
-stiffness 55.2 55.2
+stiffness -55.2 55.2
 add - 0 0 100
 
 resolution 1 20

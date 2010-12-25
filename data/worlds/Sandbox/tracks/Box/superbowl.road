@@ -9,7 +9,7 @@ section C	15 20	-15 20	-15 -20	15 -20
 material concrete
 resolution 25 50
 
-depth 0 #to save memory+processing, only render inside
+depth 0 #to save memory+processing, only create inside
 #(might cause problems with collisions from "wrong" side)
 
 #radius of 160, multiplied by 0.5523... gives good

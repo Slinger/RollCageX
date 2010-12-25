@@ -54,11 +54,11 @@
 #> surface material "Material" bounce 10
 
 #superbowl road around the track
-0 0 0  0 0 0  superbowl.road
+0 0 30  0 0 0  superbowl.road
 > surface global mu 1
 
 #a little loop (for antigrav testing)
--110 80 -0.25  0 0 -45 vertigo.road
+-120 90 -0.25  0 0 -45 vertigo.road
 > surface global mu 1
 
 #inspired by the stage2 scramble track
