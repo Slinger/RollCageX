@@ -179,73 +179,14 @@ class Bezier
 
 Bezier *Bezier::head = NULL;
 
-//keep track of both ends of the piece of the road
-class End
+//for storing all needed info about an end of a piece of road
+struct End
 {
-	public:
-		End()
-		{
-			active=false;
-			//the rest is to prevent compiler warnings:
-			shape=NULL;
-			for (int i=0; i<3; ++i)
-				pos[i]=0.0;
-			for (int i=0; i<9; ++i)
-				rot[i]=0.0;
-			offset=0.0;
-			stiff[0]=0.0;
-			stiff[1]=0.0;
-		}
-
-		bool active;
-
-		void Add(Text_File *file)
-		{
-			if ((shape=Bezier::Find(file->words[1])))
-			{
-				active=true;
-
-				pos[0] = atof(file->words[2]);
-				pos[1] = atof(file->words[3]);
-				pos[2] = atof(file->words[4]);
-			}
-			else
-				active=false;
-		}
-
-		void GetPos(float *pos)
-		{
-			memcpy(pos, this->pos, sizeof(float)*3);
-		}
-
-		void GetDirPos(float *pos, bool reverse)
-		{
-			GetPos(pos);
-
-			if (reverse)
-			{
-				pos[0]+=rot[1]*stiff[0];
-				pos[1]+=rot[4]*stiff[0];
-				pos[2]+=rot[7]*stiff[0];
-			}
-			else
-			{
-				pos[0]+=rot[1]*stiff[1];
-				pos[1]+=rot[4]*stiff[1];
-				pos[2]+=rot[7]*stiff[1];
-			}
-
-		}
-		void GetRot(float *rot)
-		{
-			memcpy(rot, this->rot, sizeof(float)*9);
-		}
-
-		Bezier *shape;
-		float pos[3];
-		float offset;
-		float rot[9];
-		float stiff[2];
+	bool active;
+	Bezier *shape;
+	float pos[3];
+	float offset;
+	float rot[9];
 };
 
 //note: uses signed integers, so limited to about 2 billion (range for indices)
@@ -422,11 +363,12 @@ bool Trimesh::Load_Road(const char *f)
 	bool cubic=true;
 	//
 	//for each section/end of road ("otf"):
-	//(gets copied into the End class when actually used)
-	End oldend, newend;
+	//(gets copied into the End struct when actually used)
 	float depth=0.5; //depth of road
 	float rotation[9] = {1.0,0.0,0.0, 0.0,1.0,0.0, 0.0,0.0,1.0};
 	float stiffness[2] = {5,5};
+	Bezier *section = NULL; //shape of road
+	End oldend={false}, newend={false}; //keep track of both ends of the piece of road
 
 	//misc:
 	triangle_count=0; //for info output
@@ -437,26 +379,31 @@ bool Trimesh::Load_Road(const char *f)
 	{
 		if (!strcmp(file.words[0], "section") && file.word_count >= 4 && !(file.word_count&1))
 			new Bezier(&file);
-		else if (!strcmp(file.words[0], "add") && file.word_count == 5)
+		else if (!strcmp(file.words[0], "add") && file.word_count == 4)
 		{
-			//if last end doesn't exist, this is first part of road, cap it
-			bool cap=oldend.active? false: true;
-
-			oldend=newend;
-			newend.Add(&file);
-
-			//if this failed, we reset and move on
-			if (!newend.active)
+			//check to see if something is wrong (no shape selected)
+			if (!section)
 			{
+				printlog(0, "WARNING: no road section selected!");
+				//reset and move on
 				oldend.active=false;
 				newend.active=false;
 				continue;
 			}
 
-			//copy settings to the new end
+			//if last end doesn't exist, this is first part of road, cap it
+			bool cap=oldend.active? false: true;
+
+			//copy old
+			oldend=newend;
+
+			//set settings for the new end
+			newend.active = true;
+			newend.shape = section;
 			newend.offset = depth/2.0;
-			newend.stiff[0]=stiffness[0];
-			newend.stiff[1]=stiffness[1];
+			newend.pos[0] = atof(file.words[1]);
+			newend.pos[1] = atof(file.words[2]);
+			newend.pos[2] = atof(file.words[3]);
 			memcpy(newend.rot, rotation, sizeof(float)*9);
 
 			bool dpt=oldend.offset||newend.offset? true: false;
@@ -482,16 +429,23 @@ bool Trimesh::Load_Road(const char *f)
 			float dy=1.0/float(yres);
 
 			float p0[3], p1[3], p2[3], p3[3];
-			oldend.GetPos(p0);
-			oldend.GetDirPos(p1, false);
-			newend.GetDirPos(p2, true);
-			newend.GetPos(p3);
+
+			memcpy(p0, oldend.pos, sizeof(float)*3);
+			memcpy(p3, newend.pos, sizeof(float)*3);
+
+			p1[0]=p0[0]+oldend.rot[1]*stiffness[0];
+			p1[1]=p0[1]+oldend.rot[4]*stiffness[0];
+			p1[2]=p0[2]+oldend.rot[7]*stiffness[0];
+
+			p2[0]=p3[0]-newend.rot[1]*stiffness[1];
+			p2[1]=p3[1]-newend.rot[4]*stiffness[1];
+			p2[2]=p3[2]-newend.rot[7]*stiffness[1];
 
 			//determine how rotation differs after twitching from first to second end
 			//(needs to be compensated when transforming between the two ends)
 			//simulate rotation from generation before actual rotation:
 			//copy first rotation:
-			oldend.GetRot(rot);
+			memcpy(rot, oldend.rot, sizeof(float)*9);
 			t=0.0;
 			for (int i=0; i<=yres; ++i)
 			{
@@ -516,7 +470,7 @@ bool Trimesh::Load_Road(const char *f)
 			//done, start real generation.
 			int start=vertices.size(); //store current position (before adding more data)
 			//copy original rotation again
-			oldend.GetRot(rot);
+			memcpy(rot, oldend.rot, sizeof(float)*9);
 			//vertices
 			t=0.0;
 			int i=0;
@@ -581,6 +535,14 @@ bool Trimesh::Load_Road(const char *f)
 			last_xres = xres;
 			last_dpt = dpt;
 		}
+		else if (!strcmp(file.words[0], "select") && file.word_count == 2)
+		{
+			Bezier *tmp=Bezier::Find(file.words[1]);
+			if (tmp)
+				section=tmp;
+			else
+				printlog(0, "WARNING: requested section not found");
+		}
 		else if (!strcmp(file.words[0], "rotation") && file.word_count == 4)
 		{
 			//ugly but reliable: use ode utility for rotation:
@@ -596,16 +558,16 @@ bool Trimesh::Load_Road(const char *f)
 		else if (!strcmp(file.words[0], "stiffness") && file.word_count == 3)
 		{
 			float tmp=atof(file.words[1]);
-			if (tmp<0.0)
+			if (tmp>0.0)
 				stiffness[0]=tmp;
 			else
-				printlog(0, "WARNING: first stiffness value must be under 0");
+				printlog(0, "WARNING: stiffness values must be above 0");
 
 			tmp=atof(file.words[2]);
 			if (tmp>0.0)
 				stiffness[1]=tmp;
 			else
-				printlog(0, "WARNING: second stiffness values must be above 0");
+				printlog(0, "WARNING: stiffness values must be above 0");
 		}
 		else if (!strcmp(file.words[0], "depth"))
 			depth=atof(file.words[1]);
