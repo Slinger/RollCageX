@@ -9,7 +9,7 @@
  * See license.txt and README for more info
  */
 
-#include "graphic_buffers.hpp"
+#include "render_lists.hpp"
 #include "gl_extensions.hpp"
 
 #include "../shared/internal.hpp"
@@ -59,7 +59,7 @@ list_buffer *buffer_out = &buffer2; //rendered
 
 
 
-void Graphic_List_Update()
+void Render_List_Update()
 {
 	//pointers:
 	list_buffer *tmp=buffer_in;
@@ -81,11 +81,11 @@ void Graphic_List_Update()
 			//if buffer full...
 			if (*count == tmp->size)
 			{
-				printlog(2, "Graphic_List buffer was too small, resizing");
+				printlog(2, "Render list was too small, resizing");
 
 				//copy to new memory
 				list_element *oldlist = tmp->list;
-				tmp->size+=INITIAL_GRAPHIC_BUFFER_SIZE;
+				tmp->size+=INITIAL_RENDER_LIST_SIZE;
 				tmp->list = new list_element[tmp->size];
 				memcpy(tmp->list, oldlist, tmp->count);
 
@@ -134,11 +134,11 @@ void Graphic_List_Update()
 			//if buffer full...
 			if (*count == tmp->size)
 			{
-				printlog(2, "Graphic_List buffer was too small, resizing");
+				printlog(2, "Render list was too small, resizing");
 
 				//copy to new memory
 				list_element *oldlist = tmp->list;
-				tmp->size+=INITIAL_GRAPHIC_BUFFER_SIZE;
+				tmp->size+=INITIAL_RENDER_LIST_SIZE;
 				tmp->list = new list_element[tmp->size];
 				memcpy(tmp->list, oldlist, tmp->count);
 
@@ -185,7 +185,7 @@ void Graphic_List_Update()
 //updated on resizing, needed here:
 extern float view_angle_rate_x, view_angle_rate_y;
 
-void Graphic_List_Render()
+void Render_List_Render()
 {
 	//see if in buffer got complete set of new data, if so switch
 	if (buffer_in->filled) //got new stuff to render

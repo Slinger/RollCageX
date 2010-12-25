@@ -9,13 +9,13 @@
  * See license.txt and README for more info
  */
 
-#ifndef _RCX_GRAPHIC_BUFFERS_H
-#define _RCX_GRAPHIC_BUFFERS_H
+#ifndef _RCX_RENDER_LISTS_H
+#define _RCX_RENDER_LISTS_H
 
 //currently just list for components (geoms+bodies)
-#define INITIAL_GRAPHIC_BUFFER_SIZE 150
+#define INITIAL_RENDER_LIST_SIZE 150
 
-void Graphic_List_Update(); //copy pos/rot
-void Graphic_List_Render(); //render
+void Render_List_Update(); //copy pos/rot
+void Render_List_Render(); //render
 
 #endif
