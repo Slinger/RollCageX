@@ -124,7 +124,7 @@ class Geom: public Component
 		Geom *next;
 
 		friend class Trimesh_Geom; //will be required to modify triangle_* stuff above
-		friend void Graphic_List_Update(); //to allow loop through geoms
+		friend void Render_List_Update(); //to allow loop through geoms
 		friend void Event_Buffers_Process(dReal); //to allow looping
 		friend void Body::Physics_Step (dReal step); //dito
 		friend void Geom_Render(); //same as above, for debug collision render

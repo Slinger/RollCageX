@@ -94,7 +94,7 @@ class Trimesh_3D: public Racetime_Data
 		GLuint vbo_id; //which vbo got this model
 
 		//only graphics list rendering can access this stuff
-		friend void Graphic_List_Render();
+		friend void Render_List_Render();
 };
 
 //for collision detection (geom) generation

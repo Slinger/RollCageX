@@ -29,7 +29,7 @@ class VBO: public Racetime_Data
 		//find a vbo with enough room, if not create a new one
 		static VBO *Find_Enough_Room(unsigned int needed)
 		{
-			printlog(2, "Locating vbo to hold %u bytes of data", needed);
+			printlog(1, "Locating vbo to hold %u bytes of data", needed);
 
 			//check so enough space in even a new vbo:
 			if (needed > (unsigned int) internal.vbo_size)

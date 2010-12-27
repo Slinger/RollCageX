@@ -27,7 +27,7 @@
 #include "event_buffers.hpp"
 #include "timers.hpp"
 
-#include "../interface/graphic_buffers.hpp"
+#include "../interface/render_lists.hpp"
 
 
 unsigned int simulation_lag = 0;
@@ -107,7 +107,7 @@ int Simulation_Loop (void *d)
 			//done with ode
 			SDL_mutexV(ode_mutex);
 			
-			Graphic_List_Update(); //make copy of position/rotation for rendering
+			Render_List_Update(); //make copy of position/rotation for rendering
 		}
 
 		//previous simulations might have caused events (to be processed by scripts)...

@@ -249,6 +249,10 @@ void Render_List_Render()
 
 	for (size_t i=0; i<(*count); ++i)
 	{
+		//if (i!=127)
+			//continue;
+		//printf("%i\n", i);
+
 		//for cleaner code, set pointers:
 		model = list[i].model;
 		matrix = list[i].matrix;
@@ -306,8 +310,13 @@ void Render_List_Render()
 				glMaterialfv(GL_FRONT, GL_EMISSION, materials[m_loop].emission);
 				glMaterialf (GL_FRONT, GL_SHININESS, materials[m_loop].shininess);
 
+				//printf("m: %u %u\n", materials[m_loop].start, materials[m_loop].size);
+
 				//draw
 				glDrawArrays(GL_TRIANGLES, materials[m_loop].start, materials[m_loop].size);
+
+				//glDrawArrays(GL_TRIANGLES, 144, 96000);
+				//glDrawArrays(GL_TRIANGLES, 144, 60000);
 			}
 
 		glPopMatrix();

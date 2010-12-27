@@ -72,7 +72,7 @@ class Camera
 		bool in_air;
 
 		friend class Car;
-		friend void Graphic_List_Render();
+		friend void Render_List_Render();
 
 		//physics simulation functions
 		void Accelerate(dReal step);

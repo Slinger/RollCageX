@@ -22,7 +22,7 @@
 
 #include "../shared/camera.hpp"
 #include "gl_extensions.hpp"
-#include "graphic_buffers.hpp"
+#include "render_lists.hpp"
 #include "geom_render.hpp"
 
 SDL_Surface *screen;
@@ -343,7 +343,7 @@ int Interface_Loop ()
 
 			//render models (if not 2 or more level of geom rendering)
 			if (geom_render_level < 3)
-				Graphic_List_Render();
+				Render_List_Render();
 
 			//render geoms (if nonzero level)
 			if (geom_render_level)
