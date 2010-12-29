@@ -69,7 +69,15 @@ void Car::Physics_Step(dReal step)
 			//downforce (by thrusters to make space tracks possible)
 			//for air-based downforce, this would be: conf*air_density*v*v
 			//but since using thrusters, I'd guess: conf*v*v or just: conf*v
-			dBodyAddRelForce (carp->bodyid,0,0, -carp->downforce*track.density*carp->dir*carp->velocity*carp->velocity);
+
+			//here: debug based on air dynamics:
+			dReal force = carp->downforce*track.density*carp->dir*carp->velocity*carp->velocity;
+
+			//avoid too big value:
+			if (force > carp->maxdownforce)
+				force=carp->maxdownforce;
+
+			dBodyAddRelForce (carp->bodyid,0,0, -force);
 		}
 
 		//calculate turning:

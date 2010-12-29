@@ -362,7 +362,8 @@ Car *Car_Template::Spawn (dReal x, dReal y, dReal z,  Trimesh_3D *tyre, Trimesh_
 	car->redist_force = conf.redist_force;
 
 	car->turn = conf.turn;
-	car->downforce = conf.downforce;
+	car->downforce = conf.downforce[0];
+	car->maxdownforce = conf.downforce[1];
 
 	//start building
 	new Space(car);
