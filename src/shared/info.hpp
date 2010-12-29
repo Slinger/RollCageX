@@ -30,7 +30,7 @@ const char ISSUE[] = "\
 \n				-=[ Credits ]=-\n\n\
     * Mats Wahlberg (\"Slinger\")		-	Creator (coder)\n\
     * \"XEWEASEL\" (\"Codie Morgan\")	-	High Definition 3D Models\n\
-    * \"K.Mac\" (\"Mac\")			-	Extensive testing, hacks and new ideas\n\
+    * \"K.Mac\"				-	Extensive testing, hacks and new ideas\n\
     * \"MeAkaJon\"			-	Creator/maintainer of gorcx.net webpage\n\
     * \"Spontificus\"			-	Testing, hacks and various fixes\n\n\
 \n		-=[ Other Projects that made RCX possible ]=\n\n\
