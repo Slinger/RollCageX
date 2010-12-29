@@ -63,12 +63,8 @@ void Render_List_Update()
 {
 	//pointers:
 	list_buffer *tmp=buffer_in;
-
-	size_t *count=&(tmp->count);
-	list_element *list=tmp->list;
-
 	tmp->filled=false; //indicate buffer is now updating (incomplete)
-	*count=0; //set to zero (empty)
+	tmp->count=0; //set to zero (empty)
 
 	//variables
 	const dReal *pos, *rot;
@@ -79,7 +75,7 @@ void Render_List_Update()
 		if (g->model)
 		{
 			//if buffer full...
-			if (*count == tmp->size)
+			if (tmp->count == tmp->size)
 			{
 				printlog(2, "Render list was too small, resizing");
 
@@ -87,15 +83,13 @@ void Render_List_Update()
 				list_element *oldlist = tmp->list;
 				tmp->size+=INITIAL_RENDER_LIST_SIZE;
 				tmp->list = new list_element[tmp->size];
-				memcpy(tmp->list, oldlist, tmp->count);
-
-				//update pointer
-				list=tmp->list;
+				memcpy(tmp->list, oldlist, sizeof(list_element)*tmp->count);
+				delete[] oldlist;
 			}
 
 			pos = dGeomGetPosition(g->geom_id);
 			rot = dGeomGetRotation(g->geom_id);
-			matrix = list[*count].matrix;
+			matrix = tmp->list[tmp->count].matrix;
 
 			//set matrix
 			matrix[0]=rot[0];
@@ -116,13 +110,13 @@ void Render_List_Update()
 			matrix[15]=1;
 
 			//set what to render
-			list[*count].model = g->model;
+			tmp->list[tmp->count].model = g->model;
 
 			//set object owning this component:
-			list[*count].object = g->object_parent;
+			tmp->list[tmp->count].object = g->object_parent;
 
 			//increase counter
-			++(*count);
+			++(tmp->count);
 		}
 	}
 
@@ -132,7 +126,7 @@ void Render_List_Update()
 		if (b->model)
 		{
 			//if buffer full...
-			if (*count == tmp->size)
+			if (tmp->count == tmp->size)
 			{
 				printlog(2, "Render list was too small, resizing");
 
@@ -140,15 +134,13 @@ void Render_List_Update()
 				list_element *oldlist = tmp->list;
 				tmp->size+=INITIAL_RENDER_LIST_SIZE;
 				tmp->list = new list_element[tmp->size];
-				memcpy(tmp->list, oldlist, tmp->count);
-
-				//update pointer
-				list=tmp->list;
+				memcpy(tmp->list, oldlist, sizeof(list_element)*tmp->count);
+				delete[] oldlist;
 			}
 
 			pos = dBodyGetPosition(b->body_id);
 			rot = dBodyGetRotation(b->body_id);
-			matrix = list[*count].matrix;
+			matrix = tmp->list[tmp->count].matrix;
 
 			//set matrix
 			matrix[0]=rot[0];
@@ -169,13 +161,13 @@ void Render_List_Update()
 			matrix[15]=1;
 
 			//set what to render
-			list[*count].model = b->model;
+			tmp->list[tmp->count].model = b->model;
 
 			//set object owning this component:
-			list[*count].object = b->object_parent;
+			tmp->list[tmp->count].object = b->object_parent;
 
 			//increase counter
-			++(*count);
+			++(tmp->count);
 		}
 	}
 
@@ -249,10 +241,6 @@ void Render_List_Render()
 
 	for (size_t i=0; i<(*count); ++i)
 	{
-		//if (i!=127)
-			//continue;
-		//printf("%i\n", i);
-
 		//for cleaner code, set pointers:
 		model = list[i].model;
 		matrix = list[i].matrix;
