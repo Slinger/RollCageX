@@ -28,8 +28,8 @@ const char ISSUE[] = "\
    You should have received a copy of the GNU General Public License\n\
    along with this program.  If not, see <http://www.gnu.org/licenses/>.\n\
 \n				-=[ Credits ]=-\n\n\
-    * Mats Wahlberg (\"Slinger\")		-	Creator (coder)\n\
-    * \"XEWEASEL\" (\"Codie Morgan\")	-	High Definition 3D Models\n\
+    * Mats Wahlberg (\"Slinger\")		-	Creator (coder) + development 3D models\n\
+    * \"XEWEASEL\" (\"Codie Morgan\")	-	Extra 3D models\n\
     * \"K.Mac\"				-	Extensive testing, hacks and new ideas\n\
     * \"MeAkaJon\"			-	Creator/maintainer of gorcx.net webpage\n\
     * \"Spontificus\"			-	Testing, hacks and various fixes\n\n\
