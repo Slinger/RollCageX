@@ -21,14 +21,7 @@ stiffness 88.37 88.37
 
 nocapping #not needed
 
-#build in 4 quadrants
+#build in 1/4 of circle
 add -160 0 0
 rotation 0 0 90
 add 0 160 0
-rotation 0 0 180
-add 160 0 0
-rotation 0 0 270
-add 0 -160 0
-#finish by going back into the first part of road
-rotation 0 0 0 
-add -160 0 0 
