@@ -261,15 +261,73 @@ void GenVertices(std::vector<Vector_Float> *vertices,
 //for info output
 int triangle_count=0;
 
-void GenIndices(std::vector<Triangle_Uint> *triangles,
+//generates indices and normals for one surface of a block of road
+void GenNormalsAndIndices(std::vector<Triangle_Uint> *triangles,
+		std::vector<Vector_Float> *vertices, std::vector<Vector_Float> *normals,
 		int start, int xstride, int ystride,
 		int xres, int yres)
 {
+	//for each vertex, try to estimate a good normal (smooth reflections)
+	int nstart=normals->size();
+	int nstride=xres+1;
+	float A[3], B[3]; //A=X, B=Y  .... normal=AxB
+	Vector_Float A0, A1, B0, B1; //A=A1-A0, B=B1-B0
+	Vector_Float normal;
+	for (int y=0; y<=yres; ++y)
+		for (int x=0; x<=xres; ++x)
+		{
+			//check if at left or right end of surface
+			if (x==0)
+			{
+				A0=vertices->at(start+ystride*y);
+				A1=vertices->at(start+xstride+ystride*y);
+			}
+			else if (x==xres)
+			{
+				A0=vertices->at(start+xstride*(xres-1)+ystride*y);
+				A1=vertices->at(start+xstride*xres+ystride*y);
+			}
+			else //normal
+			{
+				A0=vertices->at(start+xstride*(x-1)+ystride*y);
+				A1=vertices->at(start+xstride*(x+1)+ystride*y);
+			}
+
+			//and for y (if at start or end)
+			if (y==0)
+			{
+				B0=vertices->at(start+xstride*x);
+				B1=vertices->at(start+xstride*x+ystride);
+			}
+			else if (y==yres)
+			{
+				B0=vertices->at(start+xstride*x+ystride*(yres-1));
+				B1=vertices->at(start+xstride*x+ystride*yres);
+			}
+			else //normal
+			{
+				B0=vertices->at(start+xstride*x+ystride*(y-1));
+				B1=vertices->at(start+xstride*x+ystride*(y+1));
+			}
+
+			//calculate A and B
+			A[0] = A1.x-A0.x;
+			A[1] = A1.y-A0.y;
+			A[2] = A1.z-A0.z;
+			B[0] = B1.x-B0.x;
+			B[1] = B1.y-B0.y;
+			B[2] = B1.z-B0.z;
+
+			//cross product gives normal
+			normal.x=A[1]*B[2]-A[2]*B[1];
+			normal.y=A[2]*B[0]-A[0]*B[2];
+			normal.z=A[0]*B[1]-A[1]*B[0];
+
+			//store
+			normals->push_back(normal);
+		}
+
 	Triangle_Uint triangle;
-	//don't specify normals (generated later on)
-	triangle.normal[0]=INDEX_ERROR;
-	triangle.normal[1]=INDEX_ERROR;
-	triangle.normal[2]=INDEX_ERROR;
 
 	for (int y=0; y<yres; ++y)
 		for (int x=0; x<xres; ++x)
@@ -278,11 +336,17 @@ void GenIndices(std::vector<Triangle_Uint> *triangles,
 			triangle.vertex[0]=start+xstride*(x+0)+ystride*(y+0);
 			triangle.vertex[1]=start+xstride*(x+1)+ystride*(y+0);
 			triangle.vertex[2]=start+xstride*(x+0)+ystride*(y+1);
+			triangle.normal[0]=nstart+(x+0)+nstride*(y+0);
+			triangle.normal[1]=nstart+(x+1)+nstride*(y+0);
+			triangle.normal[2]=nstart+(x+0)+nstride*(y+1);
 			triangles->push_back(triangle);
 
 			triangle.vertex[0]=start+xstride*(x+1)+ystride*(y+0);
 			triangle.vertex[1]=start+xstride*(x+1)+ystride*(y+1);
 			triangle.vertex[2]=start+xstride*(x+0)+ystride*(y+1);
+			triangle.normal[0]=nstart+(x+1)+nstride*(y+0);
+			triangle.normal[1]=nstart+(x+1)+nstride*(y+1);
+			triangle.normal[2]=nstart+(x+0)+nstride*(y+1);
 			triangles->push_back(triangle);
 
 			triangle_count+=2;
@@ -515,21 +579,21 @@ bool Trimesh::Load_Road(const char *f)
 			if (dpt)
 			{
 				//top
-				GenIndices(&material->triangles, start, 1, 2*(xres+1), xres, yres);
+				GenNormalsAndIndices(&material->triangles, &vertices, &normals, start, 1, 2*(xres+1), xres, yres);
 
 				//bottom
-				GenIndices(&material->triangles, start+2*xres+1, -1, 2*(xres+1), xres, yres);
+				GenNormalsAndIndices(&material->triangles, &vertices, &normals, start+2*xres+1, -1, 2*(xres+1), xres, yres);
 
 				//sides
-				GenIndices(&material->triangles, start+xres, xres+1, 2*(xres+1), 1, yres);
-				GenIndices(&material->triangles, start+xres+1, -(xres+1), 2*(xres+1), 1, yres);
+				GenNormalsAndIndices(&material->triangles, &vertices, &normals, start+xres, xres+1, 2*(xres+1), 1, yres);
+				GenNormalsAndIndices(&material->triangles, &vertices, &normals, start+xres+1, -(xres+1), 2*(xres+1), 1, yres);
 
 				//capping of this end (first, got depth and conf wants)?
 				if (cap&&oldend.offset&&capping)
-					GenIndices(&material->triangles, start+xres+1, 1, -(xres+1), xres, 1);
+					GenNormalsAndIndices(&material->triangles, &vertices, &normals, start+xres+1, 1, -(xres+1), xres, 1);
 			}
 			else //only top
-				GenIndices(&material->triangles, start, 1, xres+1, xres, yres);
+				GenNormalsAndIndices(&material->triangles, &vertices, &normals, start, 1, xres+1, xres, yres);
 
 			//keep track of what settings were used
 			last_xres = xres;
@@ -627,7 +691,7 @@ bool Trimesh::Load_Road(const char *f)
 
 	//at end, should cap?
 	if (oldend.active && newend.active && newend.offset && capping)
-		GenIndices(&material->triangles, vertices.size()-2*(last_xres+1), 1, last_xres+1, last_xres, 1);
+		GenNormalsAndIndices(&material->triangles, &vertices, &normals, vertices.size()-2*(last_xres+1), 1, last_xres+1, last_xres, 1);
 
 	//done, remove all data:
 	Bezier::RemoveAll();
@@ -639,8 +703,8 @@ bool Trimesh::Load_Road(const char *f)
 		return false;
 	}
 
-	//no normals created! generate them
-	Generate_Missing_Normals();
+	//make sure all normals are unit
+	Normalize_Normals();
 
 	printlog(1, "ROAD generation info: %u triangles, %u materials", triangle_count, materials.size());
 

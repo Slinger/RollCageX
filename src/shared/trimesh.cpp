@@ -62,13 +62,9 @@ void Trimesh::Normalize_Normals()
 	for (size_t i=0; i<end; ++i)
 	{
 		l=v_length(normals[i].x, normals[i].y, normals[i].z);
-
-		if (l > 1.000001 || l < 0.999999) //TODO: consider remove this checking?
-		{
-			normals[i].x /=l;
-			normals[i].y /=l;
-			normals[i].z /=l;
-		}
+		normals[i].x /=l;
+		normals[i].y /=l;
+		normals[i].z /=l;
 	}
 }
 
