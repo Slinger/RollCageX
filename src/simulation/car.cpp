@@ -71,6 +71,7 @@ void Car::Physics_Step(dReal step)
 			//but since using thrusters, I'd guess: conf*v*v or just: conf*v
 
 			//here: debug based on air dynamics:
+			//TODO/NOTE: should, but does not, care about wind speed/direction!
 			dReal force = carp->downforce*track.density*carp->dir*carp->velocity*carp->velocity;
 
 			//avoid too big value:
