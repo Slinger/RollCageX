@@ -11,6 +11,11 @@ section -	-6 0	6 0
 section u	-8 3	-6 -2	6 -2	8 3
 
 
+#since symetric shape, only describe half road
+#(will be spawned twice in geoms.lst)
+#note: should be possible to split this into many smaller
+#pieces, but would be too confusing for just a demo road
+
 select -
 resolution 1 20
 stiffness 55.2 55.2
@@ -52,42 +57,4 @@ resolution 1 20
 stiffness 55.2 55.2
 rotation 0 180 90
 add 0 0 250
-rotation 0 270 90
-add -100 0 150
 
-stiffness 27.6 27.6
-resolution 1 10
-rotation 0 0 90
-add -50 0 100
-select u
-rotation 50 0 90
-stiffness 5 15
-resolution 10 10
-add -25 0 100
-stiffness 13.8 13.8
-rotation 0 50 0
-add 0 25 100
-rotation 0 0 0
-select -
-stiffness 15 5
-add 0 50 100
-
-resolution 1 10
-stiffness 27.6 27.6
-rotation -90 0 0
-add 0 100 150
-rotation -180 0 0
-add 0 50 200
-rotation -270 0 0
-add 0 0 150
-
-resolution 1 1
-add 0 0 100
-
-stiffness 55.2 55.2
-resolution 1 20
-rotation 0 0 0
-add 0 100 0
-
-resolution 1 1
-add 0 200 0

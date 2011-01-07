@@ -48,17 +48,35 @@
 #specify the global mu of latest geom
 > surface global mu 1
 
-
 #enable per-material surfaces and set bouncyness for this one
 #("Material" is the light-blue material at the edges)
-#> surface material "Material" bounce 10
+> surface material "Material" bounce 10
+
+
+
+#since roads can easily become very big (with many triangles),
+#they should be divided into smaller pieces for optimization:
+# * reoccuring parts are reused
+# * rendering of only the visible parts
+# * collision detection on only triangles of potentially colliding parts
+
+#todo: should probably implement inclusion of multiple geoms.lst
+#files through this file, or some way of splitting ".road" files...
 
 #superbowl road around the track
 0 0 30  0 0 0  superbowl.road
 > surface global mu 1
+0 0 30  0 0 90  superbowl.road
+> surface global mu 1
+0 0 30  0 0 180  superbowl.road
+> surface global mu 1
+0 0 30  0 0 270  superbowl.road
+> surface global mu 1
 
 #a little loop (for antigrav testing)
 -120 90 -0.25  0 0 -45 vertigo.road
+> surface global mu 1
+-120 90 -0.25  0 0 135 vertigo.road
 > surface global mu 1
 
 #inspired by the stage2 scramble track
