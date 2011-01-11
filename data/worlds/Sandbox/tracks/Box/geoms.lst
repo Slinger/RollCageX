@@ -48,9 +48,10 @@
 #specify the global mu of latest geom
 > surface global mu 1
 
-#enable per-material surfaces and set bouncyness for this one
-#("Material" is the light-blue material at the edges)
-> surface material "Material" bounce 10
+#enable per-material surfaces and set mu+rolling resistance
+#("Material" is the light-blue material at the edges, while
+#the two others are left at the earlier specified mu=1)
+> surface material "Material" mu 5 rollingres 5
 
 
 
@@ -76,6 +77,7 @@
 #a little loop (for antigrav testing)
 -120 90 -0.25  0 0 -45 vertigo.road
 > surface global mu 1
+#other side
 -120 90 -0.25  0 0 135 vertigo.road
 > surface global mu 1
 
