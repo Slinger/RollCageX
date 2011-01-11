@@ -72,13 +72,13 @@ void Car::Physics_Step(dReal step)
 
 			//here: debug based on air dynamics:
 			//TODO/NOTE: should, but does not, care about wind speed/direction!
-			dReal force = carp->downforce*track.density*carp->dir*carp->velocity*carp->velocity;
+			dReal force = carp->downforce*track.density*carp->velocity*carp->velocity;
 
 			//avoid too big value:
 			if (force > carp->maxdownforce)
 				force=carp->maxdownforce;
 
-			dBodyAddRelForce (carp->bodyid,0,0, -force);
+			dBodyAddRelForce (carp->bodyid,0,0, -force*carp->dir);
 		}
 
 		//calculate turning:
@@ -171,7 +171,7 @@ void Car::Physics_Step(dReal step)
 		dReal kfbreak = carp->dbreak*carp->max_break*carp->throttle/2.0; //breaking power for front wheels
 		dReal kbreak[4] = {kfbreak, krbreak, krbreak, kfbreak}; //break power for each wheel (to make things easier)
 
-		//now fancy motor/break solution, lock rear wheels to handbrake turn (oversteer)
+		//no fancy motor/break solution, lock rear wheels to handbrake turn (oversteer)
 		if (carp->drift_breaks)
 		{
 			//apply enough on rear wheels to "lock" them
@@ -255,7 +255,7 @@ void Car::Physics_Step(dReal step)
 						//else, we should break:
 						//to make transition between breaking and acceleration smooth
 						//use different ways of calculate breaking torque:
-						else if ( needed/kbreak[i] < 1.0) //more breaking then needed
+						else if ( needed/kbreak[i] < 1.0) //more breaking than needed
 							torque[i] += needed; //break as needed + keep possible motor
 						else //not enough break to stop... full break
 							torque[i] = kbreak[i]; //full break
