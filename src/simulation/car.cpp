@@ -78,7 +78,8 @@ void Car::Physics_Step(dReal step)
 			if (force > carp->maxdownforce)
 				force=carp->maxdownforce;
 
-			dBodyAddRelForce (carp->bodyid,0,0, -force*carp->dir);
+			dBodyAddForce (carp->bodyid,0,0, carp->distdownforce*force);
+			dBodyAddRelForce (carp->bodyid,0,0, -(1.0-carp->distdownforce)*force*carp->dir);
 		}
 
 		//calculate turning:

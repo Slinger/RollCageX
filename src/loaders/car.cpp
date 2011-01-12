@@ -325,7 +325,7 @@ Car *Car_Template::Spawn (dReal x, dReal y, dReal z,  Trimesh_3D *tyre, Trimesh_
 
 	printlog(1, "NOTE: wheels will not collide to other wheels - OPCODE lacks cylinder*cylinder collision");
 
-	printlog(1, "TODO: antigravity and downforce - could be combined");
+	printlog(1, "TODO: proper antigravity and downforce (only debug implementation right now!)");
 
 
 	//begin copying of needed configuration data
@@ -364,6 +364,7 @@ Car *Car_Template::Spawn (dReal x, dReal y, dReal z,  Trimesh_3D *tyre, Trimesh_
 	car->turn = conf.turn;
 	car->downforce = conf.downforce[0];
 	car->maxdownforce = conf.downforce[1];
+	car->distdownforce = conf.downforce[2];
 
 	//start building
 	new Space(car);
