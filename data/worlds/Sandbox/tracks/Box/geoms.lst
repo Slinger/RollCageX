@@ -40,16 +40,15 @@
 # sharpness 1.0
 # rollingres 1.0
 
+#specify the default global mu for all future geoms
+> surface global mu 1
 
 #spawning of trimesh geom (with overrideable rendering model):
 # POSITION ROTATION GEOM_MODEL [RENDER_MODEL]
   0 0 0    0 0 0    "Box.obj"  #"Box.obj"
 
-#specify the global mu of latest geom
-> surface global mu 1
-
-#enable per-material surfaces and set bouncyness for this one
-#("Material" is the light-blue material at the edges)
+#enable per-material surfaces for Box.obj and set bouncyness for
+#this one ("Material" is the light-blue material at the edges)
 > surface material "Material" bounce 10
 
 
@@ -65,20 +64,13 @@
 
 #superbowl road around the track
 0 0 30  0 0 0  superbowl.road
-> surface global mu 1
 0 0 30  0 0 90  superbowl.road
-> surface global mu 1
 0 0 30  0 0 180  superbowl.road
-> surface global mu 1
 0 0 30  0 0 270  superbowl.road
-> surface global mu 1
 
 #a little loop (for antigrav testing)
 -120 90 -0.25  0 0 -45 vertigo.road
-> surface global mu 1
 -120 90 -0.25  0 0 135 vertigo.road
-> surface global mu 1
 
 #inspired by the stage2 scramble track
 0 -25 0  0 0 0 "in a spin.road"
-> surface global mu 1

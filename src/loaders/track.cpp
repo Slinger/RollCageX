@@ -118,7 +118,9 @@ bool load_track (const char *path)
 
 	if (file.Open(glist))
 	{
-		//store surface properties (defaults at first)
+		//store default global surface properties for all geoms
+		Surface global;
+		//keep track of latest geom spawned
 		Geom *latestgeom=NULL;
 
 		while (file.Read_Line())
@@ -176,7 +178,7 @@ bool load_track (const char *path)
 					}
 				}
 				//surface manipulation (of latest geom)
-				else if (!strcmp(file.words[1], "surface") && file.word_count >= 3 && latestgeom)
+				else if (!strcmp(file.words[1], "surface") && file.word_count >= 3)
 				{
 					printlog(2, "changing surface properties");
 					Surface *surface=NULL;
@@ -184,7 +186,7 @@ bool load_track (const char *path)
 
 					if (!strcmp(file.words[2], "global"))
 					{
-						surface = &(latestgeom->surface);
+						surface = &global;
 						pos = 3;
 					}
 					else if (!strcmp(file.words[2], "material") && file.word_count >= 4)
@@ -224,9 +226,7 @@ bool load_track (const char *path)
 						else if (!strcmp(file.words[pos], "rollingres"))
 							surface->tyre_rollres_scale = atof(file.words[++pos]);
 						else
-						{
 							printlog(0, "WARNING: trimesh surface option \"%s\" unknown", file.words[pos]);
-						}
 
 						//one step forward
 						pos+=1;
@@ -281,6 +281,7 @@ bool load_track (const char *path)
 				
 				//configure geom
 				latestgeom->model = model; //render geom with model
+				latestgeom->surface = global; //start by using global specified properties
 
 				//position
 				x = atof(file.words[0]);
