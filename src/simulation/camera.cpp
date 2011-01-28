@@ -61,7 +61,7 @@ void Camera::Accelerate(dReal step)
 
 	//position and velocity of anchor
 	dVector3 a_pos;
-	dBodyGetRelPointPos (car->bodyid, settings->anchor[0], settings->anchor[1], settings->anchor[2]*car->dir, a_pos);
+	dBodyGetRelPointPos (car->bodyid, settings->anchor[0], settings->anchor[1]-car->offset, settings->anchor[2]*car->dir, a_pos);
 
 	//relative pos and vel of camera (from anchor)
 	float r_pos[3] = {pos[0]-a_pos[0], pos[1]-a_pos[1], pos[2]-a_pos[2]};
@@ -208,7 +208,7 @@ void Camera::Damp(dReal step)
 	{
 		//damping (of relative movement)
 		dVector3 a_vel; //anchor velocity
-		dBodyGetRelPointVel (car->bodyid, settings->anchor[0], settings->anchor[1], settings->anchor[2]*car->dir, a_vel);
+		dBodyGetRelPointVel (car->bodyid, settings->anchor[0], settings->anchor[1]-car->offset, settings->anchor[2]*car->dir, a_vel);
 		float r_vel[3] = {vel[0]-a_vel[0], vel[1]-a_vel[1], vel[2]-a_vel[2]}; //velocity relative to anchor
 
 		float damping = (step*settings->damping);
@@ -315,11 +315,11 @@ void Camera::Rotate(dReal step)
 
 	dVector3 result;
 	if (reverse && !in_air) //move target and position to opposite side (if not just spinning in air)
-		dBodyGetRelPointPos (car->bodyid, settings->target[0]*car->dir, -settings->target[1], settings->target[2]*car->dir, result);
+		dBodyGetRelPointPos (car->bodyid, settings->target[0]*car->dir, -settings->target[1]-car->offset, settings->target[2]*car->dir, result);
 	else //normal
 	{
 		dBodyGetRelPointPos (car->bodyid, settings->target[0]*offset_scale*car->dir,
-				settings->target[1]*offset_scale, settings->target[2]*car->dir*offset_scale, result);
+				settings->target[1]*offset_scale-car->offset, settings->target[2]*car->dir*offset_scale, result);
 	}
 
 	t_dir[0]=result[0]-pos[0];

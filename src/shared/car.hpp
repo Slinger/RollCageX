@@ -49,7 +49,7 @@ struct Car_Conf
 	bool adapt_steer;
 
 	//other
-	dReal body_mass, body[3], wheel_mass;
+	dReal body_mass, mass_position, body[3], wheel_mass;
 	dReal suspension_spring, suspension_damping;
 	dReal body_linear_drag[3], body_angular_drag, wheel_linear_drag, wheel_angular_drag;
 	dReal wheel_spring, wheel_damping, rollres, rim_angle, rim_mu;
@@ -88,7 +88,7 @@ const struct Car_Conf car_conf_defaults = {
 	0.01,
 	true,
 
-	2500.0, {2.6,5.8,0.7}, 250.0,
+	2500.0, 0, {2.6,5.8,0.7}, 250.0,
 	150000.0, 5000.0,
 	{5.0,2.0,10.0}, 2.0, 2.0, 2.0,
 	300000.0, 10000.0, 20.0, 50.0, 0.1,
@@ -127,6 +127,7 @@ const struct Conf_Index car_conf_index[] = {
 	{"adaptive_steering",	'b',1, offsetof(struct Car_Conf, adapt_steer)},
 
 	{"body_mass",		'R',1, offsetof(struct Car_Conf, body_mass)},
+	{"body_mass_position",	'R',1, offsetof(struct Car_Conf, mass_position)},
 	{"body",		'R',3, offsetof(struct Car_Conf, body)},
 	{"wheel_mass",		'R',1, offsetof(struct Car_Conf, wheel_mass)},
 	{"suspension_spring",	'R',1, offsetof(struct Car_Conf, suspension_spring)},
@@ -247,6 +248,8 @@ class Car:public Object
 		bool adapt_steer, adapt_redist;
 		dReal redist_force;
 		dReal dsteer, dbreak;
+
+		dReal offset;
 
 		//just for keeping track
 		dBodyID bodyid,wheel_body[4];

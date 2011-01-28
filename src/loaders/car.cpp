@@ -131,6 +131,9 @@ Car_Template *Car_Template::Load (const char *path)
 					continue; //don't add
 				}
 
+				//compensate for (possibly) non-centered body
+				tmp_box.pos[1]-=target->conf.mass_position;
+
 				//store box
 				target->boxes.push_back(tmp_box);
 			}
@@ -149,6 +152,9 @@ Car_Template *Car_Template::Load (const char *path)
 				tmp_sphere.pos[2] = atof(file.words[6]);
 
 				tmp_sphere.surface = surface;
+
+				//compensate for (possibly) non-centered body
+				tmp_sphere.pos[1]-=target->conf.mass_position;
 
 				//store
 				target->spheres.push_back(tmp_sphere);
@@ -193,6 +199,9 @@ Car_Template *Car_Template::Load (const char *path)
 					printlog(0, "ERROR: capsule geom in car geom list expects exactly: size (radius and length), position and (optional) rotation!");
 					continue; //don't add
 				}
+
+				//compensate for (possibly) non-centered body
+				tmp_capsule.pos[1]-=target->conf.mass_position;
 
 				//store
 				target->capsules.push_back(tmp_capsule);
@@ -311,7 +320,7 @@ Car_Template *Car_Template::Load (const char *path)
 		if ( !(target->model = Trimesh_3D::Quick_Load(file,
 				target->conf.resize,
 				target->conf.rotate[0], target->conf.rotate[1], target->conf.rotate[2],
-				target->conf.offset[0], target->conf.offset[1], target->conf.offset[2])) )
+				target->conf.offset[0], target->conf.offset[1]-target->conf.mass_position, target->conf.offset[2])) )
 			return NULL;
 	}
 
@@ -361,6 +370,8 @@ Car *Car_Template::Spawn (dReal x, dReal y, dReal z,  Trimesh_3D *tyre, Trimesh_
 	car->adapt_redist = conf.adapt_redist;
 	car->redist_force = conf.redist_force;
 
+	car->offset = conf.mass_position;
+
 	car->turn = conf.turn;
 	car->downforce = conf.downforce;
 
@@ -384,7 +395,7 @@ Car *Car_Template::Spawn (dReal x, dReal y, dReal z,  Trimesh_3D *tyre, Trimesh_
 	bdata->Set_Angular_Drag (conf.body_angular_drag);
 
 
-	dBodySetPosition (car->bodyid, x, y, z);
+	dBodySetPosition (car->bodyid, x, y+car->offset, z);
 
 
 	//ok, set rendering model:
@@ -606,7 +617,7 @@ void Car::Respawn (dReal x, dReal y, dReal z)
 
 	//body:
 	dRSetIdentity(r); //no rotation
-	dBodySetPosition(bodyid, x, y, z);
+	dBodySetPosition(bodyid, x, y+offset, z);
 	dBodySetRotation(bodyid, r);
 
 	//wheels:
