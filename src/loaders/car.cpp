@@ -384,8 +384,7 @@ Car *Car_Template::Spawn (dReal x, dReal y, dReal z,  Trimesh_3D *tyre, Trimesh_
 	
 
 	//set mass
-	dMassSetBox (&m,1,conf.body[0], conf.body[1], conf.body[2]); //sides
-	dMassAdjust (&m,conf.body_mass); //mass
+	dMassSetBoxTotal (&m,conf.body_mass,conf.body[0], conf.body[1], conf.body[2]); //mass+sides
 	dBodySetMass (car->bodyid, &m);
 
 	//set up air (and liquid) drag for body
@@ -492,8 +491,7 @@ Car *Car_Template::Spawn (dReal x, dReal y, dReal z,  Trimesh_3D *tyre, Trimesh_
 	dBodyID wheel_body[4];
 
 	//3=z axis of cylinder
-	dMassSetCylinder (&m, 1, 3, conf.w[0], conf.w[1]);
-	dMassAdjust (&m, conf.wheel_mass);
+	dMassSetCylinderTotal (&m, conf.wheel_mass, 3, conf.w[0], conf.w[1]);
 
 	for (i=0;i<4;++i)
 	{
