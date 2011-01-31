@@ -234,7 +234,7 @@ bool load_track (const char *path)
 
 				}
 				else
-					printlog(0, "WARNING: optional line in geoms.lst malformated");
+					printlog(0, "WARNING: optional line in geoms.lst malformed");
 
 			}
 			//geom to create

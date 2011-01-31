@@ -190,41 +190,18 @@ class Car_Template:public Racetime_Data
 		Wheel wheel;
 
 		//geoms
-		struct box {
+		struct geom { //can describe any supported geom
+			int type;
 			dReal size[3];
-			dReal pos[3];
-			dReal rot[3];
-			Surface surface;
-		};
-
-		std::vector<class box> boxes;
-
-		struct sphere {
-			dReal radius;
-			dReal pos[3];
-			Surface surface;
-		};
-
-		std::vector<class sphere> spheres;
-
-		struct capsule {
-			dReal size[2];
-			dReal pos[3];
-			dReal rot[3];
-			Surface surface;
-		};
-
-		std::vector<class capsule> capsules;
-
-		struct trimesh {
 			Trimesh_Geom *mesh;
 			dReal pos[3];
 			dReal rot[3];
-			Surface surface;
+			Surface surf;
 		};
 
-		std::vector<class trimesh> trimeshes;
+		std::vector<class geom> geoms;
 
+		//3D rendering model
 		Trimesh_3D *model;
 };
 
