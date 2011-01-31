@@ -104,12 +104,8 @@ bool Interface_Init(void)
 	//initiate sdl
 	SDL_Init(SDL_INIT_VIDEO);
 
-	//create and set title:
-	char name[10+strlen(VERSION)+40+1];
-	strcpy (name,"RollCageX ");
-	strcat (name,VERSION);
-	strcat (name," (C) 2009, 2010, 2011 Mats Wahlberg (\"Slinger\")"); 
-	SDL_WM_SetCaption (name, "RCX");
+	//set title:
+	SDL_WM_SetCaption (TITLE, "RCX");
 
 	//TODO: set icon (SDL_WM_SetIcon, from embedded into the executable?)
 
