@@ -206,6 +206,62 @@ Car_Template *Car_Template::Load (const char *path)
 				//store
 				target->capsules.push_back(tmp_capsule);
 			}
+			else if (!strcmp(file.words[0], "trimesh"))
+			{
+				struct trimesh tmp_trimesh;
+
+				//create complete path+filename
+				char model[strlen(path)+1+strlen(file.words[2])];
+				strcpy(model, path);
+				strcat(model, "/");
+				strcat(model, file.words[2]);
+
+				if (file.word_count == 9)
+				{
+					tmp_trimesh.mesh = Trimesh_Geom::Quick_Load(model, atof(file.words[4]), 0, 0, 0, 0, 0, 0);
+					//pos
+					tmp_trimesh.pos[0] = atof(file.words[6]);
+					tmp_trimesh.pos[1] = atof(file.words[7]);
+					tmp_trimesh.pos[2] = atof(file.words[8]);
+					//rot
+					tmp_trimesh.rot[0] = 0.0;
+					tmp_trimesh.rot[1] = 0.0;
+					tmp_trimesh.rot[2] = 0.0;
+					//surface
+					tmp_trimesh.surface = surface;
+				}
+				else if (file.word_count == 13)
+				{
+					tmp_trimesh.mesh = Trimesh_Geom::Quick_Load(model, atof(file.words[4]), 0, 0, 0, 0, 0, 0);
+					//pos
+					tmp_trimesh.pos[0] = atof(file.words[6]);
+					tmp_trimesh.pos[1] = atof(file.words[7]);
+					tmp_trimesh.pos[2] = atof(file.words[8]);
+					//rot
+					tmp_trimesh.rot[0] = atof(file.words[10]);
+					tmp_trimesh.rot[1] = atof(file.words[11]);
+					tmp_trimesh.rot[2] = atof(file.words[12]);
+					//surface
+					tmp_trimesh.surface = surface;
+				}
+				else
+				{
+					printlog(0, "ERROR: trimesh geom in car geom list expects exactly: filename, resize, position and (optional) rotation!");
+					continue; //don't add
+				}
+
+				//failed to load
+				if (!tmp_trimesh.mesh)
+				{
+					printlog(0, "ERROR: trimesh geom in car geom list could not be loaded!");
+					continue; //don't add
+				}
+				//compensate for (possibly) non-centered body
+				tmp_trimesh.pos[1]-=target->conf.mass_position;
+
+				//store
+				target->trimeshes.push_back(tmp_trimesh);
+			}
 			else
 				printlog(0, "ERROR: geom \"%s\" in car geom list not recognized!", file.words[0]);
 		}
@@ -445,9 +501,9 @@ Car *Car_Template::Spawn (dReal x, dReal y, dReal z,  Trimesh_3D *tyre, Trimesh_
 			dGeomSetOffsetPosition(geom,sphere.pos[0],sphere.pos[1],sphere.pos[2]);
 
 
-		gdata->surface = b.surface;
+		gdata->surface = sphere.surface;
 	}
-	//finally: capsule
+	//then: capsule
 	struct capsule capsule;
 	for (i=0; i<(int)capsules.size(); ++i)
 	{
@@ -467,7 +523,29 @@ Car *Car_Template::Spawn (dReal x, dReal y, dReal z,  Trimesh_3D *tyre, Trimesh_
 			dGeomSetOffsetRotation(geom, rot);
 		}
 
-		gdata->surface = b.surface;
+		gdata->surface = capsule.surface;
+	}
+	//finally: trimeshes
+	struct trimesh trimesh;
+	for (i=0; i<(int)trimeshes.size(); ++i)
+	{
+		trimesh = trimeshes[i];
+
+		gdata = trimesh.mesh->Create_Geom(car);
+		geom = gdata->geom_id;
+
+		dGeomSetBody (geom, car->bodyid);
+
+		if (trimesh.pos[0]||trimesh.pos[1]||trimesh.pos[2]) //need offset
+			dGeomSetOffsetPosition(geom,trimesh.pos[0],trimesh.pos[1],trimesh.pos[2]);
+
+		if (trimesh.rot[0]||trimesh.rot[1]||trimesh.rot[2]) //need rotation
+		{
+			dRFromEulerAngles(rot, trimesh.rot[0]*M_PI/180.0, trimesh.rot[1]*M_PI/180.0, trimesh.rot[2]*M_PI/180.0);
+			dGeomSetOffsetRotation(geom, rot);
+		}
+
+		gdata->surface = trimesh.surface;
 	}
 
 	//side detection sensors:

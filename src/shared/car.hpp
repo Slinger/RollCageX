@@ -19,6 +19,7 @@
 #include "object.hpp"
 #include "body.hpp"
 #include "geom.hpp"
+#include "trimesh.hpp"
 #include "../loaders/conf.hpp"
 
 #include <vector>
@@ -214,6 +215,15 @@ class Car_Template:public Racetime_Data
 		};
 
 		std::vector<class capsule> capsules;
+
+		struct trimesh {
+			Trimesh_Geom *mesh;
+			dReal pos[3];
+			dReal rot[3];
+			Surface surface;
+		};
+
+		std::vector<class trimesh> trimeshes;
 
 		Trimesh_3D *model;
 };
