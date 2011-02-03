@@ -174,8 +174,7 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 	dBodyID body = dBodyCreate (world);
 
 	dMass m;
-	dMassSetBox (&m,1,1,1,1); //sides
-	dMassAdjust (&m,400); //mass
+	dMassSetBoxTotal (&m,400,1,1,1); //mass+sides
 	dBodySetMass (body, &m);
 
 	bd = new Body(body, obj); //just for drag
@@ -204,8 +203,7 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 
 	//mass
 	dMass m;
-	dMassSetBox (&m,1,2.5,2.5,2.5); //sides
-	dMassAdjust (&m,100); //mass
+	dMassSetBoxTotal (&m,100,2.5,2.5,2.5); //mass+sides
 	//TODO: create dMass for all geoms, and use dMassTranslate+dMassAdd to add to m
 	dBodySetMass (body1, &m);
 
@@ -337,8 +335,7 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 	dBodyID body1 = dBodyCreate (world);
 
 	dMass m;
-	dMassSetSphere (&m,1,1); //radius
-	dMassAdjust (&m,60); //mass
+	dMassSetSphereTotal (&m,60,1); //mass and radius
 	dBodySetMass (body1, &m);
 
 	new Body (body1, obj);
@@ -369,8 +366,7 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 	data->Set_Buffer_Event(100000, 10000, (Script*)1337);
 	body = dBodyCreate (world);
 
-	dMassSetSphere (&m,1,0.5); //radius
-	dMassAdjust (&m,30); //mass
+	dMassSetSphereTotal (&m,30,0.5); //mass and radius
 	dBodySetMass (body, &m);
 
 	new Body (body, obj);
@@ -413,8 +409,7 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 	dBodyID body1 = dBodyCreate (world);
 
 	dMass m;
-	dMassSetSphere (&m,1,1); //radius
-	dMassAdjust (&m,20); //mass
+	dMassSetSphereTotal (&m,20,1); //mass+radius
 	dBodySetMass (body1, &m);
 
 	Body *b = new Body (body1, obj);
@@ -464,8 +459,7 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 			dGeomSetBody (geom, body1[i]);
 
 			dMass m;
-			dMassSetBox (&m,1,4,0.4,2.7); //sides
-			dMassAdjust (&m,400); //mass
+			dMassSetBoxTotal (&m,400,4,0.4,2.7); //mass+sides
 			dBodySetMass (body1[i], &m);
 
 			new Body (body1[i], obj);
@@ -523,8 +517,7 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 			dGeomSetBody (geom, body2[i]);
 
 			dMass m;
-			dMassSetBox (&m,1,4,4,0.2); //sides
-			dMassAdjust (&m,400); //mass
+			dMassSetBoxTotal (&m,400,4,4,0.2); //mass+sides
 			dBodySetMass (body2[i], &m);
 
 			new Body (body2[i], obj);
@@ -586,8 +579,7 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 			body[i] = dBodyCreate (world);
 	
 			dMass m;
-			dMassSetCapsule (&m,1,3,1,0.5); //sides (3=z-axis)
-			dMassAdjust (&m,400); //mass
+			dMassSetCapsuleTotal (&m,400,3,1,0.5); //mass, direction (3=z-axis), radius and length
 			dBodySetMass (body[i], &m);
 	
 			new Body (body[i], obj);

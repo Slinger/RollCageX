@@ -101,7 +101,15 @@ bool Interface_Init(void)
 {
 	printlog(0, "Initiating interface");
 
+	//initiate sdl
 	SDL_Init(SDL_INIT_VIDEO);
+
+	//set title:
+	SDL_WM_SetCaption (TITLE, "RCX");
+
+	//TODO: set icon (SDL_WM_SetIcon, from embedded into the executable?)
+
+	//try to open window
 	screen = SDL_SetVideoMode (internal.res[0], internal.res[1], 0, flags);
 
 	if (!screen)
@@ -109,13 +117,6 @@ bool Interface_Init(void)
 		printlog(0, "Error: couldn't set video mode");
 		return false;
 	}
-
-	//title:
-	char name[10+strlen(VERSION)+40+1];
-	strcpy (name,"RollCageX ");
-	strcat (name,VERSION);
-	strcat (name," (C) 2009, 2010, 2011 Mats Wahlberg (\"Slinger\")"); 
-	SDL_WM_SetCaption (name, "RCX");
 
 	//first of all, make sure we got all needed extansions:
 	if (!Load_GL_Extensions())

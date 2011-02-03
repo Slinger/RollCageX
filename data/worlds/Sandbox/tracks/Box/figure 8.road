@@ -1,0 +1,71 @@
+#see "in a spin.road" for details on the file format
+
+#load materials
+material_file surfaces.mtl
+
+section wide	-11 0 11 0
+section small	-7 0 7 0
+
+
+material concrete
+nocapping
+depth 0.5
+
+select small
+
+#from ground to turn
+resolution 5 10
+stiffness 20 20
+rotation 0 0 -30
+add -10 25 -0.25
+
+#180° turn
+resolution 10 20
+rotation -20 -20 0
+add -40 140 55
+stiffness 80 80
+rotation 15 20 180
+add 40 140 100
+
+#from turn to figure-8
+resolution 5 10
+rotation 15 0 180
+stiffness 10 10
+add 15 15 140
+
+resolution 1 10
+rotation 0 0 180
+add 15 -40 150
+select wide
+add 0 -90 150
+
+#figure-8
+stiffness 49.7 49.7
+
+resolution 10 20
+rotation 20 0 90
+add 90 -180 150
+resolution 1 20
+rotation 0 20 0
+add 180 -90 150
+resolution 10 20
+
+rotation 0 0 -90
+add 90 0 150
+resolution 1 1
+add -90 0 150
+
+resolution 10 20
+rotation 0 -20 0
+add -180 90 150
+resolution 1 20
+rotation -20 0 90
+add -90 180 150
+resolution 10 20
+
+rotation 0 0 180
+add 0 90 150
+resolution 1 1
+add 0 -90 150
+
+

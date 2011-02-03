@@ -176,8 +176,7 @@ void Event_Buffers_Process(dReal step)
 				//body1
 				dBodyID b = dBodyCreate(world);
 				dMass m;
-				dMassSetBox (&m, 1, 2,2,5.0/2.0);
-				dMassAdjust (&m, 100); //200kg
+				dMassSetBoxTotal (&m, 100, 2,2,5.0/2.0);
 				dBodySetMass(b, &m);
 				new Body(b, geom->object_parent);
 				dBodySetPosition(b, pos1[0], pos1[1], pos1[2]);
@@ -194,8 +193,7 @@ void Event_Buffers_Process(dReal step)
 
 				//body2
 				b = dBodyCreate(world);
-				dMassSetBox (&m, 1, 2,2,5.0/2.0);
-				dMassAdjust (&m, 100); //200kg
+				dMassSetBoxTotal (&m, 100, 2,2,5.0/2.0);
 				dBodySetMass(b, &m);
 				new Body(b, geom->object_parent);
 				dBodySetPosition(b, pos2[0], pos2[1], pos2[2]);
@@ -218,8 +216,7 @@ void Event_Buffers_Process(dReal step)
 
 				//mass
 				dMass m;
-				dMassSetBox (&m, 1, 2,2,5);
-				dMassAdjust (&m, 200); //200kg
+				dMassSetBoxTotal (&m, 200, 2,2,5);
 				dBodySetMass(body, &m);
 
 				new Body(body, geom->object_parent);

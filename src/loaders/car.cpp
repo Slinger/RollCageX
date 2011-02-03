@@ -50,12 +50,15 @@ Car_Template *Car_Template::Load (const char *path)
 	{
 		//default surface parameters
 		Surface surface;
+		struct geom tmp_geom;
+		int pos;
 
 		while (file.Read_Line())
 		{
+			//surface options
 			if (file.words[0][0] == '>')
 			{
-				int pos = 1;
+				pos = 1;
 				//as long as there are two words left (option name and value)
 				while ( (file.word_count-pos) >= 2)
 				{
@@ -82,123 +85,92 @@ Car_Template *Car_Template::Load (const char *path)
 					pos+=1;
 				}
 			}
-			else if (!strcmp(file.words[0], "box"))
-			{
-				struct box tmp_box;
-				if (file.word_count == 9) //not wanting rotation?
-				{
-					//size
-					tmp_box.size[0] = atof(file.words[2]);
-					tmp_box.size[1] = atof(file.words[3]);
-					tmp_box.size[2] = atof(file.words[4]);
-
-					//position
-					tmp_box.pos[0] = atof(file.words[6]);
-					tmp_box.pos[1] = atof(file.words[7]);
-					tmp_box.pos[2] = atof(file.words[8]);
-
-					//rotation (not)
-					tmp_box.rot[0]=0.0;
-					tmp_box.rot[1]=0.0;
-					tmp_box.rot[2]=0.0;
-
-					//surface properties
-					tmp_box.surface = surface;
-				}
-				else if (file.word_count == 13) //also rotate?
-				{
-					//size
-					tmp_box.size[0] = atof(file.words[2]);
-					tmp_box.size[1] = atof(file.words[3]);
-					tmp_box.size[2] = atof(file.words[4]);
-
-					//position
-					tmp_box.pos[0] = atof(file.words[6]);
-					tmp_box.pos[1] = atof(file.words[7]);
-					tmp_box.pos[2] = atof(file.words[8]);
-
-					//rotation (not)
-					tmp_box.rot[0] = atof(file.words[10]);
-					tmp_box.rot[1] = atof(file.words[11]);
-					tmp_box.rot[2] = atof(file.words[12]);
-
-					//surface properties
-					tmp_box.surface = surface;
-				}
-				else
-				{
-					printlog(0, "ERROR: box geom in car geom list expects exactly: size, position and (optional) rotation!");
-					continue; //don't add
-				}
-
-				//store box
-				target->boxes.push_back(tmp_box);
-			}
-			else if (!strcmp(file.words[0], "sphere"))
-			{
-				if (file.word_count != 7)
-				{
-					printlog(0, "ERROR: sphere geom in car geom list expects exactly: size (radius) and position!");
-					continue; //skip
-				}
-
-				struct sphere tmp_sphere;
-				tmp_sphere.radius = atof(file.words[2]);
-				tmp_sphere.pos[0] = atof(file.words[4]);
-				tmp_sphere.pos[1] = atof(file.words[5]);
-				tmp_sphere.pos[2] = atof(file.words[6]);
-
-				tmp_sphere.surface = surface;
-
-				//store
-				target->spheres.push_back(tmp_sphere);
-			}
-			else if (!strcmp(file.words[0], "capsule"))
-			{
-				struct capsule tmp_capsule;
-				if (file.word_count == 8) //not wanting rotation?
-				{
-					//size
-					tmp_capsule.size[0] = atof(file.words[2]);
-					tmp_capsule.size[1] = atof(file.words[3]);
-					//pos
-					tmp_capsule.pos[0] = atof(file.words[5]);
-					tmp_capsule.pos[1] = atof(file.words[6]);
-					tmp_capsule.pos[2] = atof(file.words[7]);
-					//rot
-					tmp_capsule.rot[0] = 0.0;
-					tmp_capsule.rot[1] = 0.0;
-					tmp_capsule.rot[2] = 0.0;
-					//surface
-					tmp_capsule.surface = surface;
-				}
-				else if (file.word_count == 12) //also rotate?
-				{
-					//size
-					tmp_capsule.size[0] = atof(file.words[2]);
-					tmp_capsule.size[1] = atof(file.words[3]);
-					//pos
-					tmp_capsule.pos[0] = atof(file.words[5]);
-					tmp_capsule.pos[1] = atof(file.words[6]);
-					tmp_capsule.pos[2] = atof(file.words[7]);
-					//rot
-					tmp_capsule.rot[0] = atof(file.words[9]);
-					tmp_capsule.rot[1] = atof(file.words[10]);
-					tmp_capsule.rot[2] = atof(file.words[11]);
-					//surface
-					tmp_capsule.surface = surface;
-				}
-				else
-				{
-					printlog(0, "ERROR: capsule geom in car geom list expects exactly: size (radius and length), position and (optional) rotation!");
-					continue; //don't add
-				}
-
-				//store
-				target->capsules.push_back(tmp_capsule);
-			}
+			//geom to spawn
 			else
-				printlog(0, "ERROR: geom \"%s\" in car geom list not recognized!", file.words[0]);
+			{
+				if (!strcmp(file.words[0], "sphere") && file.word_count >= 2)
+				{
+					tmp_geom.type = 0;
+					tmp_geom.size[0] = atof(file.words[1]);
+					pos = 2;
+				}
+				else if (!strcmp(file.words[0], "capsule") && file.word_count >= 3)
+				{
+					tmp_geom.type = 1;
+					tmp_geom.size[0] = atof(file.words[1]);
+					tmp_geom.size[1] = atof(file.words[2]);
+					pos = 3;
+				}
+				else if (!strcmp(file.words[0], "box") && file.word_count >= 4)
+				{
+					tmp_geom.type = 2;
+					tmp_geom.size[0] = atof(file.words[1]);
+					tmp_geom.size[1] = atof(file.words[2]);
+					tmp_geom.size[2] = atof(file.words[3]);
+					pos = 4;
+				}
+				else if (!strcmp(file.words[0], "trimesh") && file.word_count >= 3)
+				{
+					tmp_geom.type = 3;
+
+					//create complete path+filename
+					char model[strlen(path)+1+strlen(file.words[1])];
+					strcpy(model, path);
+					strcat(model, "/");
+					strcat(model, file.words[1]);
+
+					tmp_geom.mesh = Trimesh_Geom::Quick_Load(model, atof(file.words[2]), 0, 0, 0, 0, 0, 0);
+
+					//failed to load
+					if (!tmp_geom.mesh)
+					{
+						printlog(0, "ERROR: trimesh geom in car geom list could not be loaded!");
+						continue; //don't add
+					}
+
+					pos = 3;
+				}
+				else
+				{
+					printlog(0, "ERROR: geom \"%s\" in car geom list not recognized/malformed!", file.words[0]);
+					continue; //go to next line
+				}
+
+				//we now got a geom, look for options and add
+				//default position+rotation
+				tmp_geom.pos[0]=0.0;
+				tmp_geom.pos[1]=0.0;
+				tmp_geom.pos[2]=0.0;
+
+				tmp_geom.rot[0]=0.0;
+				tmp_geom.rot[1]=0.0;
+				tmp_geom.rot[2]=0.0;
+
+				for (; pos+4<=file.word_count; pos+=4)
+				{
+					if (file.words[pos][0]=='p') //=p[osition]
+					{
+						tmp_geom.pos[0]=atof(file.words[pos+1]);
+						tmp_geom.pos[1]=atof(file.words[pos+2]);
+						tmp_geom.pos[2]=atof(file.words[pos+3]);
+					}
+					else if (file.words[pos][0]=='r') //=r[otation]
+					{
+						tmp_geom.rot[0]=atof(file.words[pos+1]);
+						tmp_geom.rot[1]=atof(file.words[pos+2]);
+						tmp_geom.rot[2]=atof(file.words[pos+3]);
+					}
+				}
+
+				//set surface options
+				tmp_geom.surf = surface;
+
+				//compensate for (possibly) non-centered body
+				tmp_geom.pos[1]-=target->conf.mass_position;
+
+				//store
+				target->geoms.push_back(tmp_geom);
+			}
 		}
 	}
 	else
@@ -311,7 +283,7 @@ Car_Template *Car_Template::Load (const char *path)
 		if ( !(target->model = Trimesh_3D::Quick_Load(file,
 				target->conf.resize,
 				target->conf.rotate[0], target->conf.rotate[1], target->conf.rotate[2],
-				target->conf.offset[0], target->conf.offset[1], target->conf.offset[2])) )
+				target->conf.offset[0], target->conf.offset[1]-target->conf.mass_position, target->conf.offset[2])) )
 			return NULL;
 	}
 
@@ -361,6 +333,8 @@ Car *Car_Template::Spawn (dReal x, dReal y, dReal z,  Trimesh_3D *tyre, Trimesh_
 	car->adapt_redist = conf.adapt_redist;
 	car->redist_force = conf.redist_force;
 
+	car->offset = conf.mass_position;
+
 	car->turn = conf.turn;
 	car->downforce = conf.downforce[0];
 	car->maxdownforce = conf.downforce[1];
@@ -375,8 +349,7 @@ Car *Car_Template::Spawn (dReal x, dReal y, dReal z,  Trimesh_3D *tyre, Trimesh_
 	
 
 	//set mass
-	dMassSetBox (&m,1,conf.body[0], conf.body[1], conf.body[2]); //sides
-	dMassAdjust (&m,conf.body_mass); //mass
+	dMassSetBoxTotal (&m,conf.body_mass,conf.body[0], conf.body[1], conf.body[2]); //mass+sides
 	dBodySetMass (car->bodyid, &m);
 
 	//set up air (and liquid) drag for body
@@ -386,80 +359,56 @@ Car *Car_Template::Spawn (dReal x, dReal y, dReal z,  Trimesh_3D *tyre, Trimesh_
 	bdata->Set_Angular_Drag (conf.body_angular_drag);
 
 
-	dBodySetPosition (car->bodyid, x, y, z);
+	dBodySetPosition (car->bodyid, x, y+car->offset, z);
 
 
 	//ok, set rendering model:
 	bdata->model = model;
 
 	
-	//done, collision geoms:
+	//done, add collision geoms:
 	dGeomID geom;
 	Geom *gdata;
-
-	int i;
-
-	//add geoms, first: boxes
-	struct box b;
+	struct geom tmp_geom;
 	dMatrix3 rot;
-	for (i=0;i< (int)boxes.size();++i)
+	for (size_t i=0; i<geoms.size(); ++i)
 	{
-		b = boxes[i];
-	
-		geom = dCreateBox(0,b.size[0],b.size[1],b.size[2]);
-		gdata = new Geom (geom, car);
+		tmp_geom = geoms[i];
+
+		if (tmp_geom.type == 0) //sphere
+		{
+			geom = dCreateSphere(0,tmp_geom.size[0]);
+			gdata = new Geom(geom, car);
+		}
+		else if (tmp_geom.type == 1) //capsule
+		{
+			geom = dCreateCapsule(0,tmp_geom.size[0],tmp_geom.size[1]);
+			gdata = new Geom (geom, car);
+		}
+		else if (tmp_geom.type == 2) //box
+		{
+			geom = dCreateBox(0,tmp_geom.size[0],tmp_geom.size[1],tmp_geom.size[2]);
+			gdata = new Geom (geom, car);
+		}
+		else // (tmp_geom.type == 3) //trimesh
+		{
+			gdata = tmp_geom.mesh->Create_Geom(car);
+			geom = gdata->geom_id;
+		}
 
 		dGeomSetBody (geom, car->bodyid);
 
-		if (b.pos[0]||b.pos[1]||b.pos[2]) //need offset
-			dGeomSetOffsetPosition(geom,b.pos[0],b.pos[1],b.pos[2]);
+		if (tmp_geom.pos[0]||tmp_geom.pos[1]||tmp_geom.pos[2]) //need offset
+			dGeomSetOffsetPosition(geom,tmp_geom.pos[0],tmp_geom.pos[1],tmp_geom.pos[2]);
 
-		if (b.rot[0]||b.rot[1]||b.rot[2]) //need rotation
+		if (tmp_geom.rot[0]||tmp_geom.rot[1]||tmp_geom.rot[2]) //need rotation
 		{
-			dRFromEulerAngles(rot, b.rot[0]*M_PI/180.0, b.rot[1]*M_PI/180.0, b.rot[2]*M_PI/180.0);
+			dRFromEulerAngles(rot, tmp_geom.rot[0]*M_PI/180.0, tmp_geom.rot[1]*M_PI/180.0, tmp_geom.rot[2]*M_PI/180.0);
 			dGeomSetOffsetRotation(geom, rot);
 		}
 
-		gdata->surface = b.surface;
-	}
-	//then: spheres
-	struct sphere sphere;
-	for (i=0; i<(int)spheres.size(); ++i)
-	{
-		sphere = spheres[i];
+		gdata->surface = tmp_geom.surf;
 
-		geom = dCreateSphere(0,sphere.radius);
-		gdata = new Geom(geom, car);
-
-		dGeomSetBody (geom, car->bodyid);
-
-		if (sphere.pos[0]||sphere.pos[1]||sphere.pos[2]) //need offset
-			dGeomSetOffsetPosition(geom,sphere.pos[0],sphere.pos[1],sphere.pos[2]);
-
-
-		gdata->surface = b.surface;
-	}
-	//finally: capsule
-	struct capsule capsule;
-	for (i=0; i<(int)capsules.size(); ++i)
-	{
-		capsule = capsules[i];
-	
-		geom = dCreateCapsule(0,capsule.size[0],capsule.size[1]);
-		gdata = new Geom (geom, car);
-
-		dGeomSetBody (geom, car->bodyid);
-
-		if (capsule.pos[0]||capsule.pos[1]||capsule.pos[2]) //need offset
-			dGeomSetOffsetPosition(geom,capsule.pos[0],capsule.pos[1],capsule.pos[2]);
-
-		if (capsule.rot[0]||capsule.rot[1]||capsule.rot[2]) //need rotation
-		{
-			dRFromEulerAngles(rot, capsule.rot[0]*M_PI/180.0, capsule.rot[1]*M_PI/180.0, capsule.rot[2]*M_PI/180.0);
-			dGeomSetOffsetRotation(geom, rot);
-		}
-
-		gdata->surface = b.surface;
 	}
 
 	//side detection sensors:
@@ -483,10 +432,9 @@ Car *Car_Template::Spawn (dReal x, dReal y, dReal z,  Trimesh_3D *tyre, Trimesh_
 	dBodyID wheel_body[4];
 
 	//3=z axis of cylinder
-	dMassSetCylinder (&m, 1, 3, conf.w[0], conf.w[1]);
-	dMassAdjust (&m, conf.wheel_mass);
+	dMassSetCylinderTotal (&m, conf.wheel_mass, 3, conf.w[0], conf.w[1]);
 
-	for (i=0;i<4;++i)
+	for (int i=0;i<4;++i)
 	{
 		//create cylinder
 		//(geom)
@@ -564,7 +512,7 @@ Car *Car_Template::Spawn (dReal x, dReal y, dReal z,  Trimesh_3D *tyre, Trimesh_
 	dReal stepsize = internal.stepsize/internal.multiplier;
 	dReal sERP = stepsize*conf.suspension_spring/(stepsize*conf.suspension_spring+conf.suspension_damping);
 	dReal sCFM = 1.0/(stepsize*conf.suspension_spring+conf.suspension_damping);
-	for (i=0; i<4; ++i)
+	for (int i=0; i<4; ++i)
 	{
 		car->joint[i]=dJointCreateHinge2 (world, 0);
 		new Joint(car->joint[i], car);
@@ -608,7 +556,7 @@ void Car::Respawn (dReal x, dReal y, dReal z)
 
 	//body:
 	dRSetIdentity(r); //no rotation
-	dBodySetPosition(bodyid, x, y, z);
+	dBodySetPosition(bodyid, x, y+offset, z);
 	dBodySetRotation(bodyid, r);
 
 	//wheels:

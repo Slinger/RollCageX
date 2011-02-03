@@ -1,23 +1,53 @@
-#some or all collision properties can be modified:
-#> mu 1 bounce 0 spring inf damping 0 #(defaults)
-#will affect all following geoms until new values are specified
-> mu 1 #1N/N friction
+#Collision surface defaults that can be modified:
+#> mu 0 bounce 0 spring inf damping 0
+#more (less interesting) defaults (for tyre rection):
+#position 1 sharpness 1 rollingres 1
 
-#spheres are best performance-wise, followed by capsules and then boxes
+> mu 1 #1N/N friction
+#(now all following geoms will have mu=1 if not changed)
+
+#
+#the following geoms can be used (sorted by performance):
+#
+# sphere radius [options]
+# - good performance and accuracy
+#
+# capsule radius length [options]
+# - good but might get stuck on collisions
+# - total length is 2*radius+length
+#
+# box width depth height [options]
+# - reliable collisions and acceptable performance
+#
+# trimesh filename resize [options]
+# - needs a lot of processing, not always reliable
+# - NEVER use a 3D model with MANY triangles
+# - resize is scale, "1" means no resize
+#
+#
+#[options] can be any of the following:
+#
+# p[osition] x y z
+# - position relative to center of car
+#
+# r[otation] x y z
+# - not point for spheres (not needed)
+# - rotation (euler angles) in degrees
+#
 
 #main body
-box s 1.8 5.8 0.3 p 0 0 0
-box s 0.8 6.2 0.5 p 0.8 0 0 r 0 0 -5
-box s 0.8 6.2 0.5 p -0.8 0 0 r 0 0 5
+box 1.8 5.8 0.3
+box 0.8 6.2 0.5 p 0.8 0 0 r 0 0 -5
+box 0.8 6.2 0.5 p -0.8 0 0 r 0 0 5
 
 #windows
-sphere s 0.5 p 0 0 0
+sphere 0.5
 
 #wheel "suspensions"
-box s 3.5 1.5 0.2 p 0 1.7 0 r 0 0 0
-box s 3.5 1.5 0.2 p 0 -1.7 0 r 0 0 0
+box 3.5 1.5 0.2 p 0 1.7 0
+box 3.5 1.5 0.2 p 0 -1.7 0
 
 #rear wings
-box s 2.8 1.6 0.4 p 0 -1.8 0.4 r 6 0 0
-box s 2.8 1.6 0.4 p 0 -1.8 -0.4 r -6 0 0
+box 2.8 1.6 0.4 p 0 -1.8 0.4 r 6 0 0
+box 2.8 1.6 0.4 p 0 -1.8 -0.4 r -6 0 0
 

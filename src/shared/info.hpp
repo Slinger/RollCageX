@@ -11,8 +11,11 @@
 
 #ifndef _RCX_INFO_H
 #define _RCX_INFO_H
+
 //general info
-const char VERSION[] = "0.07 (98\% done)"; //supports alphanumeric versioning
+const char VERSION[] = "0.07 (98\% done)";
+
+const char TITLE[] = "RollCageX 0.07 (98\% done) (C) 2009, 2010, 2011 Mats Wahlberg (\"Slinger\")"; 
 
 const char ISSUE[] = "\
    RollCageX  Copyright (C) 2009, 2010, 2011 Mats Wahlberg (\"Slinger\" on gorcx.net forum)\n\n\

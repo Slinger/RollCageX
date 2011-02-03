@@ -84,7 +84,7 @@ bool Trimesh::Load_OBJ(const char *f)
 
 				if (count == 0) //nothing read
 				{
-					printlog(0, "ERROR: obj file got malformated index, ignoring");
+					printlog(0, "ERROR: obj file got malformed index, ignoring");
 					break;
 				}
 				else //at least v read
