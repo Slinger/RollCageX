@@ -69,8 +69,11 @@
 0 0 30  0 0 270  superbowl.road
 
 #a little loop (for antigrav testing)
--120 90 -0.25  0 0 -45 vertigo.road
--120 90 -0.25  0 0 135 vertigo.road
+-120 85 -0.25  0 0 -45 vertigo.road
+-120 85 -0.25  0 0 135 vertigo.road
 
 #inspired by the stage2 scramble track
 0 -25 0  0 0 0 "in a spin.road"
+
+#fun 8-shaped road
+0 0 0 0 0 0 "figure 8.road"
