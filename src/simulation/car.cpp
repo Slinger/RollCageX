@@ -248,18 +248,12 @@ void Car::Physics_Step(dReal step)
 						//that the breaking will have to slow down the car movement too...
 						needed = -rotv[i]*kinertiatensor/step;
 
-						//got motor and its strong enough to break...
-						if ( torque[i] != 0.0 && (needed/torque[i] < 1.0) )
-							continue;
-
-
-						//else, we should break:
 						//to make transition between breaking and acceleration smooth
 						//use different ways of calculate breaking torque:
-						else if ( needed/kbreak[i] < 1.0) //more breaking than needed
+						if ( needed/kbreak[i] < 1.0) //more breaking than needed
 							torque[i] += needed; //break as needed + keep possible motor
 						else //not enough break to stop... full break
-							torque[i] = kbreak[i]; //full break
+							torque[i] += kbreak[i]; //full break + possible motor
 					}
 				}
 			}
