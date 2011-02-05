@@ -40,6 +40,7 @@ struct Car_Conf
 	//break
 	dReal max_break;
 	dReal dist_break;
+	bool handbreak_lock;
 
 	//steer
 	dReal max_steer;
@@ -81,6 +82,7 @@ const struct Car_Conf car_conf_defaults = {
 
 	100000.0,
 	0.5,
+	false,
 
 	30.0,
 	1.0,
@@ -119,6 +121,7 @@ const struct Conf_Index car_conf_index[] = {
 
 	{"max_break",		'R',1, offsetof(struct Car_Conf, max_break)},
 	{"break_distribution",	'R',1, offsetof(struct Car_Conf, dist_break)},
+	{"handbreak_lock",	'b',1, offsetof(struct Car_Conf, handbreak_lock)},
 
 	{"max_steer",		'R',1, offsetof(struct Car_Conf, max_steer)},
 	{"steer_distribution",	'R',1, offsetof(struct Car_Conf, dist_steer)},
@@ -228,6 +231,7 @@ class Car:public Object
 
 		dReal max_steer, steerdecr, min_steer, limit_speed, oldsteerlimit;
 		dReal max_break;
+		bool hinge2_dbreaks;
 
 		bool diff;
 		bool fwd, rwd;

@@ -172,14 +172,32 @@ void Car::Physics_Step(dReal step)
 		dReal kfbreak = carp->dbreak*carp->max_break*carp->throttle/2.0; //breaking power for front wheels
 		dReal kbreak[4] = {kfbreak, krbreak, krbreak, kfbreak}; //break power for each wheel (to make things easier)
 
+		//check if using the built-in hinge2 motor for handbreaking, and release it
+		if (carp->hinge2_dbreaks)
+		{
+			dJointSetHinge2Param (carp->joint[1],dParamFMax2, 0.0);
+			dJointSetHinge2Param (carp->joint[2],dParamFMax2, 0.0);
+		}
+
 		//no fancy motor/break solution, lock rear wheels to handbrake turn (oversteer)
 		if (carp->drift_breaks)
 		{
-			//apply enough on rear wheels to "lock" them
-			//note: based on moment of inertia by rotation relative to car body...
-			//not the most reliable solution but should suffice
-			torque[1] = -rotv[1]*kinertiatensor/step;
-			torque[2] = -rotv[2]*kinertiatensor/step;
+			if (carp->hinge2_dbreaks) //use super-break
+			{
+				//request ode to apply as much force as needed to completely lock wheels
+				dJointSetHinge2Param (carp->joint[1],dParamVel2, 0.0);
+				dJointSetHinge2Param (carp->joint[1],dParamFMax2, dInfinity);
+				dJointSetHinge2Param (carp->joint[2],dParamVel2, 0.0);
+				dJointSetHinge2Param (carp->joint[2],dParamFMax2, dInfinity);
+			}
+			else
+			{
+				//apply enough on rear wheels to theoretically "lock" them
+				//note: based on moment of inertia by rotation relative to car body...
+				//not the most reliable solution but should suffice
+				torque[1] = -rotv[1]*kinertiatensor/step;
+				torque[2] = -rotv[2]*kinertiatensor/step;
+			}
 		}
 		else
 		{
