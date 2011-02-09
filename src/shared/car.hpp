@@ -49,6 +49,7 @@ struct Car_Conf
 	dReal min_steer;
 	dReal limit_speed;
 	bool adapt_steer;
+	dReal toe[2];
 
 	//other
 	dReal body_mass, mass_position, body[3], wheel_mass;
@@ -90,6 +91,7 @@ const struct Car_Conf car_conf_defaults = {
 	15.0,
 	0.01,
 	true,
+	{0.0, 0.0},
 
 	2500.0, 0, {2.6,5.8,0.7}, 250.0,
 	150000.0, 5000.0,
@@ -129,6 +131,7 @@ const struct Conf_Index car_conf_index[] = {
 	{"min_decreased_steer",	'R',1, offsetof(struct Car_Conf, min_steer)},
 	{"steer_limit_speed",	'R',1, offsetof(struct Car_Conf, limit_speed)},
 	{"adaptive_steering",	'b',1, offsetof(struct Car_Conf, adapt_steer)},
+	{"toe",			'R',2, offsetof(struct Car_Conf, toe)},
 
 	{"body_mass",		'R',1, offsetof(struct Car_Conf, body_mass)},
 	{"body_mass_position",	'R',1, offsetof(struct Car_Conf, mass_position)},
@@ -239,6 +242,7 @@ class Car:public Object
 		bool adapt_steer, adapt_redist;
 		dReal redist_force;
 		dReal dsteer, dbreak;
+		dReal fwtoe, rwtoe;
 
 		dReal offset;
 

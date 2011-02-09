@@ -328,6 +328,8 @@ Car *Car_Template::Spawn (dReal x, dReal y, dReal z,  Trimesh_3D *tyre, Trimesh_
 	car->rwd = conf.dist_motor[1];
 	car->fwredist = conf.redist[0];
 	car->rwredist = conf.redist[1];
+	car->fwtoe = conf.toe[0]*M_PI/180.0;
+	car->rwtoe = conf.toe[1]*M_PI/180.0;
 
 	car->diff = conf.diff;
 	car->adapt_steer = conf.adapt_steer;
@@ -492,6 +494,7 @@ Car *Car_Template::Spawn (dReal x, dReal y, dReal z,  Trimesh_3D *tyre, Trimesh_
 	}
 
 	//place and rotate wheels
+	//(does not care about toe, which will be set during simulation)
 	dRFromAxisAndAngle (rot, 0, 1, 0, M_PI/2);
 	dBodySetPosition (wheel_body[0], x+conf.wp[0], y+conf.wp[1], z);
 	dBodySetRotation (wheel_body[0], rot);
