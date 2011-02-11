@@ -21,7 +21,7 @@
 #include "../shared/profile.hpp"
 
 #include "../shared/camera.hpp"
-#include "gl_extensions.hpp"
+#include "gl_functions.hpp"
 #include "render_lists.hpp"
 #include "geom_render.hpp"
 
@@ -118,12 +118,9 @@ bool Interface_Init(void)
 		return false;
 	}
 
-	//first of all, make sure we got all needed extansions:
-	if (!Load_GL_Extensions())
-	{
-		printlog(0, "Sorry, your hardware and/or software is too old to support rcx (requires opengl 1.5 compatibility)!");
+	//check if graphics is good enough and load all needed functions:
+	if (!Load_GL_Functions())
 		return false;
-	}
 
 	//hide cursor
 	SDL_ShowCursor (SDL_DISABLE);
