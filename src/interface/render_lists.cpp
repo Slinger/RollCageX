@@ -10,7 +10,7 @@
  */
 
 #include "render_lists.hpp"
-#include "gl_extensions.hpp"
+#include "gl_functions.hpp"
 
 #include "../shared/internal.hpp"
 #include "../shared/printlog.hpp"

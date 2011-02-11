@@ -92,7 +92,7 @@ Spawning:
 Debugging:
 * F9  - switch car (if more than one)
 * F10 - respawn car at track starting point
-* F11 - simulation paus (camera can still be moved)
+* F11 - simulation pause (camera can still be moved)
 * F12 - wireframe geom/collision rendering toggle, the following is provided:
    + models (normal rendering, only the 3D models)
    + models and (clearly visible) simple geoms (all geoms but trimeshes)
@@ -115,7 +115,7 @@ you will be able to select resolution, full screen toggling, and eye_distance.
 If you are wondering about the last one:
 
 The viewing angle in the game is calculated based on your eye distance from
-the screen, in pixels.This system got the advantage of always providing a
+the screen, in pixels. This system got the advantage of always providing a
 realistic viewing angle for all resolutions. But if you don't like this, you
 can force a viewing angle in the configuration file (internal.conf).
 
@@ -135,9 +135,9 @@ The requirements for running rcx is modest, a recommended minimum would be:
 * Memory:	32MiB RAM memory free
 * Graphics:	OpenGL 1.5 or later, 16MiB video memory
 
-Note that the memory and processor requirements also depends on OS and other
-programs running at the same time as rcx. If you want to use many high detail
-models, be prepared that the requirements might increase a bit.
+Memory and processor requirements also depends on OS and other programs 
+running at the same time as rcx. If you want to use many high detail models,
+be prepared that the requirements might increase a bit.
 
 Note: hardware opengl acceleration recommended, but of course, software
 rendering is an alternative, assuming you got enough processing power.

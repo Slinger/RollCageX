@@ -10,7 +10,7 @@
  */
 
 #include "geom_render.hpp"
-#include "gl_extensions.hpp"
+#include "gl_functions.hpp"
 #include "../shared/threads.hpp"
 #include "../shared/geom.hpp"
 #include "../shared/racetime_data.hpp"
