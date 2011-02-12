@@ -56,7 +56,7 @@ bool load_conf (const char *name, char *memory, const struct Conf_Index index[])
 		//argument name+values == words
 		if (index[i].length+1 != file.word_count)
 		{
-			printlog(0, "WARNING: parameter \"%s\" has wrong ammount of args: expected: %i, got %i!",file.words[0], index[i].length, file.word_count);
+			printlog(0, "WARNING: parameter \"%s\" has wrong ammount of args: expected: %i, got %i!",file.words[0], index[i].length, file.word_count-1);
 			continue;
 		}
 
