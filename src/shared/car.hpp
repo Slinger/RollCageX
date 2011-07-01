@@ -85,7 +85,7 @@ const struct Car_Conf car_conf_defaults = {
 	0.5,
 	false,
 
-	30.0,
+	35.0,
 	1.0,
 	0.4,
 	15.0,
@@ -108,7 +108,7 @@ const struct Car_Conf car_conf_defaults = {
 	0.0,
 	{0.0, 0.0},
 
-	{4.83,3.67,1.67,1.25}, {1.25,1.42}, {2.42,1.83}, 2.0};
+	{4.8,3.6,1.6,1.25}, {1.25,1.4}, {2.4,1.8}, 2.05};
 
 const struct Conf_Index car_conf_index[] = {
 	{"power",		'R',1, offsetof(struct Car_Conf, power)},
