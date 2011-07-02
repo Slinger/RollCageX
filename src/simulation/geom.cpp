@@ -1,23 +1,23 @@
 /*
- * RollCageX - a Free Software, Futuristic, Racing Simulator
+ * ReCaged - a Free Software, Futuristic, Racing Simulator
  *
  * Copyright (C) 2009, 2010, 2011 Mats Wahlberg ("Slinger" on gorcx.net
  * forum)
  *
- * This file is part of RollCageX.
+ * This file is part of ReCaged.
  *
- * RollCageX is free software: you can redistribute it and/or modify
+ * ReCaged is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * RollCageX is distributed in the hope that it will be useful,
+ * ReCaged is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with RollCageX.  If not, see <http://www.gnu.org/licenses/>.
+ * along with ReCaged.  If not, see <http://www.gnu.org/licenses/>.
  */ 
 
 #include "../shared/geom.hpp"
@@ -156,9 +156,9 @@ void Geom::Collision_Callback (void *data, dGeomID o1, dGeomID o2)
 		contact[i].surface.mode = dContactApprox1;
 		contact[i].surface.mu = (surf1->mu)*(surf2->mu); //friction
 
-		//optional or not even/rarely used by rcx, set to 0 to prevent compiler warnings:
+		//optional or not even/rarely used by rc, set to 0 to prevent compiler warnings:
 		contact[i].surface.bounce = 0.0;
-		contact[i].surface.bounce_vel = 0.0; //not used by rcx right now, perhaps for future tweaking?
+		contact[i].surface.bounce_vel = 0.0; //not used by rc right now, perhaps for future tweaking?
 		contact[i].surface.mu2 = 0.0; //only for tyre
 		contact[i].surface.motion1 = 0.0; //for conveyor belt?
 		contact[i].surface.motion2 = 0.0; //for conveyor belt?

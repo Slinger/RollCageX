@@ -1,5 +1,5 @@
   /----------====----------\
- [# RollCageX version 0.07, <codename here> #]
+ [# ReCaged version 0.07, <codename here> #]
   \----------====----------/
 
  A Free Software, Futuristic, Racing Simulator
@@ -34,44 +34,44 @@
 
 2) [LICENSING]
 
-RollCageX  Copyright (C) 2009, 2010, 2011 Mats Wahlberg ("Slinger" on
+ReCaged  Copyright (C) 2009, 2010, 2011 Mats Wahlberg ("Slinger" on
 gorcx.net forum)
 
-RollCagex is free software: you can redistribute it and/or modify
+ReCaged is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
 (at your option) any later version.
 
-RollCageX is distributed in the hope that it will be useful,
+ReCaged is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with RollCageX.  If not, see <http://www.gnu.org/licenses/>.
+along with ReCaged.  If not, see <http://www.gnu.org/licenses/>.
 
 
 
 3) [RUNNING]
 
-The current version of rcx does not require installation in order to run.
-Instead, just place rcx (on windows: rcx.exe) in a directory of your choice.
+The current version of ReCaged does not require installation in order to run.
+Instead, just place recaged (on windows: recaged.exe) in any directory.
 In the archive, there are two directories: src and data. While data is needed,
 src is only needed for compilation.
 
-Src is not needed for rcx to run - it contains the sourcecode for compilation
-and modification of rcx. The data directory contains the default configuration
-and all 3D models. Without the 3D files in the data directory, rcx will not
-have anything to render, which is why rcx will refuse to start if these files
+Src is not needed for rc to run - it contains the sourcecode for compilation
+and modification of rc. The data directory contains the default configuration
+and all 3D models. Without the 3D files in the data directory, rc will not
+have anything to render, which is why rc will refuse to start if these files
 are missing.
 
 A few options are available as arguments:
 Path to data directory ("-d"), default: "data" in the same dir as the binary).
 Path to profile directory ("-p"), default: "profiles" inside the data dir.
 
-Example: the following uses the read only _data_ directory "/opt/rcx/data",
-and a _profile_ directory the user has read/write access to (in home):
-> rcx -d /opt/rcx/data -p /home/slinger/rcx
+Example: use the read only _data_ directory "/opt/recaged/data", and "profile"
+directory the user has read/write access to (in home):
+> recaged -d /opt/recaged/data -p /home/slinger/recaged
 
 
 
@@ -113,7 +113,7 @@ Debugging:
 
 5) [Configuration]
 
-RCX can be configured using a couple of plain-text files divided into several
+RC can be configured using a couple of plain-text files divided into several
 directories inside the data directory, such as "teams", "worlds" and "profiles"
 
 What you might be most interested in is specified in internal.conf, it
@@ -137,14 +137,14 @@ screen (in reality).
 
 6) [HARDWARE REQUIREMENTS]
 
-The requirements for running rcx is modest, a recommended minimum would be:
+The requirements for running rc is modest, a recommended minimum would be:
 
 * Processor:	1.5GHz, 32bit
 * Memory:	32MiB RAM memory free
 * Graphics:	OpenGL 1.5 or later, 16MiB video memory
 
 Memory and processor requirements also depends on OS and other programs 
-running at the same time as rcx. If you want to use many high detail models,
+running at the same time as rc. If you want to use many high detail models,
 be prepared that the requirements might increase a bit.
 
 Note: hardware opengl acceleration recommended, but of course, software
@@ -153,28 +153,28 @@ rendering is an alternative, assuming you got enough processing power.
 Also, a POSIX compliant OS should be used (such as GNU or BSD). A GNU variant
 is recommended (such as GNU/kfreebsd or GNU/linux). Note that Windows is not
 a targeted OS, because it's not POSIX compliant and generally difficult to
-use/develop on. There is however a windows compiled version of rcx (rcx.exe)
+use/develop on. There is however a windows compiled version (recaged.exe)
 which might work.
 
 
 
 7) [SOFTWARE REQUIREMENTS]
 
-RCX needs OpenGL and two libraries (the compiled windows binary includes these
+RC needs OpenGL and two libraries (the compiled windows binary includes these
 libraries):
 
    7.1) [OPENGL]
    As mentioned above, some kind of OpenGL implementation is needed for
    rendering of 3D graphics. This is OS dependent, but it is quite common
    (either hardware or software). This version requires GL 1.5 or later.
-   Note that RCX does not use GLU or GLUT, only GL.
+   Note that RC does not use GLU or GLUT, only GL.
 
    7.2) [SDL]
-   RCX uses the library "Simple DirectMedia Layer" for some OS independent
+   RC uses the library "Simple DirectMedia Layer" for some OS independent
    functionality.
 
    7.3) [ODE]
-   RCX uses the library "Open Dynamics Engine" for some physics simulations.
+   RC uses the library "Open Dynamics Engine" for some physics simulations.
 
 
 
@@ -186,7 +186,7 @@ libraries for ODE and SDL in separate packages and if so, install them too.
 Also make sure you got at least a Make program and a C++ compiler (such as GNU
 Make and the GNU C++ Compiler, g++) and the usual libraries.
 
-RCX currently does not use autoconf, but only a custom makefile, so in order
+RC currently does not use autoconf, but only a custom makefile, so in order
 to compile, just cd into the src directory and type "make".
 
 
@@ -206,7 +206,7 @@ There is also an experimental windows "DevKit", which should provide everything
 needed for compilation. But is not guaranteed to work (it's in testing stage).
 
 Then cd into the src directory and use "make w32" to compile a static binary,
-called "rcx.exe", which includes the needed libraries (for easy redistribution).
+called "recaged.exe", which includes the needed libraries (for easy redistribution).
 
 
 
@@ -220,9 +220,13 @@ Names (and possibly alternative name on gorcx.net forum).
   * "MeAkaJon"			Creator/maintainer of gorcx.net webpage
   * "Spontificus"		Testing, hacks and various fixes
 
-  Other Projects that made RCX possible:
-  * "Free Software Foundation"  "Free Software, Free Society", supporting the free software movement
-  * "The GNU Project"           For a Free OS. Its fight for computer freedom has changed the world
+  Other Projects that made ReCaged possible:
+  * "Free Software Foundation"  "Free Software, Free Society", supporting the
+				free software movement
+
+  * "The GNU Project"           For a Free OS. Its work for computer freedom
+				has changed the world
+
   * "Simple DirectMedia Layer"	OS/hardware abstractions
   * "Open Dynamics Engine"	Rigid body dynamics and collision detection
 

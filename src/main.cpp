@@ -1,23 +1,23 @@
 /*
- * RollCageX - a Free Software, Futuristic, Racing Simulator
+ * ReCaged - a Free Software, Futuristic, Racing Simulator
  *
  * Copyright (C) 2009, 2010, 2011 Mats Wahlberg ("Slinger" on gorcx.net
  * forum)
  *
- * This file is part of RollCageX.
+ * This file is part of ReCaged.
  *
- * RollCageX is free software: you can redistribute it and/or modify
+ * ReCaged is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * RollCageX is distributed in the hope that it will be useful,
+ * ReCaged is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with RollCageX.  If not, see <http://www.gnu.org/licenses/>.
+ * along with ReCaged.  If not, see <http://www.gnu.org/licenses/>.
  */ 
 
 //Required stuff:
@@ -93,7 +93,7 @@ bool tmp_menus(const char *profiledir)
 	Text_File file; //for parsing
 	file.Open("tmp menu selections"); //just assume it opens...
 
-	//MENU: welcome to rcx, please select profile or create a new profile
+	//MENU: welcome to rc, please select profile or create a new profile
 	sprofile = profiledir; //specified dir
 	sprofile += "/"; //and separator
 	if (file.Read_Line() && file.word_count == 2 && !strcmp(file.words[0], "profile"))
@@ -306,13 +306,13 @@ bool tmp_menus(const char *profiledir)
 
 //default options (paths)
 const char profiledefault[] = "profiles";
-char *datadefault; //need to check path to rcx before deciding this
+char *datadefault; //need to check path to rc before deciding this
 
 //main function, will change a lot in future versions...
 int main (int argc, char *argv[])
 {
 	//issue
-	printf("\n		-=[ Welcome to RollCageX version %s ]=-\n\n%s\n", VERSION, ISSUE);
+	printf("\n		-=[ Welcome to ReCaged version %s ]=-\n\n%s\n", VERSION, ISSUE);
 	//end
 
 	//attempt to generate default data path
@@ -388,7 +388,7 @@ int main (int argc, char *argv[])
 
 	//
 	//TODO: there should be menus here, but menu/osd system is not implemented yet... also:
-	//on failure, rcx should not just terminate but instead abort the race and warn the user
+	//on failure, rc should not just terminate but instead abort the race and warn the user
 	if (!tmp_menus(profiledir))
 	{
 		printlog(0, "One or more errors, can not start!");

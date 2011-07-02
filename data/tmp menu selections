@@ -3,7 +3,7 @@
 # one single user (with one profile) controls all cars ("players")
 #
 #the idea here is to mimic menu selections for now:
-#hello, welcome to rcx! select a profile (or create a new):
+#hello, welcome to rc! select a profile (or create a new):
 profile default
 
 #main menu... player selects "race"... and free-roam mode
