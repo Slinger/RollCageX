@@ -135,6 +135,21 @@ Object_Template *Object_Template::Load(const char *path)
 			return NULL;
 
 	}
+	else if (!strcmp(path,"objects/misc/tetrahedron"))
+	{
+		//"load" 3d box
+		printlog(2, "(hard-coded tetrahedron)");
+
+		obj = new Object_Template(path);
+		obj->tetrahedron = true;
+
+		//try to load and generate needed vertices (render+collision)
+		Trimesh mesh;
+		if (	!(mesh.Load("objects/misc/tetrahedron/model.obj")) ||
+			!(obj->model[0] = mesh.Create_3D()) ||
+			!(obj->geom[0] = mesh.Create_Geom())	)
+			return NULL;
+	}
 	else
 	{
 		printlog(0, "ERROR: path didn't match any hard-coded object");
@@ -659,6 +674,43 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 		g->Set_Buffer_Event(200000, 100000, (Script*)1337);
 		g->TMP_pillar_graphics = model[1];
 	}
+	//
+	//
+	else if (tetrahedron)
+	{
+		printlog(2, "(hard-coded tetrahedron)");
+
+		obj = new Object();
+
+		Geom *g = geom[0]->Create_Geom(obj);
+		g->model = model[0];
+
+		//properties:
+		g->surface.mu = 1.0;
+		g->Set_Buffer_Event(100000, 50000, (Script*)1337);
+
+		dBodyID body = dBodyCreate (world);
+		dMass m;
+		dMassSetTrimeshTotal (&m,10,g->geom_id); //built-in feature in ode!
+
+		//
+		//need to make sure the mass is at (0,0,0):
+
+		//offset geom position the same way as mass:
+		dGeomSetBody (g->geom_id, body);
+		dGeomSetOffsetPosition (g->geom_id, -m.c[0], -m.c[1], -m.c[2]);
+
+		dMassTranslate(&m, -m.c[0], -m.c[1], -m.c[2]);
+		dBodySetMass (body, &m);
+		//
+		//
+
+		Body *b = new Body(body, obj);
+
+		dBodySetPosition(b->body_id, x,y,z);
+	}
+	//
+	//
 	else
 		printlog(0, "ERROR: trying to spawn unidentified object?!");
 

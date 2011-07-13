@@ -52,6 +52,8 @@ class Object_Template:public Racetime_Data
 
 		//tmp vbo test graphics
 		Trimesh_3D *model[10];
+		//tmp trimesh test model
+		Trimesh_Geom *geom[1];
 
 		//temporary solution
 		bool box;
@@ -61,6 +63,7 @@ class Object_Template:public Racetime_Data
 		bool building;
 		bool sphere;
 		bool pillar;
+		bool tetrahedron;
 };
 
 //can be added/removed at runtime ("racetime")
