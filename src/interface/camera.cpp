@@ -27,17 +27,19 @@ void Camera::Graphics_Step()
 {
 	//build matrix...
 	GLfloat matrix[16] = {
+		//(right, up, forward)
 		camera.rotation[0], camera.rotation[2], -camera.rotation[1], 0.0,
 		camera.rotation[3], camera.rotation[5], -camera.rotation[4], 0.0,
 		camera.rotation[6], camera.rotation[8], -camera.rotation[7], 0.0,
-		0.0,	0.0,	0.0,	1.0};
-	//right, up, forward
+
+		matrix[12]=-matrix[0]*camera.pos[0]-matrix[4]*camera.pos[1]-matrix[8]*camera.pos[2], //m3
+		matrix[13]=-matrix[1]*camera.pos[0]-matrix[5]*camera.pos[1]-matrix[9]*camera.pos[2], //m7
+		matrix[14]=-matrix[2]*camera.pos[0]-matrix[6]*camera.pos[1]-matrix[10]*camera.pos[2], //m11
+
+		1.0}; //m15
 
 	//multiply matrix
 	glMultMatrixf(matrix);
-
-	//"move" camera
-	glTranslatef(-camera.pos[0], -camera.pos[1], -camera.pos[2]);
 }
 
 
