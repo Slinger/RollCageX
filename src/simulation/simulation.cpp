@@ -121,6 +121,8 @@ int Simulation_Loop (void *d)
 			camera.Generate_Matrix(); //matrix based on new position/rotation
 			Render_List_Flag(); //flag new list as ok to render
 		}
+		else
+			camera.Generate_Matrix(); //still update camera position (if manually moving)
 
 		//previous simulations might have caused events (to be processed by scripts)...
 		Event_Buffers_Process(internal.stepsize);
