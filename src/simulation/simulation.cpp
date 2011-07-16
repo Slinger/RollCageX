@@ -114,20 +114,22 @@ int Simulation_Loop (void *d)
 				Collision_Feedback::Physics_Step(divided_stepsize); //forces from collisions
 			}
 
+			//previous simulations might have caused events (to be processed by scripts)...
+			Event_Buffers_Process(internal.stepsize);
+
+			//process timers:
+			Animation_Timer::Events_Step(internal.stepsize);
+
 			//done with ode
 			SDL_mutexV(ode_mutex);
-			
+
+			//opdate for interface:
 			Render_List_Update(); //make copy of position/rotation for rendering
 			camera.Generate_Matrix(); //matrix based on new position/rotation
 			Render_List_Flag(); //flag new list as ok to render
 		}
-
-		//previous simulations might have caused events (to be processed by scripts)...
-		Event_Buffers_Process(internal.stepsize);
-
-		//process timers:
-		Animation_Timer::Events_Step(internal.stepsize);
-
+		else
+			camera.Generate_Matrix(); //still update camera position (if manually moving)
 
 		//broadcast to wake up sleeping threads
 		if (internal.sync_interface)
