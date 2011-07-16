@@ -342,24 +342,21 @@ int Interface_Loop ()
 		//clear screen
 		glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		glPushMatrix();
+		//move camera
+		camera.Graphics_Step();
 
-			//move camera
-			camera.Graphics_Step();
+		//place sun
+		glLightfv (GL_LIGHT0, GL_POSITION, track.position);
 
-			//place sun
-			glLightfv (GL_LIGHT0, GL_POSITION, track.position);
+		//render models (if not 2 or more level of geom rendering)
+		if (geom_render_level < 3)
+			Render_List_Render();
 
-			//render models (if not 2 or more level of geom rendering)
-			if (geom_render_level < 3)
-				Render_List_Render();
+		//render geoms (if nonzero level)
+		if (geom_render_level)
+			Geom_Render();
 
-			//render geoms (if nonzero level)
-			if (geom_render_level)
-				Geom_Render();
-
-		glPopMatrix();
-
+		//swap the 2 gl buffers
 		SDL_GL_SwapBuffers();
 
 		//keep track of how many rendered frames

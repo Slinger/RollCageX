@@ -22,9 +22,13 @@
 
 #include <SDL/SDL_opengl.h>
 #include "../shared/camera.hpp"
+
 //set camera view before rendering
 void Camera::Graphics_Step()
 {
+	//load identity matrix before manipulation
+	glLoadIdentity();
+
 	//build matrix...
 	GLfloat matrix[16] = {
 		//(right, up, forward)
