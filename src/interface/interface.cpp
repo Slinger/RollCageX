@@ -36,6 +36,13 @@
 #include "render_lists.hpp"
 #include "geom_render.hpp"
 
+//hack
+#include "hud.hpp"
+float fps=0;
+float fpscount=0;
+float fpstime=0;
+//
+
 SDL_Surface *screen;
 Uint32 flags = SDL_OPENGL | SDL_RESIZABLE;
 
@@ -57,11 +64,18 @@ float view_angle_rate_y=0.0;
 bool background = true;
 //
 
+//hack
+int width=0, height=0;
+
 void Resize (int new_w, int new_h)
 {
 	screen = SDL_SetVideoMode (new_w, new_h, 0, flags);
 	int w=screen->w;
 	int h=screen->h;
+
+	//tmp, hack!
+	width=w;
+	height=h;
 
 	glViewport (0,0,w,h);
 	glMatrixMode (GL_PROJECTION);
@@ -143,6 +157,10 @@ bool Interface_Init(void)
 
 	//set up window, as if resized
 	Resize (screen->w, screen->h);
+
+	//hack
+	if (!HUD_Load())
+		return false;
 
 	//everything ok
 	return true;
@@ -360,6 +378,37 @@ int Interface_Loop ()
 
 		glPopMatrix();
 
+		//
+		//hack!
+		//
+		//set projection (1:1 mapping)
+		glMatrixMode (GL_PROJECTION);
+		glPushMatrix(); //copy projection matrix
+		glLoadIdentity(); //reset
+		glOrtho (0, width, height, 0, 0, 1); //mapping = resolution
+		glMatrixMode (GL_MODELVIEW);
+
+		char string[1000];
+		//snprintf(string, 1000, "ABC - a is for apple, or all mighty pi\nb is for banana\nand c is for carbon fibre\n\npi=%f\n\n # fonts are working (including some special characters!) # ", M_PI);
+		fpstime+=delta/1000.0;
+		fpscount+=1;
+		if (fpstime >= 0.5)
+		{
+			fps=fpscount/fpstime;
+			fpstime=0;
+			fpscount=0;
+		}
+		snprintf(string, 1000, "velocity: %.0fkm/h\nfps: %.0f", camera.car->velocity*3.6, fps);
+		HUD_Render(string);
+
+		glMatrixMode (GL_PROJECTION);
+		glPopMatrix(); //return to old projection
+		glMatrixMode (GL_MODELVIEW);
+		//
+		//
+		//
+
+		//done
 		SDL_GL_SwapBuffers();
 
 		//keep track of how many rendered frames
