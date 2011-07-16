@@ -185,25 +185,6 @@ void HUD_Render(const char string[])
 				//move
 				posx+=resx;
 				count+=4*4;
-
-				/*tmp[2]=0;
-				tmp[3]=0;
-				tmp[6]=0;
-				tmp[7]=32;
-				tmp[10]=1280;
-				tmp[11]=32;
-				tmp[14]=1280;
-				tmp[15]=0;
-
-				tmp[0]=0;
-				tmp[1]=0;
-				tmp[4]=0;
-				tmp[5]=1;
-				tmp[8]=1;
-				tmp[9]=1;
-				tmp[12]=1;
-				tmp[13]=0;
-				count=4*4;*/
 			}
 		}
 	}
@@ -225,7 +206,14 @@ void HUD_Render(const char string[])
 	//done
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	glDisableClientState(GL_VERTEX_ARRAY);
-
 	glDisable(GL_TEXTURE_2D);
+
+	//stuff changed earlier, change back
+	glEnable(GL_LIGHTING);
+	glShadeModel (GL_SMOOTH);
+	glEnable(GL_DEPTH_TEST);
+	if (internal.culling)
+		glEnable(GL_CULL_FACE);
+
 }
 
