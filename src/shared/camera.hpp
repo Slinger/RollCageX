@@ -62,12 +62,16 @@ class Camera
 
 		//these should probably be static (for using more cameras), but this will do for now
 		void Physics_Step(dReal step);
+		void Generate_Matrix();
 		void Graphics_Step();
 
 	private:
 		struct Camera_Settings *settings;
 		Car *car;
 		Object *hide;
+
+		//matrix (generated from everything else)
+		float matrix[16];
 
 		//position/velocity
 		float pos[3];

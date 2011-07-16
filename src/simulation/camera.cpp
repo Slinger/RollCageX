@@ -497,11 +497,9 @@ void Camera::Rotate(dReal step)
 	rotation[6] = c_right[2]; rotation[7] = c_dir[2]; rotation[8] = c_up[2];
 }
 
-//collide camera with track, generate acceleration on camera if collisding
+//collide camera with track, generate acceleration on camera if colliding
 void Camera::Physics_Step(dReal step)
 {
-	//some values that are easy to deal with:
-
 	if (car && settings)
 	{
 
@@ -577,8 +575,27 @@ void Camera::Physics_Step(dReal step)
 		pos[1]+=((vel[1]+old_vel[1])/2)*step;
 		pos[2]+=((vel[2]+old_vel[2])/2)*step;
 
-		//avarge velocity over the step is between new and old velocity
 		//rotate camera (focus and rotation)
 		Rotate(step);
 	}
+}
+
+//create rendering matrix
+void Camera::Generate_Matrix()
+{
+	//rotation (right, up, forward)
+	//m0-m3
+	matrix[0]=camera.rotation[0]; matrix[1]=camera.rotation[2]; matrix[2]=-camera.rotation[1]; matrix[3]=0.0,
+	//m4-m7
+	matrix[4]=camera.rotation[3]; matrix[5]=camera.rotation[5]; matrix[6]=-camera.rotation[4]; matrix[7]=0.0,
+	//m4-m7
+	matrix[8]=camera.rotation[6]; matrix[9]=camera.rotation[8]; matrix[10]=-camera.rotation[7]; matrix[11]=0.0,
+
+	//m12-m14, translation
+	matrix[12]=-matrix[0]*camera.pos[0]-matrix[4]*camera.pos[1]-matrix[8]*camera.pos[2],
+	matrix[13]=-matrix[1]*camera.pos[0]-matrix[5]*camera.pos[1]-matrix[9]*camera.pos[2],
+	matrix[14]=-matrix[2]*camera.pos[0]-matrix[6]*camera.pos[1]-matrix[10]*camera.pos[2],
+
+	//m15
+	matrix[15]=1.0;
 }
