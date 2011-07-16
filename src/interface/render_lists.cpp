@@ -181,8 +181,12 @@ void Render_List_Update()
 			++(tmp->count);
 		}
 	}
+}
 
-	tmp->filled = true; //this buffer is now filled with new data
+//indicate ready to render new frame
+void Render_List_Flag()
+{
+	buffer_in->filled = true; //this buffer is now filled with new data
 }
 
 //updated on resizing, needed here:

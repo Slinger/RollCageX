@@ -99,6 +99,7 @@ int Simulation_Loop (void *d)
 			{
 				Car::Physics_Step(divided_stepsize); //control, antigrav...
 				Body::Physics_Step(divided_stepsize); //drag (air/liquid "friction") and respawning
+				camera.Physics_Step(divided_stepsize); //calculate velocity and move
 
 				Geom::Clear_Collisions(); //set all collision flags to false
 
@@ -113,12 +114,12 @@ int Simulation_Loop (void *d)
 				Collision_Feedback::Physics_Step(divided_stepsize); //forces from collisions
 			}
 
-			camera.Physics_Step(internal.stepsize); //move camera to wanted postion
-
 			//done with ode
 			SDL_mutexV(ode_mutex);
 			
 			Render_List_Update(); //make copy of position/rotation for rendering
+			camera.Generate_Matrix(); //matrix based on new position/rotation
+			Render_List_Flag(); //flag new list as ok to render
 		}
 
 		//previous simulations might have caused events (to be processed by scripts)...

@@ -69,7 +69,7 @@ bool Check_Version(const char *version)
 	char *s= (char *)glGetString(GL_VERSION); //reported version
 
 	//if first characters bigger or equal to wanted, return true
-	if (strncmp(s, version, strlen(version)) >= 0)
+	if (strcmp(s, version) >= 0)
 		return true;
 
 	//older version

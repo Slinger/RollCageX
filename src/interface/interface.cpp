@@ -360,23 +360,19 @@ int Interface_Loop ()
 		//clear screen
 		glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		glPushMatrix();
+		//move camera
+		camera.Graphics_Step();
 
-			//move camera
-			camera.Graphics_Step();
+		//place sun
+		glLightfv (GL_LIGHT0, GL_POSITION, track.position);
 
-			//place sun
-			glLightfv (GL_LIGHT0, GL_POSITION, track.position);
+		//render models (if not 2 or more level of geom rendering)
+		if (geom_render_level < 3)
+			Render_List_Render();
 
-			//render models (if not 2 or more level of geom rendering)
-			if (geom_render_level < 3)
-				Render_List_Render();
-
-			//render geoms (if nonzero level)
-			if (geom_render_level)
-				Geom_Render();
-
-		glPopMatrix();
+		//render geoms (if nonzero level)
+		if (geom_render_level)
+			Geom_Render();
 
 		//
 		//hack!
@@ -387,6 +383,7 @@ int Interface_Loop ()
 		glLoadIdentity(); //reset
 		glOrtho (0, width, height, 0, 0, 1); //mapping = resolution
 		glMatrixMode (GL_MODELVIEW);
+		glLoadIdentity();
 
 		char string[1000];
 		//snprintf(string, 1000, "ABC - a is for apple, or all mighty pi\nb is for banana\nand c is for carbon fibre\n\npi=%f\n\n # fonts are working (including some special characters!) # ", M_PI);
@@ -408,7 +405,7 @@ int Interface_Loop ()
 		//
 		//
 
-		//done
+		//swap the 2 gl buffers
 		SDL_GL_SwapBuffers();
 
 		//keep track of how many rendered frames

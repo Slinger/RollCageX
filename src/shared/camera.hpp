@@ -62,6 +62,7 @@ class Camera
 
 		//these should probably be static (for using more cameras), but this will do for now
 		void Physics_Step(dReal step);
+		void Generate_Matrix();
 		void Graphics_Step();
 
 	private:
@@ -69,6 +70,9 @@ class Camera
 		Car *car;
 		friend int Interface_Loop();
 		Object *hide;
+
+		//matrix (generated from everything else)
+		float matrix[16];
 
 		//position/velocity
 		float pos[3];
