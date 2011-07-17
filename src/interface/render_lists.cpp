@@ -224,7 +224,6 @@ void Render_List_Render()
 	float pos[3]; //relative pos
 
 	//configure rendering options:
-	//(currently pretty redundant, but good when adding other stuff like menus)
 
 	//enable lighting
 	glEnable (GL_LIGHT0);
