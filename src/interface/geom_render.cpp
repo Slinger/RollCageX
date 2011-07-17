@@ -572,11 +572,14 @@ void Geom_Render()
 	//configure rendering options:
 	glDisable (GL_LIGHTING);
 	glShadeModel (GL_FLAT);
-	glDisable (GL_CULL_FACE);
 
 	//disable depth testing at level 1, since we need to see everything
 	if (geom_render_level == 1)
 		glDisable (GL_DEPTH_TEST);
+	else
+		glEnable (GL_DEPTH_TEST);
+
+	glDisable (GL_CULL_FACE);
 
 	//(I wounder if this is deprecated in latest ogl?)
 	glLineWidth(2.0); //wide lines
