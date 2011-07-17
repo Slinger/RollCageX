@@ -126,7 +126,7 @@ bool HUD_Load()
 
 void HUD_Render(const char string[])
 {
-	//just disable some stuff not needed...
+	//configure rendering (disable some stuff not needed)
 	glDisable(GL_LIGHTING);
 	glShadeModel (GL_FLAT);
 	glDisable(GL_DEPTH_TEST);
@@ -207,13 +207,5 @@ void HUD_Render(const char string[])
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	glDisableClientState(GL_VERTEX_ARRAY);
 	glDisable(GL_TEXTURE_2D);
-
-	//stuff changed earlier, change back
-	glEnable(GL_LIGHTING);
-	glShadeModel (GL_SMOOTH);
-	glEnable(GL_DEPTH_TEST);
-	if (internal.culling)
-		glEnable(GL_CULL_FACE);
-
 }
 
