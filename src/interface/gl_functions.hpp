@@ -34,7 +34,7 @@
 //texture handling
 //
 //adopted into core for GL 1.3 or later
-extern PFNGLCLIENTACTIVETEXTUREPROC glClientActiveTexture=NULL;
+extern PFNGLCLIENTACTIVETEXTUREPROC glClientActiveTexture;
 #endif
 //endofhack
 
