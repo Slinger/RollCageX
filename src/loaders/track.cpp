@@ -95,13 +95,9 @@ bool load_track (const char *path)
 	camera.Set_Pos(track.cam_start[0], track.cam_start[1], track.cam_start[2],
 			track.focus_start[0], track.focus_start[1], track.focus_start[2]);
 
-	//append forced data
-	track.ambient[3] = 1.0f; //a = 1.0f
-	track.diffuse[3] = 1.0f; //-''-
-	track.specular[3] = 1.0f; //-''-
-
 	//all data loaded, start building
-	glClearColor (track.sky[0],track.sky[1],track.sky[2],1.0f); //background
+	glClearColor (track.sky[0],track.sky[1],track.sky[2],track.sky[3]); //background
+	glFogfv(GL_FOG_COLOR, track.sky); //"fog"
 	
 	//sun position and colour
 	glLightfv (GL_LIGHT0, GL_AMBIENT, track.ambient);

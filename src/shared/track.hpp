@@ -38,7 +38,7 @@ extern dJointGroupID contactgroup;
 //(in contrary to the other structs, this is actually not allocated on runtime!)
 extern struct Track_Struct {
 	//placeholder for stuff like if it's raining/snowing and lightsources
-	float sky[3]; //RGB, alpha is always 1.0f
+	float sky[4]; //background/fog colour
 
 	float ambient[4];
 	float diffuse[4];
@@ -62,10 +62,10 @@ extern struct Track_Struct {
 //index:
 
 const struct Track_Struct track_defaults = {
-	{0.5,0.8,0.8},
-	{0.0,0.0,0.0},
-	{1.0,1.0,1.0},
-	{1.0,1.0,1.0},
+	{0.5,0.8,0.8 ,1.0},
+	{0.0,0.0,0.0 ,1.0},
+	{1.0,1.0,1.0 ,1.0},
+	{1.0,1.0,1.0 ,1.0},
 	{-1.0,0.5,1.0,0.0},
 	9.82,
 	1.29,

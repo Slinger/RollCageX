@@ -141,6 +141,22 @@ bool Interface_Init(void)
 		if (!SDL_WM_ToggleFullScreen(screen))
 			printlog(0, "Error: unable to toggle fullscreen");
 
+	//
+	//options
+	//
+	if (internal.culling)
+		culling=true;
+
+	//if positive and closer than far clipping
+	if (internal.fog > 0.0 && internal.fog < internal.clipping[1])
+	{
+		glFogi(GL_FOG_MODE, GL_LINEAR);
+		glFogf(GL_FOG_START, internal.fog);
+		glFogf(GL_FOG_END, internal.clipping[1]);
+		fog=true;
+	}
+	//
+
 	//set up window, as if resized
 	Resize (screen->w, screen->h);
 

@@ -52,11 +52,12 @@ extern struct internal_struct {
 	//graphics
 	int res[2]; //resolution
 	int vbo_size;
+	bool culling;
+	bool fullscreen;
+	float clipping[2];
+	float fog;
 	float dist;
 	float angle;
-	float clipping[2];
-	bool fullscreen;
-	bool culling;
 } internal;
 
 const struct internal_struct internal_defaults = {
@@ -76,11 +77,12 @@ const struct internal_struct internal_defaults = {
 	//graphics
 	{1200,800},
 	16000000,
-	2800.0,
-	0,
-	{1.0, 1000.0},
+	true,
 	false,
-	true};
+	{1.0, 1500.0},
+	500.0,
+	2800.0,
+	0};
 
 const struct Conf_Index internal_index[] = {
 	{"verbosity",		'i',1, offsetof(struct internal_struct, verbosity)},
@@ -107,11 +109,12 @@ const struct Conf_Index internal_index[] = {
 	//graphics
 	{"resolution",		'i',2, offsetof(struct internal_struct, res)},
 	{"VBO_size",		'i',1, offsetof(struct internal_struct, vbo_size)},
+	{"backface_culling",	'b',1, offsetof(struct internal_struct, culling)},
+	{"fullscreen",		'b',1, offsetof(struct internal_struct, fullscreen)},
+	{"clipping",		'f',2, offsetof(struct internal_struct, clipping)},
+	{"fog",			'f',1, offsetof(struct internal_struct, fog)},
 	{"eye_distance",	'f',1, offsetof(struct internal_struct, dist)},
 	{"view_angle",		'f',1, offsetof(struct internal_struct, angle)},
-	{"fullscreen",		'b',1, offsetof(struct internal_struct, fullscreen)},
-	{"backface_culling",	'b',1, offsetof(struct internal_struct, culling)},
-	{"clipping",		'f',2, offsetof(struct internal_struct, clipping)},
 
 	{"",0,0}};
 

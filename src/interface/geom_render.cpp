@@ -580,6 +580,7 @@ void Geom_Render()
 		glEnable (GL_DEPTH_TEST);
 
 	glDisable (GL_CULL_FACE);
+	glDisable (GL_FOG);
 
 	//(I wounder if this is deprecated in latest ogl?)
 	glLineWidth(2.0); //wide lines

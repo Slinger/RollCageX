@@ -26,6 +26,10 @@
 //currently just list for components (geoms+bodies)
 #define INITIAL_RENDER_LIST_SIZE 150
 
+//options
+extern bool culling;
+extern bool fog;
+
 void Render_List_Update(); //copy pos/rot
 void Render_List_Flag(); //flag ready to render
 void Render_List_Render(); //render
