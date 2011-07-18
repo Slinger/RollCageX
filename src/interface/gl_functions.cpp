@@ -27,7 +27,15 @@
 #include "../shared/printlog.hpp"
 
 //functions (extern from hpp) instantiated here:
-//VBO:
+
+//hack
+#ifdef windows
+//texture (GL 1.3 or :
+PFNGLCLIENTACTIVETEXTUREPROC glClientActiveTexture=NULL;
+#endif
+//endofhack
+
+//VBO (GL 1.5 or GL_ARB_vertex_buffer_object):
 PFNGLGENBUFFERSPROC glGenBuffers=NULL;
 PFNGLDELETEBUFFERSPROC glDeleteBuffers=NULL;
 PFNGLBINDBUFFERPROC glBindBuffer=NULL;
@@ -81,6 +89,21 @@ bool Check_Version(const char *version)
 bool Load_GL_Functions()
 {
 	printlog(1, "Loading needed GL extensions");
+
+	//hack!
+#ifdef windows
+	if (Check_Version("1.3"))
+	{
+		printlog(1, "texture handling using core functions (GL 1.3 or later)");
+		glClientActiveTexture = (PFNGLCLIENTACTIVETEXTUREPROC ) SDL_GL_GetProcAddress("glClientActiveTexture");
+	}
+	else if (Check_Extension("GL_ARB_vertex_buffer_object"))
+	{
+		printlog(1, "texture handling ARB extension functions (GL before 1.3)");
+		glClientActiveTexture = (PFNGLCLIENTACTIVETEXTUREPROC ) SDL_GL_GetProcAddress("glClientActiveTextureARB");
+	}
+#endif
+	//endofhack
 
 	//TODO: GLSL
 	//2.0 (and later) introduces new functions instead of the gl*Pointer ones (for GLSL)

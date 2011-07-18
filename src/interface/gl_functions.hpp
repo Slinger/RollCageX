@@ -28,6 +28,16 @@
 
 //declaration of functions to load:
 
+//hack
+#ifdef windows
+//
+//texture handling
+//
+//adopted into core for GL 1.3 or later
+extern PFNGLCLIENTACTIVETEXTUREPROC glClientActiveTexture=NULL;
+#endif
+//endofhack
+
 //
 //VBO handling (generating+rendering)
 //
