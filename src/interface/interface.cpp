@@ -141,6 +141,9 @@ bool Interface_Init(void)
 		if (!SDL_WM_ToggleFullScreen(screen))
 			printlog(0, "Error: unable to toggle fullscreen");
 
+	//set up window, as if resized
+	Resize (screen->w, screen->h);
+
 	//
 	//options
 	//
@@ -155,10 +158,17 @@ bool Interface_Init(void)
 		glFogf(GL_FOG_END, internal.clipping[1]);
 		fog=true;
 	}
-	//
 
-	//set up window, as if resized
-	Resize (screen->w, screen->h);
+	//make sure everything is rendered with highest possible quality
+	glHint(GL_FOG_HINT, GL_NICEST);
+	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+
+	//things possibly used in future:
+	/*
+	glHint(GL_GENERATE_MIPMAP_HINT, GL_NICEST);
+	glHint(GL_FRAGMENT_SHADER_DERIVATIVE_HINT, GL_NICEST);
+	glHint(GL_TEXTURE_COMPRESSION_HINT, GL_NICEST);
+	*/
 
 	//everything ok
 	return true;
