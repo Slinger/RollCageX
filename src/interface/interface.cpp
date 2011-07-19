@@ -37,7 +37,7 @@
 #include "geom_render.hpp"
 
 SDL_Surface *screen;
-Uint32 flags = SDL_OPENGL | SDL_RESIZABLE;
+const Uint32 flags = SDL_OPENGL | SDL_RESIZABLE;
 
 //TMP: keep track of demo spawn stuff
 Object_Template *box = NULL;
@@ -113,14 +113,17 @@ bool Interface_Init(void)
 	printlog(0, "Initiating interface");
 
 	//initiate sdl
-	SDL_Init(SDL_INIT_VIDEO);
+	SDL_Init (SDL_INIT_VIDEO);
 
 	//set title:
 	SDL_WM_SetCaption (TITLE, "RC");
 
 	//TODO: set icon (SDL_WM_SetIcon, from embedded into the executable?)
 
-	//try to open window
+	//configure properties before creating window
+	SDL_GL_SetAttribute (SDL_GL_DOUBLEBUFFER, 1); //make sure double-buffering enabled
+
+	//try to create window
 	screen = SDL_SetVideoMode (internal.res[0], internal.res[1], 0, flags);
 
 	if (!screen)
