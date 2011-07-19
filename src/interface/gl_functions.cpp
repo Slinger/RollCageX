@@ -97,10 +97,10 @@ bool Load_GL_Functions()
 		printlog(1, "texture handling using core functions (GL 1.3 or later)");
 		glClientActiveTexture = (PFNGLCLIENTACTIVETEXTUREPROC ) SDL_GL_GetProcAddress("glClientActiveTexture");
 	}
-	else if (Check_Extension("GL_ARB_vertex_buffer_object"))
+	else
 	{
-		printlog(1, "texture handling ARB extension functions (GL before 1.3)");
-		glClientActiveTexture = (PFNGLCLIENTACTIVETEXTUREPROC ) SDL_GL_GetProcAddress("glClientActiveTextureARB");
+		printlog(0, "Graphics hardware/software too old: require at least GL 1.3!");
+		return false;
 	}
 #endif
 	//endofhack
