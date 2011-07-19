@@ -54,6 +54,7 @@ struct Triangle_Uint
 //specialized trimesh classes:
 
 //optimized trimesh rendering
+#define DEFAULT_VBO_SIZE 4194304 //usual size for trimesh VBOs
 class Trimesh_3D: public Racetime_Data
 {
 	public:

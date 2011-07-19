@@ -42,26 +42,37 @@ class VBO: public Racetime_Data
 		{
 			printlog(1, "Locating vbo to hold %u bytes of data", needed);
 
+			//in case creating
+			GLsizei size=DEFAULT_VBO_SIZE;
+			bool dedicated=false;
+
 			//check so enough space in even a new vbo:
-			if (needed > (unsigned int) internal.vbo_size)
+			if (needed > DEFAULT_VBO_SIZE)
 			{
-				printlog(0, "ERROR: needed more room than max vbo size (%uB needed, %iB is specified)!", needed, internal.vbo_size);
-				return NULL;
+				printlog(1, "creating new vbo for single model, %u bytes of size", needed);
+				dedicated=true;
+				size=needed;
+			}
+			else
+			{
+				//see if already exists
+				for (VBO *p=head; p; p=p->next)
+					if ( !p->dedicated && (p->usage)+needed <= (unsigned int) DEFAULT_VBO_SIZE ) //not dedicated+enough to hold
+					{
+						printlog(1, "reusing already existing vbo for model");
+						return p;
+					}
+
+				//else, did not find enough room, create
+				printlog(1, "creating new vbo for multiple models, %u bytes of size", DEFAULT_VBO_SIZE);
 			}
 
-			//so if already exists
-			for (VBO *p=head; p; p=p->next)
-				if ( (p->usage)+needed <= (unsigned int) internal.vbo_size ) //enough to hold
-					return p;
-
-			//else, did not find enough room, create
-			printlog(1, "creating new vbo, %u bytes of size", internal.vbo_size);
 
 			//create and bind vbo:
 			GLuint target;
 			glGenBuffers(1, &target);
 			glBindBuffer(GL_ARRAY_BUFFER, target);
-			glBufferData(GL_ARRAY_BUFFER, internal.vbo_size, NULL, GL_STATIC_DRAW);
+			glBufferData(GL_ARRAY_BUFFER, size, NULL, GL_STATIC_DRAW);
 			//
 
 			//check if allocated ok:
@@ -78,23 +89,25 @@ class VBO: public Racetime_Data
 			}
 
 			//ok, so create a class to track it (until not needed anymore)
-			return new VBO(target);
+			return new VBO(target, dedicated);
 		}
 
-		GLuint id; //size of buffer (for mapping)
+		GLuint id; //position of buffer (for mapping)
 		GLsizei usage; //how much of buffer is used (possibly GLint instead?)
+		bool dedicated;
 
 	private:
 		//normally, Racetime_Data is only for tracking loaded data, one class for each loaded...
 		//but this is slightly different: one vbo class can store several model sets
 		//(making it a Racetime_Data makes sure all VBOs gets deleted at the same time as models)
-		VBO(GLuint target): Racetime_Data("VBO tracking class") //name all vbo classes this...
+		VBO(GLuint target, bool dedicated): Racetime_Data("VBO tracking class") //name all vbo classes this...
 		{
 			//place on top of list
 			next=head;
 			head=this;
 			id=target;
 			usage=0; //no data yet
+			this->dedicated=dedicated;
 		}
 		~VBO()
 		{

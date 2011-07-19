@@ -34,6 +34,10 @@
 #include <SDL/SDL_opengl.h>
 #include <ode/ode.h>
 
+//options
+bool culling=false;
+bool fog=false;
+
 //offset for vbo
 #define BUFFER_OFFSET(i) ((char *)NULL + (i))
 
@@ -237,9 +241,17 @@ void Render_List_Render()
 	glDepthFunc (GL_LESS);
 	glEnable (GL_DEPTH_TEST);
 
+	//
+	//options:
+	//
+
 	//culling of backs
-	if (internal.culling)
+	if (culling)
 		glEnable(GL_CULL_FACE);
+
+	//fog
+	if (fog)
+		glEnable(GL_FOG);
 
 
 

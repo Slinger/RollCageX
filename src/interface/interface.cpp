@@ -162,6 +162,32 @@ bool Interface_Init(void)
 	if (!HUD_Load())
 		return false;
 
+	//
+	//options
+	//
+	if (internal.culling)
+		culling=true;
+
+	//if positive and closer than far clipping
+	if (internal.fog > 0.0 && internal.fog < internal.clipping[1])
+	{
+		glFogi(GL_FOG_MODE, GL_LINEAR);
+		glFogf(GL_FOG_START, internal.fog);
+		glFogf(GL_FOG_END, internal.clipping[1]);
+		fog=true;
+	}
+
+	//make sure everything is rendered with highest possible quality
+	glHint(GL_FOG_HINT, GL_NICEST);
+	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+
+	//things possibly used in future:
+	/*
+	glHint(GL_GENERATE_MIPMAP_HINT, GL_NICEST);
+	glHint(GL_FRAGMENT_SHADER_DERIVATIVE_HINT, GL_NICEST);
+	glHint(GL_TEXTURE_COMPRESSION_HINT, GL_NICEST);
+	*/
+
 	//everything ok
 	return true;
 }

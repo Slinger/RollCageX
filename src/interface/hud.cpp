@@ -131,6 +131,7 @@ void HUD_Render(const char string[])
 	glShadeModel (GL_FLAT);
 	glDisable(GL_DEPTH_TEST);
 	glDisable(GL_CULL_FACE);
+	glDisable (GL_FOG);
 
 	//set textures
 	//glActiveTexture(GL_TEXTURE0);
