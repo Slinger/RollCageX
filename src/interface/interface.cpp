@@ -121,7 +121,9 @@ bool Interface_Init(void)
 	//TODO: set icon (SDL_WM_SetIcon, from embedded into the executable?)
 
 	//configure properties before creating window
-	SDL_GL_SetAttribute (SDL_GL_DOUBLEBUFFER, 1); //make sure double-buffering enabled
+	SDL_GL_SetAttribute (SDL_GL_DOUBLEBUFFER, 1); //make sure double-buffering
+	SDL_GL_SetAttribute (SDL_GL_DEPTH_SIZE, 16); //good default (Z buffer)
+	SDL_GL_SetAttribute (SDL_GL_STENCIL_SIZE, 0); //not used yet
 
 	//try to create window
 	//TODO: when SDL 1.3 is released, SDL_CreateWindow is deprecated in favor of:
