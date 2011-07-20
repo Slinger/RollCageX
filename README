@@ -160,7 +160,7 @@ which might work.
 
 7) [SOFTWARE REQUIREMENTS]
 
-RC needs OpenGL and two libraries (the compiled windows binary includes these
+RC needs OpenGL and two libraries (the compiled windows binary includes the
 libraries):
 
    7.1) [OPENGL]
@@ -234,5 +234,16 @@ Names (and possibly alternative name on gorcx.net forum).
 
 10) [LINKS]
 
-* http://www.gorcx.net
+* ReCaged homepage:
+http://www.nongnu.org/recaged/
+
+* ReCaged savannah project page:
+https://savannah.nongnu.org/projects/recaged/
+
+
+* RollCageX homepage (before ReCaged):
+http://www.gorcx.net/
+
+* RollCageX forum (still active):
+http://www.gorcx.net/forum/
 
