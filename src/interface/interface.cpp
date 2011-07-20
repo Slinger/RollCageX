@@ -124,6 +124,8 @@ bool Interface_Init(void)
 	SDL_GL_SetAttribute (SDL_GL_DOUBLEBUFFER, 1); //make sure double-buffering enabled
 
 	//try to create window
+	//TODO: when SDL 1.3 is released, SDL_CreateWindow is deprecated in favor of:
+	//SDL_CreateWindow and SDL_GL_CreateContext
 	screen = SDL_SetVideoMode (internal.res[0], internal.res[1], 0, flags);
 
 	if (!screen)
