@@ -23,9 +23,9 @@
 //
 //for vbo 3d rendering trimesh:
 //
+#include <GL/glew.h>
 #include "internal.hpp"
 #include "trimesh.hpp"
-#include "../interface/gl_functions.hpp"
 #include "../loaders/conf.hpp"
 #include "printlog.hpp"
 

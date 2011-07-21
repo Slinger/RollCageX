@@ -21,7 +21,7 @@
  */ 
 
 #include <SDL/SDL.h>
-#include <SDL/SDL_opengl.h>
+#include <GL/glew.h>
 
 #include "../shared/internal.hpp"
 #include "../shared/info.hpp"
@@ -32,7 +32,6 @@
 #include "../shared/profile.hpp"
 
 #include "../shared/camera.hpp"
-#include "gl_functions.hpp"
 #include "render_lists.hpp"
 #include "geom_render.hpp"
 
@@ -136,9 +135,23 @@ bool Interface_Init(void)
 		return false;
 	}
 
-	//check if graphics is good enough and load all needed functions:
-	if (!Load_GL_Functions())
+	//check if graphics is good enough
+	if (glewInit() == GLEW_OK)
+	{
+		//not 1.5
+		if (!GLEW_VERSION_1_5)
+		{
+			//should check ARB extensions if GL<1.5, but since this only affects old
+			//systems (the 1.5 standard was released in 2003), I'll ignore it...
+			printlog(0, "Error: you need GL 1.5 or later");
+			return false;
+		}
+	}
+	else
+	{
+		printlog(0, "Error: couldn't init glew");
 		return false;
+	}
 
 	//hide cursor
 	SDL_ShowCursor (SDL_DISABLE);

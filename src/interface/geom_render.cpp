@@ -20,14 +20,14 @@
  * along with ReCaged.  If not, see <http://www.gnu.org/licenses/>.
  */ 
 
+#include <limits.h>
+#include <math.h>
+#include <GL/glew.h>
 #include "geom_render.hpp"
-#include "gl_functions.hpp"
 #include "../shared/threads.hpp"
 #include "../shared/geom.hpp"
 #include "../shared/racetime_data.hpp"
 #include "../shared/printlog.hpp"
-#include <limits.h>
-#include <math.h>
 
 #define BUFFER_OFFSET(i) ((char *)NULL + (i))
 int geom_render_level = 0;

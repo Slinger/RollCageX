@@ -20,8 +20,8 @@
  * along with ReCaged.  If not, see <http://www.gnu.org/licenses/>.
  */ 
 
+#include <GL/glew.h>
 #include "render_lists.hpp"
-#include "gl_functions.hpp"
 
 #include "../shared/internal.hpp"
 #include "../shared/printlog.hpp"
@@ -31,7 +31,6 @@
 #include "../shared/camera.hpp"
 
 #include <stdlib.h>
-#include <SDL/SDL_opengl.h>
 #include <ode/ode.h>
 
 //options

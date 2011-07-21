@@ -27,7 +27,7 @@
 #include <string>
 #include <limits.h>
 
-#include <SDL/SDL_opengl.h>
+#include <GL/glew.h>
 #include <ode/ode.h>
 
 #include "racetime_data.hpp"
