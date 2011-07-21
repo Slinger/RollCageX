@@ -66,7 +66,8 @@ const char ISSUE[] = "\
     * \"Free Software Foundation\"	-	\"Free Software, Free Society\", supporting the free software movement\n\
     * \"The GNU Project\"			-	Developing a Free OS. Its work for freedom has changed the world\n\
     * \"Simple DirectMedia Layer\"	-	OS/hardware abstraction library\n\
-    * \"Open Dynamics Engine\"		-	Rigid body dynamics and collision detection library\n\n\
+    * \"Open Dynamics Engine\"		-	Rigid body dynamics and collision detection library\n\
+    * \"OpenGL Extension Wrangler\"	-	OpenGL version/extension loader\n\n\
    Default key bindings can be found (and changed) in \"data/profiles/default/keys.lst\"\n\
    More keys exists for debug/testing/demo, see README if you are interested.\n\
    - See README for more info -\n\n";

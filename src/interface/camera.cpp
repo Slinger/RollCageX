@@ -20,7 +20,7 @@
  * along with ReCaged.  If not, see <http://www.gnu.org/licenses/>.
  */ 
 
-#include <SDL/SDL_opengl.h>
+#include <GL/glew.h>
 #include "../shared/camera.hpp"
 
 //set camera view before rendering

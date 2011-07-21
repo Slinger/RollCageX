@@ -24,7 +24,7 @@
 OBJS    = $(patsubst %.cpp,build/%.o, $(wildcard */*.cpp) main.cpp)
 
 #needed libraries
-LIBLST	= sdl gl ode
+LIBLST	= gl glew sdl ode
 
 #library flag and inclusion arguments
 LIBS	= `pkg-config --libs $(LIBLST)`

@@ -21,7 +21,7 @@
  */ 
 
 #include <SDL/SDL.h>
-#include <SDL/SDL_opengl.h>
+#include <GL/glew.h>
 
 #include "../shared/internal.hpp"
 #include "../shared/info.hpp"
@@ -32,7 +32,6 @@
 #include "../shared/profile.hpp"
 
 #include "../shared/camera.hpp"
-#include "gl_functions.hpp"
 #include "render_lists.hpp"
 #include "geom_render.hpp"
 
@@ -44,7 +43,7 @@ float fpstime=0;
 //
 
 SDL_Surface *screen;
-Uint32 flags = SDL_OPENGL | SDL_RESIZABLE;
+const Uint32 flags = SDL_OPENGL | SDL_RESIZABLE;
 
 //TMP: keep track of demo spawn stuff
 Object_Template *box = NULL;
@@ -127,14 +126,21 @@ bool Interface_Init(void)
 	printlog(0, "Initiating interface");
 
 	//initiate sdl
-	SDL_Init(SDL_INIT_VIDEO);
+	SDL_Init (SDL_INIT_VIDEO);
 
 	//set title:
 	SDL_WM_SetCaption (TITLE, "RC");
 
 	//TODO: set icon (SDL_WM_SetIcon, from embedded into the executable?)
 
-	//try to open window
+	//configure properties before creating window
+	SDL_GL_SetAttribute (SDL_GL_DOUBLEBUFFER, 1); //make sure double-buffering
+	SDL_GL_SetAttribute (SDL_GL_DEPTH_SIZE, 16); //good default (Z buffer)
+	SDL_GL_SetAttribute (SDL_GL_STENCIL_SIZE, 0); //not used yet
+
+	//try to create window
+	//TODO: when SDL 1.3 is released, SDL_CreateWindow is deprecated in favor of:
+	//SDL_CreateWindow and SDL_GL_CreateContext
 	screen = SDL_SetVideoMode (internal.res[0], internal.res[1], 0, flags);
 
 	if (!screen)
@@ -143,9 +149,23 @@ bool Interface_Init(void)
 		return false;
 	}
 
-	//check if graphics is good enough and load all needed functions:
-	if (!Load_GL_Functions())
+	//check if graphics is good enough
+	if (glewInit() == GLEW_OK)
+	{
+		//not 1.5
+		if (!GLEW_VERSION_1_5)
+		{
+			//should check ARB extensions if GL<1.5, but since this only affects old
+			//systems (the 1.5 standard was released in 2003), I'll ignore it...
+			printlog(0, "Error: you need GL 1.5 or later");
+			return false;
+		}
+	}
+	else
+	{
+		printlog(0, "Error: couldn't init glew");
 		return false;
+	}
 
 	//hide cursor
 	SDL_ShowCursor (SDL_DISABLE);

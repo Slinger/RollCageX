@@ -30,7 +30,6 @@
 //
 
 #include "hud.hpp"
-#include "gl_functions.hpp"
 
 #include "../shared/internal.hpp"
 #include "../shared/printlog.hpp"
@@ -38,8 +37,8 @@
 //#include <stdlib.h>
 //#include <string.h>
 #include <SDL/SDL.h>
-#include <SDL/SDL_opengl.h>
 #include <ode/ode.h>
+#include <GL/glew.h>
 
 //offset for vbo
 #define BUFFER_OFFSET(i) ((char *)NULL + (i))

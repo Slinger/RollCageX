@@ -24,8 +24,9 @@
 6) Hardware Requirements
 7) Software Requirements
    7.1) OpenGL
-   7.2) SDL
-   7.3) ODE
+   7.2) GLEW
+   7.3) SDL
+   7.4) ODE
 8) Compilation
 9) Credits
 10) Links
@@ -160,8 +161,8 @@ which might work.
 
 7) [SOFTWARE REQUIREMENTS]
 
-RC needs OpenGL and two libraries (the compiled windows binary includes these
-libraries):
+RC needs OpenGL and three libraries (the compiled windows binary includes the
+needed libraries):
 
    7.1) [OPENGL]
    As mentioned above, some kind of OpenGL implementation is needed for
@@ -169,11 +170,15 @@ libraries):
    (either hardware or software). This version requires GL 1.5 or later.
    Note that RC does not use GLU or GLUT, only GL.
 
-   7.2) [SDL]
+   7.2) [GLEW]
+   RC uses the library "OpenGL Extension Wrangler Library" for loading and
+   checking opengl versions and extensions.
+
+   7.3) [SDL]
    RC uses the library "Simple DirectMedia Layer" for some OS independent
    functionality.
 
-   7.3) [ODE]
+   7.4) [ODE]
    RC uses the library "Open Dynamics Engine" for some physics simulations.
 
 
@@ -198,15 +203,13 @@ compilers and standard libraries for compilation), make sure to install make,
 autoconf and g++. Msys is also recommended (as it provides a user interface to
 MinGW).
 
-Then you must compile and install the SDL and ODE libraries. This procedure is
-not covered here, but once you have downloaded and extracted the tarballs, use
-"./configure", "make" and "make install" to install them.
-
-There is also an experimental windows "DevKit", which should provide everything
-needed for compilation. But is not guaranteed to work (it's in testing stage).
+Then you must compile and install the SDL, ODE and GLEW libraries. This
+procedure is not covered here, but once you have downloaded and extracted the
+tarballs, use "./configure", "make" and "make install" to install them.
 
 Then cd into the src directory and use "make w32" to compile a static binary,
-called "recaged.exe", which includes the needed libraries (for easy redistribution).
+called "recaged.exe", which includes the needed libraries (for easy
+redistribution).
 
 
 
@@ -229,10 +232,22 @@ Names (and possibly alternative name on gorcx.net forum).
 
   * "Simple DirectMedia Layer"	OS/hardware abstractions
   * "Open Dynamics Engine"	Rigid body dynamics and collision detection
+  * "OpenGL Extension Wrangler" OpenGL version/extension loader
 
 
 
 10) [LINKS]
 
-* http://www.gorcx.net
+* ReCaged homepage:
+http://www.nongnu.org/recaged/
+
+* ReCaged savannah project page:
+https://savannah.nongnu.org/projects/recaged/
+
+
+* RollCageX homepage (before ReCaged):
+http://www.gorcx.net/
+
+* RollCageX forum (still active):
+http://www.gorcx.net/forum/
 
