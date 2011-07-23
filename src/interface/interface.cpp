@@ -32,7 +32,7 @@
 #include "../shared/profile.hpp"
 
 #include "../shared/camera.hpp"
-#include "render_lists.hpp"
+#include "render_list.hpp"
 #include "geom_render.hpp"
 
 SDL_Surface *screen;
@@ -409,9 +409,10 @@ int Interface_Loop ()
 		++interface_count;
 	}
 
-	//during rendering, memory might be allocated to use as buffers
-	//(this will quickly be reallocated in each race and can be removed)
+	//during rendering, memory might be allocated
+	//(will quickly be reallocated in each race and can be removed)
 	Geom_Render_Clear();
+	Render_List_Clear();
 
 	return 0;
 }

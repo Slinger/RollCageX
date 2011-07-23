@@ -38,7 +38,7 @@
 #include "event_buffers.hpp"
 #include "timers.hpp"
 
-#include "../interface/render_lists.hpp"
+#include "../interface/render_list.hpp"
 
 
 unsigned int simulation_lag = 0;
@@ -126,7 +126,7 @@ int Simulation_Loop (void *d)
 			//opdate for interface:
 			Render_List_Update(); //make copy of position/rotation for rendering
 			camera.Generate_Matrix(); //matrix based on new position/rotation
-			Render_List_Flag(); //flag new list as ok to render
+			Render_List_Finish(); //move new list to render
 		}
 		else
 			camera.Generate_Matrix(); //still update camera position (if manually moving)

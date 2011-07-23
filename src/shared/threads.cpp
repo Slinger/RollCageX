@@ -22,7 +22,9 @@
 
 #include "threads.hpp"
 
-//when multithreading, use mutexes
+SDL_mutex *render_list_mutex = NULL; //prevent threads from switching buffers at the same
+//(probability is low, but it could occur)
+
 SDL_mutex *ode_mutex = NULL; //only one thread for ode
 SDL_mutex *sdl_mutex = NULL; //only one thread for sdl
 

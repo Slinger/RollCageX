@@ -21,8 +21,9 @@
  */ 
 
 #include <GL/glew.h>
-#include "render_lists.hpp"
+#include "render_list.hpp"
 
+#include "../shared/threads.hpp"
 #include "../shared/internal.hpp"
 #include "../shared/printlog.hpp"
 #include "../shared/trimesh.hpp"
@@ -57,7 +58,7 @@ struct list_element
 //(but never decreased. but since not so big)
 struct list_buffer
 {
-	bool filled;
+	bool updated;
 	size_t count;
 	size_t size;
 	list_element *list;
@@ -66,19 +67,37 @@ struct list_buffer
 //buffers
 list_buffer buffer1 = {false, 0, 0, NULL};
 list_buffer buffer2 = {false, 0, 0, NULL};
+list_buffer buffer3 = {false, 0, 0, NULL};
+
+//remove allocated data in buffers
+void Render_List_Clear()
+{
+	buffer1.updated=false;
+	buffer1.size=0;
+	buffer1.count=0;
+	delete[] buffer1.list;
+
+	buffer2.updated=false;
+	buffer2.size=0;
+	buffer2.count=0;
+	delete[] buffer2.list;
+
+	buffer3.updated=false;
+	buffer3.size=0;
+	buffer3.count=0;
+	delete[] buffer3.list;
+}
 
 //pointers at buffers
-list_buffer *buffer_in = &buffer1; //filled with data
-list_buffer *buffer_out = &buffer2; //rendered
+list_buffer *buffer_render = &buffer1;
+list_buffer *buffer_switch = &buffer2;
+list_buffer *buffer_generate = &buffer3;
 
-
-
+//update
 void Render_List_Update()
 {
 	//pointers:
-	list_buffer *tmp=buffer_in;
-	tmp->filled=false; //indicate buffer is now updating (incomplete)
-	tmp->count=0; //set to zero (empty)
+	buffer_generate->count=0; //set to zero (empty)
 
 	//variables
 	const dReal *pos, *rot;
@@ -89,21 +108,21 @@ void Render_List_Update()
 		if (g->model)
 		{
 			//if buffer full...
-			if (tmp->count == tmp->size)
+			if (buffer_generate->count == buffer_generate->size)
 			{
 				printlog(2, "Render list was too small, resizing");
 
 				//copy to new memory
-				list_element *oldlist = tmp->list;
-				tmp->size+=INITIAL_RENDER_LIST_SIZE;
-				tmp->list = new list_element[tmp->size];
-				memcpy(tmp->list, oldlist, sizeof(list_element)*tmp->count);
+				list_element *oldlist = buffer_generate->list;
+				buffer_generate->size+=INITIAL_RENDER_LIST_SIZE;
+				buffer_generate->list = new list_element[buffer_generate->size];
+				memcpy(buffer_generate->list, oldlist, sizeof(list_element)*buffer_generate->count);
 				delete[] oldlist;
 			}
 
 			pos = dGeomGetPosition(g->geom_id);
 			rot = dGeomGetRotation(g->geom_id);
-			matrix = tmp->list[tmp->count].matrix;
+			matrix = buffer_generate->list[buffer_generate->count].matrix;
 
 			//set matrix
 			matrix[0]=rot[0];
@@ -124,13 +143,13 @@ void Render_List_Update()
 			matrix[15]=1;
 
 			//set what to render
-			tmp->list[tmp->count].model = g->model;
+			buffer_generate->list[buffer_generate->count].model = g->model;
 
 			//set object owning this component:
-			tmp->list[tmp->count].object = g->object_parent;
+			buffer_generate->list[buffer_generate->count].object = g->object_parent;
 
 			//increase counter
-			++(tmp->count);
+			++(buffer_generate->count);
 		}
 	}
 
@@ -140,21 +159,21 @@ void Render_List_Update()
 		if (b->model)
 		{
 			//if buffer full...
-			if (tmp->count == tmp->size)
+			if (buffer_generate->count == buffer_generate->size)
 			{
 				printlog(2, "Render list was too small, resizing");
 
 				//copy to new memory
-				list_element *oldlist = tmp->list;
-				tmp->size+=INITIAL_RENDER_LIST_SIZE;
-				tmp->list = new list_element[tmp->size];
-				memcpy(tmp->list, oldlist, sizeof(list_element)*tmp->count);
+				list_element *oldlist = buffer_generate->list;
+				buffer_generate->size+=INITIAL_RENDER_LIST_SIZE;
+				buffer_generate->list = new list_element[buffer_generate->size];
+				memcpy(buffer_generate->list, oldlist, sizeof(list_element)*buffer_generate->count);
 				delete[] oldlist;
 			}
 
 			pos = dBodyGetPosition(b->body_id);
 			rot = dBodyGetRotation(b->body_id);
-			matrix = tmp->list[tmp->count].matrix;
+			matrix = buffer_generate->list[buffer_generate->count].matrix;
 
 			//set matrix
 			matrix[0]=rot[0];
@@ -175,21 +194,28 @@ void Render_List_Update()
 			matrix[15]=1;
 
 			//set what to render
-			tmp->list[tmp->count].model = b->model;
+			buffer_generate->list[buffer_generate->count].model = b->model;
 
 			//set object owning this component:
-			tmp->list[tmp->count].object = b->object_parent;
+			buffer_generate->list[buffer_generate->count].object = b->object_parent;
 
 			//increase counter
-			++(tmp->count);
+			++(buffer_generate->count);
 		}
 	}
+
+	//mark as updated
+	buffer_generate->updated=true;
 }
 
-//indicate ready to render new frame
-void Render_List_Flag()
+//set generated buffer as read to switch
+void Render_List_Finish()
 {
-	buffer_in->filled = true; //this buffer is now filled with new data
+	SDL_mutexP(render_list_mutex);
+	list_buffer *p=buffer_switch;
+	buffer_switch=buffer_generate;
+	buffer_generate=p;
+	SDL_mutexV(render_list_mutex);
 }
 
 //updated on resizing, needed here:
@@ -197,19 +223,20 @@ extern float view_angle_rate_x, view_angle_rate_y;
 
 void Render_List_Render()
 {
-	//see if in buffer got complete set of new data, if so switch
-	if (buffer_in->filled) //got new stuff to render
+	//see if in buffer got new data, if so switch
+	//(always true if synced, but if not re-render old frame)
+	if (buffer_switch->updated) //got new stuff to render
 	{
-		list_buffer *tmp=buffer_out;
-		buffer_out=buffer_in;
-		buffer_in = tmp;
-
-		buffer_in->filled=false; //make sure we don't switch back to this until really new
+		SDL_mutexP(render_list_mutex);
+		list_buffer *p=buffer_switch;
+		buffer_switch=buffer_render; //old buffer, not needed
+		buffer_render= p;
+		SDL_mutexV(render_list_mutex);
 	}
 
 	//copy needed data
-	size_t *count=&(buffer_out->count);
-	list_element *list=buffer_out->list;
+	size_t *count=&(buffer_render->count);
+	list_element *list=buffer_render->list;
 
 	//variables
 	unsigned int m_loop;
@@ -323,13 +350,8 @@ void Render_List_Render()
 				glMaterialfv(GL_FRONT, GL_EMISSION, materials[m_loop].emission);
 				glMaterialf (GL_FRONT, GL_SHININESS, materials[m_loop].shininess);
 
-				//printf("m: %u %u\n", materials[m_loop].start, materials[m_loop].size);
-
 				//draw
 				glDrawArrays(GL_TRIANGLES, materials[m_loop].start, materials[m_loop].size);
-
-				//glDrawArrays(GL_TRIANGLES, 144, 96000);
-				//glDrawArrays(GL_TRIANGLES, 144, 60000);
 			}
 
 		glPopMatrix();
@@ -341,4 +363,8 @@ void Render_List_Render()
 	//new/not used (see above)
 	//glDisableVertexAttribArray(0);
 	//glDisableVertexAttribArray(1);
+
+	//mark as old
+	buffer_render->updated=false;
 }
+

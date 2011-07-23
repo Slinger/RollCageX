@@ -50,6 +50,8 @@ void Run_Race(void)
 	sync_mutex = SDL_CreateMutex();
 	sync_cond = SDL_CreateCond();
 
+	render_list_mutex = SDL_CreateMutex(); //prevent (unlikely) update/render collision
+
 	runlevel  = running;
 
 	starttime = SDL_GetTicks(); //how long it took for race to start
@@ -65,6 +67,7 @@ void Run_Race(void)
 	SDL_DestroyMutex(ode_mutex);
 	SDL_DestroyMutex(sdl_mutex);
 	SDL_DestroyMutex(sync_mutex);
+	SDL_DestroyMutex(render_list_mutex);
 	SDL_DestroyCond(sync_cond);
 
 	//done!
