@@ -218,6 +218,15 @@ void Render_List_Finish()
 	SDL_mutexV(render_list_mutex);
 }
 
+//check if new frame top render
+//(=if above function has been run since last render)
+bool Render_List_Updated()
+{
+	if (buffer_switch->updated)
+		return true;
+	return false;
+}
+
 //updated on resizing, needed here:
 extern float view_angle_rate_x, view_angle_rate_y;
 
@@ -225,7 +234,7 @@ void Render_List_Render()
 {
 	//see if in buffer got new data, if so switch
 	//(always true if synced, but if not re-render old frame)
-	if (buffer_switch->updated) //got new stuff to render
+	if (Render_List_Updated()) //got new stuff to render
 	{
 		SDL_mutexP(render_list_mutex);
 		list_buffer *p=buffer_switch;
