@@ -185,11 +185,12 @@ needed libraries):
 
 8) [COMPILING]
 
-First of all, you will need the libraries mentioned above (requirements),
-including the development headers. Check if your distro provides development
-libraries for ODE and SDL in separate packages and if so, install them too.
-Also make sure you got at least a Make program and a C++ compiler (such as GNU
-Make and the GNU C++ Compiler, g++) and the usual libraries.
+First of all, you will need the libraries mentioned above (gl, glew, sdl and
+ode). Also check if your distro provides development libraries in separate
+packages and if so, install them too (look for packages and/or meta-packages
+named like lib<name>-dev). Also make sure you got at least a Make program and
+a C++ compiler (such as GNU Make and the GNU C++ Compiler, g++) and the usual
+libraries.
 
 RC currently does not use autoconf, but only a custom makefile, so in order
 to compile, just cd into the src directory and type "make".
