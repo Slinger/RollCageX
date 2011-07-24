@@ -72,9 +72,9 @@ distclean: clean
 w32:
 	@echo "Compiling \"release\" (static+stripped) windows binary..."
 	@make \
-		LIBS='`sdl-config --static-libs --libs` `ode-config --libs` -lopengl32 -static -lstdc++ -lwinmm -lgdi32' \
-		FLAGS='`sdl-config --cflags` `ode-config --cflags`' \
-		ARGS='-MD -O2 -pipe -Wall -march=i686 -mtune=i686 $$(FLAGS) -Dwindows'
+		LIBS='`sdl-config --static-libs --libs` `ode-config --libs` -L/usr/lib -lglew32 -lopengl32 -static -lstdc++ -lwinmm -lgdi32' \
+		FLAGS='`sdl-config --cflags` `ode-config --cflags` -I/usr/include' \
+		ARGS='-MD -O2 -pipe -Wall -march=i686 -mtune=i686 $$(FLAGS) -Dwindows -DGLEW_STATIC'
 	@strip ../recaged.exe
 
 #these rules don't generate any files
