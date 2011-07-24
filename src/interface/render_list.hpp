@@ -26,12 +26,17 @@
 //currently just list for components (geoms+bodies)
 #define INITIAL_RENDER_LIST_SIZE 150
 
+#include <SDL/SDL_mutex.h>
+
 //options
 extern bool culling;
 extern bool fog;
 
-void Render_List_Update(); //copy pos/rot
-void Render_List_Flag(); //flag ready to render
-void Render_List_Render(); //render
+//functions
+void Render_List_Update(); //create pos/rot list
+void Render_List_Finish(); //enable new list
+bool Render_List_Updated(); //check if new frame
+void Render_List_Render(); //render latest list
+void Render_List_Clear(); //free buffers
 
 #endif

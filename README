@@ -185,11 +185,12 @@ needed libraries):
 
 8) [COMPILING]
 
-First of all, you will need the libraries mentioned above (requirements),
-including the development headers. Check if your distro provides development
-libraries for ODE and SDL in separate packages and if so, install them too.
-Also make sure you got at least a Make program and a C++ compiler (such as GNU
-Make and the GNU C++ Compiler, g++) and the usual libraries.
+First of all, you will need the libraries mentioned above (gl, glew, sdl and
+ode). Also check if your distro provides development libraries in separate
+packages and if so, install them too (look for packages and/or meta-packages
+named like lib<name>-dev). Also make sure you got at least a Make program and
+a C++ compiler (such as GNU Make and the GNU C++ Compiler, g++) and the usual
+libraries.
 
 RC currently does not use autoconf, but only a custom makefile, so in order
 to compile, just cd into the src directory and type "make".
@@ -204,11 +205,13 @@ autoconf and g++. Msys is also recommended (as it provides a user interface to
 MinGW).
 
 Then you must compile and install the SDL, ODE and GLEW libraries. This
-procedure is not covered here, but once you have downloaded and extracted the
-tarballs, use "./configure", "make" and "make install" to install them.
+process will not be covered in detail here. Once you have downloaded and
+extracted a tarball, cd into the appropriate directory and use:
+./configure && make && make install
+(exception for GLEW: it doesn't use autoconf, just "make" and make install").
 
-Then cd into the src directory and use "make w32" to compile a static binary,
-called "recaged.exe", which includes the needed libraries (for easy
+Then cd into the src directory of rc and use "make w32" to compile a static
+binary, called "recaged.exe", which includes the needed libraries (for easy
 redistribution).
 
 

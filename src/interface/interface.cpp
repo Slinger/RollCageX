@@ -32,7 +32,7 @@
 #include "../shared/profile.hpp"
 
 #include "../shared/camera.hpp"
-#include "render_lists.hpp"
+#include "render_list.hpp"
 #include "geom_render.hpp"
 
 //hack
@@ -228,8 +228,9 @@ int Interface_Loop ()
 	while (runlevel != done)
 	{
 		//make sure only render frame after it's been simulated
-		//quckly lock mutex in order to listen to physics broadcasts
-		if (internal.sync_interface)
+		//quckly lock mutex in order to listen to simulation broadcasts
+		//(but only if there is no new frame already)
+		if (internal.sync_interface && !Render_List_Updated())
 		{
 			SDL_mutexP(sync_mutex);
 			SDL_CondWaitTimeout (sync_cond, sync_mutex, 500); //if no signal in half a second, stop waiting
@@ -458,9 +459,10 @@ int Interface_Loop ()
 		++interface_count;
 	}
 
-	//during rendering, memory might be allocated to use as buffers
-	//(this will quickly be reallocated in each race and can be removed)
+	//during rendering, memory might be allocated
+	//(will quickly be reallocated in each race and can be removed)
 	Geom_Render_Clear();
+	Render_List_Clear();
 
 	return 0;
 }
