@@ -36,9 +36,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.\n\*/
 
 //general info
-const char VERSION[] = "0.07 (99\% done)";
+const char VERSION[] = "0.7.0 (\"The Sky's the Limit\") (99.9\% done)";
 
-const char TITLE[] = "ReCaged 0.07 (99\% done) (C) 2009, 2010, 2011 Mats Wahlberg (\"Slinger\")"; 
+const char TITLE[] = "ReCaged 0.7.0 (\"The Sky's the Limit\") (99.9\% done) (C) 2009, 2010, 2011 Mats Wahlberg (\"Slinger\")"; 
 
 const char ISSUE[] = "\
    ReCaged  Copyright (C) 2009, 2010, 2011 Mats Wahlberg (\"Slinger\" on gorcx.net forum)\n\

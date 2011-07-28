@@ -315,7 +315,7 @@ char *datadefault; //need to check path to rc before deciding this
 int main (int argc, char *argv[])
 {
 	//issue
-	printf("\n		-=[ Welcome to ReCaged version %s ]=-\n\n%s\n", VERSION, ISSUE);
+	printf("\n	-=[ Welcome to ReCaged version %s ]=-\n\n%s\n", VERSION, ISSUE);
 	//end
 
 	//attempt to generate default data path
