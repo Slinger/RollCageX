@@ -253,6 +253,11 @@ void Wheel::Set_Contact(dBodyID wbody, dBodyID obody, Surface *surface, bool whe
 
 	//max mu value
 	dReal peak = (xpeak+xpeaksch*Fz)*surface->mu;
+
+	//if Fz is too high, no friction...
+	if (peak < 0.0)
+		return;
+
 	//shape
 	dReal shape = xshape;
 	//needed to get peak at right position, and used by peak_sharpness
