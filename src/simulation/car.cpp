@@ -91,6 +91,14 @@ void Car::Physics_Step(dReal step)
 
 			dBodyAddForce (carp->bodyid,0,0, carp->distdownforce*force);
 			dBodyAddRelForce (carp->bodyid,0,0, -(1.0-carp->distdownforce)*force*carp->dir);
+
+			carp->hack_downforce_print1=abs(carp->distdownforce*force);
+			carp->hack_downforce_print2=abs((1.0-carp->distdownforce)*force*carp->dir);
+		}
+		else
+		{
+			carp->hack_downforce_print1=0;
+			carp->hack_downforce_print2=0;
 		}
 
 		//calculate turning:

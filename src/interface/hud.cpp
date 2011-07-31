@@ -123,7 +123,7 @@ bool HUD_Load()
 	return true;
 }
 
-void HUD_Render(const char string[])
+void HUD_Render_Text(const char string[], int posx, int posy)
 {
 	//configure rendering (disable some stuff not needed)
 	glDisable(GL_LIGHTING);
@@ -143,15 +143,14 @@ void HUD_Render(const char string[])
 
 	//
 	int count=0;
-	int posx=0;
-	int posy=0;
+	int xorigin=posx;
 	//
 
 	for (int i=0; i<l; ++i)
 	{
 		if (string[i] == '\n')
 		{
-			posx=0;
+			posx=xorigin;
 			posy+=resy;
 		}
 		else
@@ -209,3 +208,48 @@ void HUD_Render(const char string[])
 	glDisable(GL_TEXTURE_2D);
 }
 
+void HUD_Render_Graph(float (*function)(float x), int posx, int posy, int sizex, int sizey, float r, float g, float b)
+{
+	//configure rendering (disable some stuff not needed)
+	glDisable(GL_LIGHTING);
+	glShadeModel (GL_FLAT);
+	glDisable(GL_DEPTH_TEST);
+	glDisable(GL_CULL_FACE);
+	glDisable (GL_FOG);
+
+	//build
+	float tmp[5*(4+sizex)];
+	//background
+	tmp[0]=posx; tmp[1]=posy;		tmp[2]=0; tmp[3]=0; tmp[4]=0;
+	tmp[5]=posx; tmp[6]=posy+sizey;		tmp[7]=0; tmp[8]=0; tmp[9]=0;
+	tmp[10]=posx+sizex; tmp[11]=posy+sizey;	tmp[12]=0; tmp[13]=0; tmp[14]=0;
+	tmp[15]=posx+sizex; tmp[16]=posy;	tmp[17]=0; tmp[18]=0; tmp[19]=0;
+
+	//plot
+	float x;
+	for (int i=0; i<sizex; ++i)
+	{
+		x=((float)i+0.0)/(float)sizex;
+		tmp[20+i*5]=0.5+posx+i; tmp[21+i*5]=0.5+posy+(sizey-1)*(1-function(x));
+		tmp[22+i*5]=r; tmp[23+i*5]=g; tmp[24+i*5]=b;
+	}
+
+	//set/load vertices (vbo)
+	glBindBuffer(GL_ARRAY_BUFFER, buffer);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float)*5*(4+sizex), tmp, GL_STREAM_DRAW);
+
+	glEnableClientState(GL_COLOR_ARRAY);
+	glColorPointer(3, GL_FLOAT, sizeof(float)*5, BUFFER_OFFSET(sizeof(float)*2));
+
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glVertexPointer(2, GL_FLOAT, sizeof(float)*5, BUFFER_OFFSET(sizeof(float)*0));
+
+	//draw
+	glDrawArrays(GL_QUADS, 0, 4);
+	glDrawArrays(GL_LINE_STRIP, 4, sizex);
+
+	//done
+	glDisableClientState(GL_COLOR_ARRAY);
+	glDisableClientState(GL_VERTEX_ARRAY);
+
+}

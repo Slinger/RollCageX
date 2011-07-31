@@ -25,8 +25,9 @@
 //
 #ifndef _RC_HUD_H
 #define _RC_HUD_H
-
+#include "../simulation/wheel.hpp"
 bool HUD_Load();
-void HUD_Render(const char string[]); //render
+void HUD_Render_Text(const char string[], int posx, int posy); //render
+void HUD_Render_Graph(float (*function)(float x), int posx, int posy, int sizex, int sizey, float x, float y, float z); //graph
 
 #endif

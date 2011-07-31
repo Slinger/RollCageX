@@ -24,6 +24,7 @@
 #define _RC_WHEEL_H
 
 #include <ode/ode.h>
+#include <SDL/SDL_stdinc.h>
 
 //wheel friction simulation class (created by Car_Template, used by Physics/Geom.cpp)
 
@@ -68,6 +69,9 @@ class Wheel
 		//debug data:
 		bool approx1;
 		dReal fixedmu;
+
+		//HACK!
+		friend void HUD(Uint32);
 
 		//only car and car template (wheen loading) is allowed
 		friend class Car;

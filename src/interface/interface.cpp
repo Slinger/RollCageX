@@ -213,6 +213,100 @@ bool Interface_Init(void)
 }
 
 
+//
+//HACK
+//
+
+//(a) plotter(not the fastest solution, but very flexible)
+dReal shape=0;
+dReal K=0;
+dReal peak_at=0;
+dReal peak_sharpness=0;
+
+dReal Fz=0;
+dReal xscale=0;
+dReal yscale=0;
+
+dReal amount=0;
+float plot(float x)
+{
+	//calculate!
+	return yscale*sin(shape*atan(K*pow((fabs(x*xscale)/peak_at), peak_sharpness)));
+}
+
+void HUD(Uint32 delta)
+{
+	//set projection (1:1 mapping)
+	glMatrixMode (GL_PROJECTION);
+	glPushMatrix(); //copy projection matrix
+	glLoadIdentity(); //reset
+	glOrtho (0, width, height, 0, 0, 1); //mapping = resolution
+	glMatrixMode (GL_MODELVIEW);
+	glLoadIdentity();
+
+	//text
+	char string[1000];
+	//snprintf(string, 1000, "ABC - a is for apple, or all mighty pi\nb is for banana\nand c is for carbon fibre\n\npi=%f\n\n # fonts are working (including some special characters!) # ", M_PI);
+	fpstime+=delta/1000.0;
+	fpscount+=1;
+	if (fpstime >= 0.5)
+	{
+		fps=fpscount/fpstime;
+		fpstime=0;
+		fpscount=0;
+	}
+	snprintf(string, 1000, "HUD Hack! The real UI (freetype+lua) widgets will look/work much better!\n\nvelocity: %.0fkm/h\n(increased) downforce: %.0fN world up, %.0fN car down\nfps: %.0f", camera.car->velocity*3.6, camera.car->hack_downforce_print1, camera.car->hack_downforce_print2, fps);
+	HUD_Render_Text(string, 0, 0);
+
+	//graph
+
+	//max Fz 100000N
+	if ((Fz+=100) == 100000)
+		Fz=0;
+
+	HUD_Render_Text(" X (forward, longitudinal) force from slip rate and Fz (load):", 0, 200);
+	dReal Fzmax = -camera.car->wheel->xpeak/(2.0*camera.car->wheel->xpeaksch);
+	dReal xpeak = Fz*(camera.car->wheel->xpeak+camera.car->wheel->xpeaksch*Fz);
+	if (xpeak < 0.0)
+		xpeak=0.0;
+	dReal max = Fzmax*(camera.car->wheel->xpeak+camera.car->wheel->xpeaksch*Fzmax);
+	yscale=xpeak/max;
+	xscale=10;
+	shape = camera.car->wheel->xshape;
+	K = tan( (M_PI/2)/shape );
+	peak_at = camera.car->wheel->xpos*pow(Fz, camera.car->wheel->xposch);
+	peak_sharpness = (peak_at/K)*camera.car->wheel->xsharp*pow(Fz, camera.car->wheel->xsharpch);
+	HUD_Render_Graph(plot, 0, 224, 400, 100, 1,0,0);
+	snprintf(string, 1000, "min=0N, max=%.0fN at Fz=%.0fN\nSRmin=0, SRmax=%.1f\nDisplayed: Peak=%.0fN at SR=%f with Fz=%.0f", max, Fzmax, xscale, xpeak, peak_at, Fz);
+	HUD_Render_Text(string, 400, 238);
+
+	HUD_Render_Text(" Y (sideway, lateral) force from slip angle and Fz (load):", 0, 400);
+	Fzmax = -camera.car->wheel->ypeak/(2.0*camera.car->wheel->ypeaksch);
+	dReal ypeak = Fz*(camera.car->wheel->ypeak+camera.car->wheel->ypeaksch*Fz);
+	if (ypeak < 0.0)
+		ypeak=0.0;
+	max = Fzmax*(camera.car->wheel->ypeak+camera.car->wheel->ypeaksch*Fzmax);
+	yscale=ypeak/max;
+	xscale=90;
+	shape = camera.car->wheel->yshape;
+	K = tan( (M_PI/2)/shape );
+	peak_at = camera.car->wheel->ypos*pow(Fz, camera.car->wheel->yposch);
+	peak_sharpness = (peak_at/K)*camera.car->wheel->ysharp*pow(Fz, camera.car->wheel->ysharpch);
+	HUD_Render_Graph(plot, 0, 424, 400, 100, 0,0,1);
+	snprintf(string, 1000, "min=0N, max=%.0fN at Fz=%.0fN\nSAmin=0, SAmax=%.1f\nDisplayed: Peak=%.0fN at SA=%f with Fz=%.0f", max, Fzmax, xscale, ypeak, peak_at, Fz);
+	HUD_Render_Text(string, 400, 438);
+
+	//no point increasing Fz more
+	if (xpeak == 0 && ypeak == 0)
+		Fz=0;
+
+	glMatrixMode (GL_PROJECTION);
+	glPopMatrix(); //return to old projection
+	glMatrixMode (GL_MODELVIEW);
+}
+//
+//
+//
 
 int Interface_Loop ()
 {
@@ -421,36 +515,7 @@ int Interface_Loop ()
 		if (geom_render_level)
 			Geom_Render();
 
-		//
-		//hack!
-		//
-		//set projection (1:1 mapping)
-		glMatrixMode (GL_PROJECTION);
-		glPushMatrix(); //copy projection matrix
-		glLoadIdentity(); //reset
-		glOrtho (0, width, height, 0, 0, 1); //mapping = resolution
-		glMatrixMode (GL_MODELVIEW);
-		glLoadIdentity();
-
-		char string[1000];
-		//snprintf(string, 1000, "ABC - a is for apple, or all mighty pi\nb is for banana\nand c is for carbon fibre\n\npi=%f\n\n # fonts are working (including some special characters!) # ", M_PI);
-		fpstime+=delta/1000.0;
-		fpscount+=1;
-		if (fpstime >= 0.5)
-		{
-			fps=fpscount/fpstime;
-			fpstime=0;
-			fpscount=0;
-		}
-		snprintf(string, 1000, "velocity: %.0fkm/h\nfps: %.0f", camera.car->velocity*3.6, fps);
-		HUD_Render(string);
-
-		glMatrixMode (GL_PROJECTION);
-		glPopMatrix(); //return to old projection
-		glMatrixMode (GL_MODELVIEW);
-		//
-		//
-		//
+		HUD(delta);
 
 		//swap the 2 gl buffers
 		SDL_GL_SwapBuffers();

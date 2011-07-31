@@ -45,6 +45,8 @@ Car::Car(void)
 	steering = 0;
 	oldsteerlimit = 0;
 	velocity = 0;
+	hack_downforce_print1=0;
+	hack_downforce_print2=0;
 
 	//linking
 	next=head;
