@@ -252,7 +252,12 @@ void Wheel::Set_Contact(dBodyID wbody, dBodyID obody, Surface *surface, bool whe
 	//
 
 	//max mu value
-	dReal peak = (xpeak+xpeaksch*Fz)*surface->mu;
+	dReal peak = (xpeak+xpeaksch*Fz);
+
+	//if negative (too high damping), set to 0
+	if (peak<0.0)
+		peak=0.0;
+
 	//shape
 	dReal shape = xshape;
 	//needed to get peak at right position, and used by peak_sharpness
@@ -266,22 +271,32 @@ void Wheel::Set_Contact(dBodyID wbody, dBodyID obody, Surface *surface, bool whe
 	dReal amount_x = sin(shape*atan(K*pow((fabs(slip_ratio)/peak_at), peak_sharpness)));
 	dReal MUx = peak*amount_x;
 
+	//scale by sorface friction
+	MUx *= surface->mu;
+
 	//and for MUy
-	peak = (ypeak+ypeaksch*Fz)*surface->mu;
+	peak = (ypeak+ypeaksch*Fz);
+	if (peak<0.0)
+		peak=0.0;
 	shape = yshape;
 	K = tan( (M_PI/2)/shape );
 	peak_at = ypos*pow(Fz, yposch) *surface->tyre_pos_scale;
 	peak_sharpness = (peak_at/K)*ysharp*pow(Fz, ysharpch) *surface->tyre_sharp_scale;
 	dReal shift = yshift*inclination;
 
+	dReal amount_y = sin(shape*atan(K*pow((fabs(slip_angle)/peak_at), peak_sharpness)));
+	dReal MUy = peak*amount_y;
+
 	//based on the turning angle (positive or negative), the shift might change
 	//(wheel leaning inwards in curve gets better grip)
 	if (slip_angle < 0.0)
-		shift = -shift;
+		MUy -= shift*Fz;
+	else
+		MUy += shift*Fz;
 
-	dReal amount_y = sin(shape*atan(K*pow((fabs(slip_angle)/peak_at), peak_sharpness))) + shift;
-	dReal MUy = peak*amount_y;
+	MUy *= surface->mu;
 
+	//TODO: the remove the following check when applying forces directly!
 	//MUx and MUy might get negative in the calculations, which means no friction so
 	//set to 0
 	if (MUx < 0.0)

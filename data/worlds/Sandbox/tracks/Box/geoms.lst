@@ -50,7 +50,7 @@
 #enable per-material surfaces and set mu+rolling resistance
 #("Material" is the light-blue material at the edges, while
 #the two others are left at the earlier specified mu=1)
-> surface material "Material" mu 2 rollingres 50
+> surface material "Material" mu 2 rollingres 10
 
 
 

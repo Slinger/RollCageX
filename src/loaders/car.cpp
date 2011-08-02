@@ -318,10 +318,10 @@ Car *Car_Template::Spawn (dReal x, dReal y, dReal z,  Trimesh_3D *tyre, Trimesh_
 
 	car->power = conf.power;
 
-	//if electric motor enabled:
-	if (conf.electric_torque)
-		car->gear_limit = conf.power/conf.electric_torque;
-	else //else, direct gear_limit:
+	//if limit by torque
+	if (conf.torque_limit)
+		car->gear_limit = conf.power/conf.torque_limit;
+	else //else, limit by rotation speed
 		car->gear_limit = conf.gear_limit;
 
 
