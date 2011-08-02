@@ -40,7 +40,7 @@
 struct Car_Conf
 {
 	//motor
-	dReal power, gear_limit, electric_torque;
+	dReal power, gear_limit, torque_limit;
 	dReal air_torque;
 	bool dist_motor[2];
 	bool diff;
@@ -124,7 +124,7 @@ const struct Car_Conf car_conf_defaults = {
 const struct Conf_Index car_conf_index[] = {
 	{"power",		'R',1, offsetof(struct Car_Conf, power)},
 	{"gear_limit",		'R',1, offsetof(struct Car_Conf, gear_limit)},
-	{"electric_torque",	'R',1, offsetof(struct Car_Conf, electric_torque)},
+	{"torque_limit",	'R',1, offsetof(struct Car_Conf, torque_limit)},
 	{"air_torque_limit",	'R',1, offsetof(struct Car_Conf, air_torque)},
 	{"motor_distribution",	'b',2, offsetof(struct Car_Conf, dist_motor)},
 	{"differential",	'b',1, offsetof(struct Car_Conf, diff)},
