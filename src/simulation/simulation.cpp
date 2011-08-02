@@ -76,6 +76,8 @@ bool Simulation_Init(void)
 	return true;
 }
 
+//tmp hack!
+#include "../interface/hud.hpp"
 
 int Simulation_Loop (void *d)
 {
@@ -95,6 +97,7 @@ int Simulation_Loop (void *d)
 			//technically, collision detection doesn't need this, but this is easier
 			SDL_mutexP(ode_mutex);
 
+			pbcount=0;
 			for (int i=0; i<internal.multiplier; ++i)
 			{
 				Car::Physics_Step(divided_stepsize); //control, antigrav...
@@ -113,6 +116,8 @@ int Simulation_Loop (void *d)
 				Joint::Physics_Step(divided_stepsize); //joint forces
 				Collision_Feedback::Physics_Step(divided_stepsize); //forces from collisions
 			}
+			pcount=pbcount;
+			memcpy(point, pointbuild, 100*sizeof(POINT));
 
 			//previous simulations might have caused events (to be processed by scripts)...
 			Event_Buffers_Process(internal.stepsize);

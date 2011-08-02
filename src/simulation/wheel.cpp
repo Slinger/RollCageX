@@ -25,6 +25,11 @@
 #include "../shared/geom.hpp"
 #include "../shared/internal.hpp" 
 
+//hack!
+#include "../interface/hud.hpp"
+int pbcount=0;
+struct POINT pointbuild[100];
+
 //This code tries to implement a reasonably simple and realistic tyre friction model.
 //(it's mostly inspired by different equations based on Pacejka's "magic formula")
 //It also determines if the tyre or rim of the wheel is colliding.
@@ -227,6 +232,14 @@ void Wheel::Set_Contact(dBodyID wbody, dBodyID obody, Surface *surface, bool whe
 	if (Fz < 0.0) //not going to be any friction of this contact
 		return; //let ode just use defaults
 
+	if (pbcount < 100)
+	{
+		pointbuild[pbcount].x=pos[0];
+		pointbuild[pbcount].y=pos[1];
+		pointbuild[pbcount].z=pos[2];
+		pointbuild[pbcount].Fz=Fz;
+		++pbcount;
+	}
 	//Vsx and Vsy (slip velocity along x and y):
 	dReal Vsx = Vx + Vr; //Vr should be opposite sign of Vx, so this is the difference
 	//Vsy = Vy = VDot (Y, Vwheel); but lets go overkill!

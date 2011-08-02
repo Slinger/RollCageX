@@ -234,8 +234,59 @@ float plot(float x)
 	return yscale*sin(shape*atan(K*pow((fabs(x*xscale)/peak_at), peak_sharpness)));
 }
 
+#define scale 0.015
+struct POINT point[100];
+int pcount=0;
+
 void HUD(Uint32 delta)
 {
+	char string[1000];
+	//
+	//first:
+	//text with depth (inside the simulation)
+	//(miss)uses already existing matrices. counteracts
+	//rotation - is this bad or The RIght Way?
+	//
+	for (int i=0; i<pcount; ++i)
+	{
+	glPushMatrix();
+
+	GLfloat m[4*4]={
+		//x->x
+		camera.matrix[0]*scale,
+		camera.matrix[4]*scale,
+		camera.matrix[8]*scale,
+		0,
+
+		//y->z
+		-camera.matrix[1]*scale,
+		-camera.matrix[5]*scale,
+		-camera.matrix[9]*scale,
+		0,
+
+		//z->y
+		0,
+		0,
+		0,
+		0,
+
+		//pos
+		point[i].x,
+		point[i].y,
+		point[i].z,
+		1};
+
+	glMultMatrixf(m);
+	snprintf(string, 1000, "@ Fz=%.1fkN", point[i].Fz/1000.0);
+	HUD_Render_Text(string, 0, 0);
+
+	//end
+	glPopMatrix();
+	}
+
+	//
+	//then, 2d text:
+	//
 	//set projection (1:1 mapping)
 	glMatrixMode (GL_PROJECTION);
 	glPushMatrix(); //copy projection matrix
@@ -244,8 +295,9 @@ void HUD(Uint32 delta)
 	glMatrixMode (GL_MODELVIEW);
 	glLoadIdentity();
 
+	//
 	//text
-	char string[1000];
+	//
 	//snprintf(string, 1000, "ABC - a is for apple, or all mighty pi\nb is for banana\nand c is for carbon fibre\n\npi=%f\n\n # fonts are working (including some special characters!) # ", M_PI);
 	fpstime+=delta/1000.0;
 	fpscount+=1;
@@ -258,7 +310,9 @@ void HUD(Uint32 delta)
 	snprintf(string, 1000, "HUD Hack! The real UI (freetype+lua) widgets will look/work much better!\n\nvelocity: %.0fkm/h\n(increased) downforce: %.0fN world up, %.0fN car down\nfps: %.0f", camera.car->velocity*3.6, camera.car->hack_downforce_print1, camera.car->hack_downforce_print2, fps);
 	HUD_Render_Text(string, 0, 0);
 
+	//
 	//graph
+	//
 
 	//max Fz 100000N
 	if ((Fz+=100) == 100000)
@@ -300,6 +354,7 @@ void HUD(Uint32 delta)
 	if (xpeak == 0 && ypeak == 0)
 		Fz=0;
 
+	//end
 	glMatrixMode (GL_PROJECTION);
 	glPopMatrix(); //return to old projection
 	glMatrixMode (GL_MODELVIEW);
