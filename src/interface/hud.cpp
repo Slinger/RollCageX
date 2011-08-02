@@ -25,9 +25,6 @@
 //assumes width and height is power of two, and rgb channels
 //does not delete texture or vbo...!
 //
-//the "font.bmp" was created with the Terminus font
-//Terminus was designed by Dimitar Zhekov and GPL2, OFL
-//
 
 #include "hud.hpp"
 
