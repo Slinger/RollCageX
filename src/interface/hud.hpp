@@ -28,7 +28,8 @@
 #include "../simulation/wheel.hpp"
 struct POINT {
 	float x,y,z;
-	float Fz;
+	float Fz, tilt, SR, SA;
+	float Fx, Fy;
 };
 
 extern struct POINT point[100], pointbuild[100];

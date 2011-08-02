@@ -234,7 +234,7 @@ float plot(float x)
 	return yscale*sin(shape*atan(K*pow((fabs(x*xscale)/peak_at), peak_sharpness)));
 }
 
-#define scale 0.015
+#define scale 0.01
 struct POINT point[100];
 int pcount=0;
 
@@ -277,7 +277,10 @@ void HUD(Uint32 delta)
 		1};
 
 	glMultMatrixf(m);
-	snprintf(string, 1000, "@ Fz=%.1fkN", point[i].Fz/1000.0);
+	//snprintf(string, 1000, "@Fz=%.1fkN\n SR=%.2f\%\n Fx=%.1fkN\n SA=%.1fgr\n Tilt=%.1fgr\n Fy=%.1fkN",
+			//point[i].Fz/1000.0, point[i].SR, point[i].Fx/1000.0, point[i].SA, point[i].tilt, point[i].Fy/1000.0);
+	snprintf(string, 1000, "@Fz=%.1fkN\n SR=%.2f%%\n Fx=%.1fkN\n SA=%.1fgr\n Tilt=%.1fgr\n Fy=%.1fkN",
+			point[i].Fz/1000.0, point[i].SR, point[i].Fx/1000.0, point[i].SA, point[i].tilt, point[i].Fy/1000.0);
 	HUD_Render_Text(string, 0, 0);
 
 	//end
@@ -307,7 +310,7 @@ void HUD(Uint32 delta)
 		fpstime=0;
 		fpscount=0;
 	}
-	snprintf(string, 1000, "HUD Hack! The real UI (freetype+lua) widgets will look/work much better!\n\nvelocity: %.0fkm/h\n(increased) downforce: %.0fN world up, %.0fN car down\nfps: %.0f", camera.car->velocity*3.6, camera.car->hack_downforce_print1, camera.car->hack_downforce_print2, fps);
+	snprintf(string, 1000, "HUD Hack! The real UI (freetype+lua) widgets will look/work much better!\nRemember: camera can be moved using the keys:  <W> <S>   <A> <D>   <Q> <E>\n\nvelocity: %.0fkm/h\n(increased) downforce: %.0fN world up, %.0fN car down\nfps: %.0f", camera.car->velocity*3.6, camera.car->hack_downforce_print1, camera.car->hack_downforce_print2, fps);
 	HUD_Render_Text(string, 0, 0);
 
 	//

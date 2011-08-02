@@ -232,14 +232,6 @@ void Wheel::Set_Contact(dBodyID wbody, dBodyID obody, Surface *surface, bool whe
 	if (Fz < 0.0) //not going to be any friction of this contact
 		return; //let ode just use defaults
 
-	if (pbcount < 100)
-	{
-		pointbuild[pbcount].x=pos[0];
-		pointbuild[pbcount].y=pos[1];
-		pointbuild[pbcount].z=pos[2];
-		pointbuild[pbcount].Fz=Fz;
-		++pbcount;
-	}
 	//Vsx and Vsy (slip velocity along x and y):
 	dReal Vsx = Vx + Vr; //Vr should be opposite sign of Vx, so this is the difference
 	//Vsy = Vy = VDot (Y, Vwheel); but lets go overkill!
@@ -352,6 +344,20 @@ void Wheel::Set_Contact(dBodyID wbody, dBodyID obody, Surface *surface, bool whe
 	MUx /=sqrt(1.0+diff*diff);
 	MUy /=sqrt(1.0+1.0/(diff*diff));
 
+	//print this info
+	if (pbcount < 100)
+	{
+		pointbuild[pbcount].x=pos[0];
+		pointbuild[pbcount].y=pos[1];
+		pointbuild[pbcount].z=pos[2];
+		pointbuild[pbcount].Fz=Fz;
+		pointbuild[pbcount].tilt=-inclination;
+		pointbuild[pbcount].SR=slip_ratio;
+		pointbuild[pbcount].SA=-slip_angle;
+		pointbuild[pbcount].Fx=MUx*Fz;
+		pointbuild[pbcount].Fy=MUy*Fz;
+		++pbcount;
+	}
 
 	//
 	//4) set output values:
