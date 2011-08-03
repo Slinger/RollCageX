@@ -240,7 +240,7 @@ void Wheel::Set_Contact(dBodyID wbody, dBodyID obody, Surface *surface, bool whe
 
 	//slip_ratio: defined as: (wheel velocity/ground velocity)-1
 	//this is velocity along the X axis...
-	slip_ratio = fabs(Vsx/Vx); //we don't need negative values...
+	slip_ratio = -Vsx/Vx; //and change sign
 	//NOTE: if v2x get low (wheel standing still) this gets quite high
 
 	//slip_angle: angle (in degrees) between X and actual direction of movement.
