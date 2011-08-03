@@ -353,7 +353,7 @@ void Wheel::Set_Contact(dBodyID wbody, dBodyID obody, Surface *surface, bool whe
 		pointbuild[pbcount].Fz=Fz;
 		pointbuild[pbcount].tilt=-inclination;
 		pointbuild[pbcount].SR=slip_ratio;
-		pointbuild[pbcount].SA=-slip_angle;
+		pointbuild[pbcount].SA=slip_angle;
 		pointbuild[pbcount].Fx=MUx*Fz;
 		pointbuild[pbcount].Fy=MUy*Fz;
 		++pbcount;
