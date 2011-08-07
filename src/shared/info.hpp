@@ -36,9 +36,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.\n\*/
 
 //general info
-const char VERSION[] = "0.7.0 RC1 (\"The Sky's the Limit\")";
+const char VERSION[] = "0.7.0 RC1 HUD-HACK";
 
-const char TITLE[] = "ReCaged 0.7.0 RC1 (\"The Sky's the Limit\") (C) 2009, 2010, 2011 Mats Wahlberg (\"Slinger\")"; 
+const char TITLE[] = "ReCaged 0.7.0 RC1 HUD-HACK (C) 2009, 2010, 2011 Mats Wahlberg (\"Slinger\")"; 
 
 const char ISSUE[] = "\
    ReCaged  Copyright (C) 2009, 2010, 2011 Mats Wahlberg (\"Slinger\" on gorcx.net forum)\n\
