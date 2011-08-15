@@ -310,7 +310,7 @@ void HUD(Uint32 delta)
 		fpstime=0;
 		fpscount=0;
 	}
-	snprintf(string, 1000, "HUD Hack! The real UI (freetype+lua) widgets will look/work much better!\nRemember: <F11> freezes simulation, and camera can be moved using: <W> <S>  <A> <D>  <Q> <E>\n\nvelocity: %.0fkm/h\n(increased) downforce: %.0fN world up, %.0fN car down\nfps: %.0f", camera.car->velocity*3.6, camera.car->hack_downforce_print1, camera.car->hack_downforce_print2, fps);
+	snprintf(string, 1000, "HUD Hack! The real UI (freetype+lua) widgets will look/work much better!\n<F11> freezes simulation, <F12> draws geoms/trimeshes, and  <W> <S>  <A> <D>  <Q> <E>  moves camera\n\nvelocity: %.0fkm/h\n(increased) downforce: %.0fN world up, %.0fN car down\nfps: %.0f", camera.car->velocity*3.6, camera.car->hack_downforce_print1, camera.car->hack_downforce_print2, fps);
 	HUD_Render_Text(string, 0, 0);
 
 	//
