@@ -171,7 +171,7 @@ void debug_joint_fixed(dBodyID body1, dBodyID body2, Object *obj)
 
 	//use feedback
 	//set threshold, buffer and dummy script
-	jd->Set_Buffer_Event(15000, 10000, (Script*)1337);
+	jd->Set_Buffer_Event(20000, 5000, (Script*)1337);
 }
 
 //spawn a "loaded" (actually hard-coded) object
