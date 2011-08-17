@@ -171,7 +171,7 @@ void debug_joint_fixed(dBodyID body1, dBodyID body2, Object *obj)
 
 	//use feedback
 	//set threshold, buffer and dummy script
-	jd->Set_Buffer_Event(35000, 15000, (Script*)1337);
+	jd->Set_Buffer_Event(5000, 10000, (Script*)1337);
 }
 
 //spawn a "loaded" (actually hard-coded) object
@@ -623,22 +623,22 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 		debug_joint_fixed(body[0], body2[4], obj);
 
 		dBodySetPosition (body[1], x+2, y-2, z+2.4/2);
-		debug_joint_fixed(body[0], body2[1], obj);
-		debug_joint_fixed(body[0], body2[2], obj);
-		debug_joint_fixed(body[0], body2[4], obj);
-		debug_joint_fixed(body[0], body2[5], obj);
+		debug_joint_fixed(body[1], body2[1], obj);
+		debug_joint_fixed(body[1], body2[2], obj);
+		debug_joint_fixed(body[1], body2[4], obj);
+		debug_joint_fixed(body[1], body2[5], obj);
 
 		dBodySetPosition (body[2], x-2, y+2, z+2.4/2);
-		debug_joint_fixed(body[0], body2[7], obj);
-		debug_joint_fixed(body[0], body2[6], obj);
-		debug_joint_fixed(body[0], body2[4], obj);
-		debug_joint_fixed(body[0], body2[3], obj);
+		debug_joint_fixed(body[2], body2[7], obj);
+		debug_joint_fixed(body[2], body2[6], obj);
+		debug_joint_fixed(body[2], body2[4], obj);
+		debug_joint_fixed(body[2], body2[3], obj);
 
 		dBodySetPosition (body[3], x-2, y-2, z+2.4/2);
-		debug_joint_fixed(body[0], body2[0], obj);
-		debug_joint_fixed(body[0], body2[1], obj);
-		debug_joint_fixed(body[0], body2[3], obj);
-		debug_joint_fixed(body[0], body2[4], obj);
+		debug_joint_fixed(body[3], body2[0], obj);
+		debug_joint_fixed(body[3], body2[1], obj);
+		debug_joint_fixed(body[3], body2[3], obj);
+		debug_joint_fixed(body[3], body2[4], obj);
 
 		for (i=0; i<4; ++i)
 		{
