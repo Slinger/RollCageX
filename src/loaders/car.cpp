@@ -451,8 +451,13 @@ Car *Car_Template::Spawn (dReal x, dReal y, dReal z,  Trimesh_3D *tyre, Trimesh_
 	for (int i=0;i<4;++i)
 	{
 		//create cylinder
-		//(geom)
-		wheel_geom = dCreateCylinder (0, conf.w[0], conf.w[1]);
+		if (conf.wsphere)
+			wheel_geom = dCreateSphere (0, conf.w[0]);
+		else if (conf.wcapsule)
+			wheel_geom = dCreateCapsule (0, conf.w[0], conf.w[1]);
+		else //normal
+			wheel_geom = dCreateCylinder (0, conf.w[0], conf.w[1]);
+
 
 		//(body)
 		wheel_body[i] = dBodyCreate (world);
