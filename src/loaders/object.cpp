@@ -181,8 +181,6 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 	printlog(2, "Spawning object at: %f %f %f", x,y,z);
 	//prettend to be executing the script... just load debug values
 	//
-	Object *obj;
-	Body *bd;
 
 	if (box)
 	{
@@ -191,7 +189,7 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 	//
 	//
 
-	obj = new Object();
+	Object *obj = new Object();
 
 	dGeomID geom  = dCreateBox (0, 1,1,1); //geom
 	Geom *data = new Geom(geom, obj);
@@ -203,7 +201,7 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 	dMassSetBoxTotal (&m,400,1,1,1); //mass+sides
 	dBodySetMass (body, &m);
 
-	bd = new Body(body, obj); //just for drag
+	new Body(body, obj); //just for drag
 	//bd->Set_Event (100, 10, (script_struct*)1337);
 
 	dGeomSetBody (geom, body);
@@ -221,7 +219,7 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 	{
 	printlog(2, "(Mac's hard-coded funbox)");
 	
-	obj = new Object();
+	Object *obj = new Object();
 	new Space(obj);
 
 	//one body to which all geoms are added
@@ -316,7 +314,7 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 	//
 
 	//flipper surface
-	obj = new Object();
+	Object *obj = new Object();
 	new Space(obj);
 	
 	dGeomID geom  = dCreateBox (0, 8,8,0.5); //geom
@@ -680,7 +678,7 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 	{
 		printlog(2, "(hard-coded tetrahedron)");
 
-		obj = new Object();
+		Object *obj = new Object();
 
 		Geom *g = geom[0]->Create_Geom(obj);
 		g->model = model[0];
