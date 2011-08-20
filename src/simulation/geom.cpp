@@ -199,15 +199,15 @@ void Geom::Collision_Callback (void *data, dGeomID o1, dGeomID o2)
 		//
 		//simulation of wheel or normal geom?
 		//
-		//determine if _one_of the geoms is a wheel
+		//determine if _one_ of the geoms is a wheel
 		if (geom1->wheel&&!geom2->wheel)
 			geom1->wheel->Set_Contact(b1, b2, surf2, true, &contact[i], count, stepsize);
 		else if (!geom1->wheel&&geom2->wheel)
 			geom2->wheel->Set_Contact(b2, b1, surf1, false, &contact[i], count, stepsize);
 
-		//just a reminder to myself
-		if (geom1->wheel&&geom2->wheel)
-			printlog(1, "TODO: haven't looked at wheel*wheel collision simulation! (will only be rim_mu*rim_mu and no tyre right now)");
+		//TODO: haven't looked at wheel*wheel collision simulation! (will be rim_mu*rim_mu for tyre right now)
+		//if (geom1->wheel&&geom2->wheel)
+		//	?...
 
 		//
 		//
