@@ -103,7 +103,9 @@ int Simulation_Loop (void *d)
 
 				Geom::Clear_Collisions(); //set all collision flags to false
 
+				//perform collision detection
 				dSpaceCollide (space, (void*)(&divided_stepsize), &Geom::Collision_Callback);
+				Wheel::Generate_Contacts(divided_stepsize); //add tyre contact points
 
 				Geom::Physics_Step(); //sensor/radar handling
 
@@ -162,6 +164,10 @@ int Simulation_Loop (void *d)
 		//count how many steps
 		++simulation_count;
 	}
+
+	//during simulation, memory might be allocated, remove
+	Wheel::Clear_List();
+
 	return 0;
 }
 

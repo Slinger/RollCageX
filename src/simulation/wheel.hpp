@@ -25,16 +25,24 @@
 
 #include <ode/ode.h>
 
-//wheel friction simulation class (created by Car_Template, used by Physics/Geom.cpp)
+//tmp:
+//extern class Geom;
 
+//size of each chunk of the list of contact points/joints
+#define INITIAL_WHEEL_LIST_SIZE 64
+
+//wheel friction simulation class (created by Car_Template, used by Physics/Geom.cpp)
 class Wheel
 {
 	public:
-		//configures contact points with correct mu and similar
-		void Set_Contact(dBodyID wb, dBodyID ob, class Surface *os, bool wf, dContact *contact, int count, dReal stepsize);
-		//arguments:
-		//wheel body, other body (or NULL if static), other geom, wheel is first geom?,
-		//contact structs to configure, and how many contacts, and stepsize time)
+		//prepare to add contact points
+		bool Prepare_Contact(dBodyID wb, dBodyID ob, class Geom *g1, class Geom *g2, class Surface *os, bool wf, dContact *contact, int count, dReal stepsize);
+
+		//go through list, and add them
+		static void Generate_Contacts(dReal stepsize);
+
+		//make sure list is removed
+		static void Clear_List();
 
 	private:
 		//not allowing creation and modifying of class unless by friend
