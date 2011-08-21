@@ -91,7 +91,7 @@ Wheel::Wheel()
 struct Wheel_List {
 	dContact contact;
 	dReal Fz, totalFz;
-	dReal peakx, peaky;
+	dReal xpeak, xpeaksch, ypeak, ypeaksch;
 	dReal amount_x, amount_y;
 	dReal scalex, scaley;
 	dReal shift;
@@ -273,8 +273,6 @@ bool Wheel::Prepare_Contact(dBodyID wbody, dBodyID obody, Geom *g1, Geom *g2, Su
 	//2) compute output values (almost):
 	//
 
-	//max mu value
-	dReal peakx = (xpeak+xpeaksch*Fz);
 	//shape
 	dReal shape = xshape;
 	//needed to get peak at right position, and used by peak_sharpness
@@ -288,7 +286,6 @@ bool Wheel::Prepare_Contact(dBodyID wbody, dBodyID obody, Geom *g1, Geom *g2, Su
 	dReal amount_x = sin(shape*atan(K*pow((fabs(slip_ratio)/peak_at), peak_sharpness)));
 
 	//and for MUy
-	dReal peaky = (ypeak+ypeaksch*Fz);
 	shape = yshape;
 	K = tan( (M_PI/2)/shape );
 	peak_at = ypos*pow(Fz, yposch) *surface->tyre_pos_scale;
@@ -390,8 +387,10 @@ bool Wheel::Prepare_Contact(dBodyID wbody, dBodyID obody, Geom *g1, Geom *g2, Su
 	wheel_list[wheel_list_usage].contact=*contact; //(copy whole class, not pointer)
 	wheel_list[wheel_list_usage].Fz=Fz;
 	wheel_list[wheel_list_usage].totalFz=Fz;
-	wheel_list[wheel_list_usage].peakx=peakx;
-	wheel_list[wheel_list_usage].peaky=peaky;
+	wheel_list[wheel_list_usage].xpeak=xpeak;
+	wheel_list[wheel_list_usage].xpeaksch=xpeaksch;
+	wheel_list[wheel_list_usage].ypeak=ypeak;
+	wheel_list[wheel_list_usage].ypeaksch=ypeaksch;
 	wheel_list[wheel_list_usage].amount_x=amount_x;
 	wheel_list[wheel_list_usage].amount_y=amount_y;
 	wheel_list[wheel_list_usage].scalex=scalex;
@@ -451,15 +450,21 @@ void Wheel::Generate_Contacts(dReal stepsize)
 		//
 
 		//but first:
+		//
+		//no
+		//
 		//find close points and combine their Fz to correctly calculate "peak"
-		dReal rescale=1.0; //TODO
+		//dReal rescale=1.0; //TODO
 
 		//MUx
-		dReal MUx = current->peakx*current->amount_x*rescale;
+		//max mu value
+		dReal peak = (current->xpeak+current->xpeaksch*current->Fz);
+		dReal MUx = peak*current->amount_x;
 		MUx *= current->surfacemu; //scale by surface friction
 
 		//MUy
-		dReal MUy = current->peaky*current->amount_y*rescale+current->shift;
+		peak = (current->ypeak+current->ypeaksch*current->Fz);
+		dReal MUy = peak*current->amount_y+current->shift;
 		MUy *= current->surfacemu;
 
 		//scale (combined slip) 
