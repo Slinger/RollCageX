@@ -90,13 +90,12 @@ Wheel::Wheel()
 //list for storing all valid contact points until end of collision
 struct Wheel_List {
 	dContact contact;
-	dReal Fz, totalFz;
-	dReal xpeak, xpeaksch, ypeak, ypeaksch;
+	dReal Fz, total_Fz;
 	dReal amount_x, amount_y;
-	dReal scalex, scaley;
+	dReal div_x, div_y;
+	dReal surface_mu;
 	dReal shift;
-	dReal surfacemu;
-	bool approx1, fixedmu;
+	Wheel *wheel;
 	dBodyID b1, b2;
 	Geom *g1, *g2;
 };
@@ -337,8 +336,8 @@ bool Wheel::Prepare_Contact(dBodyID b1, dBodyID b2, Geom *g1, Geom *g2, Surface 
 		diff=1.0;
 
 	//calculate
-	dReal scalex =sqrt(1.0+diff*diff);
-	dReal scaley =sqrt(1.0+1.0/(diff*diff));
+	dReal div_x =sqrt(1.0+diff*diff);
+	dReal div_y =sqrt(1.0+1.0/(diff*diff));
 
 	//
 	//4) rolling resistance (breaking torque based on normal force)
@@ -398,16 +397,13 @@ bool Wheel::Prepare_Contact(dBodyID b1, dBodyID b2, Geom *g1, Geom *g2, Surface 
 	//store values...
 	wheel_list[wheel_list_usage].contact=*contact; //(copy whole class, not pointer)
 	wheel_list[wheel_list_usage].Fz=Fz;
-	wheel_list[wheel_list_usage].totalFz=Fz;
-	wheel_list[wheel_list_usage].xpeak=xpeak;
-	wheel_list[wheel_list_usage].xpeaksch=xpeaksch;
-	wheel_list[wheel_list_usage].ypeak=ypeak;
-	wheel_list[wheel_list_usage].ypeaksch=ypeaksch;
+	wheel_list[wheel_list_usage].total_Fz=Fz;
+	wheel_list[wheel_list_usage].wheel=this;
 	wheel_list[wheel_list_usage].amount_x=amount_x;
 	wheel_list[wheel_list_usage].amount_y=amount_y;
-	wheel_list[wheel_list_usage].scalex=scalex;
-	wheel_list[wheel_list_usage].scaley=scaley;
-	wheel_list[wheel_list_usage].surfacemu=surface->mu;
+	wheel_list[wheel_list_usage].div_x=div_x;
+	wheel_list[wheel_list_usage].div_y=div_y;
+	wheel_list[wheel_list_usage].surface_mu=surface->mu;
 
 	//configuration
 	wheel_list[wheel_list_usage].contact.fdir1[0] = X[0];
@@ -421,10 +417,6 @@ bool Wheel::Prepare_Contact(dBodyID b1, dBodyID b2, Geom *g1, Geom *g2, Surface 
 	//geoms
 	wheel_list[wheel_list_usage].g1 = g1;
 	wheel_list[wheel_list_usage].g2 = g2;
-
-	//debug:
-	wheel_list[wheel_list_usage].approx1=approx1;
-	wheel_list[wheel_list_usage].fixedmu=fixedmu;
 
 	//based on the turning angle (positive or negative), the shift might change
 	//(wheel leaning inwards in curve gets better grip)
@@ -444,10 +436,12 @@ bool Wheel::Prepare_Contact(dBodyID b1, dBodyID b2, Geom *g1, Geom *g2, Surface 
 void Wheel::Generate_Contacts(dReal stepsize)
 {
 	Wheel_List *current;
+	Wheel *wheel;
 
 	for (size_t i=0; i<wheel_list_usage; ++i)
 	{
 		current = &wheel_list[i];
+		wheel = current->wheel;
 
 		//
 		//continue computation of output values
@@ -462,18 +456,18 @@ void Wheel::Generate_Contacts(dReal stepsize)
 
 		//MUx
 		//max mu value
-		dReal peak = (current->xpeak+current->xpeaksch*current->Fz);
+		dReal peak = (wheel->xpeak+wheel->xpeaksch*current->Fz);
 		dReal MUx = peak*current->amount_x;
-		MUx *= current->surfacemu; //scale by surface friction
+		MUx *= current->surface_mu; //scale by surface friction
 
 		//MUy
-		peak = (current->ypeak+current->ypeaksch*current->Fz);
+		peak = (wheel->ypeak+wheel->ypeaksch*current->Fz);
 		dReal MUy = peak*current->amount_y+current->shift;
-		MUy *= current->surfacemu;
+		MUy *= current->surface_mu;
 
 		//scale (combined slip) 
-		MUx/=current->scalex;
-		MUy/=current->scaley;
+		MUx/=current->div_x;
+		MUy/=current->div_y;
 
 		//TODO: remove the following check when applying forces directly!
 		//(if ever going to apply force directly, not sure...?)
@@ -496,14 +490,14 @@ void Wheel::Generate_Contacts(dReal stepsize)
 		//
 		//(debug values:)
 		//
-		if (current->approx1) //simulate by load (normal)
+		if (wheel->approx1) //simulate by load (normal)
 		{
 			MUx*=current->Fz; //multiply by Fz (MU*load=force)
 			MUy*=current->Fz; //-''-
 		}
 
-		if (current->fixedmu) //ignore all above calculation and force a constant mu (and ode slip combination)
-			current->contact.surface.mu = current->fixedmu;
+		if (wheel->fixedmu) //ignore all above calculation and force a constant mu (and ode slip combination)
+			current->contact.surface.mu = wheel->fixedmu;
 		else //the sane situation: use all stuff we've calculated
 		{
 			//4.1) actual, proper, values:
