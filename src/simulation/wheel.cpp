@@ -425,9 +425,9 @@ bool Wheel::Prepare_Contact(dBodyID wbody, dBodyID obody, Geom *g1, Geom *g2, Su
 	//based on the turning angle (positive or negative), the shift might change
 	//(wheel leaning inwards in curve gets better grip)
 	if (slip_angle < 0.0)
-		shift = -shift*Fz;
+		wheel_list[wheel_list_usage].shift = -shift*Fz;
 	else
-		shift = shift*Fz;
+		wheel_list[wheel_list_usage].shift = shift*Fz;
 
 	//increase counter
 	++wheel_list_usage;
@@ -471,7 +471,7 @@ void Wheel::Generate_Contacts(dReal stepsize)
 		MUx/=current->scalex;
 		MUy/=current->scaley;
 
-		//TODO: the remove the following check when applying forces directly!
+		//TODO: remove the following check when applying forces directly!
 		//(if ever going to apply force directly, not sure...?)
 		//MUx and MUy might get negative in the calculations, which means no friction so
 		//set to 0
