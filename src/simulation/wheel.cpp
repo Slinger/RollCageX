@@ -108,7 +108,7 @@ size_t wheel_list_usage=0;
 
 //simulation of wheel
 //add to list
-bool Wheel::Prepare_Contact(dBodyID wbody, dBodyID obody, Geom *g1, Geom *g2, Surface *surface,
+bool Wheel::Prepare_Contact(dBodyID b1, dBodyID b2, Geom *g1, Geom *g2, Surface *surface,
 		bool wheel_first, dContact *contact, int count, dReal stepsize)
 {
 	//
@@ -127,6 +127,18 @@ bool Wheel::Prepare_Contact(dBodyID wbody, dBodyID obody, Geom *g1, Geom *g2, Su
 	contact->surface.soft_cfm = cfm;
 	//
 
+	//sort out which body is which
+	dBodyID wbody, obody;
+	if (wheel_first)
+	{
+		wbody=b1;
+		obody=b2;
+	}
+	else
+	{
+		obody=b1;
+		wbody=b2;
+	}
 
 	//"Slinger's not-so-magic formula":
 
@@ -403,16 +415,8 @@ bool Wheel::Prepare_Contact(dBodyID wbody, dBodyID obody, Geom *g1, Geom *g2, Su
 	wheel_list[wheel_list_usage].contact.fdir1[2] = X[2];
 
 	//bodies
-	if (wheel_first)
-	{
-		wheel_list[wheel_list_usage].b1 = wbody;
-		wheel_list[wheel_list_usage].b2 = obody;
-	}
-	else
-	{
-		wheel_list[wheel_list_usage].b1 = obody;
-		wheel_list[wheel_list_usage].b2 = wbody;
-	}
+	wheel_list[wheel_list_usage].b1 = b1;
+	wheel_list[wheel_list_usage].b2 = b2;
 
 	//geoms
 	wheel_list[wheel_list_usage].g1 = g1;
