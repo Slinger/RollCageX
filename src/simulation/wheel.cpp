@@ -537,7 +537,7 @@ void Wheel::Generate_Contacts(dReal stepsize)
 
 		//hud hack:
 		if (current->HUDFx)
-			*(current->HUDFx)=current->Fz;
+			*(current->HUDFx)=MUx*current->Fz;
 
 		//MUy
 		peak = (wheel->ypeak+wheel->ypeaksch*current->total_Fz);
