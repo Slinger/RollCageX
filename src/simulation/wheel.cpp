@@ -24,6 +24,8 @@
 #include "wheel.hpp"
 #include "../shared/geom.hpp"
 #include "../shared/internal.hpp" 
+#include "../shared/track.hpp"
+#include "../simulation/collision_feedback.hpp"
 
 //hack!
 #include "../interface/hud.hpp"
@@ -90,9 +92,36 @@ Wheel::Wheel()
 	yshift = 0.0;
 }
 
+//list for storing all valid contact points until end of collision
+struct Wheel_List {
+	dContact contact;
+	dReal Fz, total_Fz;
+	dReal amount_x, amount_y;
+	dReal div_x, div_y;
+	dReal surface_mu;
+	dReal shift;
+	Wheel *wheel;
+	dBodyID wbody; //id
+	dBodyID b1, b2;
+	Geom *g1, *g2;
+
+	//for calculating distance
+	dReal zoffset;
+	dReal pos[3];
+
+	//special hud printout
+	float *HUDtotalFz, *HUDFx, *HUDFy;
+};
+
+Wheel_List *wheel_list=NULL;
+
+size_t wheel_list_size=0;
+size_t wheel_list_usage=0;
+
 //simulation of wheel
-void Wheel::Set_Contact(dBodyID wbody, dBodyID obody, Surface *surface, bool wheel_first,
-		dContact *contact, int count, dReal stepsize)
+//add to list
+bool Wheel::Prepare_Contact(dBodyID b1, dBodyID b2, Geom *g1, Geom *g2, Surface *surface,
+		bool wheel_first, dContact *contact, int count, dReal stepsize)
 {
 	//
 	//use spring+damping for tyre collision forces:
@@ -110,6 +139,24 @@ void Wheel::Set_Contact(dBodyID wbody, dBodyID obody, Surface *surface, bool whe
 	contact->surface.soft_cfm = cfm;
 	//
 
+	//sort out which body is which
+	dBodyID wbody, obody;
+	if (wheel_first)
+	{
+		wbody=b1;
+		obody=b2;
+	}
+	else
+	{
+		obody=b1;
+		wbody=b2;
+	}
+
+	//(copy the position (damn, c++ doesn't allow vector assignment, right now...)
+	dReal pos[3]; //contact point position
+	pos[0] = contact->geom.pos[0];
+	pos[1] = contact->geom.pos[1];
+	pos[2] = contact->geom.pos[2];
 
 	//"Slinger's not-so-magic formula":
 
@@ -163,24 +210,20 @@ void Wheel::Set_Contact(dBodyID wbody, dBodyID obody, Surface *surface, bool whe
 	//(rim mu calculated as the already defaults, btw)
 	//if tmp is just a little bit too big (>1.0 or <-1.0), it'll also be rim
 	if (isnan(inclination) || fabs(inclination) > rim_angle)
-		return; //don't modify default values, skip this
+		return false; //don't modify default values, skip this
 
+	//position of point along wheel axis (for later)
+	dReal zoffset = VDot(Y, pos);
 
 	//
 	//ok, we can now calculate the correct Y!
 	VCross(Y, X, Z);
-	//note: no need to normalize, since both X and Y are unit.
+	//note: no need to normalize, since both X and Y are perpendicular and unit.
 	//
 
 
 	//slip ratio and slip angle:
 	dReal slip_ratio, slip_angle;
-
-	//(copy the position (damn, c++ doesn't allow vector assignment, right now...)
-	dReal pos[3]; //contact point position
-	pos[0] = contact->geom.pos[0];
-	pos[1] = contact->geom.pos[1];
-	pos[2] = contact->geom.pos[2];
 
 	//first, get interesting velocities:
 	//(velocity of wheel, point on wheel, relative point on wheel (and of point on ground))
@@ -230,7 +273,7 @@ void Wheel::Set_Contact(dBodyID wbody, dBodyID obody, Surface *surface, bool whe
 	//(in this case it's the damping force getting higher than spring force when
 	//the two bodies are moving appart from each others)
 	if (Fz < 0.0) //not going to be any friction of this contact
-		return; //let ode just use defaults
+		return false; //let ode just use defaults
 
 	//Vsx and Vsy (slip velocity along x and y):
 	dReal Vsx = Vx + Vr; //Vr should be opposite sign of Vx, so this is the difference
@@ -253,15 +296,8 @@ void Wheel::Set_Contact(dBodyID wbody, dBodyID obody, Surface *surface, bool whe
 
 
 	//
-	//2) compute output values:
+	//2) compute output values (almost):
 	//
-
-	//max mu value
-	dReal peak = (xpeak+xpeaksch*Fz);
-
-	//if negative (too high damping), set to 0
-	if (peak<0.0)
-		peak=0.0;
 
 	//shape
 	dReal shape = xshape;
@@ -274,15 +310,8 @@ void Wheel::Set_Contact(dBodyID wbody, dBodyID obody, Surface *surface, bool whe
 
 	//calculate!
 	dReal amount_x = sin(shape*atan(K*pow((fabs(slip_ratio)/peak_at), peak_sharpness)));
-	dReal MUx = peak*amount_x;
-
-	//scale by sorface friction
-	MUx *= surface->mu;
 
 	//and for MUy
-	peak = (ypeak+ypeaksch*Fz);
-	if (peak<0.0)
-		peak=0.0;
 	shape = yshape;
 	K = tan( (M_PI/2)/shape );
 	peak_at = ypos*pow(Fz, yposch) *surface->tyre_pos_scale;
@@ -290,30 +319,11 @@ void Wheel::Set_Contact(dBodyID wbody, dBodyID obody, Surface *surface, bool whe
 	dReal shift = yshift*inclination;
 
 	dReal amount_y = sin(shape*atan(K*pow((fabs(slip_angle)/peak_at), peak_sharpness)));
-	dReal MUy = peak*amount_y;
-
-	//based on the turning angle (positive or negative), the shift might change
-	//(wheel leaning inwards in curve gets better grip)
-	if (slip_angle < 0.0)
-		MUy -= shift*Fz;
-	else
-		MUy += shift*Fz;
-
-	MUy *= surface->mu;
-
-	//TODO: the remove the following check when applying forces directly!
-	//MUx and MUy might get negative in the calculations, which means no friction so
-	//set to 0
-	if (MUx < 0.0)
-		MUx = 0.0;
-
-	//MUy might also get negative if the shift (due to bad inclination) gets negative
-	if (MUy < 0.0)
-		MUy = 0.0;
 
 	//
 	//3) combined slip (scale Fx and Fy to combine)
 	//
+
 	//NOTE: when ode contact joints are automatically computing "force direction" 1 and 2, they
 	//_appears_ to be set so that fdir1 is along movement and fdir2 is perpendicular. thus the fdir1
 	//force is always proportional to the "absolute velocity" and fdir2 force is always 0. this
@@ -340,11 +350,12 @@ void Wheel::Set_Contact(dBodyID wbody, dBodyID obody, Surface *surface, bool whe
 	if (isnan(diff))
 		diff=1.0;
 
-	//apply
-	MUx /=sqrt(1.0+diff*diff);
-	MUy /=sqrt(1.0+1.0/(diff*diff));
+	//calculate
+	dReal div_x =sqrt(1.0+diff*diff);
+	dReal div_y =sqrt(1.0+1.0/(diff*diff));
 
 	//print this info
+	float *hudfx=NULL, *hudfy=NULL, *hudfzpoint=NULL;
 	if (pbcount < 100)
 	{
 		pointbuild[pbcount].x=pos[0];
@@ -354,46 +365,15 @@ void Wheel::Set_Contact(dBodyID wbody, dBodyID obody, Surface *surface, bool whe
 		pointbuild[pbcount].tilt=-inclination;
 		pointbuild[pbcount].SR=slip_ratio;
 		pointbuild[pbcount].SA=slip_angle;
-		pointbuild[pbcount].Fx=MUx*Fz;
-		pointbuild[pbcount].Fy=MUy*Fz;
+		hudfx = &pointbuild[pbcount].Fx;
+		hudfy = &pointbuild[pbcount].Fy;
+		hudfzpoint = &pointbuild[pbcount].total_Fz;
 		++pbcount;
 	}
 
 	//
-	//4) set output values:
+	//4) rolling resistance (breaking torque based on normal force)
 	//
-
-	//for reliability don't let ode multiply by its Fz, use calculated instead:
-	contact->surface.mode ^= dContactApprox1; //mask away the contactapprox1 option
-
-	//4.0) debug values:
-	if (approx1) //simulate by load (normal)
-		MUx*=Fz; //multiply by Fz (MU*load=force)
-		MUy*=Fz; //-''-
-
-	if (fixedmu) //ignore all above calculation and force a constant mu (and ode slip combination)
-		contact->surface.mu = fixedmu;
-	else //the sane situation: use all stuff we've calculated
-	{
-		//4.1) actual, proper, values:
-		//enable: separate mu for dir 1&2, specify dir 1
-		//(note: dir2 is automatically calculated by ode)
-		//also enable erp+cfm specifying (for spring+damping)
-		contact->surface.mode |= dContactMu2 | dContactFDir1;
-
-		//fdir1
-		contact->fdir1[0] = X[0];
-		contact->fdir1[1] = X[1];
-		contact->fdir1[2] = X[2];
-
-		//specify mu1 and mu2
-
-		//let ode calculate friction from internal Fz
-		contact->surface.mu = MUx;
-		contact->surface.mu2 = MUy;
-	}
-
-	//4.2) rolling resistance (breaking torque based on normal force)
 	//some simplifications:
 	//*rolling speed is ignored (doesn't make much difference)
 	//*compression of tyre is also ignored (assumed to be small enough)
@@ -429,5 +409,208 @@ void Wheel::Set_Contact(dBodyID wbody, dBodyID obody, Surface *surface, bool whe
 	dBodyAddRelTorque(wbody, 0.0, 0.0, torque);
 	//TODO: if the ground has a body, perhaps the torque should affect it too?
 	//perhaps add a the breaking force (at the point of the wheel) to the ground body?
+
+
+	//
+	//continues in next function (for all points prepared)
+	//until then:
+	//
+
+	//reallocate list?
+	if (wheel_list_usage == wheel_list_size)
+	{
+		wheel_list_size+=INITIAL_WHEEL_LIST_SIZE;
+		Wheel_List *tmp=wheel_list;
+		wheel_list = new Wheel_List[wheel_list_size];
+		memcpy(wheel_list, tmp, sizeof(Wheel_List)*wheel_list_usage);
+		delete[] tmp;
+	}
+
+	//store values...
+	wheel_list[wheel_list_usage].contact=*contact; //(copy whole class, not pointer)
+	wheel_list[wheel_list_usage].Fz=Fz;
+	wheel_list[wheel_list_usage].total_Fz=Fz;
+	wheel_list[wheel_list_usage].wheel=this;
+	wheel_list[wheel_list_usage].amount_x=amount_x;
+	wheel_list[wheel_list_usage].amount_y=amount_y;
+	wheel_list[wheel_list_usage].div_x=div_x;
+	wheel_list[wheel_list_usage].div_y=div_y;
+	wheel_list[wheel_list_usage].surface_mu=surface->mu;
+
+	//configuration
+	wheel_list[wheel_list_usage].contact.fdir1[0] = X[0];
+	wheel_list[wheel_list_usage].contact.fdir1[1] = X[1];
+	wheel_list[wheel_list_usage].contact.fdir1[2] = X[2];
+
+	//based on the turning angle (positive or negative), the shift might change
+	//(wheel leaning inwards in curve gets better grip)
+	if (slip_angle < 0.0)
+		wheel_list[wheel_list_usage].shift = -shift*Fz;
+	else
+		wheel_list[wheel_list_usage].shift = shift*Fz;
+
+	wheel_list[wheel_list_usage].zoffset = zoffset;
+	wheel_list[wheel_list_usage].pos[0] = pos[0];
+	wheel_list[wheel_list_usage].pos[1] = pos[1];
+	wheel_list[wheel_list_usage].pos[2] = pos[2];
+
+	//bodies
+	wheel_list[wheel_list_usage].b1 = b1;
+	wheel_list[wheel_list_usage].b2 = b2;
+
+	wheel_list[wheel_list_usage].wbody = wbody; //b1 or b2 above, just for id
+
+	//geoms
+	wheel_list[wheel_list_usage].g1 = g1;
+	wheel_list[wheel_list_usage].g2 = g2;
+
+	//hud debug later calculated
+	wheel_list[wheel_list_usage].HUDFx = hudfx;
+	wheel_list[wheel_list_usage].HUDFy = hudfy;
+	wheel_list[wheel_list_usage].HUDtotalFz = hudfzpoint;
+	
+	//increase counter
+	++wheel_list_usage;
+
+	//
+	return true;
 }
 
+// add all from list
+void Wheel::Generate_Contacts(dReal stepsize)
+{
+	Wheel_List *current;
+	Wheel *wheel;
+
+	for (size_t i=0; i<wheel_list_usage; ++i)
+	{
+		current = &wheel_list[i];
+		wheel = current->wheel;
+
+		//
+		//continue computation of output values
+		//
+
+		//but first, (and the reason for collecting all contact points):
+		//find all points close to each other and combine their Fz (correct decrease of peak)!
+		dReal axisdiff;
+		dReal xdiff, ydiff, zdiff;
+		dReal sqrdist;
+		dReal dist;
+		for (size_t j=(i+1); j<wheel_list_usage; ++j)
+		{
+			//points on the same wheel
+			if (wheel_list[j].wbody == current->wbody)
+			{
+				xdiff = wheel_list[i].pos[0] - wheel_list[j].pos[0];
+				ydiff = wheel_list[i].pos[1] - wheel_list[j].pos[1];
+				zdiff = wheel_list[i].pos[2] - wheel_list[j].pos[2];
+				axisdiff = wheel_list[i].zoffset - wheel_list[j].zoffset;
+
+				//dist (squared)
+				sqrdist = xdiff*xdiff + ydiff*ydiff + zdiff*zdiff;
+				sqrdist -= axisdiff*axisdiff; //remove distance along wheel axis
+
+				if (sqrdist < 0.0) //when close to 0, might get negative (not good for sqrt)
+					sqrdist = 0.0; //just set to 0...
+
+				dist = sqrt(sqrdist); //actual value
+
+				if (dist < wheel->join_dist)
+				{
+					//each one gets the Fz of the other
+					current->total_Fz += wheel_list[j].Fz;
+					wheel_list[j].total_Fz += current->Fz;
+				}
+			}
+		}
+
+		//hud/debug hack:
+		if (current->HUDtotalFz)
+			*(current->HUDtotalFz)=current->total_Fz;
+
+		//MUx
+		//max mu value
+		dReal peak = (wheel->xpeak+wheel->xpeaksch*current->total_Fz);
+		dReal MUx = peak*current->amount_x;
+		MUx *= current->surface_mu; //scale by surface friction
+
+		//hud hack:
+		if (current->HUDFx)
+			*(current->HUDFx)=current->Fz;
+
+		//MUy
+		peak = (wheel->ypeak+wheel->ypeaksch*current->total_Fz);
+		dReal MUy = peak*current->amount_y+current->shift;
+		MUy *= current->surface_mu;
+
+		//hud hack:
+		if (current->HUDFy)
+			*(current->HUDFy)=MUy*current->Fz;
+
+		//scale (combined slip) 
+		MUx/=current->div_x;
+		MUy/=current->div_y;
+
+		//TODO: remove the following check when applying forces directly!
+		//(if ever going to apply force directly, not sure...?)
+		//MUx and MUy might get negative in the calculations, which means no friction so
+		//set to 0
+		if (MUx < 0.0)
+			MUx = 0.0;
+
+		//MUy might also get negative if the shift (due to bad inclination) gets negative
+		if (MUy < 0.0)
+			MUy = 0.0;
+
+		//
+		//set output values:
+		//
+
+		//for reliability don't let ode multiply by its Fz, use calculated Fz instead:
+		current->contact.surface.mode ^= dContactApprox1; //mask away the contactapprox1 option
+
+		//
+		//(debug values:)
+		//
+		if (wheel->approx1) //simulate by load (normal)
+		{
+			MUx*=current->Fz; //multiply by Fz (MU*load=force)
+			MUy*=current->Fz; //-''-
+		}
+
+		if (wheel->fixedmu) //ignore all above calculation and force a constant mu (and ode slip combination)
+			current->contact.surface.mu = wheel->fixedmu;
+		else //the sane situation: use all stuff we've calculated
+		{
+			//4.1) actual, proper, values:
+			//enable: separate mu for dir 1&2, specify dir 1
+			//(note: dir2 is automatically calculated by ode)
+			//also enable erp+cfm specifying (for spring+damping)
+			current->contact.surface.mode |= dContactMu2 | dContactFDir1;
+
+			//specify mu1 and mu2
+			current->contact.surface.mu = MUx;
+			current->contact.surface.mu2 = MUy;
+		}
+
+		//create the contactjoint
+		dJointID c = dJointCreateContact (world,contactgroup,&current->contact);
+		dJointAttach (c,current->b1,current->b2);
+
+		//if any of the geoms responds to forces...
+		if (current->g1 && current->g2)
+			new Collision_Feedback(c, current->g1, current->g2);
+	}
+
+	//cleaning up:
+	wheel_list_usage=0;
+}
+
+//remove list
+void Wheel::Clear_List()
+{
+	wheel_list_size=0;
+	wheel_list_usage=0; //should not be needed...
+	delete[] wheel_list;
+}

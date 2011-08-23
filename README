@@ -58,6 +58,11 @@ along with ReCaged.  If not, see <http://www.gnu.org/licenses/>.
 
 
 
+Information on the licensing of the included media/"binary" files is
+specified in README files located in the same directory as each media file.
+
+
+
 3) [RUNNING]
 
 The current version of ReCaged does not require installation in order to run.
@@ -226,9 +231,7 @@ redistribution).
 Names (and possibly alternative name on gorcx.net forum).
 
   * Mats Wahlberg ("Slinger")	Creator (coder) + development 3D models
-  * "XEWEASEL" ("Codie Morgan")	Extra 3D models
   * "K.Mac"			Extensive testing, hacks and new ideas
-  * "MeAkaJon"			Creator/maintainer of gorcx.net webpage
   * "Spontificus"		Testing, hacks and various fixes
 
   Other Projects that made ReCaged possible:
@@ -251,11 +254,4 @@ http://www.nongnu.org/recaged/
 
 * ReCaged savannah project page:
 https://savannah.nongnu.org/projects/recaged/
-
-
-* RollCageX homepage (before ReCaged):
-http://www.gorcx.net/
-
-* RollCageX forum (still active):
-http://www.gorcx.net/forum/
 

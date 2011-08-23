@@ -190,6 +190,7 @@ Car_Template *Car_Template::Load (const char *path)
 	//helper datas:
 
 	//wheel simulation class (friction + some custom stuff):
+	target->wheel.join_dist = target->conf.join_dist;
 	target->wheel.rim_angle = target->conf.rim_angle;
 	target->wheel.spring = target->conf.wheel_spring;
 	target->wheel.damping = target->conf.wheel_damping;
@@ -451,8 +452,13 @@ Car *Car_Template::Spawn (dReal x, dReal y, dReal z,  Trimesh_3D *tyre, Trimesh_
 	for (int i=0;i<4;++i)
 	{
 		//create cylinder
-		//(geom)
-		wheel_geom = dCreateCylinder (0, conf.w[0], conf.w[1]);
+		if (conf.wsphere)
+			wheel_geom = dCreateSphere (0, conf.w[0]);
+		else if (conf.wcapsule)
+			wheel_geom = dCreateCapsule (0, conf.w[0], conf.w[1]);
+		else //normal
+			wheel_geom = dCreateCylinder (0, conf.w[0], conf.w[1]);
+
 
 		//(body)
 		wheel_body[i] = dBodyCreate (world);

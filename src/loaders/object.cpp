@@ -171,7 +171,7 @@ void debug_joint_fixed(dBodyID body1, dBodyID body2, Object *obj)
 
 	//use feedback
 	//set threshold, buffer and dummy script
-	jd->Set_Buffer_Event(35000, 15000, (Script*)1337);
+	jd->Set_Buffer_Event(20000, 5000, (Script*)1337);
 }
 
 //spawn a "loaded" (actually hard-coded) object
@@ -181,8 +181,6 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 	printlog(2, "Spawning object at: %f %f %f", x,y,z);
 	//prettend to be executing the script... just load debug values
 	//
-	Object *obj;
-	Body *bd;
 
 	if (box)
 	{
@@ -191,7 +189,7 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 	//
 	//
 
-	obj = new Object();
+	Object *obj = new Object();
 
 	dGeomID geom  = dCreateBox (0, 1,1,1); //geom
 	Geom *data = new Geom(geom, obj);
@@ -203,7 +201,7 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 	dMassSetBoxTotal (&m,400,1,1,1); //mass+sides
 	dBodySetMass (body, &m);
 
-	bd = new Body(body, obj); //just for drag
+	new Body(body, obj); //just for drag
 	//bd->Set_Event (100, 10, (script_struct*)1337);
 
 	dGeomSetBody (geom, body);
@@ -221,7 +219,7 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 	{
 	printlog(2, "(Mac's hard-coded funbox)");
 	
-	obj = new Object();
+	Object *obj = new Object();
 	new Space(obj);
 
 	//one body to which all geoms are added
@@ -316,7 +314,7 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 	//
 
 	//flipper surface
-	obj = new Object();
+	Object *obj = new Object();
 	new Space(obj);
 	
 	dGeomID geom  = dCreateBox (0, 8,8,0.5); //geom
@@ -623,22 +621,22 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 		debug_joint_fixed(body[0], body2[4], obj);
 
 		dBodySetPosition (body[1], x+2, y-2, z+2.4/2);
-		debug_joint_fixed(body[0], body2[1], obj);
-		debug_joint_fixed(body[0], body2[2], obj);
-		debug_joint_fixed(body[0], body2[4], obj);
-		debug_joint_fixed(body[0], body2[5], obj);
+		debug_joint_fixed(body[1], body2[1], obj);
+		debug_joint_fixed(body[1], body2[2], obj);
+		debug_joint_fixed(body[1], body2[4], obj);
+		debug_joint_fixed(body[1], body2[5], obj);
 
 		dBodySetPosition (body[2], x-2, y+2, z+2.4/2);
-		debug_joint_fixed(body[0], body2[7], obj);
-		debug_joint_fixed(body[0], body2[6], obj);
-		debug_joint_fixed(body[0], body2[4], obj);
-		debug_joint_fixed(body[0], body2[3], obj);
+		debug_joint_fixed(body[2], body2[7], obj);
+		debug_joint_fixed(body[2], body2[6], obj);
+		debug_joint_fixed(body[2], body2[4], obj);
+		debug_joint_fixed(body[2], body2[3], obj);
 
 		dBodySetPosition (body[3], x-2, y-2, z+2.4/2);
-		debug_joint_fixed(body[0], body2[0], obj);
-		debug_joint_fixed(body[0], body2[1], obj);
-		debug_joint_fixed(body[0], body2[3], obj);
-		debug_joint_fixed(body[0], body2[4], obj);
+		debug_joint_fixed(body[3], body2[0], obj);
+		debug_joint_fixed(body[3], body2[1], obj);
+		debug_joint_fixed(body[3], body2[3], obj);
+		debug_joint_fixed(body[3], body2[4], obj);
 
 		for (i=0; i<4; ++i)
 		{
@@ -680,7 +678,7 @@ void Object_Template::Spawn (dReal x, dReal y, dReal z)
 	{
 		printlog(2, "(hard-coded tetrahedron)");
 
-		obj = new Object();
+		Object *obj = new Object();
 
 		Geom *g = geom[0]->Create_Geom(obj);
 		g->model = model[0];

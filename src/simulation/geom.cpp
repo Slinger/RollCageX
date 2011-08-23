@@ -195,19 +195,26 @@ void Geom::Collision_Callback (void *data, dGeomID o1, dGeomID o2)
 		//end of optional features
 
 
+		//if any of the geoms responds to forces or got a body that responds to force, enable force feedback
+		Geom *g1=NULL, *g2=NULL;
+		if (geom1->buffer_event || geom2->buffer_event || geom1->force_to_body || geom2->force_to_body)
+		{
+			g1=geom1;
+			g2=geom2;
+		}
 
 		//
 		//simulation of wheel or normal geom?
 		//
-		//determine if _one_of the geoms is a wheel
-		if (geom1->wheel&&!geom2->wheel)
-			geom1->wheel->Set_Contact(b1, b2, surf2, true, &contact[i], count, stepsize);
-		else if (!geom1->wheel&&geom2->wheel)
-			geom2->wheel->Set_Contact(b2, b1, surf1, false, &contact[i], count, stepsize);
+		//determine if _one_ of the geoms is a wheel
+		if (geom1->wheel&&!geom2->wheel && geom1->wheel->Prepare_Contact(b1, b2, g1, g2, surf2, true, &contact[i], count, stepsize))
+			continue; //nothing more to do
+		else if (!geom1->wheel&&geom2->wheel && geom2->wheel->Prepare_Contact(b1, b2, g1, g2, surf1, false, &contact[i], count, stepsize))
+			continue; //nothing more to do
 
-		//just a reminder to myself
-		if (geom1->wheel&&geom2->wheel)
-			printlog(1, "TODO: haven't looked at wheel*wheel collision simulation! (will only be rim_mu*rim_mu and no tyre right now)");
+		//TODO: haven't looked at wheel*wheel collision simulation! (will be rim_mu*rim_mu for tyre right now)
+		//if (geom1->wheel&&geom2->wheel)
+		//	?...
 
 		//
 		//
@@ -217,9 +224,9 @@ void Geom::Collision_Callback (void *data, dGeomID o1, dGeomID o2)
 		dJointID c = dJointCreateContact (world,contactgroup,&contact[i]);
 		dJointAttach (c,b1,b2);
 
-		//if any of the geoms responds to forces or got a body that responds to force, enable force feedback
-		if (geom1->buffer_event || geom2->buffer_event || geom1->force_to_body || geom2->force_to_body)
-			new Collision_Feedback(c, geom1, geom2);
+		//if responding to forces
+		if (g1 && g2)
+			new Collision_Feedback(c, g1, g2);
 	}
 }
 

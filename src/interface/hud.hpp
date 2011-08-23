@@ -28,7 +28,7 @@
 #include "../simulation/wheel.hpp"
 struct POINT {
 	float x,y,z;
-	float Fz, tilt, SR, SA;
+	float Fz, total_Fz, tilt, SR, SA;
 	float Fx, Fy;
 };
 
