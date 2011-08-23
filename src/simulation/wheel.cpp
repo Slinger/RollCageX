@@ -96,8 +96,13 @@ struct Wheel_List {
 	dReal surface_mu;
 	dReal shift;
 	Wheel *wheel;
+	dBodyID wbody; //id
 	dBodyID b1, b2;
 	Geom *g1, *g2;
+
+	//for calculating distance
+	dReal zoffset;
+	dReal pos[3];
 };
 
 Wheel_List *wheel_list=NULL;
@@ -138,6 +143,12 @@ bool Wheel::Prepare_Contact(dBodyID b1, dBodyID b2, Geom *g1, Geom *g2, Surface 
 		obody=b1;
 		wbody=b2;
 	}
+
+	//(copy the position (damn, c++ doesn't allow vector assignment, right now...)
+	dReal pos[3]; //contact point position
+	pos[0] = contact->geom.pos[0];
+	pos[1] = contact->geom.pos[1];
+	pos[2] = contact->geom.pos[2];
 
 	//"Slinger's not-so-magic formula":
 
@@ -193,22 +204,18 @@ bool Wheel::Prepare_Contact(dBodyID b1, dBodyID b2, Geom *g1, Geom *g2, Surface 
 	if (isnan(inclination) || fabs(inclination) > rim_angle)
 		return false; //don't modify default values, skip this
 
+	//position of point along wheel axis (for later)
+	dReal zoffset = VDot(Y, pos);
 
 	//
 	//ok, we can now calculate the correct Y!
 	VCross(Y, X, Z);
-	//note: no need to normalize, since both X and Y are unit.
+	//note: no need to normalize, since both X and Y are perpendicular and unit.
 	//
 
 
 	//slip ratio and slip angle:
 	dReal slip_ratio, slip_angle;
-
-	//(copy the position (damn, c++ doesn't allow vector assignment, right now...)
-	dReal pos[3]; //contact point position
-	pos[0] = contact->geom.pos[0];
-	pos[1] = contact->geom.pos[1];
-	pos[2] = contact->geom.pos[2];
 
 	//first, get interesting velocities:
 	//(velocity of wheel, point on wheel, relative point on wheel (and of point on ground))
@@ -410,20 +417,27 @@ bool Wheel::Prepare_Contact(dBodyID b1, dBodyID b2, Geom *g1, Geom *g2, Surface 
 	wheel_list[wheel_list_usage].contact.fdir1[1] = X[1];
 	wheel_list[wheel_list_usage].contact.fdir1[2] = X[2];
 
-	//bodies
-	wheel_list[wheel_list_usage].b1 = b1;
-	wheel_list[wheel_list_usage].b2 = b2;
-
-	//geoms
-	wheel_list[wheel_list_usage].g1 = g1;
-	wheel_list[wheel_list_usage].g2 = g2;
-
 	//based on the turning angle (positive or negative), the shift might change
 	//(wheel leaning inwards in curve gets better grip)
 	if (slip_angle < 0.0)
 		wheel_list[wheel_list_usage].shift = -shift*Fz;
 	else
 		wheel_list[wheel_list_usage].shift = shift*Fz;
+
+	wheel_list[wheel_list_usage].zoffset = zoffset;
+	wheel_list[wheel_list_usage].pos[0] = pos[0];
+	wheel_list[wheel_list_usage].pos[1] = pos[1];
+	wheel_list[wheel_list_usage].pos[2] = pos[2];
+
+	//bodies
+	wheel_list[wheel_list_usage].b1 = b1;
+	wheel_list[wheel_list_usage].b2 = b2;
+
+	wheel_list[wheel_list_usage].wbody = wbody; //b1 or b2 above, just for id
+
+	//geoms
+	wheel_list[wheel_list_usage].g1 = g1;
+	wheel_list[wheel_list_usage].g2 = g2;
 
 	//increase counter
 	++wheel_list_usage;
@@ -447,21 +461,48 @@ void Wheel::Generate_Contacts(dReal stepsize)
 		//continue computation of output values
 		//
 
-		//but first:
-		//
-		//no
-		//
-		//find close points and combine their Fz to correctly calculate "peak"
-		//dReal rescale=1.0; //TODO
+		//but first, (and the reason for collecting all contact points):
+		//find all points close to each other and combine their Fz (correct decrease of peak)!
+		dReal axisdiff;
+		dReal xdiff, ydiff, zdiff;
+		dReal sqrdist;
+		dReal dist;
+		for (size_t j=(i+1); j<wheel_list_usage; ++j)
+		{
+			//points on the same wheel
+			if (wheel_list[j].wbody == current->wbody)
+			{
+				xdiff = wheel_list[i].pos[0] - wheel_list[j].pos[0];
+				ydiff = wheel_list[i].pos[1] - wheel_list[j].pos[1];
+				zdiff = wheel_list[i].pos[2] - wheel_list[j].pos[2];
+				axisdiff = wheel_list[i].zoffset - wheel_list[j].zoffset;
+
+				//dist (squared)
+				sqrdist = xdiff*xdiff + ydiff*ydiff + zdiff*zdiff;
+				sqrdist -= axisdiff*axisdiff; //remove distance along wheel axis
+
+				if (sqrdist < 0.0) //when close to 0, might get negative (not good for sqrt)
+					sqrdist = 0.0; //just set to 0...
+
+				dist = sqrt(sqrdist); //actual value
+
+				if (dist < wheel->join_dist)
+				{
+					//each one gets the Fz of the other
+					current->total_Fz += wheel_list[j].Fz;
+					wheel_list[j].total_Fz += current->Fz;
+				}
+			}
+		}
 
 		//MUx
 		//max mu value
-		dReal peak = (wheel->xpeak+wheel->xpeaksch*current->Fz);
+		dReal peak = (wheel->xpeak+wheel->xpeaksch*current->total_Fz);
 		dReal MUx = peak*current->amount_x;
 		MUx *= current->surface_mu; //scale by surface friction
 
 		//MUy
-		peak = (wheel->ypeak+wheel->ypeaksch*current->Fz);
+		peak = (wheel->ypeak+wheel->ypeaksch*current->total_Fz);
 		dReal MUy = peak*current->amount_y+current->shift;
 		MUy *= current->surface_mu;
 

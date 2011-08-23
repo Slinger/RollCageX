@@ -66,7 +66,7 @@ struct Car_Conf
 	dReal body_mass, mass_position, body[3], wheel_mass;
 	dReal suspension_spring, suspension_damping;
 	dReal body_linear_drag[3], body_angular_drag, wheel_linear_drag, wheel_angular_drag;
-	dReal wheel_spring, wheel_damping, rollres, rim_angle, rim_mu;
+	dReal wheel_spring, wheel_damping, rollres, join_dist, rim_angle, rim_mu;
 
 	dReal xpeak[2], xshape, xpos[2], xsharp[2];
 	dReal ypeak[2], yshape, ypos[2], ysharp[2], yshift;
@@ -108,7 +108,7 @@ const struct Car_Conf car_conf_defaults = {
 	2500.0, 0, {2.6,5.8,0.7}, 250.0,
 	150000.0, 5000.0,
 	{5.0,2.0,10.0}, 2.0, 2.0, 2.0,
-	300000.0, 10000.0, 20.0, 50.0, 0.1,
+	300000.0, 10000.0, 20.0, 0.5, 50.0, 0.1,
 
 	{2000.0, -30.0}, 1.5, {0.1, 0.0}, {20.0, -0.4},
 	{1500.0, -10.0}, 1.5, {13.0, -0.2}, {0.05, 0.6}, 0.00001,
@@ -159,6 +159,7 @@ const struct Conf_Index car_conf_index[] = {
 	{"wheel_spring",	'R',1, offsetof(struct Car_Conf, wheel_spring)},
 	{"wheel_damping",	'R',1, offsetof(struct Car_Conf, wheel_damping)},
 	{"rolling_resistance",	'R',1, offsetof(struct Car_Conf, rollres)},
+	{"join_dist",		'R',1, offsetof(struct Car_Conf, join_dist)},
 	{"rim_angle",		'R',1, offsetof(struct Car_Conf, rim_angle)},
 	{"rim_mu",		'R',1, offsetof(struct Car_Conf, rim_mu)},
 

@@ -67,6 +67,7 @@ class Wheel
 		dReal yshift;
 
 		//extra data:
+		dReal join_dist;
 		dReal rim_angle;
 		dReal spring, damping;
 		dReal inertia;

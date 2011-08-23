@@ -190,6 +190,7 @@ Car_Template *Car_Template::Load (const char *path)
 	//helper datas:
 
 	//wheel simulation class (friction + some custom stuff):
+	target->wheel.join_dist = target->conf.join_dist;
 	target->wheel.rim_angle = target->conf.rim_angle;
 	target->wheel.spring = target->conf.wheel_spring;
 	target->wheel.damping = target->conf.wheel_damping;
