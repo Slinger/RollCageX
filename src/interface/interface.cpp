@@ -277,9 +277,7 @@ void HUD(Uint32 delta)
 		1};
 
 	glMultMatrixf(m);
-	//snprintf(string, 1000, "@Fz=%.1fkN\n SR=%.2f\%\n Fx=%.1fkN\n SA=%.1fgr\n Tilt=%.1fgr\n Fy=%.1fkN",
-			//point[i].Fz/1000.0, point[i].SR, point[i].Fx/1000.0, point[i].SA, point[i].tilt, point[i].Fy/1000.0);
-	snprintf(string, 1000, "@Fz=%.1fkN\n (total %.1fkN)\n SR=%.2f%%\n Fx=%.1fkN\n SA=%.1fgr\n Tilt=%.1fgr\n Fy=%.1fkN",
+	snprintf(string, 1000, "@Fz=%.1fkN\n (total %.1fkN)\n SR=%.2f%%\n Fx=%.1fkN\n SA=%.1fdgr\n Tilt=%.1fdgr\n Fy=%.1fkN",
 			point[i].Fz/1000.0, point[i].total_Fz/1000.0, point[i].SR, point[i].Fx/1000.0, point[i].SA, point[i].tilt, point[i].Fy/1000.0);
 	HUD_Render_Text(string, 0, 0);
 
