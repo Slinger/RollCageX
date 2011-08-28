@@ -24,10 +24,9 @@
 #define _RC_INFO_H
 
 //general info
-const char VERSION[] = "0.7.0 HUD-HACK";
+const char VERSION[] = "0.7.0 HudHack";
 
-const char TITLE[] = "ReCaged 0.7.0 HUD-HACK (C) 2009, 2010, 2011 Mats Wahlberg (\"Slinger\")"; 
-
+const char TITLE[] = "ReCaged 0.7.0 HudHack (C) 2009, 2010, 2011 Mats Wahlberg (\"Slinger\")"; 
 
 const char ISSUE[] = "\
    ReCaged  Copyright (C) 2009, 2010, 2011 Mats Wahlberg (\"Slinger\" on gorcx.net forum)\n\
