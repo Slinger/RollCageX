@@ -115,7 +115,7 @@ bool Interface_Init(void)
 	SDL_Init (SDL_INIT_VIDEO);
 
 	//set title:
-	SDL_WM_SetCaption (TITLE, "RC");
+	SDL_WM_SetCaption (TITLE, "ReCaged");
 
 	//TODO: set icon (SDL_WM_SetIcon, from embedded into the executable?)
 
