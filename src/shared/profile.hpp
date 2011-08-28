@@ -62,8 +62,8 @@ extern Profile *profile_head;
 const Profile profile_defaults = {
 	NULL, //car
 	//steering throttling speed
-	0.01,
-	0.01,
+	0.0075,
+	0.0075,
 	//control
 	SDLK_UP,
 	SDLK_DOWN,
